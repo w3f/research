@@ -11,6 +11,6 @@ Some of our current initiatives:
 - [GRANDPA finality gadget](https://github.com/w3f/consensus/blob/master/pdf/grandpa.pdf)
 - [Polkadot specification](https://github.com/w3f/polkadot-re-spec)
 - [Messaging for Web3 initiative](https://github.com/w3f/messaging)
-- [Schnorr-Dalek Rust crypto](https://github.com/w3f/schnorr-dalek)
+- [Schnorrkel Rust crypto](https://github.com/w3f/schnorrkel)
 
 Talk to us on Riot at #w3f:matrix.org or on our [forum](https://forum.web3.foundation/).
