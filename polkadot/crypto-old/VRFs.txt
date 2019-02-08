@@ -1,0 +1,7 @@
+
+We've discussed two types of VRFs:  First, the single signer VRFs that prove a number was generated honestly by a specific node from a given seed.  Second, the dfinity threshold VSS + VRF that generates a collaborative random number for everyone, assuming enough honest nodes and certain network conditions.  I think PVSS gives a third type of VRF-like construct with higher network overhead, but less sensitivity to network conditions.  
+
+
+It's dubious that atomicity tricks solve the network conditions part.
+
+Aggregate VRFs 
