@@ -2,6 +2,8 @@
 
 *DRAFT*
 
+This article summarizes the research efforts relevant to the Polkadot project, for other information regarding the project please refer to the [wiki page](https://github.com/w3f/Web3-wiki/wiki/Polkadot).
+
 Polkadot speaking in abstract terms provides a number of connected canonical state machines. Connected means that a state transition of one machine can affect a transition of another machine. The state machines are canonical, since they transition in a globally consistent manner. We would also like to enable adding, removing and changing of the state machines as the time goes on. This will be the role of the governance process.
 
 The research focuses on how to enable having such publicly available system in the face of possible adversarial conditions. The public can use the system by interacting with state machines that they are interested in via the internet. Each state machine can provide different functionalities and behave in different ways (have a different state and state transition scheme).
@@ -18,9 +20,7 @@ We are working on a implementation level specification of the protocol [here](ht
 
 To identify unique individual participants that will perform duties on the network we use public key cryptography. You can read more about our approach [here](https://github.com/w3f/research/tree/master/polkadot/keys) and see the particular crypto for the first implementation in the [Schnorrkel repo](https://github.com/w3f/schnorrkel).
 
-In order to keep certain parties accountable for ensuring various properties listed below we make sure to be able to punish these participants by taking away some of their funds (Proof-of-Stake). To ensure a large set of participants to be able to contribute to the security of the network we introduce a Nominated Proof of Stake scheme (NPoS). This scheme allows participants which do not wish to run 
-
-[Sequential Phragmén Method](NPoS/phragmen.md)
+In order to keep certain parties accountable for ensuring various properties listed below we make sure to be able to punish these participants by taking away some of their funds (Proof-of-Stake). The primary nodes running the network are the validators. To ensure a large set of participants is able to contribute to the security of the network we introduce a Nominated Proof of Stake scheme (NPoS). This scheme allows participants which do not wish to run nodes to be able to help with the validator selection. The current method used to distribute that stake is the [Sequential Phragmén Method](NPoS/phragmen.md). A different method is being developed for the final version of the protocol.
 
 ## Ensuring state transition properties
 
@@ -39,29 +39,29 @@ To ensure that useful state transitions are processed by those state machines, w
 
 The notion of validity in Polkadot is determined by a state transition validation function (STVF). Each chain in the ecosystem has to have one implemented. In order for all nodes to be able to run this function it is being distributed as deterministic WebAssembly (Wasm) code which can be executed by the Polkadot Runtime Environment.
 
-The blocks are produced by parachain collators, then they get validated using the STVF by the subset of validators responsible for the given parachain to finally get included in the Polkadot Relay Chain. During this process validators, parachain collators and other parties are free to challenge claims of validity to trigger additional check, these parties are referred to as fishermen. [Read here about parachain validity](polkadot/validity.md).
+The blocks are produced by parachain collators, then they get validated using the STVF by the subset of validators responsible for the given parachain to finally get included in the Polkadot Relay Chain. During this process validators, parachain collators and other parties are free to challenge claims of validity to trigger additional check, these parties are referred to as fishermen. [Read here about parachain validity](validity.md).
 
 ### Canonicality
 
-[Finality gadget](https://github.com/w3f/consensus/blob/master/pdf/grandpa.pdf)
+Canonicality of the Polkadot network state machines is achieved via a combination of a block production mechanism with eventual probabilistic canonicality (BABE scheme) and [GRANDPA finality gadget](https://github.com/w3f/consensus/blob/master/pdf/grandpa.pdf). This approach allows for block production (thus transaction confirmations) to be fast, while allowing for as fast as possible economic finality with compact proofs.
 
 ### Availability
 
-[Availability scheme](availability.md)
+In order for the critical data from all chains to remain reachable by users and subsequent block producers, Polkadot makes use of an erasure coding based [availability scheme](availability.md).
 
 ## Ensuring reliable messaging between state machines
 
-[ICMP scheme](ICMP.md)
+Besides ensuring all the above properties for all parachain, a crucial element of Polkadot is that these state machines are able to affect each others state transitions. This is done via the [Inter-Chain Message Passing (ICMP) scheme](ICMP.md).
 
 ## Keeping resource usage under control
 
 ### Reasonable size
 
-In order to ensure that the state transitions can be processed and stored by the network their size has to be reasonable. Mechanisms such as transaction fees and block limits are there to limit the storage size and computation required for each block.
+To ensure that the state transitions can be processed and stored by the network their size has to be reasonable. Mechanisms such as transaction fees and block limits are there to limit the storage size and computation required for each block.
 
 ### Light client
 
-The protocol is being designed with light client support in mind.
+The protocol is being designed with light client support in mind with existing Substrate implementation supporting one.
 
 ## Desired qualities
 
