@@ -28,7 +28,7 @@ https://github.com/w3f/research/tree/master/polkadot/keys
 
 https://github.com/w3f/schnorrkel
 
-Cryptography, staking
+[Sequential Phragmén Method](NPoS/phragmen.md)
 
 ## Ensuring state transition properties
 
