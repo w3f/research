@@ -12,15 +12,13 @@ The data that determines the state transitions is structured as bundles of trans
 
 ## Specification of the Polkadot Runtime Environment
 
-https://github.com/w3f/polkadot-re-spec
+We are working on a implementation level specification of the protocol [here](https://github.com/w3f/polkadot-re-spec).
 
-## Identifying actors to run the network
+## Identifying participants to run the network
 
-To identify unique individuals a 
+To identify unique individual participants that will perform duties on the network we use public key cryptography. You can read more about our approach [here](https://github.com/w3f/research/tree/master/polkadot/keys) and see the particular crypto for the first implementation in the [Schnorrkel repo](https://github.com/w3f/schnorrkel).
 
-https://github.com/w3f/research/tree/master/polkadot/keys
-
-https://github.com/w3f/schnorrkel
+In order to keep certain parties accountable for ensuring various properties listed below we make sure to be able to punish these participants by taking away some of their funds (Proof-of-Stake). To ensure a large set of participants to be able to contribute to the security of the network we introduce a Nominated Proof of Stake scheme (NPoS). This scheme allows participants which do not wish to run 
 
 [Sequential Phragmén Method](NPoS/phragmen.md)
 
@@ -41,7 +39,7 @@ To ensure that useful state transitions are processed by those state machines, w
 
 The notion of validity in Polkadot is determined by a state transition validation function (STVF). Each chain in the ecosystem has to have one implemented. In order for all nodes to be able to run this function it is being distributed as deterministic WebAssembly (Wasm) code which can be executed by the Polkadot Runtime Environment.
 
-The blocks are produced by parachain collators, then they get validated using the STVF by the subset of validators responsible for the given parachain to finally get included in the Polkadot Relay Chain. During this process validators, parachain collators and other parties are free to challenge claims of validity to trigger additional check, these parties are referred to as fishermen.
+The blocks are produced by parachain collators, then they get validated using the STVF by the subset of validators responsible for the given parachain to finally get included in the Polkadot Relay Chain. During this process validators, parachain collators and other parties are free to challenge claims of validity to trigger additional check, these parties are referred to as fishermen. [Read here about parachain validity](polkadot/validity.md).
 
 ### Canonicality
 
