@@ -18,9 +18,32 @@ We are working on a implementation level specification of the protocol [here](ht
 
 ## Identifying participants to run the network
 
+### Keys
+
 To identify unique individual participants that will perform duties on the network we use public key cryptography. You can read more about our approach [here](https://github.com/w3f/research/tree/master/polkadot/keys) and see the particular crypto for the first implementation in the [Schnorrkel repo](https://github.com/w3f/schnorrkel).
 
-In order to keep certain parties accountable for ensuring various properties listed below we make sure to be able to punish these participants by taking away some of their funds (Proof-of-Stake). The primary nodes running the network are the validators. To ensure a large set of participants is able to contribute to the security of the network we introduce a Nominated Proof of Stake scheme (NPoS). This scheme allows participants which do not wish to run nodes to be able to help with the validator selection. The current method used to distribute that stake is the [Sequential Phragmén Method](NPoS/phragmen.md). A different method is being developed for the final version of the protocol.
+
+Validator keys indicated by the staking key are:
+* transport layer: ed25519
+* GRANDPA and consolidated reporting: BLS
+* block production (VRF): Ristretto
+
+### Proof-of-Stake
+
+In order to keep certain parties accountable for ensuring various properties listed below we make sure to be able to punish these participants by taking away some of their funds (Proof-of-Stake). The primary nodes running the network are the validators. To ensure a large set of participants is able to contribute to the security of the network we introduce a Nominated Proof of Stake scheme (NPoS). This scheme allows participants which do not wish to run nodes to be able to help with the validator selection. The current method used to distribute that stake is the [Sequential Phragmén Method](NPoS/phragmen.md).
+
+For Polkadot use Phragmén's method as a fallback, but allow for better solutions to be submitted. As an edge case, if no good solution is submitted, run the slow heuristic which provides a 2-approximation (TODO: publish).
+
+Judging NPoS solutions:
+
+- Check if a submitted solution is locally optimal in the sense of a certain local search procedure. Locally optimal solutions have a fairness property. Thus we only accept solutions that are fair (TODO: publish).
+- Among the submissions that observe the first property about fairness, select the one that maximizes the minimum stake of any selected validator. This ensures maximum security threshold for each parachain validator group.
+
+A comprehensive list of misbehaviours that have to be penalized can be found in the [sanctioning sheet](https://docs.google.com/spreadsheets/d/1HSCiAf9pyxUSwojGQzg_pestlS_8yupCOTGnIGSvp9Q/edit?usp=sharing).
+
+### Why not use different sets for different tasks?
+
+Use the same validator set for BABE as for GRANDPA as to avoid paying more in total for block production + finality.
 
 ## Ensuring state transition properties
 
