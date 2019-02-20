@@ -1,7 +1,5 @@
 site_name: W3F Research
 docs_dir: 'polkadot'
-nav:
-    - Home: README.md
 
 extra_javascript:
     - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML
