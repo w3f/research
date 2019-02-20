@@ -6,17 +6,25 @@ This article summarizes the research efforts relevant to the Polkadot project, f
 
 Polkadot speaking in abstract terms provides a number of connected canonical state machines. Connected means that a state transition of one machine can affect a transition of another machine. The state machines are canonical, since they transition in a globally consistent manner. We would also like to enable adding, removing and changing of the state machines as the time goes on. This will be the role of the governance process.
 
+![Data structures and participants](images/whole.png)
+
 The research focuses on how to enable having such publicly available system in the face of possible adversarial conditions. The public can use the system by interacting with state machines that they are interested in via the internet. Each state machine can provide different functionalities and behave in different ways (have a different state and state transition scheme).
 
 So let us start with abstract state machines. A state machine has a certain state type and state transition type. As the time goes on, state transitions occur.
 
+![Block to transition](images/block_to_transition.png)
+
 The data that determines the state transitions is structured as bundles of transactions - individual small state transitions triggered by the users of the system. Each bundle is called a block. In order to achieve its properties, ensures that those blocks are hash connected forming joint data structure.
+
+![Data structure](images/data_structure.png)
 
 ## 1. Specification of the Polkadot Runtime Environment
 
 We are working on a implementation level specification of the protocol [here](https://github.com/w3f/polkadot-re-spec).
 
 ## 2. Identifying participants to run the network
+
+![Participants](images/participants)
 
 ### 2.1 Keys
 
@@ -46,6 +54,8 @@ A comprehensive list of misbehaviours that have to be penalized can be found in 
 Use the same validator set for BABE as for GRANDPA as to avoid paying more in total for block production + finality.
 
 ## 3. Ensuring state transition properties
+
+![State transition properties](images/properties.png)
 
 ### 3.1 Usefulness
 
