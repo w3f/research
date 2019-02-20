@@ -24,7 +24,7 @@ We are working on a implementation level specification of the protocol [here](ht
 
 ## 2. Identifying participants to run the network
 
-![Participants](images/participants)
+![Participants](images/participants.png)
 
 ### 2.1 Keys
 
