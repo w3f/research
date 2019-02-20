@@ -64,11 +64,15 @@ Each state transition should bring some utility to the system participants. In o
 - state machines should be useful to participants
 - state transitions processed by these state machines reflect well the state transition needs of participants.
 
+![Usefulness](images/usefulness.png)
+
 To ensure that the state machines are useful we should ensure that there is a mechansim that enables participants to decide what state machines should be included and how they should change to reflect participant needs. This mechanism is the [Polkadot governance scheme](https://github.com/paritytech/polkadot/wiki/Governance).
 
 To ensure that useful state transitions are processed by those state machines, we will want to ensure that useful transactions get included in Polkadot blocks. Polkadot will have a transaction fee mechanism on the relay chain to ensure that transactions issued by parties willing to pay a reasonable price for them are included. There will also be a certain portion of each block that is dedicated to certain high-priority transactions, such as misbehaviour reporting. The usefulness of the parachain state transitions has to be ensured by the state transition function of a given chain.
 
 ### 3.2 Validity
+
+![Validity](images/validity.png)
 
 The notion of validity in Polkadot is determined by a state transition validation function (STVF). Each chain in the ecosystem has to have one implemented. In order for all nodes to be able to run this function it is being distributed as deterministic WebAssembly (Wasm) code which can be executed by the Polkadot Runtime Environment.
 
@@ -76,19 +80,27 @@ The blocks are produced by parachain collators, then they get validated using th
 
 ### 3.3 Canonicality
 
+![Canonicality](images/canonicality.png)
+
 Canonicality of the Polkadot network state machines is achieved via a combination of a block production mechanism with eventual probabilistic canonicality (BABE scheme) and [GRANDPA finality gadget](https://github.com/w3f/consensus/blob/master/pdf/grandpa.pdf). This approach allows for block production (thus transaction confirmations) to be fast, while allowing for as fast as possible economic finality with compact proofs.
 
 ### 3.4 Availability
 
+![Availability](images/availability.png)
+
 In order for the critical data from all chains to remain reachable by users and subsequent block producers, Polkadot makes use of an erasure coding based [availability scheme](availability.md).
 
 ## 4. Ensuring reliable messaging between state machines
+
+![Messaging](images/messaging.png)
 
 Besides ensuring all the above properties for all parachain, a crucial element of Polkadot is that these state machines are able to affect each others state transitions. This is done via the [Inter-Chain Message Passing (ICMP) scheme](ICMP.md).
 
 ## 5. Keeping resource usage under control
 
 ### 5.1 Reasonable size
+
+![Size](images/size.png)
 
 To ensure that the state transitions can be processed and stored by the network their size has to be reasonable. Mechanisms such as transaction fees and block limits are there to limit the storage size and computation required for each block.
 
