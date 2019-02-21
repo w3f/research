@@ -52,7 +52,7 @@ In this section, we describe how we agree that a piece of the erasure code of a 
 
 We require any one of the relay chain validators to announce that their erasure-coded piece of the blob is unavailable if a grace period has passed and they have not received their piece on for a parachain block included in a relay chain block on the longest subchain. It is assumed that the honest initiator of the announcer validator, should already have asked the collators (full nodes) of the parachain for the missing piece.
 
-**Definition**: *Availability grace period* $\deta T$ be the period of time passed after production of block $B$ on the best subchain $C$, of the relay chain, which a validator waits before validator $v$ announces unavailability for the parachain block $PB$ such that $Head_{PB} \in B$, if it has not received their erasure-coded piece for block $BP$.
+**Definition**: *Availability grace period* $\delta T$ be the period of time passed after production of block $B$ on the best subchain $C$, of the relay chain, which a validator waits before validator $v$ announces unavailability for the parachain block $PB$ such that $Head_{PB} \in B$, if it has not received their erasure-coded piece for block $BP$.
 
 1. Upon receiving an unavailability claim for a parachain block, an assigned validator tries to reconstruct the partially unavailable block first by asking the collators of the parachain and eventually by requesting other validators for their erasure piece, and try to reconstruct the contested parachain block. If succeeded, they re-compute the erasure coded pieces sending them to the validators claiming unavailability and the collators of the parachain.
 
@@ -80,46 +80,3 @@ Polkadot is currently using Reed-Solomon encoding of $(n, f+1)$ over Finite Fiel
 Every parachain block alongside its extrinsics is encoded by SCALE codec and is possibly padded to make sure that the encoded data is of even length. The block then is seen as a sequence of two-byte chunks each representing an element of $GF(2^{16})$. The sequence is broken into $f+1$-length subsequences where the final subsequence is also padded by 0 to make it of consistent length with the other subsequences. Each subsequence is treated as a message word and is encoded using Reed-Solomon $(n,f+1)$ encoding into an n-tuple codeword vector whose elements are distributed between the validators. In this way, each subset of $f+1$ validators can reconstruct all of the $f+1$ subsequences and hence reconstruct the original parachain block.
 
 Note that the implementation has not been done based on the 2D Reed-Solomon approach from https://arxiv.org/abs/1809.09044. 2D Reed-Solomon smaller proofs of non-decodability provide an improvement only if the proofs of invalidity of parachain blocks are likely to be smaller than the blocks themselves. Moreover, because the number of validators is a priori known, a 1D Reed-Solomon provides a deterministic scheme.
-
-
-### Deleted stuff
-
-a randomly selected validator (called assigned validator) asks all validators for their erasure coded piece of the block. When he receives $k=f+1$ pieces, the assigned validator attempts to reconstruct it.
-
-We don't want people to be able to flood the network by asking for stuff (parachain blobs?). We could ask only one validator to collect all the pieces of a blob, assemble the blob, and forward it to the parachain light clients. The AWOLing validators would only be AWOL a parachain blob if they can go undetected, otherwise they will be slashed. Therefore, it should not be known to anyone who is going to be asked by parachain light clients in advance. Otherwise the adversary can corrupt/DoS that validator. We should ask a validator at random. We need to use a randomness that cannot be significantly biased by an adversary, e.g., randomness used to choose the validator that adds the next relay chain block. 
-
-There is a low probability that the parachain validators, who are AWOLing the light nodes of the parachain, do know in advance whether they are going to be selected as an assigned validator who reconstructs the missing parachain blob. Moreover, they do not know if there is not any other validator who has the same output for their VRF, and that their AWOLing would go undetected. We could even XOR some randomnes of the VRFs of the last blocks for this? To make the it very difficult for adversary to bias the randomness.
-
-
-Let us assume an availability guarantor is a validator that has received an erasure coded piece according to the availabilty scheme. 
-
-We use [n, f+1] erasure coding where n=3f+1 and is the number of pieces and corresponding AGs. We can tolerate slightly under a third of validators being malicious. Each AG will store 1/(f+1) erasure coded pieces of each blob.
-
-AG (validators that hold a erasured coded piece) are also GRANDPA validators.
-
-Terminology:
-AG: Availability guarantor
-PV: Parachain validator
-BA: Block author
-PoV: Proof of Validity (a block candidate plus )
-RC: Relay chain
-
-1. Parachain validators or collator do the deterministic coding of the data (PoV ++ Outgoing Messages) and combine into a merkle tree, whose root is committed to in the PoV candidate and block
-2. BA authors a block with various attested-to candidates (see above steps)
-3. Each AG asks for their piece of the erasure coding from the PVs or the collator. In practice, the PVs may send them out pre-emptively.
-4. AGs, when acting as GRANDPA voters, do not vote for a block unless they have ensured availability of their piece. This guarantees that we never finalize anything which is unavailable.
-5. BAs, when authoring, should not build on chains where they do not have their piece of data available in each unfinalized block (perhaps excepting recent blocks).
-     * If BAs are unpredictable then this should help ensure that the longest chain tends to have available data.
-     * If BAs are not AGs they should be requesting random pieces of the coding.
-
-The difficulty lies in step 3; distributing the correct pieces to all correct AGs will be difficult and will require targeted messaging infrastructure.
-
-Fishermen requesting f+1 pieces in order to check the constructed data is valid will be similarly difficult.
-
-We may still need the attestation game for liveness.
-
-This scheme is inspired by the less GRANDPA specific Fraud Proofs paper.
-
-Unlike the fraud proofs paper, we don’t currently make use of a 2-dimensional coding. The 2-dimensional coding gives small fraud proof transactions from a small fraction of the shares, while our variant requires reconstructing the whole data. It’s impossible to verify the block’s correctness without reconstruction though anyways. Also, the Fraud Proofs paper is randomized which unties them from our f+1 paramater. We could devise a deterministic variant of the Fraud Proofs paper.
-
-We expect these fraud proof transactions to be very unlikely (especially with rule #5). As an alternative optimization, we could employ a zero-knowledge proof that some f+1 erasure coded pieces reconstructs to something different than the attested-to data hash. With SNARKS, if the codes are instantiated with polynomials over the right field, they can be efficiently evaluated within a proof circuit.
