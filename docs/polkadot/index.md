@@ -31,10 +31,10 @@ We are working on a implementation level specification of the protocol [here](ht
 To identify unique individual participants that will perform duties on the network we use public key cryptography. You can read more about our approach [here](https://github.com/w3f/research/tree/master/polkadot/keys) and see the particular crypto for the first implementation in the [Schnorrkel repo](https://github.com/w3f/schnorrkel).
 
 
-Validator keys indicated by the staking key are:
-* transport layer: ed25519
-* GRANDPA and consolidated reporting: BLS
-* block production (VRF): Ristretto
+Validator keys indicated by the staking key are:  
+* transport layer: ed25519  
+* GRANDPA and consolidated reporting: BLS  
+* block production (VRF): Ristretto  
 
 ### 2.2 Proof-of-Stake
 
@@ -59,10 +59,10 @@ Use the same validator set for BABE as for GRANDPA as to avoid paying more in to
 
 ### 3.1 Usefulness
 
-Each state transition should bring some utility to the system participants. In order to ensure that this is the case:
+Each state transition should bring some utility to the system participants. In order to ensure that this is the case:  
 
-- state machines should be useful to participants
-- state transitions processed by these state machines reflect well the state transition needs of participants.
+- state machines should be useful to participants  
+- state transitions processed by these state machines reflect well the state transition needs of participants.  
 
 ![Usefulness](images/usefulness.png)
 
@@ -110,7 +110,7 @@ The protocol is being designed with light client support in mind with existing S
 
 ## 6. Desired qualities
 
-- Minimal: Polkadot should have as little functionality as possible.
-- Simple: No additional complexity should be present in the base protocol.
-- General: Polkadot can be optimized through making the model into which extensions fit as abstract as possible.
-- Robust: Polkadot should provide a fundamentally stable base-layer.
+* Minimal: Polkadot should have as little functionality as possible.  
+* Simple: No additional complexity should be present in the base protocol.  
+* General: Polkadot can be optimized through making the model into which extensions fit as abstract as possible.  
+* Robust: Polkadot should provide a fundamentally stable base-layer.  
