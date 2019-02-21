@@ -52,7 +52,7 @@ In this section, we describe how we agree that a piece of the erasure code of a 
 
 We require any one of the relay chain validators to announce that their erasure-coded piece of the blob is unavailable if a grace period has passed and they have not received their piece on for a parachain block included in a relay chain block on the longest subchain. It is assumed that the honest initiator of the announcer validator, should already have asked the collators (full nodes) of the parachain for the missing piece.
 
-**Definition**: *Availability grace period* $\delta T$ be the period of time passed after production of block $B$ on the best subchain $C$, of the relay chain, which a validator waits before validator $v$ announces unavailability for the parachain block $PB$ such that $Head_{PB} \in B$, if it has not received their erasure-coded piece for block $BP$.
+**Definition**: *Availability grace period* $\Delta T$ be the period of time passed after production of block $B$ on the best subchain $C$, of the relay chain, which a validator waits before validator $v$ announces unavailability for the parachain block $PB$ such that $Head_{PB} \in B$, if it has not received their erasure-coded piece for block $BP$.
 
 1. Upon receiving an unavailability claim for a parachain block, an assigned validator tries to reconstruct the partially unavailable block first by asking the collators of the parachain and eventually by requesting other validators for their erasure piece, and try to reconstruct the contested parachain block. If succeeded, they re-compute the erasure coded pieces sending them to the validators claiming unavailability and the collators of the parachain.
 
