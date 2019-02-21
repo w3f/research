@@ -13,7 +13,7 @@ Therefore, once a block is created, it is important that the parachain blob is a
 
 ## Availability via Erasure Coding
 
-Let us assume that $V$ is the set of all the relay chain validators such that $n=3f+1=|V|$ be the total number of the relay chain validators. Let $PV \subset V$ be the subset of $V$ containing all parachain validators and $HV \subset V$ is the subset containing the honest and online relay chain validators. We assume that $HV \be n-f$.
+Let us assume that $V$ is the set of all the relay chain validators such that $n=3f+1=|V|$ be the total number of the relay chain validators. Let $PV \subset V$ be the subset of $V$ containing all parachain validators and $HV \subset V$ is the subset containing the honest and online relay chain validators. We assume that $HV \geq n-f$.
 
 
 ### Availability Protocol
