@@ -12,9 +12,11 @@ Finally, in Section 4 we propose a post-computation that runs in time $\tilde{O}
 https://raw.githubusercontent.com/w3f/research/gh-pages/NPoS/phragmen/index.html
 ### 1. Notation
  
-We follow the notation set on our [hackmd note on the max-min support problem](https://hackmd.io/ICl8_NuHQNyH6hO-cU39Bg). Namely, an instance is given by a bipartite graph $(N\cup V, E)$, where $nv\in E$ represents the approval by nominator $n\in E$ of candidate validator $v$, a vector of nominator budgets $b\in \mathbb{R} a_{\geq 0}^N$, and the number $m$ of candidate validators to be elected. We also denote by $V_n\subseteq V$ the  set of candidates supported by nominator $n$, and by $N_v\subseteq N$ the set of nominators that support validator $v$. 
+We follow the notation set on our [hackmd note on the max-min support problem](https://hackmd.io/ICl8_NuHQNyH6hO-cU39Bg). Namely, an instance is given by a bipartite graph $(N\cup V, E)$, where $nv\in E$ represents the approval by nominator $n\in E$ of candidate validator $v$, a vector of nominator budgets $b\in \mathbb{R}_{\geq 0}^N$, and the number $m$ of candidate validators to be elected. We also denote by $V_n\subseteq V$ the  set of candidates supported by nominator $n$, and by $N_v\subseteq N$ the set of nominators that support validator $v$. 
 
-An election is given by the pair $(S,w)$ where $S\subseteq V$ is a group of $m$ elected validators, and $w\in\mathbb{R}_{> 0}$$^E$ is a vector of edge weights where $w_{nv}$ represents the precise amount of stake that nominator $n$ assigns to validator $v$. Besides non-negativity constraints, vector $w$ must observe the budget constraints: $\sum_{v\in V_n} w_{nv} \leq b_n \ \forall n\in N$. 
+An election is given by the pair $(S,w)$ where $S\subseteq V$ is a group of $m$ elected validators, and $w\in \mathbb{R}_{\geq 0}^E$ 
+
+is a vector of edge weights where $w_{nv}$ represents the precise amount of stake that nominator $n$ assigns to validator $v$. Besides non-negativity constraints, vector $w$ must observe the budget constraints: $\sum_{v\in V_n} w_{nv} \leq b_n \ \forall n\in N$. 
 
 __Remark__: we do not consider validators to have their own budget. Rather, a validator $v$'s budget can be represented as an additional nominator having said budget and supporting only $v$, and having priority over other nominators to assign load to $v$ in the case that $v$ is elected. This priority can be ensured as a post-computation.
 
