@@ -58,7 +58,7 @@ We require any one of the relay chain validators to announce that their erasure-
 
 2. Once a validator receives at least $f$ unavailability announcements for a parachain block whose header is included in block $B$, it will not vote to finalize $B$ or any of its descendants in GRANDPA.
 
-3.Once $\frac{2}{3}$ of the validators claims unavailability, the relay chain validators stop finalising the relay chain block cantaining the unavailable block header and the collators of that parachain and the parachain validators who have signed the unavailable block are going to be slashed.
+3.Once $\frac{2}{3}$ of the validators claims unavailability, the relay chain validators stop finalising the relay chain block containing the unavailable block header and the collators of that parachain and the parachain validators who have signed the unavailable block are going to be slashed.
 
 The availability procedure is only required for liveness, so it does not have to be fast. The issue is that if $f$ honest validators have a piece, then that is not enough to reconstruct the blob, but as far as they know, they can still vote for it. 
 
