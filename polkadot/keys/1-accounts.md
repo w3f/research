@@ -2,6 +2,8 @@
 
 ## Account signatures and keys
 
+### Ristretto
+
 We believe Polkadot accounts should primarily use Schnorr signatures with both public keys and the `R` point in the signature encoded using the [Ristretto](https://ristretto.group) point compression for the Ed25519 curve.  We should collaborate with the [dalek ecosystem](https://github.com/dalek-cryptography) for which Ristretto was developed, but provide a simpler signature crate, for which [schnorr-dalek](https://github.com/w3f/schnorr-dalek) provides a first step.
 
 I'll write a another comment giving more details behind this choice, but the high level summary goes:
@@ -29,6 +31,18 @@ In short, we want an Edwards curve but without the cofactor, which do not exist,
 In Edwards curve of with cofactor 4, [Mike Hamburg's Decaf point compression](https://www.shiftleft.org/papers/decaf/) only permits serialising and deserialising points on the subgroup of order $l$, which provides a perfect solution.  [Ristretto](https://ristretto.group) pushes this point compression to cofactor 8, making it applicable to the Ed25519 curve.  Implementations exist in both [Rust](https://doc.dalek.rs/curve25519_dalek/ristretto/index.html) and [C](https://github.com/Ristretto/libristretto255).  If required in another language, the compression and decompression functions are reasonable to implement using an existing field implementation, and fairly easy to audit.  
 
 In the author's words, "Rather than bit-twiddling, point mangling, or otherwise kludged-in ad-hoc fixes, Ristretto is a thin layer that provides protocol implementors with the correct abstraction: a prime-order group."
+
+### Additional signature types
+
+We could support multiple signature schemes for accounts, preferably with each account supporting only one single signature scheme, and possessing only one public key.  There are at least three or four additional signature types worth considering:
+
+We could support Ed25519 itself so as to improve support for HSMs, etc.  It's security is no different from Ristretto Schnorr signatures for normal use cases.  We've provided a secure HDKD solution, but users might encounter problems from any existing tools that provide HDKD solutions.
+
+At least initially, we have allocated dots to secp256k1 keys compatible with ECDSA signatures on Ethereum.  We could use Schnorr / EdDSA signatures with these same keys instead.  We could however restrict these keys to doing only outgoing transfers, with the hope that they disappear completely without the first six months.  We might alternatively keep secp256k1 key support long term in the hopes that either the secp vs secq duality proves useful, or that parties with legacy infrastructure like exchanges benefit.
+
+We might develop a delinearized variant of the proof-of-possesion based mBCJ signatures from pages 21 and 22 of https://eprint.iacr.org/2018/417.pdf which provide two-round trip multi-signatures.  All current Schnorr multi-signature schemes require three round trips.  See https://github.com/w3f/schnorrkel/issues/15  I'd expect such a delinearized variant of mBCJ to use Ristretto keys too, but the signature scheme differs.
+
+We could support BLS12-381 signatures to provide true signature aggregation.  We could even integrate these with how session keys appear on-chain, but we've currently no argument for doing this.
 
 ---
 
