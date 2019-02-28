@@ -16,7 +16,7 @@ We have two versions of BABE. The first version is almost the same as Ourobooros
 
 
 ## BABE 
-In BABE, we have sequential non-overlaping epochs \((e_1, e_2,...)\), each of which contains a number of sequential slots (\(e_i = \{s^i_{1}, s^i_{2},...,s^i_{t}\}\)) up to some bound \(t\).  We randomly assign each slot to a party, more than one parties, or no party at the beginning of the epoch.  These parties are called a slot leader.  We note that these assignments are private.  It is public after the assigned party (slot leader) produces the block in his slot.
+In BABE, we have sequential non-overlaping epochs $(e_1, e_2,...)$, each of which contains a number of sequential slots (\(e_i = \{s^i_{1}, s^i_{2},...,s^i_{t}\}\)) up to some bound \(t\).  We randomly assign each slot to a party, more than one parties, or no party at the beginning of the epoch.  These parties are called a slot leader.  We note that these assignments are private.  It is public after the assigned party (slot leader) produces the block in his slot.
 
 Each party \(P_j\) has at least two type of secret/public key pair:
 
