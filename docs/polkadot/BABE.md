@@ -49,7 +49,7 @@ where \(\ell_{vrf}\) is the length of the VRF's first output.
 
 BABE with GRANDPA validators consists of three phases:
 
-1. #### Genesis Phase
+#### 1. Genesis Phase
 
 In this phase, we manually produce the unique genesis block.
 
@@ -59,7 +59,7 @@ We might reasonably set \(r_1 = 0\) for the initial chain randomness, by assumin
 
 TODO: In the delay variant, there is an implicit commit and reveal phase provided some suffix of our genesis epoch consists of *every* validator producing a block and *all* produced blocks being included on-chain, which one could achieve by adjusting paramaters.
 
-2. #### Normal Phase
+#### 2. Normal Phase
 
 In normal operation, each slot leader should produce and publish a block.  All other nodes attempt to update their chain by extending with new valid blocks they observe.
 
@@ -75,7 +75,7 @@ Remark that the more \(P_j\) has stake, the more he has a chance to be selected 
 If \(P_j\) is the slot leader, \(P_j\) generates a block to be added on \(C\) in \(sk_k\). The block \(B_\ell\) should contain the slot number \(sl_{k}\), the hash of the previous block \(H_{\ell\text{-}1}\), the VRF output  \(d, \pi\), transactions \(tx\), and the signature \(\sigma = \mathsf{Sign}_{sk_j^{sgn}}(sl_{k}||H_{\ell\text{-}1}||d||pi||tx))\). \(P_i\) updates \(C\) with the new block and sends \(B_\ell\).
 
 
-![ss](https://i.imgur.com/Yb0LTJN.png =250x )
+![ss](https://i.imgur.com/Yb0LTJN.png =125x )
 
 
 
@@ -97,8 +97,7 @@ At the end of the slot, \(P_j\) decides the best chain with the function 'BestCh
 
 
 
-
-3. #### Epoch Update
+#### 3. Epoch Update
 
 Before starting a new epoch, there are certain things to be updated in the chain.
 * Stakes of the parties
