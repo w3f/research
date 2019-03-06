@@ -39,7 +39,7 @@ We give some parameters probability related to be selected as a slot leader in t
 
 $$p_i = \phi_c(\alpha_i) = 1-(1-c)^{\alpha_i}$$
 
-where \(\alpha_i\) is the relative stake of the party \(P_i\) and \(c\) is a constant. Improtantly, the function \(\phi\) is that it has the '**independent aggregation**' property, which informally means the probability of being selected as a slot leader does not increase as a party splits his stakes across virtual parties.
+where \(\alpha_i\) is the relative stake of the party \(P_i\) and \(c\) is a constant. Importantly, the function \(\phi\) is that it has the '**independent aggregation**' property, which informally means the probability of being selected as a slot leader does not increase as a party splits his stakes across virtual parties.
 
 We use \(\phi\) to set a threshold \(\tau_i\) for each party \(P_i\): 
 
