@@ -1,5 +1,5 @@
 
-## Winning slot leadership
+## Advancing chains
 
 We suppose $\nu$ knows a set $\mathbb{C}_\nu$ of chains
 appropriate (TODO) to the current slot height $h$, and
@@ -9,7 +9,18 @@ leadership then he should create a block $C[\ell]$ extending $C$
 by containing a hash of $C[\ell-1]$ and correctly advancing the
 state of $C[\ell-1]$
 
-### Winner and non-winner proofs
+Any node $\mu$ receiving $B_\ell = (\cdots)$ validates several conditions:
+
+ - The proposed slot height $h$ is appropriate to $\mathbb{C}_\mu$.
+ - The session key of $\nu$ is correctly staked, 
+ - $\nu$ "wins" the slot height $h$, and
+ - $\nu$ signed $B_\ell$, but that
+ - $\nu$ signed no other block at slot height $h$ in $\mathbb{C}_\mu$.  (TODO: ban height or slash?)
+ - $B_\ell$ correctly extends some chain $C' \in \mathbb{C}_\mu$.  (TODO: gossip?)
+
+...
+
+### Winning slot leadership
 
 As in Ouroboros Praos [Praos], we set block producer $\nu$'s
 probability of winning any particular slot to be 
@@ -21,13 +32,60 @@ Importantly, the mapping $\{(\nu,b_\nu)\} \mapsto \{(\nu,p_\nu)\}$ has the
 independent aggregation property, meaning block producers cannot
 increase their odds by splitting their stakes across virtual parties.
 In Ouroboros Praos, the $i$th block producer wins whenever
-$$ H_{\mathtt{opbp}}(\mathtt{VRF}{v_\nu}( r_i || \mathtt{slotnum} )) < p_\nu $$
+$$ H_{\mathtt{opbp}}(\mathtt{VRF}{v_\nu}( r_i || \mathtt{slotnum} )) < p_\nu \tag{\dag} $$
 
-As discussed [BP1,BP2], we wish to defend against "speed up attacks"
-by limiting how quickly staked but inactive nodes can impact the
-block production rate.  We therefore adjust the above VRF "winner"
-formula to facilite these "non-winner" proofs that improve block rate
-information.  Intuitively, we produce a time until our next block from
+We should implement this rule at least for debugging purposes because
+its extreme simplicity permits testing other components.
+
+As discussed [BP1,BP2] though, we should defend against attacks that
+"speed up" the chain, likely by many staked by silent block producers
+suddenly producing blocks.  We should therefore limit how quickly
+staked but inactive nodes can impact the block production rate.  
+We propose two mechanisms for this:
+
+### Estimation
+
+We could stick with the Ouroboros Praos blok production rule $(\dag)$,
+but produce some statistic from the chain $C$ that more accurately
+measures active stake by considering the recently produced blocks.
+
+We could penalize their new chain in our block production rule based
+on their declared block production rate.  As an example, we might
+estimate their actual $p_{\nu,\mathrm{MLE}}$ with
+$p_{\nu,\mathrm{MLE}} := {k \over h_0 - h_k}$ where $h_0$ is the
+current slot height and $h_i$ is the slot height of their $i$th
+block counting backwards.  
+$$ {1\over p_{\nu,\mathrm{MLE}}} = {1 \over k} \sum_{i=1}^k h_{i-1} - h_i $$ 
+In this, we must choose $k$ sensibly, perhaps so that $h_k$ is
+the slot height of their block immediately preceding some $h'$.
+
+We could then estimate the relative stake backing $C$ from the terms
+$\log_{1-c} 1-p_{\nu,\mathrm{MLE}}$ summed over each $\nu$ appearing
+in the chain $C$.
+
+We envision node accepting a relay chain block $B_\ell$ building on
+a chain $C$ should know some substancial suffix of $C$, making
+$p_{\nu,\mathrm{MLE}}$ computable without including anything else in
+$B_\ell$.
+
+In this variant, any node $\mu$ receiving $B_\ell = (\cdots)$ validates
+the following conditions:
+
+ - The proposed slot height $h_0$ is appropriate to $\mathbb{C}_\mu$.  (TODO: best chain?)
+ - The session key of $\nu$ is correctly staked, 
+ - $\nu$ wins the slot height $h_0$, and
+ - $\nu$ signed $B_\ell$, but that
+ - $\nu$ signed no other block at slot height $h$ in $\mathbb{C}_\mu$.  (TODO: ban height or slash?)
+ - $B_\ell$ correctly extends some chain $C' \in \mathbb{C}_\mu$.  (TODO: gossip?)
+
+### Non-winner proofs
+
+We might prefer non-statistical measurements about chain quality by
+accurately reveal skipped blocks.
+For this, we adjust the above VRF "winner" formula $(\dag)$ to
+facilite "non-winner" proofs that reveal the number of blocks skipped.
+
+Intuitively, we produce a time until our next block from
 the VRF evaluation, instead of evaluating our VRF on every slot.
 We note this cannot protect against randomness bias because
 nodes can always ensure their block cannot influence the randomness,
@@ -79,18 +137,15 @@ We should also permit block producers to unstake after they have waited
 have some minimum stake to prevent them from continually restaking with
 minuscule stake.  (TODO: Unstaking)
 
-### Correctness
+In this variant, any node $\mu$ receiving $B_\ell = (\cdots)$ validates
+the following conditions:
 
-Any node $\mu$ receiving $B_\ell = (\cdots)$ validates the following conditions:
-
- - The session key of $\nu$ is correctly staked.
- - $\nu$ signed $B_\ell$.
+ - The proposed slot height $h_{\nu,j+1}$ is appropriate to $\mathbb{C}_\mu$.
  - The batched VRF proof correctly evolves the $(h_{\nu,j},s_{\nu,j})$ field in $\nu$'s session key into $(h_{\nu,j+1},s_{\nu,j+1})$.
- - $B_\ell$ correctly extends some chain $C' \in \mathbb{C}_\mu$ (TODO: gossip?).
- - The new slot height $h_{\nu,j+1}$ is appropriate to $\mathbb{C}_\mu$.
- - $\nu$ signed no other block at slot height $h_{\nu,j+1}$ in $\mathbb{C}_\mu$. (TODO: ban height or slash?),
-
-...
+ - The session key of $\nu$ is correctly staked, 
+ - $\nu$ signed $B_\ell$, but that
+ - $\nu$ signed no other block at slot height $h$ in $\mathbb{C}_\mu$.  (TODO: ban height or slash?)
+ - $B_\ell$ correctly extends some chain $C' \in \mathbb{C}_\mu$.  (TODO: gossip?)
 
 
 [BP1] https://forum.parity.io/t/inter-chain-message-passing-research-meeting/153
