@@ -34,22 +34,19 @@ The idea here is that we do not finalize a block until sometime after $f+1$ hone
 Note that an honest parachain validator can back up the pieces at a (random or preferably trusted) full node of the parachain before it sends them out to relay chain validators. Subsequently, that parachain full node can distribute those pieces to all full nodes of the parachain who can respond to requests from validators that are requesting missing erasure-coded pieces.
 
 
-## Reconsructing the Blob
-
-We require any one of the relay chain validators to announce that their erasure-coded piece of the blob is unavailable if a grace period has passed and they have not received their piece on for a parachain block included in a relay chain block on the longest subchain. It is assumed that the honest initiator of the announcer validator, should already have asked the collators (full nodes) of the parachain for the missing piece.
-
-
-## Agreeing on non-availability
+## Agreeing on non-availability and reconstructing parachain blobs
 
 In this section, we describe how we agree that a piece of the erasure code of a parachain blob is not available. 
 
+We require any one of the relay chain validators to announce that their erasure-coded piece of the blob is unavailable if a grace period (see definition below) has passed and they have not received their piece on for a parachain block included in a relay chain block on the longest subchain. It is assumed that the validators who announce unavailbility, should already have asked the collators (full nodes) of the parachain for the missing piece.
+
 **Definition**: *Availability grace period* $\Delta T$ be the period of time passed after production of block $B$ on the best subchain $C$, of the relay chain, which a validator waits before validator $v$ announces unavailability for the parachain block $PB$ such that $Head_{PB} \in B$, if it has not received their erasure-coded piece for block $BP$.
 
-1. Upon receiving an unavailability claim for a parachain block, an assigned validator tries to reconstruct the partially unavailable block first by asking the collators of the parachain and eventually by requesting other validators for their erasure piece, and try to reconstruct the contested parachain block. If succeeded, they re-compute the erasure coded pieces sending them to the validators claiming unavailability and the collators of the parachain.
+1. Upon receiving an unavailability claim for a parachain block, an assigned validator (e.g., randomly assigned) tries to reconstruct the partially unavailable block first by asking the collators of the parachain and eventually by requesting other validators for their erasure-coded piece, and try to reconstruct the contested parachain blob. If succeeded, they re-compute the erasure coded pieces sending them to the validators claiming unavailability and the collators of the parachain.
 
 2. Once a validator receives at least $f$ unavailability announcements for a parachain block whose header is included in block $B$, it will not vote to finalize $B$ or any of its descendants in GRANDPA.
 
-3. Once $\frac{2}{3}$ of the validators claims unavailability, the relay chain validators stop finalising the relay chain block containing the unavailable block header and the collators of that parachain and the parachain validators who have signed the unavailable block are going to be slashed.
+3. Once $\frac{2}{3}$ of the validators claims unavailability, the collators of that parachain and the parachain validators who have signed the unavailable block are going to be slashed.
 
 The availability procedure is only required for liveness, so it does not have to be fast. The issue is that if $f$ honest validators have a piece, then that is not enough to reconstruct the blob, but as far as they know, they can still vote for it. 
 
