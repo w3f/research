@@ -63,7 +63,10 @@ The Merkle root commitment means that all parachain validators who signed off on
 
 Accordingly, suppose there are $f+1$ pieces alongside the proof that they all belong to the same Merkle root in the block header. If they do not assemble to a valid decoded message (block), then all the parachain validators who signed the block header did so, knowing that it did not contain the Merkle root of a valid erasure code. So if the original block cannot be reconstructed from $f+1$ pieces, it is safe to slash every parachain validator who signed off on the Merkle root.
  
+## Post-checking
+Agreeing on unavailability might take a long time, particularly, if all parachain validators are malicious i might take a while for invalid/unavailable blocks to be detected. For adversary, this delay might be enough. We propose post-checking scheme, where availability and validity of parachain blobs is check as soon as they are added to a relay chain block. Note, that this scheme might not detect all unavailability/invalidity issues, hence, we keep the previous "agreeing on availability" as a fall back guarantee. 
 
+Once a relay chain block has been added to the relay chain, validators need to randomly be self-assigned to parachains to check whether the parachain is still available and valid. Once, a validator is self-assigned to a parachain, it will check all none checked blob of that parachain. A list of checked parachain blobs is kept on the relay chain. 
 
 ## Storage efficiency
 If there are $m$ parachains with parachain blocks of size $s$ bytes, then each validator stores $s/k$ bytes for each parachain and hence the total storage requirement is equal to $ms/k < 3ms/n$ as $k > n/3$.
