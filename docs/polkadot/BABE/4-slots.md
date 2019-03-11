@@ -26,62 +26,90 @@ As in Ouroboros Praos [Praos], we set block producer $\nu$'s
 probability of winning any particular slot to be 
 $$ p_\nu := 1-(1-c)^{\beta_\nu} $$
 where $\beta_\nu = b_\nu / \sum_\mu b_\mu$ is their relative stake,
-and $c$ is constant.
+and $c<1$ is constant.
 
-Importantly, the mapping $\{(\nu,b_\nu)\} \mapsto \{(\nu,p_\nu)\}$ has the
-independent aggregation property, meaning block producers cannot
+Importantly, the mapping $\{(\nu,b_\nu)\} \mapsto \{(\nu,p_\nu)\}$ has
+the independent aggregation property, meaning block producers cannot
 increase their odds by splitting their stakes across virtual parties.
 In Ouroboros Praos, the $i$th block producer wins whenever
 $$ H_{\mathtt{opbp}}(\mathtt{VRF}{v_\nu}( r_i || \mathtt{slotnum} )) < p_\nu \tag{\dag} $$
 
-We should implement this rule at least for debugging purposes because
-its extreme simplicity permits testing other components.
+In BABE, we shall implement this rule from Ouroboros Praos first
+because at minimum its extreme simplicity aids in testing other
+components.  We believe this simple rule works well when all
+block producers have significant stake that permits slashing for
+being offline.  
 
-As discussed [BP1,BP2] though, we should defend against attacks that
-"speed up" the chain, likely by many staked by silent block producers
-suddenly producing blocks.  We should therefore limit how quickly
-staked but inactive nodes can impact the block production rate.  
-We propose two mechanisms for this:
+TODO: Include specific discussion of how slashing improved Ouroboros Praos against rate adjustment attacks.
+
+As discussed [BP1,BP2] though, we'd prefer if block producers were
+less slashable for several reasons:  
+First, we always prefer slashing for incorrect actions over slashing
+for inaction, in part because we fear highly staked attackers might
+extort victims under a threat of exclusion that leads to slashing, but
+mostly because crypto-economic arguments provide only weak assurances.
+Second, we seek paths whereby individuals with lower risk tolerance
+might participate in the network, at minimum to hedge inflation.
+Individuals or organisations who nominate validators often fit this
+"risk tolerance" criteria in the sense that, even though nomination
+has a high risk tolerance, the nominator often lacks the security
+skill to operate a validator themselves.  Ideally, we might have
+nominators run their own block production node, so that more acquired
+the relevant skills.
+
+As we make block production less slashable, we must defend against
+attacks that "speed up" the chain, likely by many staked but silent
+block producers suddenly producing blocks.  
+
+TODO: Outline attack?
+
+For this, we should limit how quickly staked but inactive nodes can
+impact the block production rate.  We propose two mechanisms for this:
 
 ### Estimation
 
-We could stick with the Ouroboros Praos blok production rule $(\dag)$,
+We might stick with the Ouroboros Praos blok production rule $(\dag)$,
 but produce some statistic from the chain $C$ that more accurately
 measures active stake by considering the recently produced blocks.
+At present, we believe such an approach sounds quite invasive to apply
+because it requires penalising entire chains with less stake backing
+their block production.  
 
-We could penalize their new chain in our block production rule based
-on their declared block production rate.  As an example, we might
-estimate their actual $p_{\nu,\mathrm{MLE}}$ with
-$p_{\nu,\mathrm{MLE}} := {k \over h_0 - h_k}$ where $h_0$ is the
-current slot height and $h_i$ is the slot height of their $i$th
-block counting backwards.  
+As an example, we can estimate $\nu$'s actual $p_{\nu,\mathrm{MLE}}$
+with $p_{\nu,\mathrm{MLE}} := {k \over h_0 - h_k}$ where
+$h_0$ is the current slot height and $h_i$ is the slot height of
+their $i$th block counting backwards.  We might improve this
+by weighting more recent slot gaps more heavily in 
 $$ {1\over p_{\nu,\mathrm{MLE}}} = {1 \over k} \sum_{i=1}^k h_{i-1} - h_i $$ 
-In this, we must choose $k$ sensibly, perhaps so that $h_k$ is
+In either, we must choose $k$ sensibly, perhaps so that $h_k$ is
 the slot height of their block immediately preceding some $h'$.
 
 We could then estimate the relative stake backing $C$ from the terms
 $\log_{1-c} 1-p_{\nu,\mathrm{MLE}}$ summed over each $\nu$ appearing
 in the chain $C$.
 
+We might directly compute combined estimate
+ $p_{\mathrm{MLE}} := {k \over h_0 - h_k}$
+where $h_0$ is the current slot height and $h_k$ is the slot height
+of the $k$th block counting backwards in $C$. 
+So $p_{\mathrm{MLE}} = \sum_\nu p_{\nu,\mathrm{MLE}}$ and
+$$ \sum_\nu \log_{1-c} 1-p_{\nu,\mathrm{MLE}} 
+   = \log_{1-c}( 1 - \sum_\nu p_{\nu,\mathrm{MLE}} + z )
+   = \log_{1-c}( 1 - p_{\mathrm{MLE}} + z) $$
+We lower bound this by $\log_{1-c}(1 - p_{\mathrm{MLE}})$ because
+$z$ is positive.  In fact, we have a reasonable approximation here,
+whenever all $p_{\nu,\mathrm{MLE}}$ have similar small sizes.
+
 We envision node accepting a relay chain block $B_\ell$ building on
 a chain $C$ should know some substancial suffix of $C$, making
-$p_{\nu,\mathrm{MLE}}$ computable without including anything else in
-$B_\ell$.
-
-In this variant, any node $\mu$ receiving $B_\ell = (\cdots)$ validates
-the following conditions:
-
- - The proposed slot height $h_0$ is appropriate to $\mathbb{C}_\mu$.  (TODO: best chain?)
- - The session key of $\nu$ is correctly staked, 
- - $\nu$ wins the slot height $h_0$, and
- - $\nu$ signed $B_\ell$, but that
- - $\nu$ signed no other block at slot height $h$ in $\mathbb{C}_\mu$.  (TODO: ban height or slash?)
- - $B_\ell$ correctly extends some chain $C' \in \mathbb{C}_\mu$.  (TODO: gossip?)
+$p_{\mathrm{MLE}}$ or $p_{\nu,\mathrm{MLE}}$ computable without
+including anything else in $B_\ell$.
 
 ### Non-winner proofs
 
-We might prefer non-statistical measurements about chain quality by
-accurately reveal skipped blocks.
+We likely would prefer a non-statistical measurement about individual
+block producers being offline, so that we may penalize individual
+block producers but only when many come back online together.
 For this, we adjust the above VRF "winner" formula $(\dag)$ to
 facilite "non-winner" proofs that reveal the number of blocks skipped.
 
