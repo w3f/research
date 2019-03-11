@@ -37,10 +37,12 @@ $$ H_{\mathtt{opbp}}(\mathtt{VRF}{v_\nu}( r_i || \mathtt{slotnum} )) < p_\nu \ta
 In BABE, we shall implement this rule from Ouroboros Praos first
 because at minimum its extreme simplicity aids in testing other
 components.  We believe this simple rule works well when all
-block producers have significant stake that permits slashing for
-being offline.  
-
-TODO: Include specific discussion of how slashing improved Ouroboros Praos against rate adjustment attacks.
+block producers are validators because we already force validators
+to be online.  In particular, if some validator does not performe
+validation duties, including producing enough blocks during an epoch,
+then we slash them and kick them from the validator pool.
+We thus ensure that our block production rate stays relatively
+close to the desired maximum block production rate.
 
 As discussed [BP1,BP2] though, we'd prefer if block producers were
 less slashable for several reasons:  
@@ -57,13 +59,13 @@ skill to operate a validator themselves.  Ideally, we might have
 nominators run their own block production node, so that more acquired
 the relevant skills.
 
-As we make block production less slashable, we must defend against
-attacks that "speed up" the chain, likely by many staked but silent
-block producers suddenly producing blocks.  
+As we make block production less slashable, there are more attacks that
+impact the chain rate:
 
-TODO: Outline attack?
+ - We might have many staked but silent block producers who come online together and attempt to fork the chain at an earlier less staked time, even though at all times the majority is honest and in sync.
+ - If we adjust difficulty automatically then we could temporarily have a high block production rate compared to our sync rate, leading to large numbers of forks.  In this case, attackers who coordinate better could get their private chain to be the longest, thus allowing them to censor everyone else.
 
-For this, we should limit how quickly staked but inactive nodes can
+In both cases, we should limit how quickly staked but inactive nodes can
 impact the block production rate.  We propose two mechanisms for this:
 
 ### Estimation
