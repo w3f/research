@@ -33,20 +33,15 @@ The idea here is that we do not finalize a block until sometime after $f+1$ hone
 
 Note that an honest parachain validator can back up the pieces at a (random or preferably trusted) full node of the parachain before it sends them out to relay chain validators. Subsequently, that parachain full node can distribute those pieces to all full nodes of the parachain who can respond to requests from validators that are requesting missing erasure-coded pieces.
 
-## Challenging a parachain block validity
 
-If a parachain fisherman publishes a proof stating that the block is invalid, the validators which have signed off on the relay chain block containing the parachain block header must hand over the erasure-coded piece associated to that parachain block. If a validator refuses to hand over the piece, we slash them. Moreover, if the assigned validator publishes the proof that $f+1$ pieces cannot be decoded into a blob, then we slash the parachain validators and declare that relay chain block as invalid.
+## Reconsructing the Blob
 
-The Merkle root commitment means that all parachain validators who signed off on the blob must provide the same erasure-coded version. As a result, the erasure code is only used to recover from missing, rather than corrupted pieces. This is true even if some of the parachain validators are Byzantine, because any piece with a valid Merkle proof is the one that *all* the validators committed to. 
+We require any one of the relay chain validators to announce that their erasure-coded piece of the blob is unavailable if a grace period has passed and they have not received their piece on for a parachain block included in a relay chain block on the longest subchain. It is assumed that the honest initiator of the announcer validator, should already have asked the collators (full nodes) of the parachain for the missing piece.
 
-Accordingly, suppose there are $f+1$ pieces alongside the proof that they all belong to the same Merkle root in the block header. If they do not assemble to a valid decoded message (block), then all the parachain validators who signed the block header did so, knowing that it did not contain the Merkle root of a valid erasure code. So if the original block cannot be reconstructed from $f+1$ pieces, it is safe to slash every parachain validator who signed off on the Merkle root.
- 
 
 ## Agreeing on non-availability
 
 In this section, we describe how we agree that a piece of the erasure code of a parachain blob is not available. 
-
-We require any one of the relay chain validators to announce that their erasure-coded piece of the blob is unavailable if a grace period has passed and they have not received their piece on for a parachain block included in a relay chain block on the longest subchain. It is assumed that the honest initiator of the announcer validator, should already have asked the collators (full nodes) of the parachain for the missing piece.
 
 **Definition**: *Availability grace period* $\Delta T$ be the period of time passed after production of block $B$ on the best subchain $C$, of the relay chain, which a validator waits before validator $v$ announces unavailability for the parachain block $PB$ such that $Head_{PB} \in B$, if it has not received their erasure-coded piece for block $BP$.
 
@@ -61,6 +56,16 @@ The availability procedure is only required for liveness, so it does not have to
 If there are any Byzantine or offline validators, then this might stop us from getting the $n-f$ votes needed to finalize another subchain. In this case, we might get two forks, one including the blob and one without it. If the one including the blob is longer, we need the availability procedure for everyone to agree that it is invalid.
 
 Note that in the case when $f+1$ validators are Byzantine and the claim for an unavailable blob is available, they can finalize it with the help of $f$ validators who have the only $f$ pieces, and we have no way to uniquely attributing this fault. But this is also a problem for other schemes.
+
+
+## Challenging a parachain block validity
+
+If a parachain fisherman publishes a proof stating that the block is invalid, the validators which have signed off on the relay chain block containing the parachain block header must hand over the erasure-coded piece associated to that parachain block. If a validator refuses to hand over the piece, we slash them. Moreover, if the assigned validator publishes the proof that $f+1$ pieces cannot be decoded into a blob, then we slash the parachain validators and declare that relay chain block as invalid.
+
+The Merkle root commitment means that all parachain validators who signed off on the blob must provide the same erasure-coded version. As a result, the erasure code is only used to recover from missing, rather than corrupted pieces. This is true even if some of the parachain validators are Byzantine, because any piece with a valid Merkle proof is the one that *all* the validators committed to. 
+
+Accordingly, suppose there are $f+1$ pieces alongside the proof that they all belong to the same Merkle root in the block header. If they do not assemble to a valid decoded message (block), then all the parachain validators who signed the block header did so, knowing that it did not contain the Merkle root of a valid erasure code. So if the original block cannot be reconstructed from $f+1$ pieces, it is safe to slash every parachain validator who signed off on the Merkle root.
+ 
 
 
 ## Storage efficiency
