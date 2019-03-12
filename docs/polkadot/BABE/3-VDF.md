@@ -59,7 +59,7 @@ or find a mathematical breakthrough against the VDF primitive.
 In practical terms, an adversary with a $k$ fold advantage against 
 the VDF can impact $r_i$ when they control the final $e/k$th of the
 slots in an epoch, where $e$ is the number of epochs for which the
-VDF runs.   A larger $k$ thus permits an adversary control fewer slots
+VDF runs.  A larger $k$ thus permits an adversary control fewer slots
 with correspondingly less stake but also fewer bits impacted. 
 
 We improve efficiency when fewer parties actually compute the VDF
@@ -85,13 +85,18 @@ an adversary cannot delay beyond one stage without another node
 taking over
 
 $$ \begin{align}
-  r_{i+1,0} & := H(r_i || m+1 || \rho)  \\
-  r_{i+1,j+1} & := \mathtt{VDF}_T(r_{i+1,j})  \\
-  r_{i+1} & := r_{i+1,\mathtt{numstages}} \\
+  r_{i,0} & := H(r_{i-2e} || m+1 || \rho)  \\
+  r_{i,j+1} & := \mathtt{VDF}_T(r_{i,j})  \\
+  r_i & := r_{i+1,\mathtt{numstages}} \\
 \end{align} $$
 
 A priori, we now require an $O(\mathtt{numstages})$ space proof of
 correctness on-chain, although optimisations exist at some complexity cost.
+
+In this, we have defined $r_i$ from $r_{i-2e}$ under the assumption
+that our VDF evaluation time in manually tunned for common hardward
+and our stages reveals permit nodes to accurately decide if enough
+other nodes are running the VDF.
 
 ### Class-group VDFs
 
