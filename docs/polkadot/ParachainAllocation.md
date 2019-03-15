@@ -23,11 +23,13 @@ As long as at least one commercial slot is free, there is an associated price gi
 
 ### Auctioning Parachain Slots:
 
-We use a Vickrey auction, second-price sealed-bid auctions, for parachain slots when the demand is higher than the available slots. We chose a sealed-bid (symmetric) auction because it needs less communication overhead for bidding than open-bid auctions. We chose Vickrey auctions because in the symmetric model:
-- has a weakly dominant strategy that is bidding the true value of the bidder
-- in multiunit auctions: the expected price paid by a winner bidder is at least as high as the expected price paid by a winner bidder in the first-price sealed-bid (discriminatory) auctions [1]
+We use a Vickrey auction [1], second-price sealed-bid auctions, for parachain slots when the demand is higher than the available slots. We chose a sealed-bid (symmetric) auction because it needs less communication overhead for bidding than open-bid (iterative) auctions. We chose Vickrey auctions because in the symmetric model:
+- it has a weakly dominant strategy that is bidding the true value of the bidder [2]
+- in multiunit auctions: the expected price paid by a winner bidder is at least as high as the expected price paid by a winner bidder in the first-price sealed-bid (discriminatory) auctions [3]
 
 **(Q:How do we carry out a Vickrey auction in a decentrliazed fashion?)**
+-threshold crypto?
+-mpc?
 
 If a commercial slot becomes free and no commercial slots are already free, then it is set for auction with a 2-week window for posting blind bids for the auction.
 To participate in an auction for obtaining a slot, a parachain needs to deposit DOTs. A parachain candidate can issue additional native tokens in order to acquire DOTs. If a parachain fails to obtain the slot, the returned DOTs can be used to buy back the native token and burn it.
@@ -46,4 +48,6 @@ We will auction parachains slots off in batches of 4 over the course of the 1st 
 One of the objectives of our roll-out plan is to maintain demand-supply balance for parachain slots such that there are appropriate economic incentives to be a validator on the network. Moreover, we want to allow for the proliferation of experimentation and novel use-cases as the network scales. 
 
 ## References
-[1] Milgrom, Paul. (2019). The economics of competitive bidding: a selective survey. 
+[1] Vickrey, William. (1961). Counterspeculation, Auctions, and Competitive Sealed Tenders. The Journal of Finance. 
+[2]
+[3] Milgrom, Paul. (2019). The economics of competitive bidding: a selective survey. 
