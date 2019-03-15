@@ -24,8 +24,8 @@ As long as at least one commercial slot is free, there is an associated price gi
 ### Auctioning Parachain Slots:
 
 We use a Vickrey auction, second-price sealed-bid auctions, for parachain slots when the demand is higher than the available slots. We chose a sealed-bid (symmetric) auction because it needs less communication overhead for bidding than open-bid auctions. We chose Vickrey auctions because in the symmetric model:
-- has a dominant strategy that is bidding the true value of the bidder
-- the expected price paid by a winner bidder is at least as high as the expected price paid by a winner bidder in the first-price sealed-bid auctions 
+- has a weakly dominant strategy that is bidding the true value of the bidder
+- in multiunit auctions: the expected price paid by a winner bidder is at least as high as the expected price paid by a winner bidder in the first-price sealed-bid (discriminatory) auctions [1]
 
 **(Q:How do we carry out a Vickrey auction in a decentrliazed fashion?)**
 
@@ -44,3 +44,6 @@ By allowing for an n-sided market to determine the cost of connecting to the sys
 At Polkadot genesis there will be an estimated 5-15 available and the number of available slots will increase during the first 1-2 years of operation to between 50 and 200 parachains total. 
 We will auction parachains slots off in batches of 4 over the course of the 1st year, with new auctions planned every few weeks. Each batch of 4 will include a 6-month, 12-month, 18-month and 24-month parachain slot for auction. The general idea is that, in perpetuity, there is a constant rolling availability of parachains auctions so that if your project wants to become a “native parachain” in Polkadot there will be sufficient opportunities to claim a parachain slot.
 One of the objectives of our roll-out plan is to maintain demand-supply balance for parachain slots such that there are appropriate economic incentives to be a validator on the network. Moreover, we want to allow for the proliferation of experimentation and novel use-cases as the network scales. 
+
+## References
+[1] Milgrom, Paul. (2019). The economics of competitive bidding: a selective survey. 
