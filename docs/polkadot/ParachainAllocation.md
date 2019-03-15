@@ -49,5 +49,7 @@ One of the objectives of our roll-out plan is to maintain demand-supply balance 
 
 ## References
 [1] Vickrey, William. (1961). Counterspeculation, Auctions, and Competitive Sealed Tenders. The Journal of Finance. 
+
 [2]
+
 [3] Milgrom, Paul. (2019). The economics of competitive bidding: a selective survey. 
