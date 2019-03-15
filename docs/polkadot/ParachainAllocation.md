@@ -27,6 +27,10 @@ We use a Vickrey auction [1], second-price sealed-bid auctions, for parachain sl
 - it has a weakly dominant strategy that is bidding the true value of the bidder [2]
 - in multiunit auctions: the expected price paid by a winner bidder is at least as high as the expected price paid by a winner bidder in the first-price sealed-bid (discriminatory) auctions [3]
 
+Weaknesses:
+- not necessarily maximize seller profit, unless the combined bid of winner bidder's first price is the same as the combined bid of winner bidder's second price
+- vulnerable to bidder collusion
+
 **(Q:How do we carry out a Vickrey auction in a decentrliazed fashion?)**
 -threshold crypto?
 -mpc?
