@@ -10,3 +10,10 @@ markdown_extensions:
 theme:
   name: null
   custom_dir: 'mkdocs-material/material'
+  language: 'en'
+  palette:
+    primary: 'indigo'
+    accent: 'indigo'
+  font: false
+  logo: ''
+  feature: false
