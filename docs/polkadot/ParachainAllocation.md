@@ -29,7 +29,7 @@ We use a Vickrey auction [1], second-price sealed-bid auctions, for parachain sl
 
 Weaknesses:
 - not necessarily maximize seller profit, unless the combined bid of winner bidder's first price is the same as the combined bid of winner bidder's second price
-- vulnerable to bidder collusion
+- vulnerable to bidder collusion and shilling
 
 **(Q:How do we carry out a Vickrey auction in a decentrliazed fashion?)**
 -threshold crypto?
