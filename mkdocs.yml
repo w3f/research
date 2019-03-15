@@ -6,3 +6,7 @@ extra_javascript:
 
 markdown_extensions:
    - mdx_math
+
+theme:
+  name: null
+  custom_dir: 'mkdocs-material/material'
