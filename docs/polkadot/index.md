@@ -2,7 +2,7 @@
 
 *DRAFT*
 
-This article summarizes the research efforts relevant to the Polkadot project, for other information regarding the project please refer to the [wiki page](https://github.com/w3f/Web3-wiki/wiki/Polkadot).
+This article summarizes the research efforts relevant to the Polkadot project, for other information regarding the project please refer to the [wiki page](https://wiki.polkadot.network).
 
 Polkadot speaking in abstract terms provides a number of connected canonical state machines. Connected means that a state transition of one machine can affect a transition of another machine. The state machines are canonical, since they transition in a globally consistent manner. We would also like to enable adding, removing and changing of the state machines as the time goes on. This will be the role of the governance process.
 
