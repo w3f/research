@@ -1,27 +1,27 @@
-*moved to http://research.web3.foundation/en/latest/polkadot/BABE/*
 
 \(
-%vrf keys
+
+
 \def\skvrf{\mathsf{sk}^v}
 \def\pkvrf{\mathsf{pk}^v}
 
-%signature keys
+
 \def\sksgn{\mathsf{sk}^s}
 \def\pksgn{\mathsf{pk}^s}
 
-%account keys
+
 \def\skac{\mathsf{sk}^a}
 \def\pkac{\mathsf{pk}^a} 
 
-%network delay
+
 \def\D{\D}
 
-%adversary
+
 \def\A{\A}
 
-%VRF function
+
 \def\vrf{\mathsf{VRF}
-%Sign function
+
 \def\sgn{\sgn}
 \)
 
