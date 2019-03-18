@@ -1,28 +1,15 @@
 
 \(
-
-
 \def\skvrf{\mathsf{sk}^v}
 \def\pkvrf{\mathsf{pk}^v}
-
-
 \def\sksgn{\mathsf{sk}^s}
 \def\pksgn{\mathsf{pk}^s}
-
-
 \def\skac{\mathsf{sk}^a}
 \def\pkac{\mathsf{pk}^a} 
-
-
 \def\D{\D}
-
-
 \def\A{\A}
-
-
-\def\vrf{\mathsf{VRF}
-
-\def\sgn{\sgn}
+\def\vrf{\mathsf{VRF}}
+\def\sgn{\sgn}}
 \)
 
 # BABE
