@@ -1,5 +1,10 @@
 *moved to http://research.web3.foundation/en/latest/polkadot/BABE/*
 
+\(
+   \def\skvrf{\mathsf{sk}^v}
+   \def\pkvrf{\mathsf{pk}^v}
+\)
+
 # BLOCK PRODUCTION (BABE)
 
 
@@ -21,7 +26,7 @@ In BABE, we have sequential non-overlaping epochs $(e_1, e_2,...)$, each of whic
 Each party \(P_j\) has at least two type of secret/public key pair:
 
 *    Account keys \((sk^a_{j}, pk^a_{j})\) which are used to sign transactions.
-*    Session keys consists of two keys: Verifiable random function (VRF) keys \((sk_{j}^{vrf}, pk^{vrf}_{j})\) and the signing keys for blocks \((sk^{sgn}_j,pk^{sgn}_j)\). 
+*    Session keys consists of two keys: Verifiable random function (VRF) keys \(\skvrf, pk^{vrf}_{j})\) and the signing keys for blocks \((sk^{sgn}_j,pk^{sgn}_j)\). 
 
 We favor VRF keys being relatively long lived, but parties should update their associated signing keys from time to time for forward security against attackers causing slashing.  More details related to these key are [here](https://github.com/w3f/research/tree/master/docs/polkadot/keys).
 
