@@ -1,15 +1,15 @@
 
 \(
-\def\skvrf{\mathsf{sk}^v}
-\def\pkvrf{\mathsf{pk}^v}
-\def\sksgn{\mathsf{sk}^s}
-\def\pksgn{\mathsf{pk}^s}
-\def\skac{\mathsf{sk}^a}
-\def\pkac{\mathsf{pk}^a} 
-\def\D{\D}
-\def\A{\A}
-\def\vrf{\mathsf{VRF}}
-\def\sgn{\sgn}}
+   \def\skvrf{\mathsf{sk}^v}
+   \def\pkvrf{\mathsf{pk}^v}
+   \def\sksgn{\mathsf{sk}^s}
+   \def\pksgn{\mathsf{pk}^s}
+   \def\skac{\mathsf{sk}^a}
+   \def\pkac{\mathsf{pk}^a} 
+   \def\D{\Delta}
+   \def\A{\mathcal{A}}
+   \def\vrf{\mathsf{VRF}}
+   \def\sgn{\mathsf{Sign}}
 \)
 
 # BABE
@@ -27,7 +27,7 @@ In BABE, we have sequential non-overlaping epochs \((e_1, e_2,...)\), each of wh
 
 Each party \(P_j\) has at least two type of secret/public key pair:
 
-*    Account keys \((\skacc_{j}, pk^a_{j})\) which are used to sign transactions.
+*    Account keys \((\skac_{j}, pk^a_{j})\) which are used to sign transactions.
 *    Session keys consists of two keys: Verifiable random function (VRF) keys \((\skvrf_{j}, \pkvrf_{j})\) and the signing keys for blocks \((\sksgn_j,\pksgn_j)\). 
 
 We favor VRF keys being relatively long lived, but parties should update their associated signing keys from time to time for forward security against attackers causing slashing.  More details related to these key are [here](https://github.com/w3f/research/tree/master/docs/polkadot/keys).
@@ -59,7 +59,7 @@ BABE with GRANDPA validators consists of three phases:
 
 In this phase, we manually produce the unique genesis block.
 
-The genesis block contain a random number \(r_1\) for use during the first epoch for slot leader assignments, the initial stake's of the stake holders (\(st_1, st_2,..., st_n\)) and their corresponding session public keys (\(\pkvrf_{1}, \pkvrf_{2},..., \pkvrf_{n}\)), \((\pksgn_{1}, \pksgn_{2},..., pksgn_{n}\)) and account public keys (\(\pkacc_{1}, \pkacc_{2},..., \pkacc_{n}\)).
+The genesis block contain a random number \(r_1\) for use during the first epoch for slot leader assignments, the initial stake's of the stake holders (\(st_1, st_2,..., st_n\)) and their corresponding session public keys (\(\pkvrf_{1}, \pkvrf_{2},..., \pkvrf_{n}\)), \((\pksgn_{1}, \pksgn_{2},..., \pksgn_{n}\)) and account public keys (\(\pkac_{1}, \pkac_{2},..., \pkac_{n}\)).
 
 We might reasonably set \(r_1 = 0\) for the initial chain randomness, by assuming honesty of all validators listed in the genesis block.  We could use public random number from the Tor network instead however.
 
