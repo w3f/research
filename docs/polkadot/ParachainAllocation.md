@@ -23,17 +23,17 @@ As long as at least one commercial slot is free, there is an associated price gi
 
 ### Auctioning Parachain Slots:
 
-We use a Vickrey auction [1], second-price sealed-bid auctions, for parachain slots when the demand is higher than the available slots. We chose a sealed-bid (symmetric) auction because it needs less communication overhead for bidding than open-bid (iterative) auctions. We chose Vickrey auctions because in the symmetric model:
-- it has a weakly dominant strategy that is bidding the true value of the bidder [2]
-- in multiunit auctions: the expected price paid by a winner bidder is at least as high as the expected price paid by a winner bidder in the first-price sealed-bid (discriminatory) auctions [3]
+We use a Vickrey auction [1], second-price sealed-bid auctions, for parachain slots when the demand is higher than the available slots. We chose a sealed-bid auction because it needs less communication overhead for bidding than open-bid (iterative) auctions. Aong sealed-bid auctions we chose Vickrey auctions because:
+a) it has a weakly dominant strategy that is bidding the true value of the bidder [2], which makes it more efficenit for bidders
+b) in multiunit auctions, when the bids are interdependent and identically distributed, the expected price paid by a winner bidder of a Vickrey auction is at least as high as the expected price paid by a winner bidder of a first-price sealed-bid  (discriminatory) auctions [3]
 
 Weaknesses:
-- not necessarily maximize seller profit, unless the combined bid of winner bidder's first price is the same as the combined bid of winner bidder's second price
-- vulnerable to bidder collusion and shilling
+c) does not necessarily maximize seller profit []
+d) vulnerable to bidder collusion and shilling
+
+To mitigate c) we can reserve a price for parachain slots. Note that b) still holds in the reserved price setting []. 
 
 **(Q:How do we carry out a Vickrey auction in a decentrliazed fashion?)**
--threshold crypto?
--mpc?
 
 If a commercial slot becomes free and no commercial slots are already free, then it is set for auction with a 2-week window for posting blind bids for the auction.
 To participate in an auction for obtaining a slot, a parachain needs to deposit DOTs. A parachain candidate can issue additional native tokens in order to acquire DOTs. If a parachain fails to obtain the slot, the returned DOTs can be used to buy back the native token and burn it.
