@@ -2,7 +2,18 @@ site_name: W3F Research
 
 extra_javascript:
    - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML
-   - http://research.web3.foundation/en/latest/mathjax-config.js
+   - https://research.web3.foundation/en/latest/mathjax-config.js
 
 markdown_extensions:
    - mdx_math
+
+theme:
+  name: null
+  custom_dir: 'mkdocs-material/material'
+  language: 'en'
+  palette:
+    primary: 'indigo'
+    accent: 'indigo'
+  font: false
+  logo: ''
+  feature: false
