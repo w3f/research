@@ -32,9 +32,9 @@ To identify unique individual participants that will perform duties on the netwo
 
 
 Validator keys indicated by the staking key are:  
-* transport layer: ed25519  
-* GRANDPA and consolidated reporting: BLS  
-* block production (VRF): Ristretto  
+ - transport layer: ed25519  
+ - GRANDPA and consolidated reporting: BLS  
+ - block production (VRF): Ristretto  
 
 ### 2.2 Proof-of-Stake
 
