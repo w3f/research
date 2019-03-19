@@ -15,5 +15,5 @@ theme:
     primary: 'indigo'
     accent: 'indigo'
   font: false
-  logo: ''
+  logo: 'images/w3f_logo.svg'
   feature: false

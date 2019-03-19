@@ -1,1 +1,5 @@
 site/
+_build/
+lib/
+include/
+bin/
