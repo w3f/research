@@ -331,19 +331,19 @@ If we use VDF in the randomness update for the next epoch, \(r = \mathsf{log}tkq
 
 In this section, we find parameters of BABE in order to achieve the security in BABE.
 
-We fix the life time of the protocol as \(\mathcal{L}=2.5 \text{ years}  = 15768000\) seconds, maximum delay in the network \(\mathcal{D} = 10\) seconds and the slot time is \(10\) seconds. Then we find the life time of the protocol  \(L = \frac{\mathcal{L}}{T}\) and maximum delay \(\D = 1\) in terms of slot number. We assume that half of the honest parties are sychronized so \(\gamma = \beta = 0.5\).
+We fix the life time of the protocol as \(\mathcal{L}=2.5 \text{ years}  = 15768000\) seconds, maximum delay in the network \(\mathcal{D} = 5\) seconds and the slot time is \(3\) seconds. Then we find the life time of the protocol  \(L = \frac{\mathcal{L}}{T}\) and maximum delay \(\D = 1\) in terms of slot number. We assume that half of the honest parties are sychronized so \(\gamma = \beta = 0.5\).
 
 We need to satisfy the condition \(\alpha(\gamma+(1-c)^\D\beta)(1-c)^\D \geq (1+\epsilon)/2\) to apply the result of Theorem 4. As seen in the graph below, f must be at most around 0.4 in order to have this condition. Otherwise, \(\alpha\) must equal to = 1 which is not realistic. Even \(c = 0.4\) is pretty big assumption because we need \(95 \%\) honest stake and \(\gamma > 1/2\) (i.e., less late parties). 
 
 ![](https://i.imgur.com/9skkoha.png)
 
 
-Therefore, we choose \(\mathbf{f = 0.3}\) which satisfies the assumption for \(\gamma > 0.1\). For simplicity, we fix \(\gamma = 0.5\) which means at least half of the honest parties are synchronized. In this case **\(\mathbf{\alpha}\) must be \(\mathbf{0.85}\)**. We find that \(k > 75\) for a good security level in 2.5 years as shown in the graph below.
+Therefore, we choose \(\mathbf{f = 0.1}\) which satisfies the assumption for \(\gamma > 0\). For simplicity, we fix \(\gamma = 0.5\) which means at least half of the honest parties are synchronized. In this case **\(\mathbf{\alpha}\) must be at least \(\mathbf{0.6}\)**. We find that \(k > 70\) for a good security level in 2.5 years as shown in the graph below.
 
-![](https://i.imgur.com/tJNnVqc.png)
+![](https://i.imgur.com/oLKeUlq.png)
 
 
-If \(\mathbf{k = 75}\), finalizing block takes 12 minutes. Remark that \(k\) is the finality that is provided by the BABE. Since we have GRANDPA on top of BABE, we expect much earlier finalization. This \(k\) value is valid when GRANDPA does not work properly. If \(k = 75\), the minimum **epoch length must be 12.5 hours** according to Theorem 4.
+If \(\mathbf{k = 72}\), finalizing block takes around 3 minutes. Remark that \(k\) is the finality that is provided by BABE. Since we have GRANDPA on top of BABE, we expect much earlier finalization. This \(k\) value is valid when GRANDPA does not work properly. If \(k = 72\), the minimum **epoch length must be 12960 slots which is around 7 hours** according to Theorem 4.
 
 
 
