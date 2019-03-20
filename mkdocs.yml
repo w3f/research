@@ -1,4 +1,7 @@
 site_name: W3F Research
+site_description: 'Web3 Foundation Research'
+site_author: 'Web3 Foundation'
+site_url: 'https://research.web3.foundation'
 
 extra_javascript:
    - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML
@@ -6,14 +9,28 @@ extra_javascript:
 
 markdown_extensions:
    - mdx_math
+   - admonition
+     - codehilite:
+         guess_lang: false
+     - toc:
+         permalink: true
 
 theme:
   name: null
   custom_dir: 'mkdocs-material/material'
   language: 'en'
   palette:
-    primary: 'indigo'
-    accent: 'indigo'
+    primary: 'deep orange'
+    accent: 'deep orange'
   font: false
   logo: 'images/w3f_logo.svg'
   feature: false
+
+extra:
+  social:
+    - type: 'github'
+      link: 'https://github.com/w3f/research'
+    - type: 'twitter'
+      link: 'https://twitter.com/web3foundation'
+    - type: 'medium'
+      link: 'https://medium.com/web3foundation'
