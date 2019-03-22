@@ -102,7 +102,7 @@ Besides ensuring all the above properties for all parachain, a crucial element o
 
 To ensure that the state transitions can be processed and stored by the network their size has to be reasonable. Mechanisms such as transaction fees and block limits are there to limit the storage size and computation required for each block.
 
-#### 5.2 Light client
+#### Light client
 
 The protocol is being designed with light client support in mind with existing Substrate implementation supporting one.
 
