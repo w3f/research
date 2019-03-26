@@ -252,7 +252,7 @@ Now consider a chain owned by an honest party in \(sl_u\) and a chain owned by a
 Consider the chains \(C_u\) and \(C_v\) in slots \(sl_u\) and \(sl_v\) owned by the honest parties, respectively where \(sl_u\) is the first slot of the epoch. We can guarantee that \(C_u\) is one of the chains of everyone in \(sl_u + 2\D\) and the chain \(C_v\) is one of the chains of everyone if it is sent in slot \(sl_v - 2\D\). Therefore, we are interested in slots between \(sl_u + 2\D\) and \(sl_v - 2\D\). Let us denote the set of these slots by \(S = \{sl_u + 2\D, sl_u+2\D+1,...,sl_v-2\D\}\). Remark that \(|S| = s-4\D\).
 
 Now, we define a random variable \(X_t \in \{0,1\}\) where \(t\in S\). \(X_t = 1\) if \(t\) is \(2\D\) or \(\D\)-right isolated with respect to the probabilities \(p_\bot, p_{0_L}, p_{0_S}\). Then 
-$$\mu = \mathbb{E}[X_t] = p_{0_S}p_\bot^{\D-1}+p_{0_L}p_\bot^{2\D-1} \geq \alpha_S\lambda(1-c)^{\D}+\alpha_L\lambda(1-c)^{2\D}.$$
+$$\mu = \mathbb{E}[X_t] = p_{0_S}p_\bot^{\D-1}+p_{0_L}p_\bot^{2\D-1} \geq \alpha_Sc(1-c)^{\D}+\alpha_Lc(1-c)^{2\D}.$$
 
 With \( \lambda = (1-c)^{\D}\), \(\alpha = \alpha_L+\alpha_S = \beta\alpha+ \gamma \alpha\),
 
@@ -260,7 +260,7 @@ $$\mu \geq \lambda c\alpha(\gamma+ \lambda  \beta)$$
 
 Remark that \(X_t\) and \(X_{t'}\) are independent if \(|t-t'| \geq 2\D\). Therefore, we define \(S_z = \{t\in S: t \equiv z \text{ mod }2\D\}\) where all \(X_t\) indexed by \(S_z\) are independent and \(|S_z| >  \frac{s-5\D}{2\D}\).
 
-We apply a [Chernoff Bound](http://math.mit.edu/~goemans/18310S15/chernoff-notes.pdf) to each \(S_z\) with \(\D = 1/2\).
+We apply a [Chernoff Bound](http://math.mit.edu/~goemans/18310S15/chernoff-notes.pdf) to each \(S_z\) with \(\delta = 1/2\).
 
 $$\mathsf{Pr}[\sum_{t \in S_z}X_t < |S_z|\mu/2] \leq e^{-\frac{|S_z|\mu}{8}}\leq e^{-\frac{(s-4\D)\mu}{16\D}}$$
 
@@ -329,26 +329,37 @@ If we use VDF in the randomness update for the next epoch, \(r = \mathsf{log}tkq
 
 ## Practical Results
 
-In this section, we find parameters of BABE in order to achieve the security in BABE.
+In this section, we find parameters of BABE in order to achieve the security in BABE. In addition to this, we show block time of BABE in worst cases (big network delays, many malicious parties) and in average case.
 
-We fix the life time of the protocol as \(\mathcal{L}=2.5 \text{ years}  = 15768000\) seconds, maximum delay in the network \(\mathcal{D} = 5\) seconds and the slot time ($T$) is 2 or \(3\) seconds. Then we find the life time of the protocol  \(L = \frac{\mathcal{L}}{T}\) and maximum delay \(\D = 1\) and $D = 2$ in terms of slot number for $T = 3$ sec. and $T = 2$ sec., respectively. We assume that half of the honest parties are sychronized so \(\gamma = \beta = 0.5\).
+We fix the life time of the protocol as \(\mathcal{L}=2.5 \text{ years}  = 15768000\) seconds, maximum delay in the network \(\mathcal{D}_{max} = 4\) seconds, average network delay is \(\mathcal{D}_{min} = 0.5\) seconds and the slot time ($T$) is 1, 2 and \(3\) seconds. Then we find the life time of the protocol  \(L = \frac{\mathcal{L}}{T}\) and maximum delay \(D = 4\), \(\D = 2\) and $D = 1$ in terms of slot number for $T = 1$ sec., $T = 2$ sec. and $T = 3$ sec., respectively. We assume that half of the honest parties are sychronized so \(\gamma = \beta = 0.5\).
 
-We need to satisfy the condition \(\alpha(\gamma+(1-c)^\D\beta)(1-c)^\D \geq (1+\epsilon)/2\) to apply the result of Theorem 4. As seen in the graph below, f must be at most around 0.4 in order to have this condition. Otherwise, \(\alpha\) must equal to = 1 which is not realistic. Even \(c = 0.4\) is pretty big assumption because we need \(95 \%\) honest stake and \(\gamma > 1/2\) (i.e., less late parties). 
+The parameter $c$ is very critical because it specifies the number of empty slots because probability of having empty slot is $1-c$. If $c$ is very small, we have a lot of empty slots and so we have longer block time. If $c$ is big, we may not satisfy the the condition \(\alpha(\gamma+(1-c)^\D\beta)(1-c)^\D \geq (1+\epsilon)/2\) to apply the result of Theorem 4. So, we need to have a tradeoff between security and practicality.
 
-![](https://i.imgur.com/9skkoha.png)
+We need to satisfy the condition \(\alpha(\gamma+(1-c)^\D\beta)(1-c)^\D \geq (1+\epsilon)/2\) to apply the result of Theorem 4. As seen in the graph below, $c<0.1$, $c<0.15$ and $c<0.35$ in order to have this condition with $\alpha < 1$ if ($T$) is 1, 2 and \(3\) seconds (meaning that \(D = 4\), \(\D = 2\) and $D = 1$), respectively. Otherwise, \(\alpha\) must equal to = 1 which is not realistic. 
+Therefore, in order to achieve the security, we cannot have big $c$ values. According to the graph below, assuming that the minimum  $\alpha = 0.8$, $c = 0.075 $, $c = 0.14$ and $c = 0.25 $
 
-
-Therefore, we choose \(\mathbf{f = 0.1}\) which satisfies the assumption for \(\gamma > 0\). For simplicity, we fix \(\gamma = 0.5\) which means at least half of the honest parties are synchronized. In this case **\(\mathbf{\alpha}\) must be at least \(\mathbf{0.6}\)**. We find that \(k > 72\) for $T = 3$ seconds and $k>170$ for $T = 172$ seconds to have a good security level in 2.5 years as shown in the graph below.
-
-![](https://i.imgur.com/zeTIPUY.png)
+![](https://i.imgur.com/fZbRnKd.png)
 
 
-Remark that \(k\) is the finality that is provided by BABE. Since we have GRANDPA on top of BABE, we expect much earlier finalization. This \(k\) value is valid when GRANDPA does not work properly. If \(k = 72\), the minimum **epoch length must be 12960 slots which is around 7 hours** according to Theorem 4. If \(k = 172\), the minimum **epoch length must be 30960 slots which is around 11 hours** according to Theorem 4.
+In order to find the average block time (i.e., the required time to add one block to the best chain), we need the expected number of $\D$ and $2\D$-right isolated slots in $L$ slots. However, we use a different definition of $\D$ and $2\D$-right isolated slots in this analysis.  A slot is $\D$ (resp. $2\D$-right ) isolated slot if the slot leaders are all honest and at least one syncronized (resp. all honest and late) and the next $\D-1$ (resp. $2\D-1$) slots are empty. If all parties honest and at least one of them is synchronized, then the synchronized party's blcok will be added because, he relaeases the block earlier than the other selected parties. Therefore, we need at least one synchronized and honest slot leader in the definition of $\D$-isolated slot. Remark that the definitions of $\D$ and $2\D$ right isolated slots are more relaxed than the definitions in the proof of Theorem 1 because we do not care the growth of other chains as we care in the security analysis. The probability of all selected parties are late and honest is  
+$$p_{H_L} = \phi(\alpha(1-gamma))(1-\phi(1-\alpha(1-\gamma))) = (1-(1-c)^{\alpha\beta})(1-c)^{1-\alpha\beta}$$ 
+The probability of all selected parties are honest and at least one of them is synchronized is
+$$p_{H_S} =  \sum_{i\in H_S} \phi(\alpha_i)\prod_{i \in H_\A}1-\phi(1-\alpha) = \phi(\gamma\alpha)(1-\phi(1-\alpha)).$$
+The expected number of $\D$ and $2\D$-right isolated slots in $L$ slots
+$$\mathbb{E} = L (p_{H_L}(1-c)^{2\D-1}+p_{H_S}(1-c)^{\D-1})$$. Then, the block time $T_{block} \leq \frac{LT}{\mathbb{E}}$. In order to find the average block time, we do not consider the maximum network delay here. We consider the average network delay which 0.5 seconds. Therefore, we let $D = 1$ in the block time computation. We compute the expected block time in the graph below for $T = 1$, $T = 2$ and $T = 3$. As it can be seen, the best block time is when $T = 1$ seconds. In the best case, where $\gamma = \alpha = 1$, $T_{block} = 14.4$ seconds. When the network delay is less than 1 slot and $\alpha = 1$, then $T_{block} = 13.3$ seconds.
 
-We also compute the chain growth according to Theorem 4. The chain growth in time can be seen in the graph below. In every 44 seconds, the best chain grows 1 block when $T = 3$ seconds and in every 35 seconds, the best chain grows 1 block when $T = 2$ seconds.
+In order to improve the block time, we need bigger $c$ and small $T$ value (e.g., $c = 0.35, T = 1 \Rightarrow T_{block} = 6.8$ seconds). However, in this case, we sacrifice from security because whenever the network delay become higher, BABE becomes vulnerable to attacks to break liveness and persistence. 
+
+![](https://i.imgur.com/GEmJElV.png)
 
 
-![](https://i.imgur.com/sX6s7dY.png)
+
+If we choose \(\mathbf{c = 0.075}\) which satisfies the assumption for \(\gamma = 0.5\). For simplicity, we fix \(\gamma = 0.5\) which means at least half of the honest parties are synchronized. In this case **\(\mathbf{\alpha}\) must be at least \(\mathbf{0.8}\)**. We find that \(k > 310\) for $T = 1$ seconds to have a good security level in 2.5 years as shown in the graph below.
+
+![](https://i.imgur.com/sA1tq7Z.png)
+
+Remark that \(k\) is the finality that is provided by BABE. Since we have GRANDPA on top of BABE, we expect much earlier finalization. This \(k\) value is valid when GRANDPA does not work properly. If \(k = 310\), the minimum **epoch length must be 74400 slots which is around 13 hours** according to Theorem 4.
+
 
 
 
