@@ -88,7 +88,6 @@ If \(P_j\) is the slot leader, \(P_j\) generates a block to be added on \(C\) in
 In any case (being a slot leader or not being a slot leader), when \(P_j\) receives a block \(B = (sl, H, d', \pi', tx', \sigma')\) produced by a party \(P_t\), it validates the block  with \(\mathsf{Validate}(B)\). \(\mathsf{Validate}(B)\) should check the followings in order to validate the block:
 
 * if \(\mathsf{Verify}_{\pksgn_t}(\sigma')\rightarrow \mathsf{valid}\),
-* if \(sl \leq sl_k\) (The future blocks are discarded)
 
 * if the party is the slot leader: \(\mathsf{Verify}_{\pkvrf_t}(\pi', r_m||sl) \rightarrow \mathsf{valid}\) and \(d' < \tau_t\). 
 
@@ -113,7 +112,7 @@ Before starting a new epoch, there are certain things to be updated in the chain
 
 If a party wants to update his stake for epoch \(e_{m+1}\), it should be updated until the beginning of epoch \(e_m\) (until the end of epoch \(e_{m-1}\)) for epoch \(e_{m+1}\). Otherwise, the update is not possible. We want the stake update one epoch before because we do not want parties to adjust their stake after seeing the randomness for the epoch \(e_{m+1}\). 
 
-The new randomness for the new epoch is computed as in Ouroboros Praos [2]: Concatenate all the VRF outputs in blocks starting from the first slot of the epoch to the \(2R/3^{th}\) slot of \(e_m\) (\(R\) is the epoch size). Assume that the concatenation is \(\rho\). Then the randomness in the next epoch:
+The new randomness for the new epoch is computed as in Ouroboros Praos [2]: Concatenate all the VRF outputs in blocks starting from the first slot of the epoch to the \(R/2^{th}\) slot of \(e_m\) (\(R\) is the epoch size). Assume that the concatenation is \(\rho\). Then the randomness in the next epoch:
 
 $$r_{m+1} = H(r_{m}||m+1||\rho)$$
 
@@ -252,7 +251,7 @@ Now consider a chain owned by an honest party in \(sl_u\) and a chain owned by a
 Consider the chains \(C_u\) and \(C_v\) in slots \(sl_u\) and \(sl_v\) owned by the honest parties, respectively where \(sl_u\) is the first slot of the epoch. We can guarantee that \(C_u\) is one of the chains of everyone in \(sl_u + 2\D\) and the chain \(C_v\) is one of the chains of everyone if it is sent in slot \(sl_v - 2\D\). Therefore, we are interested in slots between \(sl_u + 2\D\) and \(sl_v - 2\D\). Let us denote the set of these slots by \(S = \{sl_u + 2\D, sl_u+2\D+1,...,sl_v-2\D\}\). Remark that \(|S| = s-4\D\).
 
 Now, we define a random variable \(X_t \in \{0,1\}\) where \(t\in S\). \(X_t = 1\) if \(t\) is \(2\D\) or \(\D\)-right isolated with respect to the probabilities \(p_\bot, p_{0_L}, p_{0_S}\). Then 
-$$\mu = \mathbb{E}[X_t] = p_{0_S}p_\bot^{\D-1}+p_{0_L}p_\bot^{2\D-1} \geq \alpha_S\lambda(1-c)^{\D}+\alpha_L\lambda(1-c)^{2\D}.$$
+$$\mu = \mathbb{E}[X_t] = p_{0_S}p_\bot^{\D-1}+p_{0_L}p_\bot^{2\D-1} \geq \alpha_Sc(1-c)^{\D}+\alpha_Lc(1-c)^{2\D}.$$
 
 With \( \lambda = (1-c)^{\D}\), \(\alpha = \alpha_L+\alpha_S = \beta\alpha+ \gamma \alpha\),
 
@@ -260,7 +259,7 @@ $$\mu \geq \lambda c\alpha(\gamma+ \lambda  \beta)$$
 
 Remark that \(X_t\) and \(X_{t'}\) are independent if \(|t-t'| \geq 2\D\). Therefore, we define \(S_z = \{t\in S: t \equiv z \text{ mod }2\D\}\) where all \(X_t\) indexed by \(S_z\) are independent and \(|S_z| >  \frac{s-5\D}{2\D}\).
 
-We apply a [Chernoff Bound](http://math.mit.edu/~goemans/18310S15/chernoff-notes.pdf) to each \(S_z\) with \(\D = 1/2\).
+We apply a [Chernoff Bound](http://math.mit.edu/~goemans/18310S15/chernoff-notes.pdf) to each \(S_z\) with \(\delta = 1/2\).
 
 $$\mathsf{Pr}[\sum_{t \in S_z}X_t < |S_z|\mu/2] \leq e^{-\frac{|S_z|\mu}{8}}\leq e^{-\frac{(s-4\D)\mu}{16\D}}$$
 
@@ -304,15 +303,15 @@ $$\tag*{\(\blacksquare\)}$$
 Remark than even if \(\theta = 0\), we still have the common prefix property as in Ouroboros Praos [2].
 
 
-**Theorem 4 (Persistence and Liveness):** Fix parameters \(k, R, \D, L \in \mathbb{N}\), \(\epsilon \in (0,1)\) and \(r\). Let \(R \geq 18k/c(1+\epsilon)\) be the epoch length, \(L\) is the total lifetime of the system and $$\alpha(\gamma+(1-c)^\D\beta)(1-c)^\D \geq (1+\epsilon)/2$$
+**Theorem 4 (Persistence and Liveness):** Fix parameters \(k, R, \D, L \in \mathbb{N}\), \(\epsilon \in (0,1)\) and \(r\). Let \(R \geq 24k/c(1+\epsilon)\) be the epoch length, \(L\) is the total lifetime of the system and $$\alpha(\gamma+(1-c)^\D\beta)(1-c)^\D \geq (1+\epsilon)/2$$
 BABE satisfies persitence [2] with parameters \(k\) and liveness with parameters \(s \geq  12k/c(1+\epsilon)\) with probability \(1-\exp({\ln L\D c-\Omega(k-\ln tqk)})\) where \(r= 8tqk/(1+\epsilon)\) is the resetting power of the adversary during the randomness generation.
 
 
-**Proof (Sketch):** The proof is very similar to Theorem 9 in [2]. The idea is as follows: The randomness for the next epoch starts to leak after  the slot number \(2R/3(1+\epsilon) > 12k/c(1+\epsilon)\). Now let's check the chain growth in \(s = 12k/c(1+\epsilon)\) with \(\tau= \frac{\lambda c\alpha(\gamma+ \lambda \beta)}{6}\) where \(\lambda = (1-c)^\D\).
+**Proof (Sketch):** The proof is very similar to Theorem 9 in [2]. The idea is as follows: The randomness for the next epoch is resettable until  the slot number \(R/2(1+\epsilon) > 12k/c(1+\epsilon)\). Now let's check the chain growth in \(s = 12k/c(1+\epsilon)\) with \(\tau= \frac{\lambda c\alpha(\gamma+ \lambda \beta)}{6}\) where \(\lambda = (1-c)^\D\).
 
 $$\tau s = \frac{(1-c)^\D c\alpha(\gamma+ (1-c)^{\D} \beta)}{6}\frac{12k}{c(1+\epsilon)} \geq k $$
 
-Since in \(2R/3(1+\epsilon)\) slots during epoch \(e_j\) the chain grows at least \(k\) blocks, it means that the stake distribution of the next epoch (\(e_{j+1}\)) has already finalized in the epoch \(e_{j-1}\) becuase of the common prefix property. In addition to this, chain growth property shows that there will be at least one honest block in the first \(2R/(1+\epsilon)\) block. These two implies that the adversary cannot adapt his stake according to the random number for the next epoch \(e_{j+1}\) and this random number provides good randomness for the next epoch even though the adversary has capability of resetting \(r = 8tkq/(1+\epsilon)\) times (\(t\) is the number of corrupted parties and \(q\) is the maximum number of random-oracle queries for a party). So, the common prefix property still preserved with the dynamic staking. Therefore, we can conclude that persistence is satisfied thanks to the common prefix property of dynamic stake with the probability (comes from Theorem 1) $$2r\D Lf \exp({-\frac{(s-5\D)(1-c)^\D c\alpha(\gamma+ (1-c)^\D\beta)}{16\D}}) \space\space\space (3).$$ If we use the assumptions we can simplify this probability as \(\exp({\ln L\D c-\Omega(k-\ln tqk)}\).
+The stake distribution (for epoch $e_{j+2}$) which is updated until the end of epoch $e_j$ is finalized at latest in the slot number $12k/c(1+\epsilon)$ of epoch $e_{j+1}$. So it is finalized before the randomness of the next epoch's ($e_{j+2$) generated. In addition to this, chain growth property shows that there will be at least one honest block in the first $12k/c(1+\epsilon)$ slots. These two imply that the adversary cannot adapt his stake according to the random number for the next epoch \(e_{j+1}\) and this random number provides good randomness for the next epoch even though the adversary has capability of resetting \(r = 8tkq/(1+\epsilon)\) times (\(t\) is the number of corrupted parties and \(q\) is the maximum number of random-oracle queries for a party). So, the common prefix property still preserved with the dynamic staking. Therefore, we can conclude that persistence is satisfied thanks to the common prefix property of dynamic stake with the probability (comes from Theorem 1) $$2r\D Lf \exp({-\frac{(s-5\D)(1-c)^\D c\alpha(\gamma+ (1-c)^\D\beta)}{16\D}}) \space\space\space (3).$$ If we use the assumptions we can simplify this probability as \(\exp({\ln L\D c-\Omega(k-\ln tqk)}\).
 Liveness is the result of the chain growth and chain quality properties.
 $$\tag*{\(\blacksquare\)}$$
 
@@ -329,22 +328,36 @@ If we use VDF in the randomness update for the next epoch, \(r = \mathsf{log}tkq
 
 ## Practical Results
 
-In this section, we find parameters of BABE in order to achieve the security in BABE.
+In this section, we find parameters of BABE in order to achieve the security in BABE. In addition to this, we show block time of BABE in worst cases (big network delays, many malicious parties) and in average case.
 
-We fix the life time of the protocol as \(\mathcal{L}=2.5 \text{ years}  = 15768000\) seconds, maximum delay in the network \(\mathcal{D} = 10\) seconds and the slot time is \(10\) seconds. Then we find the life time of the protocol  \(L = \frac{\mathcal{L}}{T}\) and maximum delay \(\D = 1\) in terms of slot number. We assume that half of the honest parties are sychronized so \(\gamma = \beta = 0.5\).
+We fix the life time of the protocol as \(\mathcal{L}=2.5 \text{ years}  = 15768000\) seconds, maximum delay in the network \(\mathcal{D}_{max} = 4\) seconds, average network delay is \(\mathcal{D}_{min} = 0.5\) seconds and the slot time ($T$) is 1, 2 and \(3\) seconds. Then we find the life time of the protocol  \(L = \frac{\mathcal{L}}{T}\) and maximum delay \(D = 4\), \(\D = 2\) and $D = 1$ in terms of slot number for $T = 1$ sec., $T = 2$ sec. and $T = 3$ sec., respectively. We assume that half of the honest parties are sychronized so \(\gamma = \beta = 0.5\).
 
-We need to satisfy the condition \(\alpha(\gamma+(1-c)^\D\beta)(1-c)^\D \geq (1+\epsilon)/2\) to apply the result of Theorem 4. As seen in the graph below, f must be at most around 0.4 in order to have this condition. Otherwise, \(\alpha\) must equal to = 1 which is not realistic. Even \(c = 0.4\) is pretty big assumption because we need \(95 \%\) honest stake and \(\gamma > 1/2\) (i.e., less late parties). 
+The parameter $c$ is very critical because it specifies the number of empty slots because probability of having empty slot is $1-c$. If $c$ is very small, we have a lot of empty slots and so we have longer block time. If $c$ is big, we may not satisfy the the condition \(\alpha(\gamma+(1-c)^\D\beta)(1-c)^\D \geq (1+\epsilon)/2\) to apply the result of Theorem 4. So, we need to have a tradeoff between security and practicality.
 
-![](https://i.imgur.com/9skkoha.png)
+We need to satisfy the condition \(\alpha(\gamma+(1-c)^\D\beta)(1-c)^\D \geq (1+\epsilon)/2\) to apply the result of Theorem 4. As seen in the graph below, $c<0.1$, $c<0.15$ and $c<0.35$ in order to have this condition with $\alpha < 1$ if ($T$) is 1, 2 and \(3\) seconds (meaning that \(D = 4\), \(\D = 2\) and $D = 1$), respectively. Otherwise, \(\alpha\) must equal to = 1 which is not realistic. 
+Therefore, in order to achieve the security, we cannot have big $c$ values. According to the graph below, assuming that the minimum  $\alpha = 0.8$, $c = 0.075 $, $c = 0.14$ and $c = 0.25 $
 
-
-Therefore, we choose \(\mathbf{f = 0.3}\) which satisfies the assumption for \(\gamma > 0.1\). For simplicity, we fix \(\gamma = 0.5\) which means at least half of the honest parties are synchronized. In this case **\(\mathbf{\alpha}\) must be \(\mathbf{0.85}\)**. We find that \(k > 75\) for a good security level in 2.5 years as shown in the graph below.
-
-![](https://i.imgur.com/tJNnVqc.png)
+![](https://i.imgur.com/fZbRnKd.png)
 
 
-If \(\mathbf{k = 75}\), finalizing block takes 12 minutes. Remark that \(k\) is the finality that is provided by the BABE. Since we have GRANDPA on top of BABE, we expect much earlier finalization. This \(k\) value is valid when GRANDPA does not work properly. If \(k = 75\), the minimum **epoch length must be 12.5 hours** according to Theorem 4.
+In order to find the average block time (i.e., the required time to add one block to the best chain), we need the expected number of $\D$ and $2\D$-right isolated slots in $L$ slots. However, we use a different definition of $\D$ and $2\D$-right isolated slots in this analysis.  A slot is $\D$ (resp. $2\D$-right ) isolated slot if the slot leaders are all honest and at least one syncronized (resp. all honest and late) and the next $\D-1$ (resp. $2\D-1$) slots are empty. If all parties honest and at least one of them is synchronized, then the synchronized party's blcok will be added because, he relaeases the block earlier than the other selected parties. Therefore, we need at least one synchronized and honest slot leader in the definition of $\D$-isolated slot. Remark that the definitions of $\D$ and $2\D$ right isolated slots are more relaxed than the definitions in the proof of Theorem 1 because we do not care the growth of other chains as we care in the security analysis. The probability of all selected parties are late and honest is  
+$$p_{H_L} = \phi(\alpha(1-\gamma))(1-\phi(1-\alpha(1-\gamma))) = (1-(1-c)^{\alpha(1-\gamma)})(1-c)^{1-\alpha(1-\gamma)}$$ 
+The probability of all selected parties are honest and at least one of them is synchronized is
+$$p_{H_S} =  \sum_{i\in H_S} \phi(\alpha_i)\prod_{i \in H_\A}1-\phi(1-\alpha) = \phi(\gamma\alpha)(1-\phi(1-\alpha)).$$
+The expected number of $\D$ and $2\D$-right isolated slots in $L$ slots
+$$\mathbb{E} = L (p_{H_L}(1-c)^{2\D-1}+p_{H_S}(1-c)^{\D-1})$$. Then, the block time $T_{block} \leq \frac{LT}{\mathbb{E}}$. In order to find the average block time, we do not consider the maximum network delay here. We consider the average network delay which 0.5 seconds. Therefore, we let $D = 1$ in the block time computation. We compute the expected block time in the graph below for $T = 1$, $T = 2$ and $T = 3$. As it can be seen, the best block time is when $T = 1$ seconds. In the best case, where $\gamma = \alpha = 1$, $T_{block} = 14.4$ seconds. When the network delay is less than 1 slot and $\alpha = 1$, then $T_{block} = 13.3$ seconds.
 
+In order to improve the block time, we need bigger $c$ and small $T$ value (e.g., $c = 0.35, T = 1 \Rightarrow T_{block} = 6.8$ seconds). However, in this case, we sacrifice from security because whenever the network delay become higher, BABE becomes vulnerable to attacks to break liveness and persistence. 
+
+![](https://i.imgur.com/GEmJElV.png)
+
+
+
+If we choose \(\mathbf{c = 0.075}\) which satisfies the assumption for \(\gamma = 0.5\). For simplicity, we fix \(\gamma = 0.5\) which means at least half of the honest parties are synchronized. In this case **\(\mathbf{\alpha}\) must be at least \(\mathbf{0.8}\)**. We find that \(k > 310\) for $T = 1$ seconds to have a good security level in 2.5 years as shown in the graph below.
+
+![](https://i.imgur.com/sA1tq7Z.png)
+
+Remark that \(k\) is the finality that is provided by BABE. Since we have GRANDPA on top of BABE, we expect much earlier finalization. This \(k\) value is valid when GRANDPA does not work properly. If \(k = 310\), the minimum **epoch length must be 99200 slots which is around 27 hours** according to Theorem 4. However, if GRANDPA finalizes a block earlier than $k$, we do not need to wait for $R/2$ slots more after randomness leaked to finalize the stake distribution so we need less slot number in an epoch. 
 
 
 
