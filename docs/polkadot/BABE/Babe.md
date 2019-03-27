@@ -353,15 +353,15 @@ in the graph below for $T = 0.81$, $T = 1.35$ and $T = 2.1$. As it can be seen, 
 
 In order to improve the block time, we need small $T$ value (e.g., $c = 0.25, T = 1 \Rightarrow T_{block} = 5.8$ seconds). However, in this case, we sacrifice from security because whenever the network delay become higher, BABE becomes vulnerable to attacks to break liveness and persistence. 
 
-![](https://i.imgur.com/GEmJElV.png)
+![](https://i.imgur.com/lbZ9NRZ.png)
 
 
 
-If we choose \(\mathbf{c = 0.075}\) which satisfies the assumption for \(\gamma = 0.5\). For simplicity, we fix \(\gamma = 0.5\) which means at least half of the honest parties are synchronized. In this case **\(\mathbf{\alpha}\) must be at least \(\mathbf{0.8}\)**. We find that \(k > 310\) for $T = 1$ seconds to have a good security level in 2.5 years as shown in the graph below.
+If we choose \(\mathbf{c = 0.25}\) which satisfies the assumption for \(\gamma = 0.5\). For simplicity, we fix \(\gamma = 0.5\) which means at least half of the honest parties are synchronized. In this case **\(\mathbf{\alpha}\) must be at least \(\mathbf{0.8}\)**. We find that \(k > 75\) for $T = 2.1$ seconds to have a good security level in 2.5 years as shown in the graph below.
 
-![](https://i.imgur.com/sA1tq7Z.png)
+![](https://i.imgur.com/dPS5J2h.png)
 
-Remark that \(k\) is the finality that is provided by BABE. Since we have GRANDPA on top of BABE, we expect much earlier finalization. This \(k\) value is valid when GRANDPA does not work properly. If \(k = 310\), the minimum **epoch length must be 99200 slots which is around 27 hours** according to Theorem 4. However, if GRANDPA finalizes a block earlier than $k$, we do not need to wait for $R/2$ slots more after randomness leaked to finalize the stake distribution so we need less slot number in an epoch. 
+Remark that \(k\) is the finality that is provided by BABE. Since we have GRANDPA on top of BABE, we expect much earlier finalization. This \(k\) value is valid when GRANDPA does not work properly. If \(k = 310\), the minimum **epoch length must be 7200 slots which is around 4.2 hours** according to Theorem 4. However, if GRANDPA finalizes a block earlier than $k$, we do not need to wait for $R/2$ slots more after randomness leaked to finalize the stake distribution so we need less slot number in an epoch. 
 
 
 
