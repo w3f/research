@@ -36,7 +36,7 @@ In the author's words, "Rather than bit-twiddling, point mangling, or otherwise 
 
 We could support multiple signature schemes for accounts, preferably with each account supporting only one single signature scheme, and possessing only one public key.  There are at least three or four additional signature types worth considering:
 
-We could support Ed25519 itself so as to improve support for HSMs, etc.  It's security is no different from Ristretto Schnorr signatures for normal use cases.  We've provided a secure HDKD solution, but users might encounter problems from any existing tools that provide HDKD solutions.
+We could support Ed25519 itself so as to improve support for HSMs, etc.  It's security is no different from Ristretto Schnorr signatures for normal use cases.  We've provided a secure HDKD solution, but users might encounter problems from existing tools that provide HDKD solutions.
 
 At least initially, we have allocated dots to secp256k1 keys compatible with ECDSA signatures on Ethereum.  We could use Schnorr / EdDSA signatures with these same keys instead.  We could however restrict these keys to doing only outgoing transfers, with the hope that they disappear completely without the first six months.  We might alternatively keep secp256k1 key support long term in the hopes that either the secp vs secq duality proves useful, or that parties with legacy infrastructure like exchanges benefit.
 

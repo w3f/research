@@ -1,7 +1,5 @@
 
-## Nominator keys
-
-stash account and controller account
+## Nomination
 
 In some sense, all public keys derive their authority from some combination of ceremonies and certificates, with certificate root keys deriving tehir authority entirely from ceremonies.  As an example, trust-on-first-use schemes might be considered a pair of cerimonies, the key being associated to an identity first, and the threat of other comparing keys fingerprints.
 

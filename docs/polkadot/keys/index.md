@@ -5,9 +5,9 @@ In this post, we shall first give a high level view of the various signing keys 
 
 We have roughly four cryptographic layers in Polkadot:
 
- - *Account keys* are owned by users and tied to one actual dot denominated account on Polkadot.  Accounts could be staked/bonded, unstaked/unbonded, or unstaking/unbonding, but only an unstaked/unbonded account key can transfer dots from one account to another.
- - *Nominator keys* provide a certificate chain between staked/bonded account keys and the session keys used by nodes in block production or validating.  As nominator keys cannot transfer dots, they insulate account keys, which may remain air gapped, from nodes actually running on the internet.
- - *Session keys* are actually several keys kept together that provide the various signing functions required by validators, including a couple types of verifiable random function (VRF) keys.
+ - [*Account keys*](1-accounts.md) are owned by users and tied to one actual dot denominated account on Polkadot.  Accounts could be staked/bonded, unstaked/unbonded, or unstaking/unbonding, but only an unstaked/unbonded account key can transfer dots from one account to another.  ([more](1-accounts-more.md))
+ - [*Nomination*](2-staking.md) provide a certificate chain between staked/bonded account keys and the session keys used by nodes in block production or validating.  As nominator keys cannot transfer dots, they insulate account keys, which may remain air gapped, from nodes actually running on the internet.
+ - [*Session keys*](3-session.md) are actually several keys kept together that provide the various signing functions required by validators, including a couple types of verifiable random function (VRF) keys.
  - [*Transport layer static keys*](https://forum.web3.foundation/t/transport-layer-authentication-libp2ps-secio/69) are used by libp2p to authenticate connections between nodes.  We shall either certify these with the session key or perhaps include them directly in the session key.
 
 

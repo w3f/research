@@ -3,7 +3,7 @@
 
 ## Session keys
 
-A session public key should consist of roughly four public keys types: 
+A session public key should consist of three or four public keys types: 
  
  - Ristretto Schnorr public key (32 bytes public keys, 64 byte signatures, 96 byte VRFs)
  
@@ -17,7 +17,7 @@ A session public key should consist of roughly four public keys types:
 
    We should consider [slothful reduction](https://eprint.iacr.org/2017/437) as discussed in https://github.com/zkcrypto/pairing/issues/98 for these eventually, but initially key splitting should provide solid protection against timing attacks, but with even slower signature speed.
 
- - Big curve of BLS12-381 (96 bytes public keys, 48 byte signatures)
+ - Big curve of BLS12-381 (96 bytes public keys, 48 byte signatures) (optional)
  
    Aggregated signatures in which we verify many messages by the same signer verify considerably faster when using this key.  We might use these for block production VRFs because they aggregating over the same signer sounds useful for syncing.  Initially, we envisioned aggregation being useful for some VRF non-winner proofs designs, but our new non-winner proof design mostly avoids this requirement.  Right now, we favor the Ristretto Schnorr VRF for block production because individual instances verify faster and it provides rather extreme batching over the same signer already.
 
