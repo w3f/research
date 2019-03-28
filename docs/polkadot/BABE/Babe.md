@@ -129,32 +129,47 @@ We do not use the chain selection rule as in Ouroboros Genesis [3] because this 
 
 ## Relative Time
 
-It is important for parties to know the current slot  for the security and completeness of BABE. Therefore, we show how a party realizes the notion of slots. We assume that slot time \(T\) is greater than the network propogation time. We assume partial synchronous channel meaning that any message sent by a party arrives at most \(\D\)-slots later. \(\D\) is not an unknown parameter.
+It is important for parties to know the current slot  for the security and completeness of BABE. Therefore, we show how a party realizes the notion of slots. Here, we assume partial synchronous channel meaning that any message sent by a party arrives at most \(\D\)-slots later. \(\D\) is not an unknown parameter.
 
 
-Each party has a local clock and this clock does not have to be synchronized with the network. When a party receives the genesis block, it stores the arrival time as \(t_0\) as a reference point of the beginning of the first slot. We are aware of the beginning of the first slot is not same for everyone. We assume that this difference is negligible comparing to \(T\). Then each party divides their timeline in slots.
+Each party has a local clock and this clock does not have to be synchronized with the network. When a party receives the genesis block, it stores the arrival time as \(t_0\) as a reference point of the beginning of the first slot. We are aware of the beginning of the first slot is not same for everyone. We assume that this difference is negligible comparing to \(T\). Then each party divides their timeline in slots. 
 
 
-**Obtaining Slot Number:** Parties who join BABE after the genesis block released or who lose notion of slot run the following protocol or who wants to resynchronze the slot number obtain the current slot number with the following protocol. 
+**Obtaining Slot Number:** Parties who join BABE after the genesis block released or who lose notion of slot run the following protocol r obtain the current slot number with one of the following protocols. 
 
 
 If a party \(P_j\) is a newly joining party, he downloads chains and receives blocks at the same time. After chains' download completed, he adds the valid blocks to the corresponding chains. We have following approaches to determine the current slot time \(sl_{cur}\).
 
-**- First Option:**
-In this protocol, \(P_j\)  obtains the current slot number from the best chain \(C\). The current slot number from a block \(B'_u\) whose slot is \(sl_u\) and whose previous block belongs to \(sl_u-1\) is obtained as below:
 
-$$sl_{cur} = sl_u + \lfloor\frac{t_{curr}-t_u}{T}\rfloor \space \space \space\space\space (1)$$
+The party $P_j$ stores the arrival time $t_i$ of $n$ blocks with their corresponding slot time $sl_i$. Let us denote the stored arrival times by \(t_1,t_2,...,t_n\) corresponds to blocks including slot numbers \(sl_1,sl_2,...,sl_n\). Remark that these slot numbers do not have to be consecutive since some slots may be empty or the slot leader is offline, late or early. Then $P_j$ orders the following list \(\{t_1+a_1T, t_2+a_2T,..., t_n+a_nT_\}\) where $a_i = sl - sl_i$. Here, $sl$ is a slot number that $P_j$ wants to learn at what time it corresponds in his local time. At the end. $P_j$  outputs the median of the ordered list ($t$) as the time of $sl$.
 
-In more detail, \(sl_u\) is the slot of \((\mathsf{len}(C) - k')^{th}\)  block (B'_u) where \(k' \geq k\), \(t_u\) is the arrival time of \(B'_u\),  \((\mathsf{len}(C) - k')^{th}\) block (\(B'_u\)) to slot \(sl_u\) (i.e., \(sl_{cur} = sl_u + \lfloor\frac{t_{curr}-t_u}{T}\rfloor\)). The reason of obtaining \(sl_{cur}\) based on \(sl_u\) is  because with very high probability, \(B_u\) is in the best chain of other honest parties and will stay in the best chain. Therefore, we can assume that if this block is in the best chain forever, its chance to be sent on time is higher than to be sent earlier or later.  Clearly, if \(B_u\) is sent on time, then the party obtain a slot number at most \(\D\)-slot behind of the current slot but otherwise we cannot guarantee this. Actually, we would expect that even malicious parties sent their blocks on time because if they don't send on the right slot their blocks have chance not to be in the best chain in the future. However, we cannot trust this assumption in the security analysis. Therefore, we have second option which has higher guarantee.
+![](https://i.imgur.com/yGYw9CL.png)
+
+**Lemma:** Asuming that \(\alpha\gamma(1-c)^\D \geq (1+\epsilon)/2\)  where \(\alpha\) is the honest stake and $\gamma\alpha$ is the honest and synchronized parties' stake,  \(sl \leq sl' - \D\)) where $sl'$ the correct slot number of time $t$ with probability 1 - \exp(\frac{\delta^2\mu}{2} where $\delta \leq \frac{\epsilon}{1+\epsilon}$ and $\mu = n(1+\epsilon)/2$.
+
+**Proof:** Let us first assume that more than half of the blocks among $n$ blocks are sent by the honest and synchronized parties and  $t = t_i + a_iT$. Then, it means that more than half of the blocks sent on time. If the block of $sl_i$ is sent by an honest and synchronized party, we can conclude it is sent at earliest at $t_i' \leq t_i - \DT$. In this case, the correct slot number $sl'$ at time $t$ is $sl_i + \frac{t-t_i'}{T} = sl_i + \frac{t_i + a_iT - t_i'}{T} \leq sl_i + \frac{a_iT + \DT}{T} = sl+\D$.
+
+If the median does not corresponds to time derived from an honest and synchronized parties' block, we can say there is at least one honest and synchronized time after the median.  Let's denote this time by $t_u + a_uT$.  Let's assume that the latest honest one in the ordered list is delayed $\D' \leq \D$ slots. It means that ft the median was this one, $sl_u' - sl \leq \D'$ as shown above where $sl_u'$ is the correct slot at time $t_u + a_uT$. Clearly, $sl \leq sl_u'$. Then we can conslude that $sl' - sl \leq sl_u' - sl \leq \D' \leq \D$.
+
+Now, we show the probability of having more than half honest and synchronized blocks in $n$ blocks. If \(\alpha\gamma(1-c)^\D \geq (1+\epsilon)/2\), then the blocks of honest and synchronized parties are added to the best chain even if there is $\D$ slots delay (it is discussed in the proof of Theorem 2) with the probability more than $(1+\epsilon)/2$. We define a random variable $X_v \in \{0,1\}$ which is 1 if $t_v$ is the arrival time of an honest and synchronized block. Then the expected number of honest blocks in $n$ block is $\mu = n(1+\epsilon)/2$. We bound this with the Chernoff bound:
+
+$$\mathsf{Pr}[ \sum_{v = 1}^n X_v \leq \mu(1-\delta)] \leq \exp(\frac{\delta^2\mu}{2}) $$
+
+This probability should be negligibly small with a $\delta \approx 1$ in order to have more than half honest and synchronized blocks in $n$ slots.
+$$\tag*{\(\blacksquare\)}$$
+
+If $\epsilon \geq 0.1$ and $\delta = 0.09$, the probability of having less than half is less than $0.06$ if $n \geq 1200$.
 
 
-**- Second Option:** Before giving the second option, let us define *lower consistent blocks*. Given consecutive blocks \(\{B'_1, B'_2,...,B'_n \in C\) if for each block pair \(B'_u\) and \(B'_v\) which belong to the slots \(sl_u\) and \(sl_v\) (\(sl_u < sl_v\)), respectively are lower consistent for a party \(P_j\), if they arrive on \(t_u\) and \(t_v\) such that \(sl_v - sl_u = \lfloor\frac{t_v - t_u}{T}\rfloor\). We call *upper consistent* if for all blocks \(sl_v - sl_u = \lceil\frac{t_v - t_u}{T}\rceil\) they Whenever \(P_j\) receives at least \(k\) either upper or lower consistent blocks, it outputs \(sl_{cur}\) as in (1) where \(sl_u\) is the slot of one of the blocks in the block set.
+Another option is the following:
+
+**- Second Option:** Before giving the second option, let us define *lower consistent blocks*. Given consecutive blocks \(\{B'_1, B'_2,...,B'_n \in C\) if for each block pair \(B'_u\) and \(B'_v\) which belong to the slots \(sl_u\) and \(sl_v\) (\(sl_u < sl_v\)), respectively are lower consistent for a party \(P_j\), if they arrive on \(t_u\) and \(t_v\) such that \(sl_v - sl_u = \lfloor\frac{t_v - t_u}{T}\rfloor\). We call *upper consistent* if for all blocks \(sl_v - sl_u = \lceil\frac{t_v - t_u}{T}\rceil\) they Whenever \(P_j\) receives at least \(2k\) either upper or lower consistent blocks, it outputs \(sl_{cur}\) as in (1) where \(sl_u\) is the slot of one of the blocks in the block set.
 
 
 
-**Lemma 1:** Assuming that the network delay is at most \(\D\) and the honest and synchronized parties stake \(\alpha_H\) is  such that \(\alpha_H(1-c)^\D > 1/2\), \(P_j\)'s current slot is at most \(\D\)-behind the current slot of honest and synchronized parties (i.e., \(sl_{cur} \leq sl'_{cur} - \D\)).
+**Lemma 1:** Assuming that the network delay is at most \(\D\) and the honest parties' stake satisfy the condion in Theorem 2, \(P_j\)'s current slot is at most \(\D\)-behind the current slot of honest and synchronized parties (i.e., \(sl_{cur} \leq sl'_{cur} - \D\)).
 
-**Proof:** According to Lemma 4 in [2], there is at least one block honestly generated by an sychronized and honest party in \(k\) slot with probability \(1 - e^{-\Omega(k)}\) assuming that  \(\alpha_H(1-c)^\D > 1/2\). We do our proof with lower consistent block. The upper consistent one is similar. 
+**Proof:** According to Theorem 2, there is at least one block honestly generated by an honest party in \(k\) slot with probability \(1 - e^{-\Omega(k)}\) assuming that  \(\alpha_H(1-c)^\D > 1/2\). We do our proof with lower consistent block. The upper consistent one is similar. 
 
 If \(k\) blocks are lower consistent, then it means that all blocks are lower consistent with this honest and synchronized block. 
 
@@ -167,6 +182,18 @@ So \(P_i\) is going to obtain the same \(sl_{cur}\) with all blocks. Similarly, 
 $$\tag*{\(\blacksquare\)}$$
 
 One of drawback of this protocol is that a party may never have \(k\) consistent blocks if an adversary randomly delays some blocks. In this case, \(P_i\) may never has consistent blocks. 
+
+This protocol can be used after the median protocol. If a party who synchronized himself with the median protocol can verify or update himself with the second option. If this party sees $k$-consistent blocks and the slot number $sl'$ obtained with the 
+second option less than $sl$ obtained from the median protocol, he updates it with $sl'$.
+
+**- First Option:**
+In this protocol, \(P_j\)  obtains the current slot number from the best chain \(C\). The current slot number from a block \(B'_u\) whose slot is \(sl_u\) and whose previous block belongs to \(sl_u-1\) is obtained as below:
+
+$$sl_{cur} = sl_u + \lfloor\frac{t_{curr}-t_u}{T}\rfloor \space \space \space\space\space (1)$$
+
+In more detail, \(sl_u\) is the slot of \((\mathsf{len}(C) - k')^{th}\)  block (B'_u) where \(k' \geq k\), \(t_u\) is the arrival time of \(B'_u\),  \((\mathsf{len}(C) - k')^{th}\) block (\(B'_u\)) to slot \(sl_u\) (i.e., \(sl_{cur} = sl_u + \lfloor\frac{t_{curr}-t_u}{T}\rfloor\)). The reason of obtaining \(sl_{cur}\) based on \(sl_u\) is  because with very high probability, \(B_u\) is in the best chain of other honest parties and will stay in the best chain. Therefore, we can assume that if this block is in the best chain forever, its chance to be sent on time is higher than to be sent earlier or later.  Clearly, if \(B_u\) is sent on time, then the party obtain a slot number at most \(\D\)-slot behind of the current slot but otherwise we cannot guarantee this. Actually, we would expect that even malicious parties sent their blocks on time because if they don't send on the right slot, their blocks have a chance not to be in the best chain in the future. However, we cannot trust this assumption in the security analysis. Therefore, we have second option which has higher guarantee.
+
+
 
 **Third Option:**
 In this option, \(P_i\) obtains the slot number independent from the chain.
