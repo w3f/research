@@ -148,7 +148,7 @@ The party $P_j$ stores the arrival time $t_i$ of $n$ blocks with their correspon
 
 **Lemma 1:** Asuming that $\D$ is the maximum network delay in terms of slot number and \(\alpha\gamma(1-c)^\D \geq (1+\epsilon)/2\)  where \(\alpha\) is the honest stake and $\gamma\alpha$ is the honest and synchronized parties' stake and $\epsilon \in (0,1)$,  \(sl' - sl \leq \D\) with the median algorithm where $sl'$ the correct slot number of time $t$ with probability 1 - \exp(\frac{\delta^2\mu}{2} where $0 < \delta \leq \frac{\epsilon}{1+\epsilon}$ and $\mu = n(1+\epsilon)/2$.
 
-**Proof:** Let us first assume that more than half of the blocks among $n$ blocks are sent by the honest and synchronized parties and  $t = t_i + a_iT$. Then, it means that more than half of the blocks sent on time. If the block of $sl_i$ is sent by an honest and synchronized party, we can conclude it is sent at earliest at $t_i' \leq t_i - \D T$. In this case, the correct slot number $sl'$ at time $t$ is $sl_i + \lceil\frac{t-t_i'}{T}\rfloor = sl_i + \lceil\frac{t_i + a_iT - t_i'}{T}\rfloor$. If $\D T = 0$, sl' = sl, otherwise $sl' \geq sl_i + \lceil\frac{a_iT + \DT}{T}\rfloor = sl+\D$.
+**Proof:** Let us first assume that more than half of the blocks among $n$ blocks are sent by the honest and synchronized parties and  $t = t_i + a_iT$. Then, it means that more than half of the blocks sent on time. If the block of $sl_i$ is sent by an honest and synchronized party, we can conclude it is sent at earliest at $t_i' \leq t_i - \D T$. In this case, the correct slot number $sl'$ at time $t$ is $sl_i + \lceil\frac{t-t_i'}{T}\rfloor = sl_i + \lceil\frac{t_i + a_iT - t_i'}{T}\rfloor$. If $\D T = 0$, sl' = sl, otherwise $sl' \geq sl_i + \lceil\frac{a_iT + \D T}{T}\rfloor = sl+\D$.
 
 If the median does not corresponds to time derived from an honest and synchronized parties' block, we can say that there is at least one honest and synchronized time after the median because more than half of the times are honest and synchronized.  Let's denote this time by $t_u + a_uT$.  Let's assume that the latest honest one in the ordered list is delayed $\D' \leq \D$ slots. It means that if the median was this one, $sl_u' - sl \leq \D'$ as shown above where $sl_u'$ is the correct slot number of time $t_u + a_uT$. Clearly, $sl \leq sl_u'$. Then, we can conclude that $sl' - sl \leq sl_u' - sl \leq \D' \leq \D$.
 
@@ -156,7 +156,7 @@ Now, we show the probability of having more than half honest and synchronized bl
 
 $$\mathsf{Pr}[ \sum_{v = 1}^n X_v \leq \mu(1-\delta)] \leq \exp(\frac{\delta^2\mu}{2}) $$
 
-If 0 < \delta \leq \frac{\epsilon}{1+\epsilon}$, \mu(1-\delta) \geq n/2. This probability should be negligibly small with a $\delta \approx 1$ in order to have more than half honest and synchronized blocks in $n$ slots.
+Given that $0 < \delta \leq \frac{\epsilon}{1+\epsilon}$, \mu(1-\delta) \geq n/2$, this probability should be negligibly small with a $\delta \approx 1$ in order to have more than half honest and synchronized blocks in $n$ slots.
 $$\tag*{\(\blacksquare\)}$$
 
 If $\epsilon \geq 0.1$ and $\delta = 0.09$, the probability of having less than half is less than $0.06$ if $n \geq 1200$.
@@ -164,7 +164,7 @@ If $\epsilon \geq 0.1$ and $\delta = 0.09$, the probability of having less than 
 
 We give another algorithm called consistency algorithm below. This can be run after the median algorithm to verify or update $t$ later on.
 
-**- Consistency Algorithm:** Let us first define *lower consistent blocks*. Given consecutive blocks \(\{B'_1, B'_2,...,B'_n \in C\) if for each block pair \(B'_u\) and \(B'_v\) which belong to the slots \(sl_u\) and \(sl_v\) (\(sl_u < sl_v\)), respectively are lower consistent for a party \(P_j\), if they arrive on \(t_u\) and \(t_v\) such that \(sl_v - sl_u = \lfloor\frac{t_v - t_u}{T}\rfloor\). We call *upper consistent* if for all blocks \(sl_v - sl_u = \lceil\frac{t_v - t_u}{T}\rceil\). Whenever \(P_j\) receives at least \(k\) either upper or lower consistent blocks, it outputs $t$ and $sl = sl_u + \lfloor\frac{t}-t_u}{T}\rfloor$ where \(sl_u\) is the slot of one of the blocks in the block set.
+**- Consistency Algorithm:** Let us first define *lower consistent blocks*. Given consecutive blocks \(\{B'_1, B'_2,...,B'_n \in C\) if for each block pair \(B'_u\) and \(B'_v\) which belong to the slots \(sl_u\) and \(sl_v\) (\(sl_u < sl_v\)), respectively are lower consistent for a party \(P_j\), if they arrive on \(t_u\) and \(t_v\) such that \(sl_v - sl_u = \lfloor\frac{t_v - t_u}{T}\rfloor\). We call *upper consistent* if for all blocks \(sl_v - sl_u = \lceil\frac{t_v - t_u}{T}\rceil\). Whenever \(P_j\) receives at least \(k\) either upper or lower consistent blocks, it outputs $t$ and \(sl = sl_u + \lfloor\frac{t}-t_u}{T}\rfloor\) where \(sl_u\) is the slot of one of the blocks in the block set.
 
 
 **Lemma 2:** Assuming that the network delay is at most \(\D\) and the honest parties' stake satisfies the condion in Theorem 2, \(P_j\)'s current slot is at most \(\D\)-behind or $2\D$ -behind of the correct slot $sl'$ at time $t$ (i.e., \(sl' - sl \leq \D\)).
@@ -328,7 +328,7 @@ We fix the life time of the protocol as \(\mathcal{L}=2.5 \text{ years}  = 15768
 
 The parameter $c$ is very critical because it specifies the number of empty slots because probability of having empty slot is $1-c$. If $c$ is very small, we have a lot of empty slots and so we have longer block time. If $c$ is big, we may not satisfy the the condition \(\alpha(\gamma+(1-c)^\D\beta)(1-c)^\D \geq (1+\epsilon)/2\) to apply the result of Theorem 4. So, we need to have a tradeoff between security and practicality. Therefore, we fix $c = 0.5$.
 
-We need to satisfy two conditions $$\frac{1}{c}(\phi(\alpha\gamma)(1-c)^{\D-\alpha}(1-c)^{D-1}+ \phi(alpha\beta)(1-c)^{2\D-\alpha\beta} \geq \(\alpha(\gamma+(1-c)^\D\beta)(1-c)^\D \geq (1+\epsilon)/2\)\geq (1+\epsilon/2)$$ to apply the result of Theorem 4 and $$\frac{1}{c}(\phi(\alpha\gamma)(1-c)^{\D-\alpha}(1-c)^{D-1} \geq \(\alpha\gamma(1-c)^\D \geq (1+\epsilon)/2\) $$ to apply the result of Lemma 1 . Second condition implies the first one.  These conditions are satisfied given $c = 0.5$, $\D = 1$ and $\alpha = 0.65$ and $\gamma = 0.7$.
+We need to satisfy two conditions $$\frac{1}{c}(\phi(\alpha\gamma)(1-c)^{\D-\alpha}(1-c)^{D-1}+ \phi(alpha\beta)(1-c)^{2\D-\alpha\beta} \geq \alpha(\gamma+(1-c)^\D\beta)(1-c)^\D \geq (1+\epsilon/2)$$ to apply the result of Theorem 4 and $$\frac{1}{c}(\phi(\alpha\gamma)(1-c)^{\D-\alpha}(1-c)^{D-1} \geq \alpha\gamma(1-c)^\D \geq (1+\epsilon)/2$$ to apply the result of Lemma 1 . Second condition implies the first one.  These conditions are satisfied given $c = 0.5$, $\D = 1$ and $\alpha = 0.65$ and $\gamma = 0.7$.
 
 
 
@@ -337,11 +337,11 @@ In order to find the average block time (i.e., the required time to add one bloc
 
 
 The probability of $2\D$-right isolated slot is  
-$$p_{2\D} \geq \frac{\phi(\alpha\beta)(1-c)^{1-\alpha\beta}}{c}(1-c)^{2\D-1}.$ 
+$$p_{H_L} \geq \frac{\phi(\alpha\beta)(1-c)^{1-\alpha\beta}}{c}(1-c)^{2\D-1}.$$ 
 The probability of $\D$-right isolated slot is
-$$p_{\D}\geq \frac{\phi(\alpha\gamma)(1-c)^{1-\alpha}}{c}(1-c)^{\D-1}.$$
+$$p_{H_S}\geq \frac{\phi(\alpha\gamma)(1-c)^{1-\alpha}}{c}(1-c)^{\D-1}.$$
 The expected number of non-empty slot in $L$. The expected number of $\D$ and $2\D$-right isolated slot is  
-$$\mathbb{E} = cL(p_{H_L}+p_{H_S})$$. Then, the block time $T_{block} \leq \frac{LT}{\mathbb{E}}$. Remark that we have already had the condition that $p_{H_L} + p{H_S} \geq (1+ \epsilon)/2$ from the security even if we have maximumum network delay.  In order to find the average block time, we do not consider the maximum network delay here. We consider the average network delay which 1 seconds. In the graph below, we have the average block time for each slot time in blue. In addition, the graph shows the maximum network delay resistance for each slot time in red.
+$$\mathbb{E} = cL(p_{H_L}+p_{H_S}).$$ Then, the block time $T_{block} \leq \frac{LT}{\mathbb{E}}$. Remark that we have already had the condition that $p_{H_L} + p{H_S} \geq (1+ \epsilon)/2$ from the security even if we have maximumum network delay.  In order to find the average block time, we do not consider the maximum network delay here. We consider the average network delay which 1 seconds. In the graph below, we have the average block time for each slot time in blue. In addition, the graph shows the maximum network delay resistance for each slot time in red.
 
 ![](https://i.imgur.com/rePtRjL.png)
 
