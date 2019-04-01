@@ -138,88 +138,54 @@ Each party has a local clock and this clock does not have to be synchronized wit
 **Obtaining Slot Number:** Parties who join BABE after the genesis block released or who lose notion of slot run the following protocol r obtain the current slot number with one of the following protocols. 
 
 
-If a party \(P_j\) is a newly joining party, he downloads chains and receives blocks at the same time. After chains' download completed, he adds the valid blocks to the corresponding chains. We have following approaches to determine the current slot time \(sl_{cur}\).
+If a party \(P_j\) is a newly joining party, he downloads chains and receives blocks at the same time. After chains' download completed, he adds the valid blocks to the corresponding chains. Assuming that a slot number $sl$ is executed in a (local) time interval $[t_{start}, t_{end}]$ of party $P_j$, we have the following protocols for $P_j$ to output $sl$ and $t \in [t_{start}, t_{time}]$.
 
 
-The party $P_j$ stores the arrival time $t_i$ of $n$ blocks with their corresponding slot time $sl_i$. Let us denote the stored arrival times by \(t_1,t_2,...,t_n\) corresponds to blocks including slot numbers \(sl_1,sl_2,...,sl_n\). Remark that these slot numbers do not have to be consecutive since some slots may be empty or the slot leader is offline, late or early. Then $P_j$ orders the following list \(\{t_1+a_1T, t_2+a_2T,..., t_n+a_nT_\}\) where $a_i = sl - sl_i$. Here, $sl$ is a slot number that $P_j$ wants to learn at what time it corresponds in his local time. At the end. $P_j$  outputs the median of the ordered list ($t$) as the time of $sl$.
+**- Median Algorithm:**
+The party $P_j$ stores the arrival time $t_i$ of $n$ blocks with their corresponding slot time $sl_i$. Let us denote the stored arrival times of blocks by \(t_1,t_2,...,t_n\) whose slot numbers are \(sl_1,sl_2,...,sl_n\), respectively. Remark that these slot numbers do not have to be consecutive since some slots may be empty, with multiple slot leaders or the slot leader is offline, late or early. After storing $n$ arrival times, $P_j$ sorts the following list \(\{t_1+a_1T, t_2+a_2T,..., t_n+a_nT_\}\) where $a_i = sl - sl_i$. Here, $sl$ is a slot number that $P_j$ wants to learn at what time it corresponds in his local time. At the end. $P_j$  outputs the median of the ordered list as ($t$) and $sl$. 
 
 ![](https://i.imgur.com/yGYw9CL.png)
 
-**Lemma:** Asuming that \(\alpha\gamma(1-c)^\D \geq (1+\epsilon)/2\)  where \(\alpha\) is the honest stake and $\gamma\alpha$ is the honest and synchronized parties' stake,  \(sl \leq sl' - \D\)) where $sl'$ the correct slot number of time $t$ with probability 1 - \exp(\frac{\delta^2\mu}{2} where $\delta \leq \frac{\epsilon}{1+\epsilon}$ and $\mu = n(1+\epsilon)/2$.
+**Lemma 1:** Asuming that $\D$ is the maximum network delay in terms of slot number and \(\alpha\gamma(1-c)^\D \geq (1+\epsilon)/2\)  where \(\alpha\) is the honest stake and $\gamma\alpha$ is the honest and synchronized parties' stake and $\epsilon \in (0,1)$,  \(sl' - sl \leq \D\) with the median algorithm where $sl'$ the correct slot number of time $t$ with probability 1 - \exp(\frac{\delta^2\mu}{2} where $0 < \delta \leq \frac{\epsilon}{1+\epsilon}$ and $\mu = n(1+\epsilon)/2$.
 
-**Proof:** Let us first assume that more than half of the blocks among $n$ blocks are sent by the honest and synchronized parties and  $t = t_i + a_iT$. Then, it means that more than half of the blocks sent on time. If the block of $sl_i$ is sent by an honest and synchronized party, we can conclude it is sent at earliest at $t_i' \leq t_i - \DT$. In this case, the correct slot number $sl'$ at time $t$ is $sl_i + \frac{t-t_i'}{T} = sl_i + \frac{t_i + a_iT - t_i'}{T} \leq sl_i + \frac{a_iT + \DT}{T} = sl+\D$.
+**Proof:** Let us first assume that more than half of the blocks among $n$ blocks are sent by the honest and synchronized parties and  $t = t_i + a_iT$. Then, it means that more than half of the blocks sent on time. If the block of $sl_i$ is sent by an honest and synchronized party, we can conclude it is sent at earliest at $t_i' \leq t_i - \D T$. In this case, the correct slot number $sl'$ at time $t$ is $sl_i + \lceil\frac{t-t_i'}{T}\rfloor = sl_i + \lceil\frac{t_i + a_iT - t_i'}{T}\rfloor$. If $\D T = 0$, sl' = sl, otherwise $sl' \geq sl_i + \lceil\frac{a_iT + \DT}{T}\rfloor = sl+\D$.
 
-If the median does not corresponds to time derived from an honest and synchronized parties' block, we can say there is at least one honest and synchronized time after the median.  Let's denote this time by $t_u + a_uT$.  Let's assume that the latest honest one in the ordered list is delayed $\D' \leq \D$ slots. It means that ft the median was this one, $sl_u' - sl \leq \D'$ as shown above where $sl_u'$ is the correct slot at time $t_u + a_uT$. Clearly, $sl \leq sl_u'$. Then we can conslude that $sl' - sl \leq sl_u' - sl \leq \D' \leq \D$.
+If the median does not corresponds to time derived from an honest and synchronized parties' block, we can say that there is at least one honest and synchronized time after the median because more than half of the times are honest and synchronized.  Let's denote this time by $t_u + a_uT$.  Let's assume that the latest honest one in the ordered list is delayed $\D' \leq \D$ slots. It means that if the median was this one, $sl_u' - sl \leq \D'$ as shown above where $sl_u'$ is the correct slot number of time $t_u + a_uT$. Clearly, $sl \leq sl_u'$. Then, we can conclude that $sl' - sl \leq sl_u' - sl \leq \D' \leq \D$.
 
-Now, we show the probability of having more than half honest and synchronized blocks in $n$ blocks. If \(\alpha\gamma(1-c)^\D \geq (1+\epsilon)/2\), then the blocks of honest and synchronized parties are added to the best chain even if there is $\D$ slots delay (it is discussed in the proof of Theorem 2) with the probability more than $(1+\epsilon)/2$. We define a random variable $X_v \in \{0,1\}$ which is 1 if $t_v$ is the arrival time of an honest and synchronized block. Then the expected number of honest blocks in $n$ block is $\mu = n(1+\epsilon)/2$. We bound this with the Chernoff bound:
+Now, we show the probability of having more than half honest and synchronized blocks in $n$ blocks. If \(\alpha\gamma(1-c)^\D \geq (1+\epsilon)/2\), then the blocks of honest and synchronized parties are added to the best chain even if there are $\D$ slots delay (it is discussed in the proof of Theorem 2) with the probability more than $(1+\epsilon)/2$. We define a random variable $X_v \in \{0,1\}$ which is 1 if $t_v$ is the arrival time of an honest and synchronized block. Then the expected number of honest and synchronized blocks among $n$ blocks is $\mu = n(1+\epsilon)/2$. We bound this with the Chernoff bound:
 
 $$\mathsf{Pr}[ \sum_{v = 1}^n X_v \leq \mu(1-\delta)] \leq \exp(\frac{\delta^2\mu}{2}) $$
 
-This probability should be negligibly small with a $\delta \approx 1$ in order to have more than half honest and synchronized blocks in $n$ slots.
+If 0 < \delta \leq \frac{\epsilon}{1+\epsilon}$, \mu(1-\delta) \geq n/2. This probability should be negligibly small with a $\delta \approx 1$ in order to have more than half honest and synchronized blocks in $n$ slots.
 $$\tag*{\(\blacksquare\)}$$
 
 If $\epsilon \geq 0.1$ and $\delta = 0.09$, the probability of having less than half is less than $0.06$ if $n \geq 1200$.
 
 
-Another option is the following:
+We give another algorithm called consistency algorithm below. This can be run after the median algorithm to verify or update $t$ later on.
 
-**- Second Option:** Before giving the second option, let us define *lower consistent blocks*. Given consecutive blocks \(\{B'_1, B'_2,...,B'_n \in C\) if for each block pair \(B'_u\) and \(B'_v\) which belong to the slots \(sl_u\) and \(sl_v\) (\(sl_u < sl_v\)), respectively are lower consistent for a party \(P_j\), if they arrive on \(t_u\) and \(t_v\) such that \(sl_v - sl_u = \lfloor\frac{t_v - t_u}{T}\rfloor\). We call *upper consistent* if for all blocks \(sl_v - sl_u = \lceil\frac{t_v - t_u}{T}\rceil\) they Whenever \(P_j\) receives at least \(2k\) either upper or lower consistent blocks, it outputs \(sl_{cur}\) as in (1) where \(sl_u\) is the slot of one of the blocks in the block set.
+**- Consistency Algorithm:** Let us first define *lower consistent blocks*. Given consecutive blocks \(\{B'_1, B'_2,...,B'_n \in C\) if for each block pair \(B'_u\) and \(B'_v\) which belong to the slots \(sl_u\) and \(sl_v\) (\(sl_u < sl_v\)), respectively are lower consistent for a party \(P_j\), if they arrive on \(t_u\) and \(t_v\) such that \(sl_v - sl_u = \lfloor\frac{t_v - t_u}{T}\rfloor\). We call *upper consistent* if for all blocks \(sl_v - sl_u = \lceil\frac{t_v - t_u}{T}\rceil\). Whenever \(P_j\) receives at least \(k\) either upper or lower consistent blocks, it outputs $t$ and $sl = sl_u + \lfloor\frac{t}-t_u}{T}\rfloor$ where \(sl_u\) is the slot of one of the blocks in the block set.
 
 
+**Lemma 2:** Assuming that the network delay is at most \(\D\) and the honest parties' stake satisfies the condion in Theorem 2, \(P_j\)'s current slot is at most \(\D\)-behind or $2\D$ -behind of the correct slot $sl'$ at time $t$ (i.e., \(sl' - sl \leq \D\)).
 
-**Lemma 1:** Assuming that the network delay is at most \(\D\) and the honest parties' stake satisfy the condion in Theorem 2, \(P_j\)'s current slot is at most \(\D\)-behind the current slot of honest and synchronized parties (i.e., \(sl_{cur} \leq sl'_{cur} - \D\)).
+**Proof:** According to Theorem 2, there is at least one block honestly generated by an honest party in \(k\) slot with probability \(1 - e^{-\Omega(k)}\). Therefore, one of the blocks in the lower oe upper consistent blocks belong to an honest party. We do our proof with lower consistent block. The upper consistent one is similar. Let's denote $\hat{\D} = \D$ or $\hat{\D} = 2\D$ 
 
-**Proof:** According to Theorem 2, there is at least one block honestly generated by an honest party in \(k\) slot with probability \(1 - e^{-\Omega(k)}\) assuming that  \(\alpha_H(1-c)^\D > 1/2\). We do our proof with lower consistent block. The upper consistent one is similar. 
+If \(k\) blocks are lower consistent, then it means that all blocks are lower consistent with the honest block. 
 
-If \(k\) blocks are lower consistent, then it means that all blocks are lower consistent with this honest and synchronized block. 
+If \(P_j\) chooses the arrival time and slot number of this honest block, then \(sl \leq sl' - \hat{\D}\) because the honest parties' block must arrive to \(P_j\) at most \(\hat{\D}\)-slots later. Now, we need to show that if \(P_j\) chooses the arrival time of a different block which does not have to be produced by an honest and synchronized party, then he is still at most \(\D\)-behind.
 
-If \(P_j\) chooses the arrival time and slot number of this honest block, then \(sl_{cur} \leq sl'_{cur} - \D\) because the honest and synchronized parties' block must arrive to \(P_j\) at most \(\D\)-slots later. Now, we need to show that if \(P_j\) chooses the arrival time of a different block which does not have to be produced by an honest and synchronized party, then he is still at most \(\D\)-behind.
+Assume that \(P_j\) picks \(sl_v > sl_u\) to compute $sl$ for $t$. We show that this computation is equal to \(sl = sl_u +\lfloor\frac{t - t_u}{T}\rfloor\). We know because of the lower consistency \(sl_v- sl_u = \lfloor\frac{t_v - t_u}{T}\rfloor\). $$sl = sl_v - \lfloor\frac{t_v - t_u}{T}\rfloor + \lfloor\frac{t - t_u}{T}\rfloor = sl_v + \lfloor\frac{t-t_v}{T}\rfloor$$
 
-Assume that \(P_j\) picks \(sl_v > sl_u\) to compute the current slot number as in (1). We show that this computation is equal to \(sl_{cur} = sl_u +\lfloor\frac{t_{cur} - t_u}{T}\rfloor\). We know because of the lower consistency \(sl_v- sl_u = \lfloor\frac{t_v - t_u}{T}\rfloor\). $$sl_{cur} = sl_v - \lfloor\frac{t_v - t_u}{T}\rfloor + \lfloor\frac{t_{cur} - t_u}{T}\rfloor = sl_v + \lfloor\frac{t_{cur}-t_v}{T}\rfloor$$
-
-So \(P_i\) is going to obtain the same \(sl_{cur}\) with all blocks. Similarly, if \(P_i\) picks \(sl_v < sl_u\), he obtains \(sl_u\)
+So \(P_i\) is going to obtain the same \(sl\) and $t$ with all blocks. Similarly, if \(P_i\) picks \(sl_v < sl_u\), he obtains \(sl\)
 
 $$\tag*{\(\blacksquare\)}$$
 
-One of drawback of this protocol is that a party may never have \(k\) consistent blocks if an adversary randomly delays some blocks. In this case, \(P_i\) may never has consistent blocks. 
 
-This protocol can be used after the median protocol. If a party who synchronized himself with the median protocol can verify or update himself with the second option. If this party sees $k$-consistent blocks and the slot number $sl'$ obtained with the 
-second option less than $sl$ obtained from the median protocol, he updates it with $sl'$.
-
-**- First Option:**
-In this protocol, \(P_j\)  obtains the current slot number from the best chain \(C\). The current slot number from a block \(B'_u\) whose slot is \(sl_u\) and whose previous block belongs to \(sl_u-1\) is obtained as below:
-
-$$sl_{cur} = sl_u + \lfloor\frac{t_{curr}-t_u}{T}\rfloor \space \space \space\space\space (1)$$
-
-In more detail, \(sl_u\) is the slot of \((\mathsf{len}(C) - k')^{th}\)  block (B'_u) where \(k' \geq k\), \(t_u\) is the arrival time of \(B'_u\),  \((\mathsf{len}(C) - k')^{th}\) block (\(B'_u\)) to slot \(sl_u\) (i.e., \(sl_{cur} = sl_u + \lfloor\frac{t_{curr}-t_u}{T}\rfloor\)). The reason of obtaining \(sl_{cur}\) based on \(sl_u\) is  because with very high probability, \(B_u\) is in the best chain of other honest parties and will stay in the best chain. Therefore, we can assume that if this block is in the best chain forever, its chance to be sent on time is higher than to be sent earlier or later.  Clearly, if \(B_u\) is sent on time, then the party obtain a slot number at most \(\D\)-slot behind of the current slot but otherwise we cannot guarantee this. Actually, we would expect that even malicious parties sent their blocks on time because if they don't send on the right slot, their blocks have a chance not to be in the best chain in the future. However, we cannot trust this assumption in the security analysis. Therefore, we have second option which has higher guarantee.
+There are two drawbacks of this protocol. One of drawbacks is that a party may never have \(k\) consistent blocks if an adversary randomly delays some blocks. In this case, \(P_i\) may never has consistent blocks. The other drawback is that if the honest block in $k$-consistent block is not a synchronized party then consistency algorithm performs worse than the median. However, this protocol can be used after the median protocol to update or verify the slot number with the consistency algorithm.  If this party sees $k$-consistent blocks and the slot number $sl$ obtained with the 
+the consistency algorithm is less than slot number obtained from the median protocol, he updates it with $sl'$.
 
 
-
-**Third Option:**
-In this option, \(P_i\) obtains the slot number independent from the chain.
-\(P_i\) asks the current slot number to some (or all) parties at time \(t_0\). Then, each party replies with the slot number \(\hat{sl}_i\) and the signature of it. The slot numbers with valid signatures let \(P_j\) compute some candidate current slots such as \(\{\hat{sl}_i+\lfloor\frac{|\hat{t}_i - t_0|}{T}\rfloor, \hat{sl}_i+\lceil\frac{|\hat{t}_i - t_0|}{T}\rceil\}\) where \(\hat{t}_i\) is arrival time of the slot number \(\hat{sl}_i\). Then, \(P_j\) selects the current slot time \(sl_{cur}\) according to majority among the candidate slot numbers.  
-
-
-
-**Lemma 2:** Assuming that the network delay is at most \(\D\) and majority of parties are honest, \(P_j\)'s current slot is at most \(\D\)-behind the current slot of honest and synchronized parties (i.e., \(sl_{cur} \leq sl'_{cur} - \D\)).
-
-**Proof:** Assume that \(P_j\) outputs \(sl_{cur} =\hat{sl}_i+\lceil\frac{|\hat{t}_i - t_0|}{T}\rfloor\) and real current slot number is \(sl'_{cur}\). \(0\leq \frac{|\hat{t}_i - t_0|}{T} \leq 2\D\) so if \(sl_{cur} =\hat{sl}_i+\lfloor\frac{|\hat{t}_i - t_0|}{T}\rfloor\), \(0\leq \lfloor\frac{|\hat{t}_i - t_0|}{T}\rfloor + a \leq 2\D\) and if \(sl_{cur} =\hat{sl}_i+\lceil\frac{|\hat{t}_i - t_0|}{T}\rceil\), \(0\leq \lfloor\frac{|\hat{t}_i - t_0|}{T}\rfloor - a \leq 2\D\). We also have \(sl'_{cur} -\hat{sl}_i \leq \D\) from the network assumption. From these two inequalities, we can obtain \(\hat{sl}_i - sl'_{cur} + \lceil\frac{|\hat{t}_i - t_0|}{T}\rfloor \leq \D \pm a\) implies that \(sl_{cur}- sl'_{cur} \leq \D \pm a\). Since we know that slot numbers are integers  \(sl_{cur}- sl'_{cur} \leq \D\).
-$$\tag*{\(\blacksquare\)}$$
-
-
-**Obtaining Slot Interval:** After learning the current slot, \(P_i\) has to wait for at least number of \(\D\) valid blocks in order to determine approximately beginning and end of the slot. Assume that \(P_j\) deduced \(sl_u\) is the current slot. \(P_j\) stores the arrival time of blocks  after \(sl_u\). Let us denote the stored arrival times by \(t_1,t_2,...,t_\D\) corresponds to blocks including slot numbers \(sl'_1,sl'_2,...,sl'_\D\). Remark that these slot numbers do not have to be consecutive since some slots may be empty or the slot leader is offline. \(P_j\) deduces that the current slot \(sl = sl'_\D + 1\) given that \(T_i = T(sl-sl'_i)\) is in a time interval which includes \(\{t'_1+T_1, t'_2+T_2,..., t'_\D+T_\D\}\).
-
-
-![](https://i.imgur.com/evb6i6p.png)
-
-
-
-
-Another critical timing issue is 'when to release the block'. In order to find a good block release time so that it arrives everyone before end of the slot, each party follow the same strategy as newly joining party. Assume that the party \(P_j\) is a slot leader in \(sl\) and the computes \(\mathcal{T}_{sl} =\{t'_1+T_1, t'_2+T_2,..., t'_\D+T_\D\}\) as above. Then the function \(f_{time}:R^\D \rightarrow R\) gives the release time given \(\mathcal{T}_{sl}\) as an input.
-
-Possible candidates for \(f_{time}\) are average, maximum...
-
-Then the party releases the block at time \(f_{time} - L_{avg}\) where \(L_{avg}\) is the estimaged network latency.
 
 ## Security Analysis
 
@@ -357,14 +323,14 @@ If we use VDF in the randomness update for the next epoch, \(r = \mathsf{log}tkq
 
 In this section, we find parameters of BABE in order to achieve the security in BABE. In addition to this, we show block time of BABE in worst cases (big network delays, many malicious parties) and in average case.
 
-We fix the life time of the protocol as \(\mathcal{L}=2.5 \text{ years}  = 15768000\) seconds, maximum delay in the network \(\mathcal{D}_{max} = 4\) seconds and average network delay is \(\mathcal{D}_{min} = 0.5\) seconds. Then we find the life time of the protocol  \(L = \frac{\mathcal{L}}{T}\). We consider cases where maximum delay is \(D = 4\), \(\D = 2\) and $D = 1$ in terms of slot number. In this case, the minimum slot times can be for $\D=4$ $T = 0.81$ sec., for $\D = 2$, $T = 1.35$ sec. and $T = 2.1$ sec., respectively. We computed the minimum slot time from $D = \lfloor\frac{D_{max}}{T}\rfloor$. We assume that half of the honest parties are sychronized so \(\gamma = \beta = 0.5\).
+We fix the life time of the protocol as \(\mathcal{L}=2.5 \text{ years}  = 15768000\) seconds. Then we find the life time of the protocol  \(L = \frac{\mathcal{L}}{T}\). We find the network delay in terms of slot number with $\lfloor \frac{D}{T}\rfloor$ where $D$ is the network delay in seconds. Assuming that parties send their block in the beginning of their slots, $\lfloor\rfloor$ operation is the enough to compute the delay in terms of slots. 
 
-The parameter $c$ is very critical because it specifies the number of empty slots because probability of having empty slot is $1-c$. If $c$ is very small, we have a lot of empty slots and so we have longer block time. If $c$ is big, we may not satisfy the the condition \(\alpha(\gamma+(1-c)^\D\beta)(1-c)^\D \geq (1+\epsilon)/2\) to apply the result of Theorem 4. So, we need to have a tradeoff between security and practicality.
 
-We need to satisfy the condition \(\alpha(\gamma+(1-c)^\D\beta)(1-c)^\D \geq (1+\epsilon)/2\) to apply the result of Theorem 4. As seen in the graph below, $c<0.1$, $c<0.15$ and $c<0.35$ in order to have this condition with $\alpha < 1$ if ($T$) is 1, 2 and \(3\) seconds (meaning that \(D = 4\), \(\D = 2\) and $D = 1$), respectively. Otherwise, \(\alpha\) must equal to = 1 which is not realistic. 
-Therefore, in order to achieve the security, we cannot have big $c$ values. According to the graph below, assuming that the minimum  $\alpha = 0.8$, $c = 0.075 $, $c = 0.14$ and $c = 0.25 $
+The parameter $c$ is very critical because it specifies the number of empty slots because probability of having empty slot is $1-c$. If $c$ is very small, we have a lot of empty slots and so we have longer block time. If $c$ is big, we may not satisfy the the condition \(\alpha(\gamma+(1-c)^\D\beta)(1-c)^\D \geq (1+\epsilon)/2\) to apply the result of Theorem 4. So, we need to have a tradeoff between security and practicality. Therefore, we fix $c = 0.5$.
 
-![](https://i.imgur.com/fZbRnKd.png)
+We need to satisfy two conditions $$\frac{1}{c}(\phi(\alpha\gamma)(1-c)^{\D-\alpha}(1-c)^{D-1}+ \phi(alpha\beta)(1-c)^{2\D-\alpha\beta} \geq \(\alpha(\gamma+(1-c)^\D\beta)(1-c)^\D \geq (1+\epsilon)/2\)\geq (1+\epsilon/2)$$ to apply the result of Theorem 4 and $$\frac{1}{c}(\phi(\alpha\gamma)(1-c)^{\D-\alpha}(1-c)^{D-1} \geq \(\alpha\gamma(1-c)^\D \geq (1+\epsilon)/2\) $$ to apply the result of Lemma 1 . Second condition implies the first one.  These conditions are satisfied given $c = 0.5$, $\D = 1$ and $\alpha = 0.65$ and $\gamma = 0.7$.
+
+
 
 
 In order to find the average block time (i.e., the required time to add one block to the best chain), we need the expected number of $\D$ and $2\D$-right isolated slots in $L$ slots. However, we use a different definition of $\D$ and $2\D$-right isolated slots in this analysis.  A slot is $\D$ (resp. $2\D$-right ) isolated slot if the slot leaders are all honest and at least one syncronized (resp. all honest and late) and the next $\D-1$ (resp. $2\D-1$) slots are empty. If all parties honest and at least one of them is synchronized, then the synchronized party's blcok will be added because, he relaeases the block earlier than the other selected parties. Therefore, we need at least one synchronized and honest slot leader in the definition of $\D$-isolated slot. Remark that the definitions of $\D$ and $2\D$ right isolated slots are more relaxed than the definitions in the proof of Theorem 1 because we do not care the growth of other chains as we care in the security analysis. 
@@ -373,22 +339,16 @@ In order to find the average block time (i.e., the required time to add one bloc
 The probability of $2\D$-right isolated slot is  
 $$p_{2\D} \geq \frac{\phi(\alpha\beta)(1-c)^{1-\alpha\beta}}{c}(1-c)^{2\D-1}.$ 
 The probability of $\D$-right isolated slot is
-$$p_{\D}\geq \frac{\phi(\alpha\gamma)(1-c)^{1-\alpha}}{c}(1-c)^{\D-1}$$
-The expected number of empty slot in $L$ slot is $L(1-c)$ so the expected number of non-empty slots is $L-L(1-c)$. The expected number of $\D$ and $2\D$-right isolated slot is  
-$$\mathbb{E} = (L-L(1-c))(p_{H_L}(1-c)^{2\D-1}+p_{H_S}(1-c)^{\D-1})$$. Then, the block time $T_{block} \leq \frac{LT}{\mathbb{E}}$. In order to find the average block time, we do not consider the maximum network delay here. We consider the average network delay which 0.5 seconds. Therefore, we let $D = 1$ in the block time computation. We compute the expected block time with respect to $\alpha$ 
-in the graph below for $T = 0.81$, $T = 1.35$ and $T = 2.1$. As it can be seen, the best block time is when $T = 2.1$ seconds. When $\alpha = 0.8$, the average block time is 12.26 seconds.  In the best case, where $\gamma = \alpha = 1$, $T_{block} = 9.55$ seconds. When the network delay is less than 1 slot and $\alpha = 1$, then $T_{block} = 6.29$ seconds.
+$$p_{\D}\geq \frac{\phi(\alpha\gamma)(1-c)^{1-\alpha}}{c}(1-c)^{\D-1}.$$
+The expected number of non-empty slot in $L$. The expected number of $\D$ and $2\D$-right isolated slot is  
+$$\mathbb{E} = cL(p_{H_L}+p_{H_S})$$. Then, the block time $T_{block} \leq \frac{LT}{\mathbb{E}}$. Remark that we have already had the condition that $p_{H_L} + p{H_S} \geq (1+ \epsilon)/2$ from the security even if we have maximumum network delay.  In order to find the average block time, we do not consider the maximum network delay here. We consider the average network delay which 1 seconds. In the graph below, we have the average block time for each slot time in blue. In addition, the graph shows the maximum network delay resistance for each slot time in red.
 
-In order to improve the block time, we need small $T$ value (e.g., $c = 0.25, T = 1 \Rightarrow T_{block} = 5.8$ seconds). However, in this case, we sacrifice from security because whenever the network delay become higher, BABE becomes vulnerable to attacks to break liveness and persistence. 
-
-![](https://i.imgur.com/lbZ9NRZ.png)
+![](https://i.imgur.com/rePtRjL.png)
 
 
+If we choose \(\mathbf{c = 0.5}\), \(\gamma = 0.7, \alpha = 0.65\), $T \geq 1$ second and $D = 1$, we find that \(k > 150\)  to have a good security level in 2.5 years according to Theorem 4.  
 
-If we choose \(\mathbf{c = 0.25}\) which satisfies the assumption for \(\gamma = 0.5\). For simplicity, we fix \(\gamma = 0.5\) which means at least half of the honest parties are synchronized. In this case **\(\mathbf{\alpha}\) must be at least \(\mathbf{0.8}\)**. We find that \(k > 75\) for $T = 2.1$ seconds to have a good security level in 2.5 years as shown in the graph below.
-
-![](https://i.imgur.com/dPS5J2h.png)
-
-Remark that \(k\) is the finality that is provided by BABE. Since we have GRANDPA on top of BABE, we expect much earlier finalization. This \(k\) value is valid when GRANDPA does not work properly. If \(k = 310\), the minimum **epoch length must be 7200 slots which is around 4.2 hours** according to Theorem 4. However, if GRANDPA finalizes a block earlier than $k$, we do not need to wait for $R/2$ slots more after randomness leaked to finalize the stake distribution so we need less slot number in an epoch. 
+Remark that \(k\) is the finality that is provided by BABE. Since we have GRANDPA on top of BABE, we expect much earlier finalization. This \(k\) value is valid when GRANDPA does not work properly. If \(k = 150\), the minimum **epoch length must be 7200 slots** (e.g., for $T = 1$ sec, one epoch should take 2 hours.) according to Theorem 4. However, if GRANDPA finalizes a block earlier than $k$, we do not need to wait for $R/2$ slots more after randomness leaked to finalize the stake distribution so we need less slot number in an epoch. 
 
 
 
