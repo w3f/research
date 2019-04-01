@@ -1,0 +1,224 @@
+# NPoS: The min-norm max-flow problem
+
+
+Recall that the NPoS problem consists on selecting a committee of validators of size $m$, and then assigning stake from the nominators to the validators. In this note, we assume we already picked a committee $S$ of $m$ validators, and explore the best way to assign stake. 
+
+After establishing some notation, we introduce the *min-norm max-flow problem* (MNMF) and explain why this is exactly the problem we need to solve. We then establish two algorithmic ways to solve MNMF, namely 1) using parametric flow algorithms, and 2) using a heuristic called star balancing, and we compare them. 
+
+## 1. Notation
+
+We consider an instance of NPoS consisting of a bipartite graph $(N\cup S, E)$, where $m:=|S|\ll |N|$ and an edge $nv\in E$ represents the approval of nominator $n\in N$ to the elected validator $v\in S$. We are also given a vector $b\in\mathbb{R}^N_{\geq 0}$ of nominator budgets. An edge weight vector $w\in \mathbb{R}_{\geq 0}^E$ is _affordable_ if it is component-wise non-negative and observes the budget constraints: $\sum_{v: \ nv\in E} w_{nv} \leq b_n$ for each nominator $n\in N$. It is called maximally affordable it the previous inequality holds with equality for any $n$ having at least one neighbor in $S$.
+
+
+Let $B\in \{0,1\}^{S\times E}$ be the node-edge incidence matrix for the set $S$. For any $w\in \mathbb{R}_{\geq 0}^E$, the total support that $w$ assigns to each validator in $S$ is given by the vector $supp_w :=Bw\in \mathbb{R}^S$, so that for any validator $v\in S$, its support 
+$$supp_w(v)=(Bw)_v = \sum_{n: \ nv\in E} w_{nv}$$
+is the total amount of stake that $w$ assigns to $v$ from the nominators. 
+
+## 2. The min-norm max-flow problem (MNMF)
+
+Given an instance $(N\cup S, b)$ of NPoS, the min-norm max-flow problem consists of finding a maximally affordable vector $w$ that minimizes the squared $\ell_2$ norm of the support vector, i.e. minimize
+
+$$val(w):= \|supp_w\|^2 = \|Bw\|^2.$$
+
+Now let's see how MNMF is relevant to NPoS. For an instance $(N\cup S, E, b)$, we need to choose an affordable weight vector $w$ according to some sensible objective, which intuitively maximizes the validators' supports. The two objective functions that first come to mind are maximizing 
+
+* the support of any validator: 
+ $$\min_{v\in S} supp_w(v),$$
+* the total support of any group of $\lfloor m/3 \rfloor$ validators:
+$$\min_{A\subseteq S, \ |A|=\lfloor m/3 \rfloor} \sum_{v\in A} supp_w(v).$$
+
+We show now that an optimal solution $w^*$ to MNMF is _simultaneously maximal_ with respect to both of these objective functions. In fact, it is simultaneously maximal with respect to the family of objective functions 
+
+$$F_{k}(w) := \min_{A\subseteq S, \ |A|=k} \sum_{v\in A} supp_w(v),$$
+
+parameterized by $k=1,\cdots,m$. 
+
+Furthermore, if we want to maximize objective $F_k$, but subordinate to that we also want to minimize the total amount of stake used, we show that we achieve this by a simple truncation of vector $w^*$ into a vector $w^k$, defined as follows. 
+
+__Algorithm 2.1:__ Definition of $w^k$ for a fixed parameter $k\in\{1,\cdots,m\}$.
+
+1. Find an optimal (maximally affordable) vector $w^*$ for MNMF.
+2. Order the validators $S=\{v_1, \cdots, v_m\}$ by support, so that $supp_{w^*}(v_1)\leq \cdots \leq supp_{w^*}(v_m).$
+3. Define $w^k$ from $w^*$ by setting, for each $n\in N$ and $i\in\{1,\cdots m\}$, 
+$$w^k_{nv_i }=w^*_{nv_i}\cdot\min\Big\{1,\frac{supp_{w^*}(v_i)}{supp_{w^*}(v_k)}\Big\}.$$
+4. Output $w^k$. 
+
+__Theorem 2.2:__ For a given instance $(N\cup S, b)$ and a given parameter $k$, consider the weight vectors $w^*$ and $w^k$ defined above. Then:
+1. $F_k(w^*) \geq F_k(w)$ for any affordable weight vector $w$ (i.e. $w^*$ is optimal for $F_k),$
+2. $F_k(w^k)=F_k(w^*)$ (i.e. $w^k$ is still optimal for $F_k$), and 
+3. $\|supp_{w^k}\|_1 \leq \|supp_w\|_1$ for any affordable weight vector $w$ with $F_k(w^k)=F_k(w)$ (i.e. $w^k$ is budget-minimal).
+
+_Proof:_ We start with the second claim. We use the same ordering of the validators $S=\{v_1, \cdots, v_m\}$ as defined in the algorithm above. Notice that $supp_{w^k}(v_i)=supp_{w^*}(v_i)$ whenever $i\leq k$, and $supp_{w^k}(v_i)=supp_{w^*}(v_k)$ otherwise.  Clearly, function $F_k(w)$ is the sum of the supports of the $k$ validators with smallest support. For both $w^*$ and $w^k$, this set of $k$ validators is the same, namely $\{v_1, \cdots, v_k\}$, and their supports are the same. Hence,
+$$F_k(w^k) = F_k(w^*)=\sum_{i=1}^k supp_{w^*}(v_i).$$
+This proves the second claim.
+
+We continue with the first claim, which we prove by contradiction. We assume that there is an affordable vector $w$ with $F_k(w)>F_k(w^*)$. We also assume without loss of generality that
+a. $w$ is maximally affordable like $w^*$, i.e. $\|supp_{w^*}\|_1= \|supp_w\|_1$, and 
+b. the ordering of the validator set $S=\{v_1,\cdots,v_m\}$ is such that whenever there is a tie $supp_{w^*}(v_i) = supp_{w^*}(v_j)$ with $i<j$ then $supp_w(v_i)\leq supp_w(v_j)$. 
+We have the inequalities 
+$$\sum_{i=1}^k supp_{w}(v_i) \geq F_k(w)>F_k(w^*) =\sum_{i=1}^k supp_{w^*}(v_i),$$
+and 
+\begin{align}
+\sum_{i=k+1}^m supp_{w}(v_i) 
+&= \|supp_w\|_1 - \sum_{i=1}^k supp_{w}(v_i) \\
+&< \|supp_{w^*}\|_1 - \sum_{i=1}^k supp_{w^*}(v_i) \\
+&=\sum_{i=k+1}^m supp_{w^*}(v_i).
+\end{align}
+
+Now define the vector $f=w-w^*\in\mathbb{R}^E$ and consider it as a flow over the network $(N\cup S, E)$. All nodes in $N$ preserve flow (by assumption a.), and the previous two inequalities show that $f$ has a net demand in set $\{v_1, \cdots, v_k\}$ and a net excess in set $\{v_{k+1}, \cdots, v_m\}$. Thus, if we decompose $f$ into paths, there must be a simple path carrying some $\delta>0$ units of flow from $v_j$ to $v_i$ for some $1\leq i\leq k < j \leq m$. Moreover, by assumption b., it must be the case that $supp_{w^*}(v_i)<supp_{w^*}(v_j)$, because in case of a tie we would have that $f$ has net excess on $v_i$ and net demand on $v_j$, and the previously mentioned $v_j$-$v_i$ path would not exist in the flow decomposition.
+
+Now, let $f'$ be a subflow of $f$ that carries $\varepsilon$ units of flow from $v_j$ to $v_i$ along this path, where $\varepsilon=\min\{\delta, \frac{1}{2}(supp_{w^*}(v_j) - supp_{w^*}(v_i)) \}$. The fact that $f'$ is a feasible subflow of $f$ implies that $w':=w^*+ f'$ is a maximally affordable solution with 
+
+\begin{align}
+\|supp_{w^*}\|_2^2 - \|supp_{w'}\|_2^2 
+&= supp_{w^*}^2(v_i) + supp_{w^*}^2(v_j) - (supp_{w^*}(v_i) + \varepsilon)^2 - (supp_{w^*}(v_j)-\varepsilon)^2 \\
+& = 2\varepsilon[supp_{w^*}(v_j) - supp_{w^*}(v_i)] - 2\varepsilon^2\\
+& \geq 2\varepsilon(2\varepsilon) - 2\varepsilon^2 
+= 2\varepsilon^2 > 0,
+\end{align}
+
+which contradicts the fact that $w^*$ minimizes the support norm. This completes the proof of claim 1.
+
+We continue with claim 3, which we also prove by contradiction. We assume that there is an afordable vector $w$ with $\|supp_w\|_1 < \|supp_{w^k}\|_1$ and $F_k(w)=F_k(w^k)$. Let $S=\{u_1,\cdots, u_m\}$ be an ordering of the validators so that $supp_w(u_1)\leq \cdots \leq supp_w(u_m)$. Clearly, the value of objective $F_k(w)$ is $F_k(w)=\sum_{i=1}^k supp_w(u_i)$. Without loss of generality, we can assume that vector $w$ is "truncated", meaning that $supp_w(u_k)=supp_w(u_{k+1})=\cdots = supp_w(u_m)$. 
+
+For the case $k=1$, from this assumption we immediately obtain the equality
+$$\|supp_w\|_1 = m\cdot F_1(w) = m\cdot F_1(w^1)=\|supp_{w^1}\|,$$
+which contradicts our hypothesis. Now let $2\leq k\leq m$. We have the inequality 
+\begin{align}
+0 &<\|supp_{w^k}\|_1 - \|supp_w\|_1 \\
+&= [F_k(w^k)+ (n-k)supp_{w^k}(v_k)] - [F_k(w) + (n-k)supp_w(u_k)] \\
+&= (n-k)[supp_{w^k}(v_k) - supp_w(u_k)],
+\end{align}
+where the terms $F_k(w^k)$ and $F_k(w)$ cancelled out, which implies that $supp_w(u_k)<supp_{w^k}(v_k)$. On the other hand, we have the equality
+$$F_{k-1}(w)+supp_w(u_k) = F_k(w) = F_k(w^k)=F_{k-1}(w^k)+supp_{w^k}(v_k),$$
+which together with the previous inequality implies that 
+$$F_{k-1}(w)>F_{k-1}(w^k)=F_{k-1}(w^*),$$
+which contradicts claim 1. This completes the proof of claim 3 and of the theorem.
+$\square$
+
+## 3. Overview of algorithms for MNMF
+ 
+In the previous section we established that solving NPoS on a fixed committee reduces to solving MNMF. There are three possible ways to solve MNMF:
+
+1. Via convex programming: MNMF can be solved with numerical methods for convex quadratic programs, but this is too computationally expensive to consider any further.
+2. Via parametric flow algorithms: We show in Section 4 how MNMF can potentially be solved in time $O(|E|m + m^3)$ using some advanced techniques for parametric flow problems. 
+3. Via a simple combinatorial heuristic: In Section 5 we consider a heuristic for MNMF called *star balancing* that starts with any maximally affordable vector and converges to an optimal vector $w^*$ by following a local weight-balancing rule. It executes in time $\tilde{O}(|E|m^2)$, ignoring logarithmic factors.
+
+At first look, the worst-case complexity bound is much better for technique 2 than for technique 3. However, we point out that [Babenko et al. (2007)](https://pdfs.semanticscholar.org/6f44/e6d773cb5093e441f0370b1ec9dd047a5c24.pdf) studied a parametric max flow problem closely related to MNMF and performed experimental evaluations of both of these techniques, over real data for an application in revenue optimization as well as over synthetic data. They concluded that the performance of star balancing is actually comparable to that of parametric flow algorithms, except for instances with degenerate graph topologies. In fact, they conjecture that these two techniques have similar complexities whenever the underlying graph has moderately good expansion properties.
+
+In view of this and of the fact that star balancing is vastly easier to implement than the algorithm proposed in Section 4, we suggest that star balancing be used for NPoS. Still, it is good to know our options, so we give details about both of these techniques in the next two sections.
+
+## 4. Technique using parametric flow algorithms
+
+[Hochbaum and Hong (1995, Section 6)](https://link.springer.com/article/10.1007/BF01585561) consider a network resource allocation problem which generalizes MNMF: given a network with a single source, single sink and edge capacities, maximize the sum of squared flows over the edges reaching the sink, over all maximum flows. They show that this problem is equivalent to a parametric flow problem called _lexicographically optimal flow problem_, studied by [Gallo, Gregoriadis and Tarjan (1989)](https://www.researchgate.net/profile/Giorgio_Gallo2/publication/220616489_A_Fast_Parametric_Maximum_Flow_Algorithm_and_Applications/links/02e7e52aec61aa1c05000000/A-Fast-Parametric-Maximum-Flow-Algorithm-and-Applications.pdf). In turn, in this last paper the authors show that, even though a parametric flow problem usually requires solving several consecutive max-flow instances, this particular problem can be solved running a single execution of the FIFO preflow-push algorithm proposed by [Goldberg and Tarjan (1988)](http://akira.ruc.dk/~keld/teaching/algoritmedesign_f03/Artikler/08/Goldberg88.pdf). 
+
+Therefore, the complexity of MNMF is bounded by that of Goldberg and Tarjan's algorithm, which is $O(n^3)$ for a general $n$-node network. However, [Ahuja et al. (1994)](https://pdfs.semanticscholar.org/ae81/0ac01e698f7735d93fe55c5f68f4986e3e08.pdf) showed how to optimize several popular network flow algorithms for the case of bipartite networks, where one of the partitions is considerably smaller than the other. If the partition sizes are $n_1$ and $n_2$ with $n_1\ll n_2$, they implement a _two-edge push rule_ that allows one to "charge" most of the computation weight to the nodes on the small partition, and hence obtain algorithms whose running times depend on $n_1$ rather than $n$. In particular, they show how to adapt Goldberg and Tarjan's algorithm to run in time $O(n_1 e +n_1^3)$, where $e$ is the number of edges. For our particular instance of MNMF where $n_1=m$, we obtain thus an algorithm that runs in time $O(|E|m+m^3)$.
+
+## 5. The star balancing heuristic
+
+We now describe the star balancing heuristic for MNMF, which is a combinatorial randomized algorithm that outputs a solution arbitrarily close to optimal with high probability (this is what is known as a polynomial-time approximation scheme, or PRAS). We remark that a different analysis to this algorithm can be found in [Tarjan et al. (2006)](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.122.7945&rep=rep1&type=pdf). We show the following.
+
+__Theorem 5.1:__ For any fixed parameters $\varepsilon, \delta>0$, the star balancing algorithm returns a feasible solution to MNMF whose value has probability at least $(1 - \delta)$ of being within a multiplicative factor at most $(1+\varepsilon)$ from optimal, and runs in time 
+$$O(|E|m^2 \log (m/\varepsilon \delta)).$$
+
+__Algorithm 5.2: Star balancing.__
+
+Consider an instance $(N\cup S, E, b)$. For each nominator $n\in N$ let $V_n\subseteq V$ be its set of neighbors.
+
+
+Fix constants $\varepsilon, \delta>0$. The algorithm starts with an arbitrary maximally affordable vector $w$, and improves it iteratively by performing $r$ rounds, where $r = O(|N|m^2\log(n/\varepsilon \delta))$ and its precise value will be established later. 
+
+1. Find any maximally affordable vector $w$.
+2. Repeat $r$ times:
+    a. Select a nominator $n\in N$ uniformly at random.
+    b. Modify the weights of the edges incident to $n$, observing the corresponding budget equality and non-negativity constraints, so that the supports of the neighboring validators are as close to each other as possible, i.e. so that
+    $$\forall v,v'\in V_n, \ supp_w(v)>supp_w(v') \rightarrow w_{nv}=0.$$
+3. Return $w$.
+
+__Running time:__ Consider a round of the algorithm. If nominator $n$ is selected, the running time of the round is $O(|V_n|)$ *(explain why)*, assuming that floating-point arithmetic operations take constant time. Hence, the average running time per round is $\frac{1}{|N|}\sum_{n\in N} |V_n|=\frac{|E|}{|N|}$. Together with the bound on $r$, we obtain a global running time of
+$$O(r|E|/|N|) = O(|E|m^2\log(m/\varepsilon \delta)).$$
+
+__Analysis:__ For each $i\leq r$, let $w^i$ be the state of weight vector $w$ at the end of the $i$-th round, and let $w^0$ be the initial vector. Let $w^*$ be an optimal solution. Let's start with an easy observation.
+
+__Lemma 5.3:__ $val(w^0)\leq m\cdot val(w^*)$.
+
+_Proof:_ Recall that the objective value to minimize is $val(w)=\|Bw\|^2_2=\|supp_w\|_2^2$. As both $w^0$ and $w^*$ are maximally affordable, the $\ell_1$ norm of their support vectors are equal. Hence
+$$val(w^0)=\|Bw^0\|_2^2 \leq \|Bw^0\|_1^2 
+= \|Bw^*\|_1^2 \leq m\cdot \|Bw^*\|_2^2 
+= m\cdot val(w^*).$$
+$\square$
+
+Next we show that, in expectation, the progress in objective value perceived in each round is proportional to the difference between the current and optimal values.
+
+__Lemma 5.4:__ For each round $i\in\{1,\cdots,r\}$ that starts with vector $w^{i-1}$ and ends with vector $w^i$, the expected objective value of $w^i$ is such that 
+$$val(w^{i-1}) - \mathbb{E}[val(w^{i})] \geq \frac{1}{m^2|N|} [val(w^{i-1}) - val(w^*)].$$
+
+_Proof:_ We fix a round $i$, and for notational convenience we drop the superscripts $i$ and $i-1$ within the scope of this proof. In particular, we let $w$ be the initial vector, and let $w'^n$ be the final vector in the case that nominator $n$ is picked in the round. Clearly, the expected progress in objective value  equals the average progress $\frac{1}{|N|}\sum_{n\in N} [val(w) - val(w'^n)]$. To lower bound the latter, it is sufficient to exhibit a different family of weight vectors $\{w^n\}_{n\in N}$ such that $val(w'^n)\leq val(w^n)$ for each $n$, and then bound the average progress when moving from $w$ to a member of that family. 
+
+Define the vector $f:=w-w^*\in\mathbb{R}^E$. The following is a necessary technical observation whose proof we delay temporarily. 
+
+__Lemma 5.5:__ $\|f\|^2 \leq m^2 \|Bf\|^2.$
+
+Consider the decomposition of vector $f$ as $f=\sum_{n\in N} f^n$, where $f^n$ is the restriction of $f$ over the edges incident to nominator $n$, and define the family of weight vectors $\{w^n:= w-\frac{1}{m^2} f^n\}_{n\in N}$. We have $val(w'^n) \leq val(w^n)$ for all $n\in N$ as desired, because by construction (step 2.b. of the algorithm), $w'^n$ is precisely the vector of minimum objective value among all maximally affordable vectors that differ from $w$ only at the edges incident to $n$ *(explain further?)*. Hence, it only remains to bound the average progress in objective value with respect to the new family.
+
+For a fixed $n\in N$, we have 
+\begin{align}
+val(w) - val(w^n) &= \|Bw\|^2 - \|B(w-\frac{1}{m^2} f^n)\|^2 \\
+& = \frac{2}{m^2} (Bw)^\intercal Bf^n - \frac{1}{m^4} \|f^n\|^2. 
+\end{align}
+Thus, the average progress over all $n\in N$ is
+\begin{align}
+\frac{1}{|N|}\sum_{n\in N} [val(w)-val(w^n)] 
+&= \frac{2}{m^2|N|}(Bw)^\intercal B(\sum_{n\in N}f^n) - \frac{1}{m^4|N|}\sum_{n\in N}\|f^n\|^2 \\
+&= \frac{1}{m^2|N|}[2(Bw)^\intercal Bf - \frac{1}{m^2} \|f\|^2] \\
+&\geq \frac{1}{m^2|N|}[2(Bw)^\intercal Bf - \|Bf\|^2] \\
+& = \frac{1}{m^2|N|} (Bf)^\intercal B(2w-f) \\
+&= \frac{1}{m^2|N|} [B(w-w^*)]^\intercal B(w+w^*) \\
+&= \frac{1}{m^2|N|} [ \|Bw\|^2 - \|Bw^*\|^2] \\
+&= \frac{1}{m^2|N|} [val(w) - val(w^*)],
+\end{align}
+where the inequality comes from Lemma 5.5. This completes the proof of Lemma 5.4.
+$\square$
+
+_Proof of Lemma 5.5:_ We interpret $f$ as a flow over the network $(N\cup S, E)$. As both $w$ and $w^*$ observe budgets constraints with equality, there is flow preservation over all nominators. Let $S_s, S_t\subseteq S$ be respectively the sets of sources and sinks, i.e. the sets of validators with net excess and net demand. By the flow decomposition theorem, there exists a decomposition $f=\sum_{v\in S_s} f^v$  into single-source subflows, where $f^v$ has $v$ as its single source. We can assume that this decomposition generates no cycles by adjusting the choice of the optimal solution $w^*=w-f$.
+
+Consider one of these subflows $f^v$. Its edge support looks like a directed acyclic graph (DAG) with single root $v$. We arrange the edges on this DAG by levels, where the level of an edge is the length of the longest path from $v$ containing this edge. These levels start at 1 for the edges incident to $v$, up to at most $2m$ because any simple path alternates between a nominator and a validator and there are only $m$ validators. We now split $f^v$ by levels, $f^v=\sum_{i\leq 2m} f^{v,i}$, where $f^{v,i}$ is the restriction of $f^v$ over the edges at level $i$. Since the excess in node $v$ is $supp_w(v)-supp_{w^*}(v)=(Bf)_v$ and no other node in the DAG has any excess, the sum of edge weights along each level $i$ is $\|f^{v,i}\|_1 \leq (Bf)_v$. Therefore, 
+$$\|f^v\|_2^2 = \sum_{i\leq 2m}\|f^{v,i}\|_2^2 
+\leq \sum_{i\leq 2m} \|f^{v,i}\|_1^2 
+\leq 2m\cdot (Bf)^2_v.$$
+
+Putting things together, we get
+\begin{align}
+\|f\|^2_2 &= \|\sum_{v\in S_s} f^v\|_2^2 \\ 
+&\leq |S_s|\sum_{v\in S_s} \|f^v\|_2^2 \\
+& \leq 2m|S_s|\sum_{v\in S_s} (Bf)_v^2 \\ 
+&= 2m|S_s|\cdot \|Bf\|_2^2, \\
+\end{align}
+where the first inequality is an application of Cauchy-Schwarz. 
+
+In a similar manner, working with sinks instead of sources, we can obtain the bound $\|f\|^2 \leq 2m|S_t| \cdot \|Bf\|^2$. Summing up these two bounds and dividing by two, we get
+$$\|f\|^2 \leq m(|S_s|+|S_t|) \cdot \|Bf\|^2 \leq m^2 \|Bf\|^2,$$
+which proves the claim.
+$\square$
+
+For each round $i\leq r$, consider the random variable $\Delta^i:= val(w^i) - val(w^*)$, which represents how far from optimal the current solution is in terms of objective value. We now use Lemma 5.4 to show that $\Delta^i$ decays exponentially fast in expectation. 
+
+__Lemma 5.6:__ For any $0<i\leq r$, the expected value of $\Delta^i$ observes
+$$\mathbb{E}[\Delta^i] \leq m\cdot (1-\frac{1}{m^2|N|})^i val(w^*).$$
+
+_Proof:_ A reformulation of Lemma 5.4 gives $\mathbb{E}[\Delta^i]\leq (1-\frac{1}{m^2|N|}) \Delta^{i-1}$. By induction and linearity of expectation, this implies that $\mathbb{E}[\Delta^i]\leq (1-\frac{1}{m^2|N|})^i \Delta^0$. Finally, $\Delta^0 = val(w^0) - val(w^*) < m\cdot val(w^*)$ by Lemma 5.3. 
+$\square$
+
+Recall now that we want the value of the output solution $val(w^r)$ to be within a factor of $(1+\varepsilon)$ from $val(w^*)$ with probability at least $(1-\delta)$. The next lemma completes the analysis of the algorithm and the proof of Theorem 5.1.
+
+__Lemma 5.7:__ If $r=\lceil |N|m^2\ln(m/\epsilon \delta) \rceil$, then $\mathbb{P}[val(w^r) > (1+\varepsilon)val(w^*)]\leq \delta$.
+
+_Proof:_ By Lemma 5.6 and the choice of value $r$, it follows that 
+$$\mathbb{E}[\Delta^r]\leq \epsilon\cdot \delta\cdot val(w^*).$$
+
+As the variable $\Delta^r$ is non-negative, we can use Markov's inequality:
+$$\delta \geq \mathbb{P}[\Delta^r > \frac{\mathbb{E}[\Delta^r]}{\delta}] 
+\geq \mathbb{P}[\Delta^r > \epsilon\cdot val(w^*)] 
+= \mathbb{P}[val(w^r) > (1+\epsilon)\cdot val(w^*)],$$
+which is the claim.
+$\square$

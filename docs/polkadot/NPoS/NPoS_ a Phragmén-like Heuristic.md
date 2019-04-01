@@ -1,0 +1,342 @@
+# NPoS: a Phragmén-like Heuristic
+
+The [sequential Phragmén's method](https://hackmd.io/lWBBbeg7Tty5qUnUSJ92YA) is fast, seems to work well in practice, and gives a solution that satisfies the Proportional Justified Representation (PJR) axiom. However, we identify two problems with it. First, it does not give a constant factor approximation to the maximin support objective. Second, it lacks versatility, in the sense that it cannot be used to improve upon an arbitrary solution given as input.
+
+We describe a heuristic closely related to the sequential Phragmén's method, which takes as input an arbitrary partial solution, defines scores over the validator candidates, and uses them to add a new validator to the solution. We use this heuristic to derive a "PJR-enabler"; that is, an algorithm that takes as input a solution of minimum support $d$, performs some swaps using the heuristic, and returns a solution of minimum support at least $d$ and observing PJR. 
+
+Checking if a committee satisifies the PJR property is NP-hard. However, we define a stronger property, called PJR($d$), which implies PJR and which can checked efficiently, and provide an efficient algorithm to check for PJR($d$), based on our heuristic. Finally, we provide an efficient factor-3.15 approximation algorithm, which starts with an empty set and alternates between using our heuristic to elect a new validator, and running a flow balancing algorithm to improve the support distribution on the current set.
+
+## Notation
+
+Recall that an instance of the NPoS election problem is a graph $(N\cup V, E)$ representing the trust relations between nominators and validator candidates, a vector $b\in\mathbb{R}_{\geq 0}^N$ of nominator budgets, and a target number $m$ of validators to elect.
+
+A support distribution from nominators to validators is represented by a vector $w\in\mathbb{R}_{\geq 0}^E$ of edge weights. Such a vector is called *affordable* if, besides non-negativity constraints, it observes the budget constraints $\sum_{v\in V: nv\in E} w_{nv}\leq b_n$ for each nominator $n\in N$. Furthermore, it is called *maximally affordable* with respect to a validator set $S\subseteq V$  if $\sum_{v\in S: \ nv\in E} w_{nv} = b_n$ for each $n\in N$ having at least one neighbor in $S$. By a *solution* we mean a pair $(S,w)$ where $S\subseteq V$ with $|S|\leq m$ and $w$ is affordable, and $(S,w)$ is a *feasible solution* if it is also maximally affordable and $|S|=m$. Our algorithm will return feasible solutions, but we will often consider (non-feasible) solutions in intermediate steps and in the analyses.
+
+Given an edge weight vector $w$ and a validator $v\in V$, the *support* of $v$ relative to $w$ is $supp_w(v):=\sum_{n: nv\in E} w_{nv}$. For a solution $(S,w)$, we extend this definition to $supp_w(S):=\min_{v\in S} supp_w(v)$. The *maximin support* objective is maximizing $supp_w(S)$ over all feasible solutions $(S,w)$ to the given instance.
+
+## The basic heuristic
+
+Suppose that $(S,w)$ is a maximally affordable solution with $|S|\leq m$, and we wish to add a new candidate $v'\in V\setminus S$ and give it some support $d$. In general, this will reduce the support of any other candidate $v \in S$ who has a neighbor nominator $n$ in common with $v'$. When we do this, we want to ensure that we do not reduce the support of $v$ below $d$ (assuming it was above $d$ to begin with). A simple way to ensure this is to reduce the weight on edge $nv$ from $w_{nv}$ to $w_{nv}(d/supp_w(v))$. That way, it is clear that even if all nominators $n$ supporting $v$ can also support $v'$, the new support of $v$ does not go below $d$.
+
+Thus, if for each $n\in N$ and $d\geq 0$ we define the nominator's slack as
+
+\begin{align}
+slack_w(n,d):= & \begin{cases}
+b_n & \text{if }\nexists v\in S: nv \in E\\
+\sum_{v\in S: \ nv\in E, \ supp_w(v)> d} w_{n,v}(1-d/supp_w(v)) & \text{otherwise } 
+\end{cases}\\
+= & b_n - \sum_{v\in S: \ nv\in E} w_{nv}
+\cdot\min\Big\{1, \frac{d}{supp_w(v)}\Big\} 
+\end{align}
+
+and for each $v'\in V\setminus S$ and $d\geq 0$ we define that candidate's pre-score as
+
+$$prescore_w(v',d) := \sum_{n\in N: \ nv' \in E} slack_w(n,d)$$
+
+then we can add $v'$ to the solution with support $prescore_w(v,d)$, while not making any other validator's support decrease from over $d$ to under $d$. In particular, if $prescore_w(v',d)\geq d$, the new solution $(S \cup \{v'\},w')$ has $supp_{w'}(S \cup \{v\}) \geq \min\{supp_w(S),d\}$. 
+
+The resulting heuristic, which adds a new candidate to the initial solution, is formalized below.
+
+**Algorithm: InsertCandidate($S,w,v',d$)**
+1. Let $S'= S \cup \{v\}$.
+2. Let $w'=w$.
+3. For all $n$ with $nv' \in E$:
+    * If $\nexists v\in S$ with $nv\in E$ set $w'_{nv'}=b_n$, otherwise set $w'_{nv'}=0$;
+    * For all $v\in S$ with $w_{nv} > 0$ and $supp_w(v) > d$:
+        * increase $w'_{nv'}$ by $w_{nv}(1-d/supp_w(v))$;
+        * set $w'_{nv} \leftarrow w_{nv}(d/supp_w(v))$;
+        
+3. Return $(S',w')$.
+
+The next result follows from the definitions and the discussion above and its proof is skipped.
+
+**Lemma 1:** If we run InsertCandidate($S,w,v',d$) for some maximally affordable $(S,w)$ with $|S|\leq m$, $v'\in V\setminus S$ and $d\geq 0$ to get $(S',w')$,  then 
+* $(S',w')$ is maximally affordable, 
+* $supp_{w'}(v')=prescore_w(v',d)$,  
+* for all $v\in S$ we have that $supp_{w'}(v)\geq \min\{d, supp_w(v)\}$, and consequently if $prescore_w(v',d)\geq d$, we obtain 
+$$supp_{w'}(S') \geq \min \{d, supp_{w}(S) \},$$ 
+* the running time of the algorithm is $O(|E|\cdot |S|)=O(|E|m)$.
+
+
+How high can we make $d$ and have the property $prescore_w(v',d)\geq d$ hold? We define $score_w(v')$ to be the maximum $d$ such that $prescore_w(v',d) \geq d$. Our heuristic now becomes apparent.
+
+**Heuristic:** *Given a maximally affordable solution $(S,w)$ with $|S|\leq m$, find the candidate $v'\in V\setminus S$ maximizing $score_w(v')$ and execute InsertCandidate($S,w,v',score_w(v')$), so that the new solution $(S',w')$ observes* 
+$$supp_{w'}(S')\geq \min\{supp_w(S),\max_{v\in V\setminus S}score_w(v)\}.$$
+
+This is the core idea of our method. In the remainder of the section we establish how to find the candidate with the largest score efficiently.
+
+
+Fix a candidate $v'\in V\setminus S$, and consider the function $f(d):=prescore_w(v',d)-d$ in the interval $[0,\infty)$. Notice that this function is continuous and strictly monotone decreasing, and that $score_w(v')$ corresponds to its unique root. We can therefore approximate this root with binary search, as binary search works on any monotonic function. However, we can do better. Sort the set of support values $\{supp_w(v): \ v\in S\}=\{d_1,d_2,\cdots,d_k\}$ so that $d_1<d_2<\cdots<d_k$, for some $k\leq |S|$, and note that $prescore_w(v',d)$ is piecewise linear with respect to $d$, namely it is linear in each of the intervals $[0,d_1), \ [d_1, d_2), \cdots, [d_k, \infty)$. By treating $prescore_w(v',d)$ as a linear function in the neighborhood of $d=score_w(v')$, and solving for $f(d)=0$, we obtain  
+$$score_w(v')
+=\frac{\sum_{n: \ nv'\in E} (b_n - \sum_{v \in S:  \ supp_w(v) \leq score_w(v')} w_{nv})}
+{1+\sum_{n: \ nv' \in E} \sum_{v \in S: \ supp_w(v) > score_w(v')} w_{nv} /supp_w(v) }.$$
+
+The interesting thing about the previous identity is that the right-hand side stays constant if we replace $score_w(v')$ by any other value $d$ within the same interval, among the above-defined intervals. This motivates us to define the following score function, for any $v'\in V\setminus S$ and $d\geq 0$: 
+$$score_w(v',d)
+:=\frac{\sum_{n: \ nv'\in E} (b_n - \sum_{v \in S:  \ supp_w(v) \leq d} w_{nv})}
+{1+\sum_{n: \ nv' \in E} \sum_{v \in S: \ supp_w(v) > d} w_{nv} /supp_w(v) }.$$
+
+Function $score(v',d)$ is very similar to, but algorithmically more convenient than function $prescore(v',d)$. We remark that for $d=0$, the expression for $1/score_w(v',0)$ is very similar to the notion of score in sequential Phragmén's method. Hence, the novelty of our approach lies on trying to insert candidates for higher values of $d$.
+
+
+
+**Lemma 2.** Fix a maximally affordable solution $(S,w)$ and a candidate $v'\in V\setminus S$:
+(i) Function $score_w(v',d)$ is piece-wise constant with respect to $d$, namely it is constant in each of the intervals $[0,d_1), \ [d_1, d_2), \cdots, [d_k, \infty)$, where the values $d_1<d_2<\cdots <d_k$ constitute the set $\{supp_w(v): \ v\in S\}$.
+(ii) Function $g(d):=score_w(v',d) - d$ is strictly monotone decreasing in $[0,\infty)$, and its unique root is $score_w(v')$.
+
+*Proof.* Let $num(d)$ and $denom(d)$ be respectively the numerator and the denominator in the definition of $score_w(v',d)$. 
+
+It is easy to check that if $d_i<d_j$ are two values such that $\nexists v\in S$ with $d_i \leq supp_w(v)< d_j$, then both $num(d)$ and $denom(d)$ stay constant in the interval $[d_i,d_j)$. This proves point (i). 
+
+Now consider function $g(d)$:
+\begin{align}
+g(d)&:= score_w(v',d)-d \\
+&=\frac{num(d) - d\cdot denom(d)}{denom(d)} \\
+&= \frac{\sum_{n: \ nv'\in E}\Big(b_n -\sum_{v\in S} w_{nv}\cdot \min\{1,d/supp_w(v)\}\Big) - d}{denom(d)}\\
+&= \frac{prescore_w(v',d)-d}{denom(d)} 
+= \frac{f(d)}{denom(d)}.
+\end{align}
+
+We know that $f(d):=prescore_w(v',d)-d$ is strictly monotone decreasing, and $denom(d)$ is monotone increasing and strictly positive in $[0,\infty)$, hence $g(d)$ is strictly monotone decreasing. Moreover, functions $g(d)$ and $f(d)$ clearly vanish simultaneously, so $score_w(v')$ is the unique root of both functions. This proves point (ii).
+$\square$
+
+We can now exploit the two previous properties to perform binary search among these $k+1$ intervals, which allows us to find the exact value of $score_w(v')$ for any candidate $v'\in V\setminus S$ by computing only $O(\log k)=O(\log m)$ evaluations of $score_w(v',d)$. The next observation follows from the previous lemma and the fact that the maximum function of a finite group of strictly monotone decreasing functions is again strictly monotone decreasing.
+
+**Corollary 3.** Fix a maximally affordable solution $(S,w)$:
+(i) Function $\max_{v'\in V\setminus S}score_w(v',d)$ is constant in each of the above-defined intervals $[0,d_1), \ [d_1, d_2), \cdots, [d_k, \infty)$.
+(ii) Function $h(d):=\max_{v'\in V\setminus S}score_w(v',d) - d$ is strictly monotone decreasing, and its unique root is $\max_{v'\in V\setminus S}score_w(v')$.
+
+We define the explicit algorithm next.
+
+**Algorithm. CalculateMaxScore(S,w)**
+1. Compute $supp_w(v)$ for all $v \in S$ and let $L$ be the set of unique support values.
+2. Let $a=0$,$b=size(L)+1$,$c=0$
+3. If $c=0$, let $d=0$ else let $d$ be the $c$th lowest unique support value.
+4. For each $n$, compute  $b_n - \sum_{v' \in S, supp_w(v') \leq d} w_{n,v'})$ and $\sum_{v' \in S, supp_w(v') > d} w_{n,v'} /supp_w(v)$.
+5. For each $v$, compute 
+$$score_w(v,d)= \frac{\sum_{n:(n,v) \in E} (b_n - \sum_{v' \in S, supp_w(v') \leq d} w_{n,v'})}{1+\sum_{n:(n,v) \in E} \sum_{v' \nS, supp_w(v') > d} w_{n,v'} /supp_w(v') }$$
+6. Compute $s=max_v score_w(v,d)$ and let $v$ be such that $s=score_w(v)$.
+7. If $s=d$ return $v$ and $s$
+8. If $s > d$, let $a$ be the highest $i$ such that the $i$th lowest support is $\leq s$. If $c=b-1$ or $a=c$, return $v$ and $s$.
+9. If $s < d$, let $b=c$.
+10. Let $c=\lfloor (a+b)/2 \rfloor$ and go back to 3..
+
+
+**Lemma 4:** CalculateMaxScore() returns $\max_v score_w(v)$ and a $v$ that attains that in $O(\log m)$ iterations.
+**Proof:** Let $d_i$ be $0$ for $i=0$ , be infinite for $i=size(l)+1$ and otherwise the $i$th lowest support value. We need to show by induction that
+$d_a \leq \max_v score_v(d) < d_b$. Initially $d_a=0$ and noting that both the numerator and denominator in $sore_w(d)$ are nonegative, we have $\max_v score_w(v) \geq 0$. Also the scores are finite and $d_b$ is infinite. When we change $a$ in step 8, we keep $d_a=d_i \leq s \leq max_v score_v(d)$. When we change $b$ in step 9, we have that $\max_v score_w(v,d) =s < d$ and so all $v$ have $d_b=d_c=d \geq score_w(d)$ by Lemma 3.
+
+Next we show that if the procedure returns $v$ and $s$, it returns correctly. If $s=d$ then $\max_v{v'} score_w(v',d)=score_w(v,d)=d$. In this case $score_w(v)=s$. For any $v'$ with $score_w(v',d) \leq d$, by Lemma 1, $d \geq score_w(v')$ and so $score_w(v') \leq score_w(v)$. So $s=\max_{v'} score_w(v')=score-w(v)$ as required. Suppose that $s > d$ and $c=b-1$. Since $s > d$, we have that $d \leq max_{v'} score_w(v') < d_b$. However, by construction, there are no $v'' \in S$ with $supp_w(v) \in [d,d_b)$ and so the scores are constant in this region. Thus for any $v' \notin S$ with $score_w(v')\geq d$ and so $d \leq score_w(v') < d_b$, $score_w(v',d)=score_w(v',score_w(v'))=score_w(v')$. Thus we have $\max_{v'} score_w(v')=s$ and $s=score_w(v)$ as required. Suppose that $s > d$ and that the highest $i$ such that the $i$th lowest support is $\leq s$ is $c$. In this case $d=d_c$ and $d_{c+1} > s$, So we have $s \in (d_c,d_c+1)$. But $score_w(v,d)$ is constant in $[d_c, d_c+1)$, so $s=score_w(v,score_w(v,d))=score_w(v)$. Any $v' \notin S$ has $$score_w(v',s)=score_w(v',d) \leq s$ and so $score_w(v') \geq s$ and thus $s=score_w(v)=\max_{v'} score_w(v')$.
+
+Next, we note that the length of the interval $[a,b]$ in the next iteration is at most $\lceil (b-a)/2 \rceil$. If we set $b$ in step 9, the interval is $[a,c]$ and $ \lfloor (a+b)/2 \rfloor$. If we set $a$ in step 8, then since $s > d=c_c$, $a$, the highest 4i$ such that the $i$th lowest support is $\leq s$ is $\geq c$. So the interval is a subset of $[c,b]$. Since we showed that $d_a \leq \max_v score_w(v) < d_b$, we always have that $b > a$. Thus after $O(\log m)$ iterations, the interval length reaches 1, with $c=a=b-1$. Then we return of $s=d$ and also if $s > d$ since $c=b-1$ and $c=a$. If $s < d$, then we would set $b=a$, which we argued never happens. Thus the procedure returns correctly in at most $O(log m)$ iterations.
+
+When we have the score, we can insert $v$ using InsertNewCandiate(w, v,s). 
+
+## (Parameterised) Proportional Justified Representation.
+
+We can generalise the PJR property to our weighted votes setting and consider adding a parameter. For each nominator $n\in N$, let $V_n\subseteq V$ be the subset of candidates that are trusted by $n$, i.e. $V_n:=\{v\in V: nv\in E\}$.
+
+**Definition:** A committee $S$ satisfies Proportional Justified Representation with parameter $d$ (PJR($d$) for short) if there is no subset $N'\subseteq N$ of nominators and integer $t>0$ such that:
+a) $\sum_{n\in N'} b_n \geq t\cdot d$,
+b) $|\cap_{n\in N'} V_n|\geq t$, and
+c) $|S\cap (\cup_{n\in N'} V_n)|<t$.
+
+Notice that if a committee satisfies PJR($d$), then it also satisfies PJR($d'$) for each $d'\geq d$, so the property gets stronger as $d$ decreases. Notice also that a committee $S$ of size $m$ satisfies the standard version of PJR whenever it satisfies PJR($d$) for $d=\sum_{n\in N}b_n / m$.
+
+Checking whether a committee satisfies standard PJR is known to be NP-hard. In this section, we prove that checking PJR($d$) for any parameter $d$ can be done efficiently.
+
+**Lemma 5:** If a set $S$ (of any size) does not satisfy PJR($d$) for some parameter $d$ then, for any maximally affordable edge weight vector $w\in\mathbb{R}^E_{\geq 0}$, there must be a candidate $v'\in V\setminus S$ with $prescore_w(v',d)\geq d$, and consequently $score_w(v')\geq d$.
+
+**Proof:** If $S$ does not satisfy PJR($d$), there must be a subset $N'\subseteq N$ of nominators with a) $\sum_{n\in N'}b_n \geq  t\cdot d$, b) $|\cap_{n\in N'} V_n|\geq t$, and c) $|S\cap (\cup_{n\in N'} V_n)| \leq t-1$. Therefore, the set $(\cap_{n\in N'} V_n)\setminus S$ must be non-empty; let $v'$ be a candidate in it. Fix a maximally affordable weight vector $w$; we claim that $prescore_w(v',d)\geq d$. We have
+\begin{align}
+prescore_w(v',d) 
+&= \sum_{n\in N: \ v'\in V_n} slack_w(n,d)\\
+&\geq \sum_{n\in N'} slack_w(n,d)\\
+&= \sum_{n\in N'} \Big(b_n - \sum_{v\in S\cap V_n} w_{nv}\cdot \min\{1, d/supp_w(v)\}\Big) \\
+&\geq \sum_{n\in N'}b_n - \sum_{v\in S\cap(\cup_{n\in N'} V_n)}\min\{1,d/supp_w(v)\} \cdot \sum_{n\in N'} w_{nv}\\
+&\geq t\cdot d - \sum_{v\in S\cap(\cup_{n\in N'} V_n)}\min\{1,d/supp_w(v)\} \cdot supp_w(v)\\
+&\geq t\cdot d - \sum_{v\in S\cap(\cup_{n\in N'} V_n)}d\\
+& \geq d\cdot (t - |S\cap(\cup_{n\in N'} V_n)|) \\
+& \geq d,
+\end{align}
+where we used fact a) on the fifth line, and fact c) on the last line. This proves that $prescore_w(v,d) \geq d$. The fact that $score_w(v) \geq d$ follows from the definition of score.
+$\square$
+
+Given a committee $S$ and a parameter $d$, the previous lemma provides a test that implies that $S$ has the PJR($d$) property. For any maximally affordable weight vector $w$ for $S$, it suffices to compute $\max_{v'\in V\setminus S} prescore_w(v',d)$ and check if smaller than $d$. If it is, we know that PJR($d$) holds.
+
+**TestThatImpliesPJR($S,w,d$)**
+1. For each $v \in S$ compute $supp_w(v)$
+2. For each $n\in N$, compute
+$$slack(n,d)=b_n - \sum_{v\in S} w_{n,v}\cdot \min\{1,d/supp_w(v)\}.$$
+3. For each $v'\in V\setminus S$, compute
+$$prescore_w(v',d)= \sum_{n: \ v'\in V_n} slack(n,d) \; ,$$
+and if $prescore_w(v',d)\geq d$, return false.
+4. Return true.
+
+**Lemma 6:** If TestThatImpliesPJR($S,w,d$) returns true for a given solution $(S,w)$, then $S$ satisfies PJR($d$).
+
+## Local Search for provable PJR
+
+
+**LocalSearchForPJR(S,w)**
+
+1. Compute $supp_w(S)$. Let $d=\min \{(1+\epsilon) supp_w(S), \sum_n b_n/m \}$
+2. Let $v' = \min_{v' \in S} supp_w(d)$.
+3. Let $v,s$ be the output of CalculateMaxScore(S,w).
+4. If $s < d$, return $S,w$
+5. Remove $v'$ from $S$ and set all $w_{n,v'}=0$.
+6. Run InsertNewCandiate(w, v,s) to add $v$ to $(S,w)$
+7. Compute $supp_w(S)$. If $supp_w(S) < d$, goto 2, else goto 1.
+
+**Theorem 1:** If we run LocalSearchForPJR on any solution (with $m$ elected candidates) with minimax support $d'$, then it returns a solution  $(S,w)$ with $supp_w(S) \geq d'$ that will pass TestThatImpliesPJR($S$,$w$,$d''$) where $d'=\min \{(1+\epsilon) supp_w(S), \sum_n b_n/m \}$ and so saitisfies PJR($d''$) and PJR. If the input solution had $d' \geq d*/k$ where $d^*$ is the optimal minimax support for any solution, then the algorithm takes at most $O(km/\epsilon)$ iterations.
+
+**Proof:** When the algorithm returns, by correctness of CalculateMaxScore(S,w), it returns a solution for which no $v \notin S$ has $score_w(d) \geq d$. Noting that $d'' \geq d$, we have that TestThatImpliesPJR($S$,$w$,$d''$) will pass and so S satsifies PJR($d''$). Since $d'' \leq \sum_n b_n/m $, this implies PJR.
+
+Next we want to argue that $supp_w(S)$ is increasing. If so, then we will have that we return a solution with $supp_w(S) \geq d'$. At the beginning of each iteration we claim that $d \geq supp_w(S)$. If this does not hold at the end of any iteration, then we return to 1., which ensures that $d > supp_w(S)$ unless $d=\sum_n b_n/m$. In the latter case, note that it is impossible for $supp_w(S) > \sum_n b_n/m$, since $\sum_{v' \in S} supp_w(v') \leq \sum_n b_n$ and so in this case $d \geq supp_w(S)$ as well. Thus we have that $d \geq supp_w(S)$ at the beginning of each iteration. By Lemma 1, InsertNewCandiate(w, v,s) returns with $supp_w(S)$ at least $\min \{supp_w(S),d\}$ for the input. Thus $supp_w(S)$ is increasing.
+
+So all that remains is to show that the algorithm terminates. Each time we return to 1, it must be because $supp_w(S)$ has increased by a factor of $(1+\epsilon)$ unless $supp_w(S)=\sum_n b_n/m$. 
+
+In the latter case, we have $supp_w(v')=\sum_n b_n/m$ for all $v' \in S$ and $\sum_{v' \in S} w_{n,v'}=b_n$ for all $n$. Thus implies that $slack_w(n,d)=0$ for all $n$ and so $prescore_w(v,d) =0$ and $score_w(v) < d$ for all $v \in V\setminus S$ and so the procedure terminates in the next iteration.
+
+So, after we return to 1. $i$ times, we have that $supp_w(S) \geq \min\{(1+\epsilon)^i d, \sum_n b_n/m \}$ This can only happen $O(k/\epsilon)$ times.
+
+Each time the procedure returns to 2. from 7., the number of $v' \in S$ with $supp_w(v') < d$ reduces by 1, since we removed one in 5. and did not get any more in step 6. . So thus can only happen $m$ times before we return to 1. and change $d$. Thus the total number of iterations is  $O(km/\epsilon)$.
+$\square$
+
+## Factor 3.15 approximation algorithm
+
+We propose a greedy algorithm that starts with an empty set and runs $m$ iterations, where each iteration uses our heuristic to insert a new validator and then runs a weight redistribution algorithm over the current set.
+
+In particular, for a given solution $(S,w)$ with $|S|\leq m$, we run a weight redistribution algorithm that computes an $\epsilon$-approximation of the min-norm max-flow (MNMF) weight vector for set $S$. We formalize this definition below.
+
+**Definition:** For a non-empty validator set $S\subseteq V$ and a constant $\epsilon>0$, an edge weight vector $w\in\mathbb{R}_{\geq 0}^E$ is an $\epsilon$-MNMF for $S$ if
+(i) $w$ is maximally affordable, i.e. $\sum_{v\in S: \ nv\in E} w_{nv}=b_n$ for each $n\in N$ having at least one neightbor in $S$,
+(ii) for any $n\in N$ and any two neighbors $v,v'\in S$ of it, if $w_{nv}>0$ then $supp_w(v)\leq (1+\epsilon/|S|)supp_{w}(v')$, and
+(iii) For all affordable $w'$, $supp_{w'}(S)\leq (1+\epsilon)supp_w(S)$.
+
+In our note on the min-norm max-flow problem [give link], we provide more information about $\epsilon$-MNMF vectors and present an algorithm $MNMF(S,w,\epsilon)$ that returns an $\epsilon$-MNMF for $S$ in polynomial time, and where the input vector $w$ is optional. 
+
+Consider the following algorithm.
+
+**Algorithm: BalanceBetweenHeuristic()**
+1. Initialise $S$ to the empty set and $w$ to the empty vector;
+2. For $i$ from $1$ to $m$:
+    * Let $v,d=CalculateMaxScore(S,w)$;
+    * Update $S,w=InsertNewCandidate(w,v,d)$;
+    * Update $w=MNMF(S,w,\epsilon)$;
+7. Return $(S,w)$.
+
+The main result of the section is showing that the previous algorithm offers a $3.15(1+\epsilon)$-factor approximation, and satisfies PJR.
+
+**Theorem 2:**  The procedure $BalanceBetweenHeuristic()$ returns a solution $(S, w)$ for which $supp_{w}(S) \geq d^*/(3.15(1+\epsilon))$, where $d^*$ is the maximin support across all solutions. It also satisfies PJR($supp_{w}(S)/(1+\epsilon)$) and, if $\epsilon \leq 1/m$, PJR.
+
+### Analysis
+
+We begin with a needed technical result.
+
+**Proposition 1:** Let $(S,w)$ be a solution where $|S|< m$ and $w$ is an $\epsilon$-MNMF of $S$ for some $0\leq \epsilon \leq 1$. Then there exists a non-empty set $T\subseteq V\setminus S$ with the property that for each $0\leq a\leq 1$, there is a set of nominators $N_a\subseteq N$ such that
+a) each $n\in N_a$ has a neighbor in $T$,
+b) $\sum_{n\in N_a}\geq (1-a)|T|d^*$, and
+c) For each $v\in S$ with $w_{n,v}>0$ for some $n\in N_a$, we have that $supp_{w}(v)\geq ad^*$.
+
+**Proof:** Let $m':=|S|$, where $m'<m$. Let $(S^*, w^*)$ be an optimal size-$m$ solution to the maximin support problem, so that $supp_{w^*}(S^*)=d^*$. We define set $T$ as $T:=S^*\setminus S$, which is clearly non-empty. Assume without loss of generality that $\epsilon=1$, and fix a parameter $0\leq a\leq 1$. 
+
+Define $d:=a\cdot d^*\cdot (1+1/m')$, and partition the validator set $S=S_l\cup S_u$ (mnemonics: lower and upper) by support, so that $S_l$ contains those $v\in S$ with $supp_w(v)\geq d$.
+
+Next, for each nominator $n$ providing non-zero support to both sides of the partition, we split $n$ into two *virtual nominators* $n_l$ and $n_u$, so that $n_l$ gives no support to $S_u$ and $n_u$ gives no support to $S_l$, and their budgets are $b_{n_l}:=\sum_{v\in S_l: n_l v\in E} w_{n_l v}$ and $b_{n_u}:=\sum_{v\in S_u: n_u v\in E} w_{n_u v}$. After this modification, we partition the nominators as $N=N_l\cup N_u$, where $N_l$ contains those $n\in N$ that give non-zero support to $S_l$, and $N_u$ contains those that give no support to $S_l$. It follows that there is no support between $N_l$ and $S_u$.
+
+By the fact that $w$ is maximally affordable, and that each nominator in $N_l$ has a neighbor in $S_l$ but gives no support to $S_u$, all of $N_l$'s (virtual) budget must be spent supporting $S_l$,, so 
+$$\sum_{n\in N_l} b_n 
+ \leq \sum_{v\in S_l} supp_w(v)< |S_l|d.$$
+
+Assume without loss of generality that $w^*$ provides a support of exactly $d^*$ to each $v\in S^*$, and define the edge weight vector $w'$ by capping $w$ arbitrarily so that $supp_{w'}(v)=d$ if $v\in S_u$, and $0$ otherwise. These vectors are affordable but in general not maximally affordable). Define $f:=w^*-w'\in\mathbb{R}^E$, which we consider as a flow over the network induced by $N\cup S\cup S^*$.
+
+Clearly, the net excess of set $N$ relative to $f$ is $md^* - |S_u|d$, the net excess of set $N_l$ is at most $\sum_{n\in N_l} b_n < |S_l|d$, and the net demand of set $S_u$ is $|S^*\cap S_u|(d^*-d)$. By subtracting the last two terms from the first one, we obtain that the flow going from $N_u$ to $S^*\setminus S_u$ is at least
+\begin{align}
+&md^* - |S_u|d - |S_l|d - |S^*\cap S_u|(d^*-d) \\
+&=md^* - m'd - |S^*\cap S_u|(d^*-d) \\
+&=(m - |S^*\cap S_u|)(d^*-d)+(m-m')d \\
+&\geq |S^*\setminus S|d^*(1-a(1+1/m')) +(m-m')a\cdot d^*(1+1/m')\\
+&= |S^*\setminus S|d^*(1-a)+a\cdot d^*\frac{(m-m')(m'+1) - |S^*\setminus S|}{m'}\\
+& \geq |S^*\setminus S|d^*(1-a) = |T|d^*(1-a),
+\end{align}
+
+where in the last inequality we used the fact that $|S^*\setminus S|\leq m\leq (m-m')(m'+1)$ for any $0\leq m'\leq m-1$. A key observation now is that none of the flow originating at $N_u$ can pass by, or end in, $S_l \cup N_l$. This is because there are no edges between $N_u$ and $S_l \cup N_l$, by definition of $N_u$; and even though the flow can pass by $S_u$, there is no flow from $S_u$ to $S_l\cup N_l$ in $f=w^*-w'$ because $w'$ provides no flow from $N_l$ to $S_u$. Therefore, the formula above is actually a lower bound on the flow going from $N_u$ to $T=S^*\setminus S$. Finally, we notice that if we decompose flow $f$ into simple paths, any path from $N_u$ to $T$ must have the last edge originating in $N_u$, or more specifically in $N_a$. This proves that $\sum_{n\in N_a} b_n \geq |T|d^*(1-a)$, which is claim b), and concludes the proof of the proposition. 
+$\square$
+
+**Lemma 6:** Given a solution $(S,w)$ with $|S| \leq m$ that satisfies Condition 1, there exists a $v \notin S$ with $score_w(v) \geq d^*/4(1+\epsilon/2)$.
+
+**Proof:** Apply Proposition 1 and set $a=1/2$, then by using that for any $a_1,\dots, a_n$, there exists an $a_i$ with $a_i \geq \sum_i a_i/n$, there is a $v \in T$ such that the set 
+$$A_{v,d^*/2}:=\Big\{n\in N \ | \ n,v \in E 
+\text{ and }\forall v'\in V, w_{n,v'} > 0 
+\Rightarrow supp_{w}(v') \geq 
+\frac{d^*}{2(1+\epsilon/2)} \Big\}$$  
+
+has $\sum_{n \in A_{v,d^*/2}} b_n \geq d^*/2$. Now for any $n \in A_{v,d^*/2}$, $slack(n,d^*/4(1+\epsilon/2))= \sum_{v:(n,v) \in E} w_n,v (1-d^*/4(1+\epsilon/2) supp_w(v)) \geq b_n/2$ and so $prescore(v,d^*/4(1+\epsilon/2)) \geq \sum_{n \in A_{v,d^*/2}} slack(n, d^*/4(1+\epsilon/2)) \geq d^*/4 > d^*/4(1+\epsilon/2)$. Thus $score_w(v) \geq d^*/4(1+\epsilon/2)$.
+
+We can do better than this by using different $a$.
+
+**Lemma 7** Given a solution $(S,w)$ with $|S| \leq m$ that satisfis Condition 1, there exists a $v \notin S$ with $score_w(v) \geq d^*/3.15(1+epsilon/4)$.
+
+**Proof:** The following will be crucial:
+
+**Lemma 8** Consider a finite sum $ \sum_i f(x_i) a_i$, where $f$ is strictly increasing with derivative $f'(x)$, $a_i \geq 0$ for all $i$ and for some $y \leq \min_i x_i$, $f(y) = 0$, then  
+$$\sum_i f(x_i) a_i = \int_{y}^infty f'(x) (\sum_{i:x_i \geq x} a_i) dx$$
+
+**Proof:** We can write the sum as a Lebesgue integral over the measure with weights $a_i$, obtaining that:
+$$\sum_i f(x_i) a_i = \int_0^\infty (\sum_{i:f(x_i) >t} a_i ) dt$$
+The conditions on $f$ are enough for it to be invertible with derivative $df^{-1}/dt=1/f'(f^{-1}(t))$ and $f^{-1}(0)=y$, so we can substiture $x=f^{-1} t$ into the above to obtain:
+\begin{align*} 
+\sum_i f(x_i) a_i & = \int_0^\infty (\sum_{i:f(x_i)} >t a_i ) dt \\
+&= \int_y^\infty f'(x) (\sum_{i:f(x_i) >f(x)} a_i ) dx \\
+&= \int_y^\infty f'(x) (\sum_{i:x_i > x} a_i ) dx \\
+&= \int_y^\infty f'(x) (\sum_{i:x_i \geq x} a_i ) dx
+\end{align*}
+
+
+For sume $0 \leq b \leq 1$, to be determined later, we consider $\sum_{v \in T} prescore(w,b d^*)$, we have
+$$\sum_{v \in T} prescore(w,b d^*) \geq \sum_{n: \exists v \in T, (n,v) \in E} slack(n, b d^*) \geq \sum_{n \in N_b} slack(n,b d^*) \; .$$
+
+Now for $n \in N_b$, let $supp(n)= \max_{v':w_{n,v'} > 0} supp_w(n)$ and $supp(n)=\infty$ if $w_{n,v'}=0$ for all $v'$. We certainly have $supp(n) \geq b d^*$ from the definition of $N_b$. More generally for $n \in N_b$, $n \in N_a$ if and only if $supp(n) \geq a d^*$. We have
+$$slack(n, b d^*) = b_n - \sum_{v' \in S} w_n,v bd^*/ supp_w(v') \geq b_n (1- bd^*/supp(n))$$
+and so using Lemma 8,
+\begin{align*} \sum_{v \in T} prescore(w,b d^*) & \geq \sum_{n \in N_b} slack(n,b d^*) \\
+& \geq \sum_{n \in N_b} b_n (1- bd^*/supp(n)) \\
+&= \int_{b d^*}^{infty}  (bd^*/x^2) (\sum_{n \in N_{x/d^*}} b_n) dx \\
+& \geq \int_{b}^{1}  (b/a^2) (1-a)|T| d^*/(1+\epsilon/2)   da  \\
+& = (bd^*|T|/(1+\epsilon/2)  \int_{b}^1 1/a^2 - 1/a da \\
+&= (bd^*|T|/(1+\epsilon/2) (1/b-1+ln b) \\
+&=  (d^*|T|/(1+\epsilon/3) (1-b+bln b)
+\end{align*}
+So for any $b$ with $b(2-ln b) \leq 1$, we have that there is an $v \in T$ with
+\begin{align*} prescore_w(b, b d^*/(1+\epsilon/4)) & \geq prescore_w(b, b d^*) \\
+& \geq (d^*/(1+\epsilon/4) (1-b+bln b) \\
+& \geq b d^*/(1+\epsilon/4)
+\end{align*}
+In particular, this holds for $b=1/3.15$. Thus there exists a $v \notin S$ with $score_w(v) \geq d^*/3.15(1+\epsilon/4)$.
+
+Now we can prove Theorem 1
+
+**Proof of Theorem 1:** For a set $S$, we define $d^*_S$  to be the maximum over afforable $w$ of $supp_w(S)$.In order not to lose error with condition 1 (ii), we need:
+ 
+ **Lemma 9:** Let $(S,w)$ be a solution with $|S| \leq m$ that satisfies Condition 1. Let $(S',w')$ be a solution of any size with $S \subseteq S'$ and for all $v \in S$ with $supp_{w'}(v) < sepp_w(v)$, we have $supp_{w'}(v) \geq d$ for some $d$. Then $d^*_{S'}$ defined similarly has $d^*_{S'} \geq \min \{d^*_S, d/(1+\epsilon/4)\}$.
+ 
+ **Proof:** Note that $(1+\epsilon/12m)^{m+1}$ \leq (1+\epsilon/4)$. Since there are at most $m$ values of $supp_w(v)$ for $v \in S$, by the pidgeon hole principle, there must be an $x=d/(1+\epsilon/12m)^i$ for $1 \leq i \leq m$ such that no $v \in S$ has $x < supp_w(v) \leq  x(1+\epsilon/12m)$. Let $X \subseteq S$ be the set of $v \in S$ with $supp_v(w) \leq x$.
+ 
+ Let $N_X=\{n:\exists v \in X, (n,v) \in E\}$. By condition 1, any $n \in N_X$ has $w_{n,v'}=0$ for $v' \notin X$. 
+ By our construction, we also have $w'_{n,v'} =0$ for $v \notin X$.
+ 
+ If $X$ is empty, then $d^*_S \geq supp_w(S) \geq x \geq  d/(1+\epsilon/3)$ and the construction gives a $w'$ with $d^*_{S'} \geq supp_{w'}(S') \geq d/(1+\epsilon/3)=\min \{d^*_S, d/(1+\epsilon/3)\}$ and we are done.
+ 
+ If $X$ is non-empty, then we claim that $d^*_S=d^*_{S'}=d^*_X$. Let $w^*_S$,$w^*_{S'}$ and $w^*_X$ be affordable assignments that achieve these. Then by optimality of $d^*_X$, $d^*_S \leq supp_{w^*_S}(X) \leq d^*_X$ and  similarly $d^*_{S'} \leq d^*_X$. On the other hand, we have that 
+ $$|X| d^*_X \leq \sum_{v \in X} supp_{w^*_X} \leq  \sum_{n \in N_X} b_n = \sum_{v \in X} supp_{w} (X) \leq |X| x$$
+ Now consider modifying $w$ or $w'$ by setting $w_{n,v}$ for $v \in X, $n \in N_X$ to be $(w^*_X)_{n,v}$. Since $n \in n_X$ had $w_{n,v}=w'_{n,v} =0$ for $v \notin X$, this is still affordable and the supports for $v \notin X$ remain the same, that is $> x$. So these have minimum support $d^*_X$, and we have $d^*_{S'}=d^*_S$, which gives the the lemma.
+
+ 
+ Now we claim inductively that $d^*_{S_i} \geq d^*/3.15(1+\epsilon/4)^2$. Lemma 7 implies that there is a $v \notin S_{i-1}$ with $score_w(v) \geq d^*/3.15(1+\epsilon/4)$. We add this to $w$, while not reducing the support of any $v$ to below $d^*/3.15(1+\epsilon/4)$. Lemma 9 gives that $d_{S_i} \geq d^*/3.15(1+\epsilon/4)^2$
+ The induction gives that $d^*_{S_m} \geq d^*/3.15(1+\epsilon/4)^2$. Stare balances gives a $w_m$ that satiusfies condtion 1 (ii) and so $supp_{w_m}(S_m) \geq d^*_{S_m}/(1+\epsilon/4) \geq d^*/3.15(1+\epsilon/4)^3 \geq d^*/3.15(1+\epsilon)$.
+
+For the PJR claim, suppose that $S_m$ does not satify PJR($d$) for some $d$. Then nor do any $S_i$, since they are subsets of $S_m$. So by Lemma 5, for every $0 \leq i \leq m-1$, there is a $v_i \notin S_i$ with $score_{w_i}(v_i) \geq d$. The same argument as above gives that $supp_{w_m}(S_m) \geq d/(1+\epsilon/4)^2 < d/(1+\epsilon)$. It follows that $S_m$ does satisfy PJR($supp_{w_m}(S_m)(1+epsilon)$).
+
+Suppose that $S_m$ does not satisfy PJR but $\epsilon \leq 1/m$. Then by Lemma 5, there exists a $v \notin S$ with $score_{w_n}(v) \geq \sum_n b_n/m$. By Lemmas 2 and 1, we can run InsertNewCandidate($w_n, score_{w_n}(v)$), to obatian a $w'$ such that $\supp_{w'}(S_m \cup \{v\}) = \min \{ score_{w_n}(v), supp_{w_m}(S_m) \}$. But since $|S_m \cup \{v\}|=m+1$, we must have $\supp_{w'}(S_m \cup \{v\}) \leq \sum_n b_n/(m+1)$. Thus we get that $supp_{w_m}(S_m) \leq \sum_n b_n/(m+1)$. So if $\epsilon \leq 1/m$, then $supp_{w_m}(S_m) (1+\epsilon) \leq supp_{w_m(S_m) (m+1)/m \leq sum_n bn /m$ and since PJR
+($d$) implies PJR($d'$) for $d' > d$, we have PJR. This means that $\epsilon \leq 1/m$ implies PJR.

@@ -1,0 +1,112 @@
+*migrated to w3f/research/polkadot/NPoS/phragmen*
+
+# NPoS: sequential Phragmén's method.
+
+This note outlines a multiwinner election method introduced by Edvard Phragmén in the 1890's and specified as a sequential greedy algorithm by [Brill et al. (2017)](https://aaai.org/ocs/index.php/AAAI/AAAI17/paper/download/14757/13791), adapted to the problem of electing validators in Polkadot. In particular, we have adapted Brill et al.'s algorithm and proofs to the weighted case. 
+
+__Remark.__ No objective function is declared in this note. In particular, for the maximin support objective considered in [this note](https://hackmd.io/ICl8_NuHQNyH6hO-cU39Bg), we offer no approximation guarantee.
+
+We give needed notations in Section 1. In Section 2, we show that this algorithm runs in time 
+$$O(m|E|)$$
+
+if each lookup and floating arithmetic operation is considered constant time, where $m$ is the number of elected validators, and $|E|$ is the number of edges in the nominator-validator relation graph. 
+
+In Section 3, we also show that the elected commitee observes the property of Proportional Justified Representation (PJR), a popular axiom in the area of election theory establishing that an election is "fair".
+
+## 1. Notation
+ 
+An instance of NPoS is given by a bipartite graph $(N\cup V, E)$, where $nv\in E$ represents the approval by nominator $n\in E$ of candidate validator $v$, a vector of nominator budgets $b\in \mathbb{R}_{\geq 0}^N$, and the number $m$ of candidate validators to be elected. We also denote by $V_n\subseteq V$ the  set of candidates supported by nominator $n$, and by $N_v\subseteq N$ the set of nominators that support validator $v$. 
+
+An election is given by the pair $(S,w)$ where $S\subseteq V$ is a committee of $m$ elected validators, and $w\in \mathbb{R}_{\geq 0}^E$ is a vector of edge weights where $w_{nv}$ represents the precise amount of stake that nominator $n$ assigns to validator $v$. Besides non-negativity constraints, vector $w$ must observe the budget constraints: $\sum_{v\in V_n} w_{nv} \leq b_n \ \forall n\in N$. Finallly, we say that vector $w$ is maximally affordable if we have the equality $\sum_{v\in V_n\cap S} w_{nv}=b_n$ for each nominator $n$ that has at least one neighbor in $S$.
+
+## 2. Algorithm
+
+The following algorithm finds a committee $S\subseteq V$ of size $m$, together with a maximally affordable edge weight vector $w$ for it. We remark that a better weight vector $w'$ for $S$ can be obtained by finding its min-norm max flow vector as a post-computation - see our note on the MNMF problem. 
+
+__Algorithm: Sequential Phragmén Method.__
+
+1. Set $S \leftarrow \emptyset, \ 
+l_n \leftarrow 0 \ \forall n\in N, \ 
+l_v \leftarrow 0 \ \forall v\in V$. 
+2. For $i=1,\cdots,m$:
+    * Update $l_v \leftarrow \frac{1+\sum_{n\in N_v} l_n\cdot b_n}{\sum_{n\in N_v} b_n}$ for each $v\in V\setminus S$ ($l_v$ unchanged for $v\in S$),
+    * Let $v_i\in argmin_{v\in V\setminus S} l_v$ and update $S\leftarrow S\cup \{v_i\}$,
+    * For each $n\in N_{v_i}$, store $w_{nv_i}\leftarrow (l_{v_i} - l_n)b_n$, and update  $l_n \leftarrow l_{v_i}$ ($l_n$ unchanged for $n\in N\setminus N_{v_i}$),
+3. For each edge $nv\in E$ having a non-zero weight, update its weight  $w_{nv}\leftarrow w_{nv}/l_{n}$.
+4. Return $(S,w)$.
+
+__Running time__: We assume that each candidate validator has at least one supporter. Each one of the $m$ rounds performs $O(|E|)$ arithmetic operations, because each relation $nv\in E$ is inspected at most twice per round. Hence, assuming that floating operations and table lookups take constant time, the running time of the algorithm is $O(m|E|)$.
+
+__General idea__: The algorithm elects validators sequentially. It executes $m$ rounds, electing a new validator $v_i$ in the $i$-th round, and adding it to set $S$. The algorithm also progressively builds an edge weight vector, defining all weights $\{w_{nv_i}: \ n\in N_{v_i}\}$ of edges incident to $v_i$ as soon as $v_i$ is elected. Finally, in step 3. the weight vector $w$ is updated to ensure that that it is maximally affordable.
+
+The algorithm keeps track of _scores_ over nominators and validators. For each nominator $n\in N$, $n$'s score is the fraction of its budget $b_n$ that has been used up so far; i.e., $l_n:=\frac{1}{b_n}\sum_{v\in V_n} w_{nv}$. The guiding principle of this heuristic is to _try to minimize the maximum score $l_n$ over all nominators in each round_. Consider round $i$: if a new validator $v_i$ is elected, we assign one unit of support to it, i.e. we define edge weights so that $\sum_{n\in N_{v_i} }w_{nv_i}=1$ (this choice of constant is irrevelant, and will change when vector $w$ is updated in step 3.). These edge weights are chosen so that all supporters of $v_i$ end up with the same score at the end of round $i$, i.e. for all $n'\in N_{v_i}$:
+\begin{align}
+l_{n'}^{new} 
+&= \frac{\sum_{n\in N_{v_i}} l_n^{new}\cdot b_n}{\sum_{n\in N_{v_i}}  b_n} \\
+& = \frac{\sum_{n\in N_{v_i}} (l_n^{old}\cdot b_n +w_{nv_i})}{\sum_{n\in N_{v_i}}  b_n} \\
+& = \frac{1+ \sum_{n\in N_{v_i}} l_n^{old}\cdot b_n}{\sum_{n\in N_{v_i}}  b_n} =: l_{v_i}.\\
+\end{align}
+
+This common nominator score is precisely our definition of validator $v_i$'s score $l_{v_i}$, and the algorithm greedily chooses the validator with smallest score in each round (breaking ties arbitrarily). 
+
+__Proof of correctness__: It remains to show that the chosen edge weights are always non-negative, and that $w$ is maximally affordable after step 3. For this, we need the following lemma, which states that scores never decrease. Let $l_n^{(i)}$ and $l_v^{(i)}$ represent respectively that scores of nominator $n$ and validator $v$ at the end of the $i$-th round. 
+
+__Lemma 1__: $l_v^{(i)}\leq l_v^{(i+1)}$ and $l_n^{(i)}\leq l_n^{(i+1)}$ for each $n\in N$, $v\in S$ and $i<m$.
+
+_Proof_. We prove the inequalities by strong induction on $i$, where the base case $i=0$ is trivial if we set $l_v^{(0)}=l_n^{(0)}:=0$ for each $n$ and $v$. Assume now that all the proposed inequalities hold up to $i-1$.
+
+Validator inequalities: Consider a validator $v_j\in S$. If $j\leq i$, then the identity $l_{v_j}^{(i+1)}=l_{v_j}^i$ follows from the fact that a validator's score doesn't change anymore once it has been elected. Else, if $j>i$, 
+
+$$l_{v_j}^{(i+1)}:=\frac{1+\sum_{n\in N_{v_j} } b_n\cdot l_n^{(i)}}{\sum_{n\in N_{v_j} } b_n} 
+\geq \frac{1+\sum_{n\in N_{v_j} } b_n\cdot l_n^{(i-1)}}{\sum_{n\in N_{v_j} } b_n} =: l_{v_j}^{(i)},$$
+
+where we used the nominator inequalities $l_n^{(i-1)}\leq l_n^{(i)}$ assumed by induction hypothesis. This shows the validator inequalities up to $i$.
+
+Nominator inequalities: Consider now a nominator $n$, and assume by contradiction that $l_n^{(i+1)}<l_n^{(i)}$. As $n$'s score has changed in round $i+1$, $n$ must support validator $v_{i+1}$, and so $l_n^{(i+1)}=l_{v_{i+1}}^{(i+1)}$. On the other hand, $l_n^{(i)}=l_n^{(j)} = l_{v_{j}}^{(j)}$ for some $j\leq i$. Putting things together,
+
+$$l_{v_j}^{(j)} = l_n^{(i)} > l_n^{(i+1)} = l_{v_{i+1}}^{(i+1)} \geq l_{v_{i+1}}^{(j)}, $$
+
+where the last inequality follows from validator inequalities up to $i$, which we just proved in the previous paragraph. We conclude that in round $j$, validator $v_{i+1}$ had a strictly smaller score than $v_j$, which contradicts the choice of $v_j$.
+$\square$
+
+It easily follows that all edge weights are non-negative. Moreover, using the definition of the nominator scores, before step 3. we have the equalities $l_n\cdot b_n=\sum_{v\in S\cap V_n}w_{nv}$ for each nominator $n$ with at least one neighbor in $S$, so after step 3. we have $b_n=\sum_{v\in S\cap V_n}w_{nv}$.
+
+## 3. Axiomatic properties
+
+In the research literature of approval-based miltiwinner elections, it is common to take an axiomatic approach and define properties of voting methods that are intuitively desirable (see our main reference [Brill et al. (2017)](https://aaai.org/ocs/index.php/AAAI/AAAI17/paper/download/14757/13791), as well as [Sánchez-Fernández et al. (2018)](https://arxiv.org/abs/1609.05370)). These properties apply to the elected committee only, ignoring the edge weights.
+
+For example, a voting method is called _house monotonic_ if, for any instance, the elected candidates are all still elected if the number $m$ of winners is increased. As our algorithm elects validators iteratively, it is trivially house monotonic.
+
+We focus on the property of _proportional justified representation_ (PJR), which establishes that if a group of nominators has sufficient budget, and their preferences are sufficiently aligned, then they must be well represented in the elected committee. More formally, a voting method satifies PJR if for any instance $(N\cup V, E, b, m)$ electing a committee $S$, and any integer $1\leq t\leq m$, there is no nominator subset $N'\subseteq N$ such that
+* $\sum_{n \in N'} b_n \geq \frac{t}{m} \cdot \sum_{n \in N} b_n$, 
+*  $|\cap_{n\in N'} V_n| \geq t$, and 
+*  $|S\cap (\cup_{n\in N'} V_n)| < t$.
+
+Brill et al (2017) proved that the proposed algorithm, sequential Phragmén, satifies PJR,  making it the first known polynomial-time method with this property. We present a proof next.
+
+__Lemma 2:__ Sequential Phragmén satisfies PJR.
+
+_Proof:_ Assume the opposite, hence there is an instance $(N\cup V, E, b, m)$ with output committe $S$, an integer $1\leq t\leq m$ and a nominator subset $N'\subseteq N$ as in the definition above.
+
+For simplicity, we ignore the update of the weight vector performed in step 3. of the algorithm. Hence, every elected validator in $S$ receives a support of one unit, and the sum of supports over $S$ is $m$. Since we know that each budget constraint is violated by a multiplicative term of at most $l_{v_m}$ (the score of the last added validator), we obtain the bound  
+\begin{equation}
+l_{v_m}\geq \frac{m}{\sum_{n\in N} b_n}.
+\end{equation}
+As $l_{v_m}$ is an upper bound on the nominator score $l_n$ for each $n\in N$ (by Lemma 1), and $l_n$ is the proportion of $n$'s budget that's used, the previous inequality is tight only if $l_n = m/\sum_{n\in N} b_n$ for each $n\in N$.
+
+Let $S'=S\cap(\cup_{n\in N'} V_n)$, where $|S'|\leq t-1$ by hypothesis. Since nominators in $N'$ only need to provide support to validators in $S'$, the sum over $N'$ of used budgets must be smaller than $|S'|$, i.e. 
+$$\sum_{n\in N'} l_n\cdot b_n \leq |S'| \leq t-1.$$
+By a (weighted) average argument, this implies that there is a nominator $n'\in N'$ with score 
+$$l_{n'}\leq \frac{\sum_{n\in N'} l_n\cdot b_n}{\sum_{n\in N'} b_n} < \frac{t}{\sum_{n\in N'} b_n} \leq \frac{t}{\frac{t}{m} \sum_{n\in N} b_n} = \frac{m}{ \sum_{n\in N} b_n},$$
+where the last inequality is by hypothesis. This implies that the inequality $l_{v_m} > m/\sum_{n\in N} b_n$ is not tight.
+
+Consider now running a new round (round $m+1$) on the algorithm, and fix an unelected validator $v'\in \cap_{n\in N'} V_n$ (which must exist by hypothesis). If we compute the score of $v'$ in this round, we get 
+$$l_{v'} = \frac{1+\sum_{n\in N_{v'} } l_n\cdot b_n}{\sum_{n\in N_{v'}} b_n}\leq 
+\frac{1+\sum_{n\in N'} l_n\cdot b_n}{\sum_{n\in N'} b_n},$$
+where we used the fact that $N'\subseteq N_{v'}$, and that reducing the set of nominators over which the unit support for $v'$ is split can only increase the nominator scores. Using the known upper bound on the nominator, and the known lower bound on the denominator, we obtain 
+$$l_{v'}\leq \frac{1+\sum_{n\in N'} l_n\cdot b_n}{\sum_{n\in N'} b_n}
+\leq \frac{1 + (t-1)}{\frac{t}{m} \sum_{n\in N} b_n} = \frac{m}{\sum_{n\in N} b_n} < l_{v_m}.$$
+This implies that $l_{v_m} > l_{v'} \geq l_{v_{m+1}}$, which contradicts Lemma 1.
+$\square$
+
+

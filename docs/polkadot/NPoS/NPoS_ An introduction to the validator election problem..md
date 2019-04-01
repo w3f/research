@@ -1,0 +1,162 @@
+# NPoS: An introduction to the validator election problem.
+
+## Introduction
+
+Polkadot works with nominated proof-of-stake (NPoS). A selected group of entities,  called validators, will play a key role in highly sensitive operations such as block generation and finality. Their job is demanding as they need to run costly operations, ensure high responsiveness, and build a reputation of reliability. They must put down their dots -the native currency- at stake as a guarantee of good behavior, and this stake gets slashed whenever they deviate from their protocol. In contrast, they get paid well in normal circumstances. Any party can publicly offer itself as a validator candidate, and the set of validators changes frequently. However, for operational reasons only a limited number of validators can be elected, in the order of hundreds or thousands.
+
+The system also encourages any token holder to participate as a nominator. A nominator $n$ publishes a list of validator candidates that it trusts, and stakes an amount of tokens to support them with. If some of these candidates are elected as validators, $n$'s tokens are staked together with the validators', and $n$ shares the rewards, or the sanctions, proportional to its stake. Unlike validators, an unlimited number of parties can participate as nominators, and their role is mostly passive. Moreover, as long as one only trusts candidates with good reputation, the nominator role will be a relatively low-risk way to continuously gain interests over one's tokens.
+
+This nominator-validator scheme improves the security of the system. It allows the system to select validators with massive amounts of backed stake, much higher than any single party's stake, and eliminate candidates with low backing. In fact, at any given moment we expect the total amount of stake backing validators to be a large fraction of the total token supply. This makes it very difficult for an adversary to become a validator, and very costly to attack the system, as any attack will result in large amounts of stake slashed. 
+
+As the lists of nominators and validator candidates evolve over time, we need to elect new validators periodically, at the beginning of each epoch. In this note we introduce the NPoS problem of how to best elect these validators, we explain our model, and give an overview of our results. We also provide links to our other tehchnicals notes on the NPoS problem where we delve deeper into each of our results.
+
+
+**Note 1:** In order to simplify the underlying optimization problem, at genesis we will not allow nominators and validator candidates to indicate the interest rate they wish to earn over their stake. This feature might be added in the future, but it is not considered in this note, and we assume that the payoffs will be decided by governance.
+
+**Note 2:** For simplicity, in our model we assume without loss of generality that validator candidates have no stake, by performing the following reduction. Any staked candidate is considered as two parties: a nominator and a non-staked validator candidate, with the former backing the latter exclusively.
+
+## Problem statement and notation
+
+Assume we need to select $m$ validators. We will run a vote-weighted, approval-based committee election to select them. This means that each nominator can submit a list containing any number of trusted candidates, and that the nominator's vote is weighted by the amount of stake it puts down.
+
+Informally speaking the objectives of the election are to capture as much of the nominators' stake as possible, and to partition this stake pool into $m$ pieces of roughly equal weight, with one elected validator representing each piece. We want an equal distribution of stake over the validators because in some of our protocols all validators are given the same voting power, so we want to make it difficult for an adversary to control even a few validators. However, we allow for a nominator's stake to be fractionally split into supporting several of its trusted validators being elected. Another of our objectives will be fair proportionality, in the sense that if a group of nominators controls a fraction $p$ of the total stake then they should be represented by $\approx p\cdot m$ validators. We establish these objectives more formally in the Objectives section.
+
+As the NPoS problem is a committee election problem, we use some notation coming from election theory. The input can be succintly represented by a bipartite graph $(N\cup V, E)$, where $N$ is the set of nominators, $V$ is the set of validator candidates, and $E\subseteq N\times V$ is the set of edges containing the pair $nv$ whenever nominator $n$ included $v$ in its list of trusted candidates. We are also given a vector $b\in\mathbb{R}_{\geq 0}^N$ of "budgets", where each component $b_n$ represents the budget or stake of nominator $n$. Finally, we are given the target number $m$ of validators to elect.
+
+The output will be a committee $S\subseteq V$ of $m$ validators, together with a list of edge weights represented by a vector $w\in\mathbb{R}_{\geq 0}^E$, where a component $w_{nv}$ indicates the amount of $n$'s budget  assigned to support $v$. We require vector $w$ to have non-negative components and  to be "affordable", i.e. to observe the budget constraints $\sum_{v\in V: \ nv\in E} w_{nv} \leq b_n$ for each nominator $n\in N$. Finally, we prefer solutions $(S,w)$ that are "maximally affordable", meaning that $\sum_{v\in S: \ nv\in E} w_{nv} = b_n$ for each nominator $n$ that has at least one neighbor in $S$, i.e. all of the available budget is used.
+
+## Operational concerns
+
+Before formally defining the objectives we consider to elect a committee, we have a look at the operational side of the problem.
+
+### Efficient algorithms
+
+We call an algorithm "efficient" if its running time is polynomial in the size of the input, and "highly efficient" if its running time is linear in the size of the input. It is important for all on-chain algorithms to be highly efficient, because they must scale well as the size of the Polkadot network grows. In contrast, off-chain algorithms are only required to be efficient.
+
+
+In our election problem, the input is given by the tuple $(N\cup V, E, b, m)$, and its size is $O(|E|\cdot \log(|V|)+|N|\cdot B)$, where the first term is the size of the preference lists and the second term is the size of the nominator budget list, and $B$ is an upper bound on the bit-length of each budget. We assume henceforth that $B$ is constant, hence the size of the input is $O(|E|\cdot\log(|V|))$. 
+
+However, to give ourselves more leeway, we relax the above definition and allow for highly efficient algorithms to have a polynomial dependence on the committee size $m$. This is justified by the fact that, unlike the other variables, the value of $m$ does not grow linearly with the number of nodes on the Polkadot network, but only grows with the number of parachains. Therefore, we define an algorithm to be *highly efficient* if its running time is
+$$O(|E|\cdot m^c\cdot \log(|V|))$$
+for some low constant $c$.
+
+### Who elects the committee?
+
+Given an input $(N\cup V, E, b, m)$ to the election problem, anyone is welcome to submit a tentative solution $(S,w)$. In particular, we expect validator candidates to submit tentative solutions in which they themselves are part of the elected committee. Among the submitted solutions, the best one is selected publicly.
+
+Therefore, we actually need two types of algorithms: a *committee-finding* algorithm, which will be run off-chain by each candidate and returns a reasonably good solution, and a *committee-comparing* algorithm, which will be run on-chain and chooses between these submissions.
+
+###  Committee-finding algorithm (off-chain)
+
+Each party submitting a tentative solution is welcome to use their favorite committee-finding algorithm. In any case, we propose to them two or three algorithms, which provide a trade-off between efficiency and quality. At least one of these algorithms should be highly efficient, so that it can be run on-chain in the edge case that no-one proposes good tentative committees.  The other algorithms will be slower but their output committee will likely be better, so they will be prefered by parties with more computational power. 
+
+### Committee-comparing algorithm (on-chain)
+
+We need to establish a ranking over the collection of all possible committees. The rules for this ranking should be simple to state, unambiguous and public. Moreover, we need a highly efficient committee-comparing algorithm, which takes two or more solutions as input and outputs the better one according to the established ranking. 
+
+## Objectives
+
+We have identified three main objectives of the committee election. These are:
+
+* *Balance:* Once a committee is elected, distribute the nominators' stake as evenly as possible over the elected validators.
+* *Support:* Choose a committee that allows each validator to receivs as much stake support from the nominators as possible.
+* *Fair representation:* Choose a committee where nominators are neither over-represented nor under-represented proportional to their budgets.
+
+
+We go over each of these objectives in detail.
+
+### Balance
+
+Given an input $(N\cup S, E, b, m)$ of the election problem, we are looking for a solution given by a pair $(S,w)$, where $S\subseteq V$ is a committee of size $m$, and $w\in\mathbb{R}_{\geq 0}^E$ is a vector of edge weights which is maximally affordable. Relative to vector $w$, each validator $v\in S$ receives a "support" of $supp_w(v):=\sum_{n\in N: \ nv\in E} w_{nv}$. In order to achieve a balanced solution, it makes sense that the validator supports should be as uniformly distributed as possible.
+
+For a given committee $S\subseteq V$, the *min-norm max-flow* problem (MNMF) consists of finding a maximally affordable vector $w$ for $S$ that minimizes the sum of squared supports $\sum_{v\in S} (supp_w(v))^2$. 
+
+In [our note on the MNMF problem](https://hackmd.io/r_arDp1LRRWtu8t5nGZo_g), we explain in detail why the vector $w$ thus obtained is optimal for $S$ for the purposes of NPoS. We also provide two highly efficient algorithms to solve MNMF, with running times respectively of $O(|E|m+m^3)$ and $O(|E|m^2\log m)$, where the latter one, called star balancing, is much easier to implement and often as fast as the former. 
+
+Let $F$ be the complexity of solving an instance of MNMF, which is dependent on the algorithm used, but in any case is highly efficient. This complexity will be referenced in many of our algorithms.
+
+We say that a solution $(S,w)$ observes the balance property if $w$ is a solution to the MNMF problem for $S$. We will ensure that all of our proposed election algorithms have the balance property by running an MNMF algorithm as a post-computation if needed. We also remark that the balance property can be checked on a solution in only $O(|E|)$ time.
+
+### Support
+
+For a feasible solution $(S,w)$, we extend the notion of support and say that committee $S$ receives a support from $w$ of 
+$$supp_w(S):=\min_{v\in S} supp_w (v)= \min_{v\in S} \sum_{n\in N: \ nv\in E} w_{nv}.$$
+
+In the *maximin support problem*, the objective is to find a feasible solution $(S,w)$ to the given NPoS instance of maximum support $supp_w(S)$.
+
+Unfortunately, this optimization problem is NP-hard, so we must resort to heuristics. In particular, we are interested in heuristics with a guarantee that their output solution $(S,w)$ has a support value $supp_w(S)$ that is only a constant mutiplicative factor smaller than the maximum support over all feasible solutions; the closer this factor is to 1, the better. Thus what we want are constant-factor approximation algorithms. 
+
+In [our note on the maximin support problem](https://hackmd.io/ICl8_NuHQNyH6hO-cU39Bg), we motivate the choice of this objective in the context of the NPoS problem. We also provide a 2-factor approximation algorithm that runs in time 
+$$\tilde{O}(F\cdot |V|),$$
+
+where the symbol $\tilde{O}$ means that we are ignoring a multiplicative factor that is logarithmic in $m$, and where we recall that $F$ is the time it takes to solve an MNMF instance. Its output always has the balance property.
+
+
+### Fair representation
+
+In the research literature of approval-based multi-winner elections, it is common to take an axiomatic approach and define properties of voting methods that are intuitively desirable (see [Brill et al. (2017)](https://aaai.org/ocs/index.php/AAAI/AAAI17/paper/download/14757/13791) as well as [Sánchez-Fernández et al. (2018)](https://arxiv.org/abs/1609.05370)). These properties measure the quality of the elected committee only, ignoring the weight distribution.
+
+To measure fair representation, we focus on the property of _proportional justified representation_ (PJR), which establishes that if a group of nominators has sufficient budget, and their lists of trusted candidates are sufficiently aligned, then they must be well represented in the elected committee. Let $V_n\subseteq V$ represent the set of trusted candidates of a nominator $n$. Formally, a committee $S$ of size $m$ satifies the PJR property if for any integer $1\leq t\leq m$, there is no nominator subset $N'\subseteq N$ such that
+* $\sum_{n \in N'} b_n \geq \frac{t}{m} \cdot \sum_{n \in N} b_n$, 
+*  $|\cap_{n\in N'} V_n| \geq t$, and 
+*  $|S\cap (\cup_{n\in N'} V_n)| < t$.
+
+In other words, if a subset $N'$ of the nominators has a fraction $t/m$ of the overall budget and at least $t$ trusted candidates in common, then there are at least $t$ validators in the committee that are trusted by someone in $N'$. A committee-electing algorithm satisfies the PJR property if its output committee always satisfies PJR for any input instance.
+
+The definition of the PJR property was inspired by a method proposed by the end of the 19th century by Swedish mathematician Edvard Phragmén. His method satisifes PJR, but is not computationally efficient. [Brill et al. (2017)](https://aaai.org/ocs/index.php/AAAI/AAAI17/paper/download/14757/13791) gave the first known polynomial-time method with this property, called sequential Phragmén's method.
+
+In [our note on the sequential Phragmén's method](https://hackmd.io/lWBBbeg7Tty5qUnUSJ92YA), we adapt this algorithm to our NPoS problem, and provide a proof that it observes the PJR property. In particular, the algorithm runs in time $O(|E|m)$, hence it is highly efficient. If we assume that we run an MNMF algorithm as a post-computation to achieve the balance property, then the algorithm runs in time $O(F)$. However we remark that it does not provide a constant-factor guarantee for the maximin support objective.
+
+To finalize this section, we remark that the PJR property ensures that no subset of the nominators is under-represented proportional to their budgets. On the other hand, in [our note on the maximin support problem](https://hackmd.io/ICl8_NuHQNyH6hO-cU39Bg) we provide some evidence that using the maximin support objective ensures that no subset of the nominators is over-represented. 
+
+## Overview of our results
+
+A careful read of the previous section reveals that we are so-far lacking an algorithm that simultaneously satisfies the PJR property of fair representation and provides a constant-factor approximation guarantee for the maximin support objective. In [this note](https://hackmd.io/4XjWl0UdR3eZUEt7oAeiig) we propose a new heuristic that solves this problem as follows: it takes as input an NPoS instance $(N\cup V, E, b, m)$ and a feasible solution $(S,w)$, and returns a new feasible solution $(S',w')$ such that 
+a) $S'$ satisfies the PJR property, and
+b) $supp_{w'}(S')\geq supp_w(S)$.
+
+It is thus a "PJR-enabler": if it is composed with a constant-factor approximation algorithm for the maximin support objective, then the resulting composition of algorithms simultaneously satisifies the PJR property and provides the same constant-factor approximation. Its running time is $\tilde{O}(|E|\cdot m)$, hence it is highly efficient (recall that $\tilde{O}$ means we ignore a factor logarithmic in $m$).
+
+Checking whether a committee $S$ satisfies PJR is NP-hard. However, in [our note on the new heuristic](https://hackmd.io/4XjWl0UdR3eZUEt7oAeiig) we define a stronger version of the proportional justified representation property, which we here call PJR' for short, that implies PJR and that can be inspected in polynomial time. We also present a "PJR'-checker", i.e. an algorithm that checks if a given committee satisfies PJR', in time $O(|E|)$. In fact, our PJR-enabler is also a PJR'-enabler, and thus all of our proposed algorithms satisfy the PJR' property.
+
+Finally, our new heuristic also gives rise to a highly efficient, $3.15$-approximation algorithm that satisifes PJR', in time $\tilde{O}(F\cdot m)$.
+
+### Committee finding
+We can thus propose the following committee-finding algorithms. All of them satisfy the balance property and the PJR' fair representaion property.
+
+* A [$2$-factor approximation algorithm](https://hackmd.io/ICl8_NuHQNyH6hO-cU39Bg) (together with our PJR'-enabler as a post-computation), running in time $\tilde{O}(F\cdot |V|)$.
+* A [$3.15$-factor approximation algorithm](https://hackmd.io/4XjWl0UdR3eZUEt7oAeiig), running in time $\tilde{O}(F\cdot m)$, and 
+* [The sequential Phragmén's method](https://hackmd.io/lWBBbeg7Tty5qUnUSJ92YA) which provides no constant-factor approximation, and runs in time $O(F)$. 
+
+The last algorithm is highly efficient and can be run on-chain in the case that no-one proposes good tentative committees. The first two algorithms are given as suggestions to be run off-chain by validators. Numerical experiments give evidence that the slower algorithms also tend to give higher-quality results.
+
+### Committee-comparing
+
+Notice that both the PJR' property and the balance property can be ensured by running highly efficient post-computations in conjunction with any heuristic for the maximin support objective. Hence, we will only accept tentative solutions that satisfy both of these properties. Given two or more solutions $(S,w)$ with these properties, we rank them with the following lexicographic preferences (meaning that an objective is checked only if the solutions tie in all previous objectives):
+
+* For $k=1,2,\cdots, m$:
+    * $k$-th objective: prefer the solution $(S,w)$ that maximizes $\min_{A\subseteq S, \ |A|=k} \sum_{v\in A} supp_w(v)$;
+* $(m+1)$-st objective: prefer the solution $(S,w)$ that minimizes that sum of squared edge weights $\sum_{nv\in E}w_{nv}^2$.
+
+Notice that the very first and most important objective is the maximin support objective, but the following objectives also make sense, as we want to make it progressively harder for an adversary to gain control of a number $k$ of validators. 
+
+The last objective is of little importance, and is mostly used to break any eventual ties avoid having to resort to random selection. The underlying rationale is that it is better to split a nominator's budget among its trusted elected validators as evenly as possible, to diversify its supports and minimize risk.
+
+We propose an algorithm that takes two or more tentative solutions $(S,w)$, and outputs one of them following the preferences above. As new tentative solutions arrive over time, we will need to execute several iterations of this algorithm, hence a very high efficency is needed. We consider the output of the previous iteration as the "current favorite solution" in the new iteration, and every other solution is quickly discarded unless it is *considerably better* than the current favorite in at least one objective. We do this to reward early submissions, and to reduce the number of iterations needed. The algorithm is as follows:
+
+Fix some constants $\Delta>\delta>0$ (say $\Delta=0.05$ and $\delta=0.001$). Let $\{(S_i,w_i)\}_{i\in I}$ be the collection of tentative solutions, including the favorite one if there is one. If there is a favorite solution, assume its index is $0$, i.e. it is $(S_0, w_0)$. If at any point in the algorithm only one solution remains, we return it and stop.
+
+1. Discard any solution that is not feasible, does not observe the PJR' property (using the PJR'-checker), or does not observe the balance property.
+
+2. For each $(S_i,w_i)$, compute and sort its list of supports $\{supp_{w_i}(v): \ v\in S_i\}=\{d_i^1,d_i^2,\cdots, d_i^m\}$, so that $d_i^i\leq d_i^2\leq \cdots \leq d_i^m$. Then for $k=1,2,\cdots, m$:
+    a. Compute $max_k:=\max_{i\in I} \sum_{j=1}^k d_i^j$.
+    b. If there is a favorite solution $(S_0,w_0)$ and $\sum_{j=1}^k d_0^j\leq (1-\Delta)\cdot max_k$, discard the favorite solution.
+    c. Discard any non-favorite solution $(S_i,w_i)$ with $\sum_{j=1}^k d_i^j\leq (1-\delta)\cdot max_k$.
+
+3. a. Compute $min_w:= \min_{i\in I} \sum_{nv\in E} w_{nv}^2$.
+   b. If there is a favorite solution $(S_0,w_0)$ and $\sum_{nv\in E} w_{nv}^2 \geq (1+\Delta)\cdot min_w$, discard the favorite solution.
+   c. Discard any non-favorite solution $(S_i,w_i)$ with $\sum_{nv\in E}w_{nv}^2\geq (1+\delta)\cdot min_w$.
+
+4. If the favorite solution has not been discarded, return it and stop. Else, return any of the remaining solutions at random.
+
+It can be checked that, if $|I|$ tentative solutions are being simultaneously compared, the previous algorithm executes in time $O(|I|\cdot |E|)$.
