@@ -28,10 +28,10 @@ a) it has a weakly dominant strategy that is bidding the true value of the bidde
 b) in multiunit auctions, when the bids are interdependent and identically distributed, the expected price paid by a winner bidder of a Vickrey auction is at least as high as the expected price paid by a winner bidder of a first-price sealed-bid  (discriminatory) auctions [3]
 
 Weaknesses:
-c) does not necessarily maximize seller profit []
-d) vulnerable to bidder collusion and shilling
+a) does not necessarily maximize seller profit []
+b) vulnerable to bidder collusion and shilling
 
-To mitigate c) we can reserve a price for parachain slots. Note that b) still holds in the reserved price setting []. 
+To mitigate a) we can reserve a price for parachain slots. Note that b) still holds in the reserved price setting []. 
 
 **(Q:How do we carry out a Vickrey auction in a decentrliazed fashion?)**
 
