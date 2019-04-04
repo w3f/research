@@ -5,7 +5,7 @@
 ### Introduction:
 A parachain is a peer-to-peer data structure that connects to the relay chain to become globally-coherent with other parachains connceted to the relay chain.
 
-To run a parachain in Polkadot a parachain slot within Poladot needs to be obtained. Since Polkadot is a resource-constraint system, there are a finite number of slots, which are rolled out gradually. 
+To run a parachain in Polkadot a parachain slot within Polkadot needs to be obtained. Since Polkadot is a resource-constraint system, there are a finite number of slots, which are rolled out gradually. 
 Parachain slots are locked on a deposit basis.
 - Cost comes from implied dilution.
 - Should the dilution-fee not be sufficient to support network validation, i.e. because validators rewards become so low, a rental fee could also be introduced by the governance process.
@@ -24,21 +24,23 @@ As long as at least one commercial slot is free, there is an associated price gi
 ### Auctioning Parachain Slots:
 
 We use a Vickrey auction [1], second-price sealed-bid auctions, for parachain slots when the demand is higher than the available slots. We chose a sealed-bid auction because it needs less communication overhead for bidding than open-bid (iterative) auctions. Aong sealed-bid auctions we chose Vickrey auctions because:
+
 a) it has a weakly dominant strategy that is bidding the true value of the bidder [2], which makes it more efficenit for bidders
 b) in multiunit auctions, when the bids are interdependent and identically distributed, the expected price paid by a winner bidder of a Vickrey auction is at least as high as the expected price paid by a winner bidder of a first-price sealed-bid  (discriminatory) auctions [3]
 
 Weaknesses:
-a) does not necessarily maximize seller profit 
-b) vulnerable to bidder collusion and shilling
+c) does not necessarily maximize seller profit 
+d) vulnerable to bidder collusion and shilling
 
-To mitigate a) we can reserve a price for parachain slots. Note that b) still holds in the reserved price setting. 
+To mitigate c) we can reserve a price. Note that b) still holds in the reserved price setting. 
 
-**(Q:How do we carry out a Vickrey auction in a decentrliazed fashion?)**
+**How do we carry out a Vickrey auction in a decentrliazed fashion?**
+We want to implement the auction without the presence of a dealer. Since, we do not aim to keep bids sealed, we could use some sort of a commit-reveal scheme for bidding. Maybe we also could implement it with threshold public key encryption scheme?
+
 
 If a commercial slot becomes free and no commercial slots are already free, then it is set for auction with a 2-week window for posting blind bids for the auction.
 To participate in an auction for obtaining a slot, a parachain needs to deposit DOTs. A parachain candidate can issue additional native tokens in order to acquire DOTs. If a parachain fails to obtain the slot, the returned DOTs can be used to buy back the native token and burn it.
-Everyone places a DOT deposit (that must be 10% of their revealed bid) together with a hash of their bid. Hashes are revealed in the final day of the parachain that is freeing up. Unrevealed hashes result in the total deposit being given to the winner. It is to avoid using many bids which you have no intention of revealing if they are winning to drive up costs for the winner in a Vickrey auction. The downside is that the winner can use unrevealed bids to fake competition for free. The winner is the highest revealed bid. All non-winning bids get their deposits back.
-We also could implement it with threshold public key encryption scheme. 
+Everyone places a DOT deposit (that must be 10% of their revealed bid) together with a hash of their bid. Hashes are revealed in the final day of the parachain that is freeing up. Unrevealed hashes result in the total deposit being given to the winner. It is to avoid using many bids which you have no intention of revealing if they are winning to drive up costs for the winner in a Vickrey auction. The downside is that the winner can use unrevealed bids to fake competition for free. The winner is the second highest revealed bid. All non-winning bids that have been revealed get their deposits back.
 
 **(Q:Auction economics?)**
 
@@ -54,6 +56,6 @@ One of the objectives of our roll-out plan is to maintain demand-supply balance 
 ## References
 [1] Vickrey, William. (1961). Counterspeculation, Auctions, and Competitive Sealed Tenders. The Journal of Finance. 
 
-[2]
+[2] 
 
 [3] Milgrom, Paul. (2019). The economics of competitive bidding: a selective survey. 
