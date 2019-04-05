@@ -15,14 +15,14 @@
 # BABE
 
 
-## Overview
+## 1. Overview
 
 BABE stands for '**B**lind **A**ssignment for **B**lockchain **E**xtension'. 
 In BABE, we deploy Ouroboros Praos [2] style block production. 
 
 In Ouroboros [1] and Ouroboros Praos [2], the best chain (valid chain) is the longest chain. In Ouroboros Genesis, the best chain can be the longest chain or the chain which is forked long enough and denser than the other chains in some interval. We have a different approach for the best chain selection based on GRANDPA and longest chain. In addition, we do not assume that all parties can access the current slot number which is more realistic assumption.
 
-## BABE 
+## 2. BABE 
 In BABE, we have sequential non-overlaping epochs \((e_1, e_2,...)\), each of which contains a number of sequential slots (\(e_i = \{sl^i_{1}, sl^i_{2},...,sl^i_{t}\}\)) up to some bound \(t\).  We randomly assign each slot to a party, more than one parties, or no party at the beginning of the epoch.  These parties are called a slot leader.  We note that these assignments are private.  It is public after the assigned party (slot leader) produces the block in his slot.
 
 Each party \(P_j\) has at least two type of secret/public key pair:
@@ -39,23 +39,23 @@ We assume that each party has a local buffer that contains the transactions to b
 
 ### BABE with GRANDPA Validators \(\approx\) Ouroboros Praos
 
-In this version, we do not worry about offline parties because GRANDPA validators are online by design. Therefore, we do not consider the security problems such as speed up attacks. It is almost the same as Ouroboros Praos except chain selection rule and the slot time adjustment.
+BABE is almost the same as Ouroboros Praos [2] except chain selection rule and the slot time adjustment.
 
-We give some parameters probability related to be selected as a slot leader in this version before giving the protocol details. As in Ouroboros Praos, we define probability of being selected as
+In BABE, all validators have same amount of stake so their probability of being selected as slot leaders is equal. Given that we have $n$ validators and relative stake of each party is $\theta = S/n$ where $S$ is the total amount of stake, the probability of being selected is
 
-$$p_i = \phi_c(\alpha_i) = 1-(1-c)^{\alpha_i}$$
+$$p = \phi_c(\theta) = 1-(1-c)^{\theta}$$
 
-where \(\alpha_i\) is the relative stake of the party \(P_i\) and \(c\) is a constant. Improtantly, the function \(\phi\) is that it has the '**independent aggregation**' property, which informally means the probability of being selected as a slot leader does not increase as a party splits his stakes across virtual parties.
+where \(c\) is a constant. 
 
-We use \(\phi\) to set a threshold \(\tau_i\) for each party \(P_i\): 
+The threshold used in BABE for each validator \(P_i\) is 
 
-$$\tau_i = 2^{\ell_{vrf}}\phi_c(\alpha_i)$$
+$$\tau = 2^{\ell_{vrf}}\phi_c(\theta)$$
 
-where \(\ell_{vrf}\) is the length of the VRF's first output.
+where \(\ell_{vrf}\) is the length of the VRF's first output (randomness value).
 
-BABE with GRANDPA validators consists of three phases:
+BABE consists of three phases:
 
-1. #### Genesis Phase
+#### 1. Genesis Phase
 
 In this phase, we manually produce the unique genesis block.
 
@@ -65,31 +65,30 @@ We might reasonably set \(r_1 = 0\) for the initial chain randomness, by assumin
 
 TODO: In the delay variant, there is an implicit commit and reveal phase provided some suffix of our genesis epoch consists of *every* validator producing a block and *all* produced blocks being included on-chain, which one could achieve by adjusting paramaters.
 
-2. #### Normal Phase
+#### 2. Normal Phase
+
+We assume that each validator divided their timeline in slots after receiving the genesis block. They determine the current slot number according to their timeline. If a new validator joins to BABE after the genesis block, this validator divides his timeline into slots with the Median algorithm we give in Section 4.
 
 In normal operation, each slot leader should produce and publish a block.  All other nodes attempt to update their chain by extending with new valid blocks they observe.
 
-We suppose each party \(P_j\) has a set of chains \(\mathbb{C}_j\) in the current slot \(sl_k\) in the epoch \(e_m\).  We have a best chain \(C\) selected in \(sl_{k-1}\) by our selection scheme, and the length of \(C\) is \(\ell\text{-}1\). 
+We suppose each validator \(P_j\) has a set of chains \(\mathbb{C}_j\) in the current slot \(sl_k\) in the epoch \(e_m\).  We have a best chain \(C\) selected in \(sl_{k-1}\) by our selection scheme, and the length of \(C\) is \(\ell\text{-}1\). 
 
-Each party \(P_j\) produces a block if he is the slot leader of \(sl_k\).  If the first output (\(d\)) of the following VRF is less than the threshold \(\tau_j\) then he is the slot leader.
+Each validator \(P_j\) produces a block if he is the slot leader of \(sl_k\).  If the first output (\(d\)) of the following VRF is less than the threshold \(\tau\) then he is the slot leader.
 
 $$\vrf_{\skvrf_{j}}(r_m||sl_{k}) \rightarrow (d, \pi)$$
 
-Remark that the more \(P_j\) has stake, the more he has a chance to be selected as a slot leader. 
-
-
-If \(P_j\) is the slot leader, \(P_j\) generates a block to be added on \(C\) in \(sk_k\). The block \(B_\ell\) should contain the slot number \(sl_{k}\), the hash of the previous block \(H_{\ell\text{-}1}\), the VRF output  \(d, \pi\), transactions \(tx\), and the signature \(\sigma = \sgn_{\sksgn_j}(sl_{k}||H_{\ell\text{-}1}||d||pi||tx))\). \(P_i\) updates \(C\) with the new block and sends \(B_\ell\).
+If \(P_j\) is the slot leader, \(P_j\) generates a block to be added on \(C\) in slot \(sl_k\). The block \(B_\ell\) should contain the slot number \(sl_{k}\), the hash of the previous block \(H_{\ell\text{-}1}\), the VRF output  \(d, \pi\), transactions \(tx\), and the signature \(\sigma = \sgn_{\sksgn_j}(sl_{k}||H_{\ell\text{-}1}||d||pi||tx))\). \(P_i\) updates \(C\) with the new block and sends \(B_\ell\).
 
 
 ![ss](https://i.imgur.com/Yb0LTJN.png =250x )
 
 
 
-In any case (being a slot leader or not being a slot leader), when \(P_j\) receives a block \(B = (sl, H, d', \pi', tx', \sigma')\) produced by a party \(P_t\), it validates the block  with \(\mathsf{Validate}(B)\). \(\mathsf{Validate}(B)\) should check the followings in order to validate the block:
+In any case (being a slot leader or not being a slot leader), when \(P_j\) receives a block \(B = (sl, H, d', \pi', tx', \sigma')\) produced by a validator \(P_t\), it validates the block  with \(\mathsf{Validate}(B)\). \(\mathsf{Validate}(B)\) should check the followings in order to validate the block:
 
-* if \(\mathsf{Verify}_{\pksgn_t}(\sigma')\rightarrow \mathsf{valid}\),
+* if \(\mathsf{Verify}_{\pksgn_t}(\sigma')\rightarrow \mathsf{valid}\) (signature verification),
 
-* if the party is the slot leader: \(\mathsf{Verify}_{\pkvrf_t}(\pi', r_m||sl) \rightarrow \mathsf{valid}\) and \(d' < \tau_t\). 
+* if the party is the slot leader: \(\mathsf{Verify}_{\pkvrf_t}(\pi', r_m||sl) \rightarrow \mathsf{valid}\) and \(d' < \tau_t\) (verification with the VRF's verification algorithm). 
 
 * if \(P_t\) did not produce another block for another chain in slot \(sl\) (no double signature),
 
@@ -98,19 +97,19 @@ In any case (being a slot leader or not being a slot leader), when \(P_j\) recei
 If the validation process goes well, \(P_j\) adds \(B\) to \(C'\). Otherwise, it ignores the block.
 
 
-At the end of the slot, \(P_j\) decides the best chain with the function 'BestChain' (described below).
+At the end of the slot, \(P_j\) decides the best chain with the chain selection rule we give in Section 3.
 
 
 
 
-3. #### Epoch Update
+#### 3. Epoch Update
 
-Before starting a new epoch, there are certain things to be updated in the chain.
-* Stakes of the parties
+Before starting a new epoch $e_m$, there are certain things to be completed in the current epoch $e_{m-1}$.
+* Validators update
 * (Session keys)
 * Epoch randomness
 
-If a party wants to update his stake for epoch \(e_{m+1}\), it should be updated until the beginning of epoch \(e_m\) (until the end of epoch \(e_{m-1}\)) for epoch \(e_{m+1}\). Otherwise, the update is not possible. We want the stake update one epoch before because we do not want parties to adjust their stake after seeing the randomness for the epoch \(e_{m+1}\). 
+If there is a validator update in BABE, this update has to be done until the end of the last block of the current epoch $e_{m-1}$ so that they are able to actively participate the block production in epoch $e_{m+1}$. 
 
 The new randomness for the new epoch is computed as in Ouroboros Praos [2]: Concatenate all the VRF outputs in blocks starting from the first slot of the epoch to the \(R/2^{th}\) slot of \(e_m\) (\(R\) is the epoch size). Assume that the concatenation is \(\rho\). Then the randomness in the next epoch:
 
@@ -118,24 +117,23 @@ $$r_{m+1} = H(r_{m}||m+1||\rho)$$
 
 This also can be combined with VDF output to prevent little bias by the adversaries for better security bounds.
 
-## Best Chain Selection
+## 3. Best Chain Selection
 
-Given a chain set \\(\mathbb{C}_j\\) an the parties current local chain \(C_{loc}\), the best chain algorithm eliminates all chains which do not include the finalized block \(B\) by GRANDPA. Let's denote the remaining chains by the set \(\mathbb{C}'_j\).
-Then the algorithm outputs the longest chain which do not for from \(C_{loc}\)  more than \(k\) blocks. It discards the chains which forks from \(C_{loc}\) more than \(k\) slots.
+Given a chain set \\(\mathbb{C}_j\\) an the parties current local chain \(C_{loc}\), the best chain algorithm eliminates all chains which do not include the finalized block \(B\) by GRANDPA. Let's denote the remaining chains by the set \(\mathbb{C}'_j\). If we do not have a finalized block by GRANDPA, then we use the probabilistic finality in the best chain selection algorithm (the probabilistically finalized block is the block which is $k$ block before than the last block of $C_{loc}$). 
 
 
 We do not use the chain selection rule as in Ouroboros Genesis [3] because this rule is useful for parties who become online after a period of time and do not have any  information related to current valid chain (for parties always online the Genesis rule and Praos is indistinguishable with a negligible probability). Thanks to Grandpa finality, the new comers have a reference point to build their chain so we do not need the Genesis rule.
 
 
-## Relative Time
+## 4. Relative Time
 
 It is important for parties to know the current slot  for the security and completeness of BABE. Therefore, we show how a party realizes the notion of slots. Here, we assume partial synchronous channel meaning that any message sent by a party arrives at most \(\D\)-slots later. \(\D\) is not an unknown parameter.
 
 
-Each party has a local clock and this clock does not have to be synchronized with the network. When a party receives the genesis block, it stores the arrival time as \(t_0\) as a reference point of the beginning of the first slot. We are aware of the beginning of the first slot is not same for everyone. We assume that this difference is negligible comparing to \(T\). Then each party divides their timeline in slots. 
+Each party has a local clock and this clock does not have to be synchronized with the network. When a party receives the genesis block, it stores the arrival time as \(t_0\) as a reference point of the beginning of the first slot. We are aware of the beginning of the first slot is not same for everyone. We assume that this difference is negligible comparing to \(T\) since there will not be too many validators in the beginning. Then each party divides their timeline in slots. 
 
 
-**Obtaining Slot Number:** Parties who join BABE after the genesis block released or who lose notion of slot run the following protocol r obtain the current slot number with one of the following protocols. 
+**Obtaining Slot Number:** Parties who join BABE after the genesis block released or who lose notion of slot run the following protocol to obtain the current slot number with the Median Algorithm and then updates with the consistency algorithm if it sees a inconsistency with the output of median algorithm after running the consistency algorithm. 
 
 
 If a party \(P_j\) is a newly joining party, he downloads chains and receives blocks at the same time. After chains' download completed, he adds the valid blocks to the corresponding chains. Assuming that a slot number $sl$ is executed in a (local) time interval $[t_{start}, t_{end}]$ of party $P_j$, we have the following protocols for $P_j$ to output $sl$ and $t \in [t_{start}, t_{time}]$.
@@ -182,16 +180,15 @@ So \(P_i\) is going to obtain the same \(sl\) and $t$ with all blocks. Similarly
 $$\tag*{\(\blacksquare\)}$$
 
 
-There are two drawbacks of this protocol. One of drawbacks is that a party may never have \(k\) consistent blocks if an adversary randomly delays some blocks. In this case, \(P_i\) may never has consistent blocks. The other drawback is that if the honest block in $k$-consistent block is not a synchronized party then consistency algorithm performs worse than the median. However, this protocol can be used after the median protocol to update or verify the slot number with the consistency algorithm.  If this party sees $k$-consistent blocks and the slot number $sl$ obtained with the 
+There are two drawbacks of this protocol. One of drawbacks is that a party may never have \(k\) consistent blocks if an adversary randomly delays some blocks. In this case, \(P_i\) may never has consistent blocks. The other drawback is that if the honest block in $k$-consistent block is not a synchronized party then consistency algorithm performs worse than the median. However, this protocol can be used after the median protocol to update or verify the slot number with the consistency algorithm.  If this party sees $k$-consistent blocks and the slot number $sl'$ obtained with the 
 the consistency algorithm is less than slot number obtained from the median protocol, he updates it with $sl'$.
 
 
 
-## Security Analysis
+## 5. Security Analysis
 
-BABE with Grandpa validators is the same as Ouroboros Praos except the chain selection rule and  slot time extraction. Therefore, we need a new security analysis.
-
-
+(If you are interested in parameter selection based on the security analysis, you can directly go to the next section)
+BABE is the same as Ouroboros Praos except the chain selection rule and  slot time extraction. Therefore, we need a new security analysis. 
 
 
 ### Definitions
@@ -319,21 +316,25 @@ If we use VDF in the randomness update for the next epoch, \(r = \mathsf{log}tkq
 
 
 
-## Practical Results
+## 6. Practical Results
 
 In this section, we find parameters of BABE in order to achieve the security in BABE. In addition to this, we show block time of BABE in worst cases (big network delays, many malicious parties) and in average case.
 
 We fix the life time of the protocol as \(\mathcal{L}=2.5 \text{ years}  = 15768000\) seconds. Then we find the life time of the protocol  \(L = \frac{\mathcal{L}}{T}\). We find the network delay in terms of slot number with $\lfloor \frac{D}{T}\rfloor$ where $D$ is the network delay in seconds. Assuming that parties send their block in the beginning of their slots, $\lfloor\rfloor$ operation is the enough to compute the delay in terms of slots. 
 
 
-The parameter $c$ is very critical because it specifies the number of empty slots because probability of having empty slot is $1-c$. If $c$ is very small, we have a lot of empty slots and so we have longer block time. If $c$ is big, we may not satisfy the the condition \(\alpha(\gamma+(1-c)^\D\beta)(1-c)^\D \geq (1+\epsilon)/2\) to apply the result of Theorem 4. So, we need to have a tradeoff between security and practicality. Therefore, we fix $c = 0.5$.
+The parameter $c$ is very critical because it specifies the number of empty slots because probability of having empty slot is $1-c$. If $c$ is very small, we have a lot of empty slots and so we have longer block time. If $c$ is big, we may not satisfy the the condition \(\alpha(\gamma+(1-c)^\D\beta)(1-c)^\D \geq (1+\epsilon)/2\) to apply the result of Theorem 4. So, we need to have a tradeoff between security and practicality. 
 
-We need to satisfy two conditions $$\frac{1}{c}(\phi(\alpha\gamma)(1-c)^{\D-\alpha}(1-c)^{D-1}+ \phi(alpha\beta)(1-c)^{2\D-\alpha\beta} \geq \alpha(\gamma+(1-c)^\D\beta)(1-c)^\D \geq (1+\epsilon/2)$$ to apply the result of Theorem 4 and $$\frac{1}{c}(\phi(\alpha\gamma)(1-c)^{\D-\alpha}(1-c)^{D-1} \geq \alpha\gamma(1-c)^\D \geq (1+\epsilon)/2$$ to apply the result of Lemma 1 . Second condition implies the first one.  These conditions are satisfied given $c = 0.5$, $\D = 1$ and $\alpha = 0.65$ and $\gamma = 0.7$.
+We need to satisfy two conditions $$\frac{1}{c}(\phi(\alpha\gamma)(1-c)^{\D-\alpha}(1-c)^{D-1}+ \phi(alpha\beta)(1-c)^{2\D-\alpha\beta} \geq \alpha(\gamma+(1-c)^\D\beta)(1-c)^\D \geq (1+\epsilon/2)$$ to apply the result of Theorem 4 and $$\frac{1}{c}(\phi(\alpha\gamma)(1-c)^{\D-\alpha}(1-c)^{D-1} \geq \alpha\gamma(1-c)^\D \geq (1+\epsilon)/2$$ to apply the result of Lemma 1 . Second condition implies the first one.  We fix that $\alpha = 0.65$ and $\gamma = 0.8$. Given this if we  want to be secure even if we have maximum delay D, 
 
+* c = 0.278 if $\D = \lfloor \frac{D}{T}\rfloor = 1$,
+*  c = 0.034 if $\D = \lfloor \frac{D}{T}\rfloor = 2$
+*  c = 0.018 if $\D = \lfloor \frac{D}{T}\rfloor = 3$
+*  c = 0.012 if $\D = \lfloor \frac{D}{T}\rfloor = 4$
+*  c = 0.009 if $\D = \lfloor \frac{D}{T}\rfloor = 5$
+*  c = 0.008 if $\D = \lfloor \frac{D}{T}\rfloor = 6$
 
-
-
-In order to find the average block time (i.e., the required time to add one block to the best chain), we need the expected number of $\D$ and $2\D$-right isolated slots in $L$ slots. However, we use a different definition of $\D$ and $2\D$-right isolated slots in this analysis.  A slot is $\D$ (resp. $2\D$-right ) isolated slot if the slot leaders are all honest and at least one syncronized (resp. all honest and late) and the next $\D-1$ (resp. $2\D-1$) slots are empty. If all parties honest and at least one of them is synchronized, then the synchronized party's blcok will be added because, he relaeases the block earlier than the other selected parties. Therefore, we need at least one synchronized and honest slot leader in the definition of $\D$-isolated slot. Remark that the definitions of $\D$ and $2\D$ right isolated slots are more relaxed than the definitions in the proof of Theorem 1 because we do not care the growth of other chains as we care in the security analysis. 
+In order to find the average block time (i.e., the required time to add one block to the best chain), we need the expected number of $\D$ and $2\D$-right isolated slots in $L$ slots. However, we use a different definition of $\D$ and $2\D$-right isolated slots in this analysis.  A slot is $\D$ (resp. $2\D$-right ) isolated slot if the slot leaders are all honest and at least one synchronized (resp. all honest and late) and the next $\D-1$ (resp. $2\D-1$) slots are empty. If all parties honest and at least one of them is synchronized, then the synchronized party's blcok will be added because, he releases the block earlier than the other selected parties. Therefore, we need at least one synchronized and honest slot leader in the definition of $\D$-isolated slot. Remark that the definitions of $\D$ and $2\D$ right isolated slots are more relaxed than the definitions in the proof of Theorem 1 because we do not care the growth of other chains as we care in the security analysis. 
 
 
 The probability of $2\D$-right isolated slot is  
