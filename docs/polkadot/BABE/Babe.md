@@ -115,7 +115,7 @@ The new randomness for the new epoch is computed as in Ouroboros Praos [2]: Conc
 
 $$r_{m+1} = H(r_{m}||m+1||\rho)$$
 
-This also can be combined with VDF output to prevent little bias by the adversaries for better security bounds.
+This also can be combined with VDF output to prevent little bias by the adversaries for better security bounds. BABE is secure without VDF but if we combine VDF with the randomness produced by blocks, we have better parachain allocation.
 
 ## 3. Best Chain Selection
 
@@ -325,14 +325,11 @@ We fix the life time of the protocol as \(\mathcal{L}=2.5 \text{ years}  = 15768
 
 The parameter $c$ is very critical because it specifies the number of empty slots because probability of having empty slot is $1-c$. If $c$ is very small, we have a lot of empty slots and so we have longer block time. If $c$ is big, we may not satisfy the the condition \(\alpha(\gamma+(1-c)^\D\beta)(1-c)^\D \geq (1+\epsilon)/2\) to apply the result of Theorem 4. So, we need to have a tradeoff between security and practicality. 
 
-We need to satisfy two conditions $$\frac{1}{c}(\phi(\alpha\gamma)(1-c)^{\D-\alpha}(1-c)^{D-1}+ \phi(alpha\beta)(1-c)^{2\D-\alpha\beta} \geq \alpha(\gamma+(1-c)^\D\beta)(1-c)^\D \geq (1+\epsilon/2)$$ to apply the result of Theorem 4 and $$\frac{1}{c}(\phi(\alpha\gamma)(1-c)^{\D-\alpha}(1-c)^{D-1} \geq \alpha\gamma(1-c)^\D \geq (1+\epsilon)/2$$ to apply the result of Lemma 1 . Second condition implies the first one.  We fix that $\alpha = 0.65$ and $\gamma = 0.8$. Given this if we  want to be secure even if we have maximum delay D, 
+We need to satisfy two conditions $$\frac{1}{c}(\phi(\alpha\gamma)(1-c)^{\D-\alpha}(1-c)^{D-1}+ \phi(alpha\beta)(1-c)^{2\D-\alpha\beta} \geq \alpha(\gamma+(1-c)^\D\beta)(1-c)^\D \geq (1+\epsilon/2)$$ to apply the result of Theorem 4 and $$\frac{1}{c}(\phi(\alpha\gamma)(1-c)^{\D-\alpha}(1-c)^{D-1} \geq \alpha\gamma(1-c)^\D \geq (1+\epsilon)/2$$ to apply the result of Lemma 1 . Second condition implies the first one.  We fix that $\alpha = 0.65$ and $\gamma = 0.8$. Given this if we  want to be secure even if we have maximum delay $D$, we need following $c$ values. 
 
 * c = 0.278 if $\D = \lfloor \frac{D}{T}\rfloor = 1$,
 *  c = 0.034 if $\D = \lfloor \frac{D}{T}\rfloor = 2$
 *  c = 0.018 if $\D = \lfloor \frac{D}{T}\rfloor = 3$
-*  c = 0.012 if $\D = \lfloor \frac{D}{T}\rfloor = 4$
-*  c = 0.009 if $\D = \lfloor \frac{D}{T}\rfloor = 5$
-*  c = 0.008 if $\D = \lfloor \frac{D}{T}\rfloor = 6$
 
 In order to find the average block time (i.e., the required time to add one block to the best chain), we need the expected number of $\D$ and $2\D$-right isolated slots in $L$ slots. However, we use a different definition of $\D$ and $2\D$-right isolated slots in this analysis.  A slot is $\D$ (resp. $2\D$-right ) isolated slot if the slot leaders are all honest and at least one synchronized (resp. all honest and late) and the next $\D-1$ (resp. $2\D-1$) slots are empty. If all parties honest and at least one of them is synchronized, then the synchronized party's blcok will be added because, he releases the block earlier than the other selected parties. Therefore, we need at least one synchronized and honest slot leader in the definition of $\D$-isolated slot. Remark that the definitions of $\D$ and $2\D$ right isolated slots are more relaxed than the definitions in the proof of Theorem 1 because we do not care the growth of other chains as we care in the security analysis. 
 
@@ -342,15 +339,19 @@ $$p_{H_L} \geq \frac{\phi(\alpha\beta)(1-c)^{1-\alpha\beta}}{c}(1-c)^{2\D-1}.$$
 The probability of $\D$-right isolated slot is
 $$p_{H_S}\geq \frac{\phi(\alpha\gamma)(1-c)^{1-\alpha}}{c}(1-c)^{\D-1}.$$
 The expected number of non-empty slot in $L$. The expected number of $\D$ and $2\D$-right isolated slot is  
-$$\mathbb{E} = cL(p_{H_L}+p_{H_S}).$$ Then, the block time $T_{block} \leq \frac{LT}{\mathbb{E}}$. Remark that we have already had the condition that $p_{H_L} + p{H_S} \geq (1+ \epsilon)/2$ from the security even if we have maximumum network delay.  In order to find the average block time, we do not consider the maximum network delay here. We consider the average network delay which 1 seconds. In the graph below, we have the average block time for each slot time in blue. In addition, the graph shows the maximum network delay resistance for each slot time in red.
+$$\mathbb{E} = cL(p_{H_L}+p_{H_S}).$$ Then, the block time $T_{block} \leq \frac{LT}{\mathbb{E}}$. Remark that we have already had the condition that $p_{H_L} + p{H_S} \geq (1+ \epsilon)/2$ from the security even if we have maximumum network delay.  In order to find the average block time, we do not consider the maximum network delay here. We consider the average network delay which 1 seconds but we used $c$ values in order to be secure in at most $1$ seconds delay, 2 seconds delay and 3 seconds delay. In the graph below, we have the average block time for each slot time for 1,2, and 3 seconds delay. The good slot time considering the trade off between efficiency and good network resistance is $T = 1$ second with 2 seconds network delay resistence (the block time is 5.87 seconds).
 
-![](https://i.imgur.com/rePtRjL.png)
+![](https://i.imgur.com/WzND7FV.png)
 
 
-If we choose \(\mathbf{c = 0.5}\), \(\gamma = 0.7, \alpha = 0.65\), $T \geq 1$ second and $D = 1$, we find that \(k > 150\)  to have a good security level in 2.5 years according to Theorem 4.  
+If we choose \(\mathbf{c = 0.034}\), \(\gamma = 0.8, \alpha = 0.65\), $T \geq 1$ second and $D = 2$ seconds, we find that \(k > 142\)  to have a good security level in 2.5 years according to Theorem 4.  
 
-Remark that \(k\) is the finality that is provided by BABE. Since we have GRANDPA on top of BABE, we expect much earlier finalization. This \(k\) value is valid when GRANDPA does not work properly. If \(k = 150\), the minimum **epoch length must be 7200 slots** (e.g., for $T = 1$ sec, one epoch should take 2 hours.) according to Theorem 4. However, if GRANDPA finalizes a block earlier than $k$, we do not need to wait for $R/2$ slots more after randomness leaked to finalize the stake distribution so we need less slot number in an epoch. 
+Remark that \(k\) is the finality that is provided by BABE. Since we have GRANDPA on top of BABE, we expect much earlier finalization. This \(k\) value is valid when GRANDPA does not work properly. If \(k = 142\), the minimum **epoch length must be 100235 slots** (e.g., for $T = 1$ sec, one epoch should take 27.8 hours.) according to Theorem 4. 
 
+
+If we choose \(\mathbf{c = 0.278}\), \(\gamma = 0.8, \alpha = 0.65\), $T \geq 1$ second and $D = 1$ seconds, we find that \(k > 100\)  to have a good security level in 2.5 years according to Theorem 4.  
+
+Remark that \(k\) is the finality that is provided by BABE. Since we have GRANDPA on top of BABE, we expect much earlier finalization. This \(k\) value is valid when GRANDPA does not work properly. If \(k = 100\), the minimum **epoch length must be 8633 slots** (e.g., for $T = 1$ sec, one epoch should take 2.39 hours.) according to Theorem 4. 
 
 
 
