@@ -25,16 +25,15 @@ In Ouroboros [1] and Ouroboros Praos [2], the best chain (valid chain) is the lo
 ## 2. BABE 
 In BABE, we have sequential non-overlaping epochs \((e_1, e_2,...)\), each of which contains a number of sequential slots (\(e_i = \{sl^i_{1}, sl^i_{2},...,sl^i_{t}\}\)) up to some bound \(t\).  We randomly assign each slot to a party, more than one parties, or no party at the beginning of the epoch.  These parties are called a slot leader.  We note that these assignments are private.  It is public after the assigned party (slot leader) produces the block in his slot.
 
-Each party \(P_j\) has at least two type of secret/public key pair:
+Each party \(P_j\) has at least one type of secret/public key pair:
 
-*    Account keys \((\skac_{j}, pk^a_{j})\) which are used to sign transactions.
 *    Session keys consists of two keys: Verifiable random function (VRF) keys \((\skvrf_{j}, \pkvrf_{j})\) and the signing keys for blocks \((\sksgn_j,\pksgn_j)\). 
 
 We favor VRF keys being relatively long lived, but parties should update their associated signing keys from time to time for forward security against attackers causing slashing.  More details related to these key are [here](https://github.com/w3f/research/tree/master/docs/polkadot/keys).
 
 Each party \(P_j\) keeps a local set of blockchains \(\mathbb{C}_j =\{C_1, C_2,..., C_l\}\). These chains have some common blocks (at least the genesis block) until some height.
 
-We assume that each party has a local buffer that contains the transactions to be added to blocks. All transactions are signed with the account keys. 
+We assume that each party has a local buffer that contains the transactions to be added to blocks. All transactions in a block is validated with a transaction validation function.
 
 
 ### BABE with GRANDPA Validators \(\approx\) Ouroboros Praos
@@ -59,7 +58,7 @@ BABE consists of three phases:
 
 In this phase, we manually produce the unique genesis block.
 
-The genesis block contain a random number \(r_1\) for use during the first epoch for slot leader assignments, the initial stake's of the stake holders (\(st_1, st_2,..., st_n\)) and their corresponding session public keys (\(\pkvrf_{1}, \pkvrf_{2},..., \pkvrf_{n}\)), \((\pksgn_{1}, \pksgn_{2},..., \pksgn_{n}\)) and account public keys (\(\pkac_{1}, \pkac_{2},..., \pkac_{n}\)).
+The genesis block contain a random number \(r_1\) for use during the first epoch for slot leader assignments, the initial stake's of the stake holders (\(st_1, st_2,..., st_n\)) and their corresponding session public keys (\(\pkvrf_{1}, \pkvrf_{2},..., \pkvrf_{n}\)), \((\pksgn_{1}, \pksgn_{2},..., \pksgn_{n}\)).
 
 We might reasonably set \(r_1 = 0\) for the initial chain randomness, by assuming honesty of all validators listed in the genesis block.  We could use public random number from the Tor network instead however.
 
@@ -92,7 +91,9 @@ In any case (being a slot leader or not being a slot leader), when \(P_j\) recei
 
 * if \(P_t\) did not produce another block for another chain in slot \(sl\) (no double signature),
 
-* if there exists a chain \(C'\) with the header \(H\).
+* if there exists a chain \(C'\) with the header \(H\),
+
+* if the transactions in $B$ are valid.
 
 If the validation process goes well, \(P_j\) adds \(B\) to \(C'\). Otherwise, it ignores the block.
 
