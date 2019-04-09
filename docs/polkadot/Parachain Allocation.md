@@ -36,14 +36,11 @@ d) vulnerable to bidder collusion and shilling
 To mitigate c) we can reserve a price. Note that b) still holds in the reserved price setting. 
 
 ### Auction Scheme
-Everyone places a DOT deposit (that must be 10% of their revealed bid) together with a hash of their bid. Hashes are revealed in the final day of the parachain that is freeing up. Unrevealed hashes result in the total deposit being given to the winner. It is to avoid using many bids which you have no intention of revealing if they are winning to drive up costs for the winner in a Vickrey auction. The downside is that the winner can use unrevealed bids to fake competition for free. The winner is the second highest revealed bid. All non-winning bids that have been revealed get their deposits back.
+Lets assume we have a number of parachain slots available at any point of time. This number of slots increases gradually. We divide slots into time units of six months. A bidder can bid on a continuous range of units between 1 and 4 units at an auction. The open bids are added to the relay chain blocks. Bidders can submit new bids to outbid competitors. Once an epoch has ended in the next epoch a randomness is going to determine which block in the last epoch the auction ended, we call that block the terminating block. A dynamic program is going to compute the highest DOT per unit for each block for all bids entered in blocks until the terminating block. 
 
-**How do we carry out a Vickrey auction in a decentrliazed fashion?**
-We want to implement the auction without the presence of a dealer. Since, we do not aim to keep bids sealed, we could use some sort of a commit-reveal scheme for bidding. Maybe we also could implement it with threshold public key encryption scheme?
+Candle auctions []:
 
-**(Q:Auction economics?)**
-
-By allowing for an n-sided market to determine the cost of connecting to the system, we ensure a Nash-equilibrium between the actors in question and allow for appropriate valuation of connecting to the system. 
+By allowing for an n-sided market to determine the cost of connecting to the system, we ensure a Nash-equilibrium between the actors in question and allow for appropriate valuation of connecting to the system. (?)
 
 
 ## Parachain Scaling
