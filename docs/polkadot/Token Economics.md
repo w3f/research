@@ -18,7 +18,6 @@ This note contains the following sections.
 * **Goverance:** We explain how dot holders express their opinion through referenda and how dots are used to determine voting power.
 * **NPoS payment and inflation:** We describe how we reward well-behaving validators and nominators in our nominated proof-of-stake. Since the dot minting for this end is the main cause of inflation in the system, we also describe our inflation model here.
 * **Transaction fees:** We analyse the optimal transaction fees on the relay chain to cover for costs, discourage harmful behaviors, and handle eventual peaks of activity and long inclusion times.
-* **Slashing:** We enumerate the scenarios where the stake of a validator (and that of nominators supporting it) gets slashed in order to discourage certain negative behaviors. We also describe the rewards given to the "fishermen" who report these misbehaviors.
 * **Adding/removing parachains:** We explain how dots are used when we add or remove commercial parachain slots, in processes such as auctions and deposits.
 * **Treasury:** We discuss how and when to raise dots to pay for the continued maintenance of the network.
 
@@ -61,10 +60,12 @@ We propose that when $x>\chi_{ideal}$, the interest rate have an exponential dec
 __Parameter:__ Define the *decay rate* $d$ so that the interest rate halfs every time $x$ increases by $d$ units, provided that $x>\chi_{ideal}$. More concretely, if $x=\chi_{ideal}+kd$ for some $k>0$ then $i(x)=i_{ideal}/2^k$.
 
 Let $I$ be the yearly *inflation rate*; i.e.
+
 $$I=\frac{\text{token supply at end of year} - \text{token supply at begining of year}}{\text{token supply at begining of year}}.$$
 
 The inflation rate is given by
 $$I=I_{NPoS}+I_{treasury}+I_{fishermen}-I_{slashing} - I_{tx-fees},$$
+
 where $I_{NPoS}$ is the inflation caused by token minting to pay nominators and validators, $I_{treasury}$ is the inflation caused by minting for treasury, $I_{fishermen}$ is the inflation caused by minting to pay fishermen who detected a misconduct, $I_{slashing}$ is the deflation caused by burning following a misconduct, and $I_{tx-fees}$ is the deflation caused by burning transaction fees.
 
 * The rewards perceived by block producers from transaction fees (and tips) do not come from minting. This is why this term does not appear in the formula above.
@@ -103,53 +104,51 @@ As an example, when $I_0=0.05$, $\chi_{ideal}=0.5$, $i_{ideal}=0.2$ and $d=0.05$
 
 ### Payment details
 
-There are several protocols that honest validators are involved in, and we incentivize their involvement by either rewarding them for successful participation or slashing them in case of lack of participation, whichever is easier to detect. From this point of view, we decide to reward validators only for *block production* and for *validity checking*, because they are easy to detect. 
+There are several protocols that honest validators are involved in, and we incentivize their involvement by either rewarding them for successful participation or slashing them in case of lack of participation, whichever is easier to detect. From this point of view, we decide to reward validators (and their nominators) only for *validity checking* and for *block production*, because they are easy to detect. 
 
-Let $P_{NPoS}$ be our target average payment to all validators and nominators per time slot. The value of $P_{NPoS}$ is computed from the interest rate function (see section on inflation model). Then $$P_{NPoS}=P_{production}+P_{validity},$$
+In the branch of validity checking, we reward:
+* each parachain validator for issuing a validity statement of the parachain block.
 
-where $P_{production}$ and $P_{validity}$ are our target average payments per time slot for block production and for validity checking respectively. We suggest the values 
+In the branch of block production, we reward: 
+* the block producer for producing a (non-uncle) block in the relay chain,
+* the block producer for each reference to a previously unreferenced uncle, and
+* the producer of each referenced uncle block.
+
+
+The ratio between the rewards for each of these actions are parameters to be decided and adjusted by governance. We originally propose ratios of 20:20:2:1, meaning that for some constant $C$ we pay $20C$ for each validity statement, $20C$ for producing a block, $2C$ to the block producer for each referenced uncle, and $C$ to the producer of each referenced uncle. 
+
+Let $P_{NPoS}$ be our target total payout to all validators (and their nominators) per epoch. The value of $P_{NPoS}$ is decided by governance depending on the desired interest rate and inflation rate (see section on inflation model). In order to decide the correct value of constant $C$ that ensures that the total payout is close to target $P_{NPoS}$, we need a mechanism to keep track of the average number of payable actions taking place in an epoch. We propose two mechanisms for it.
+
+**Keeping counters:** In each epoch, we can keep counters $n_{statements}$, $n_{blocks}$ and $n_{uncles}$ respectively on the number of issued validity statements, the number of (non-uncle) blocks produced, and the number of referenced uncles. At the end of the epoch, assuming the $20:20:2:1$ rule, we have the formula
+$$P_{NPoS}=20C\cdot n_{statements}+
+20C\cdot n_{blocks}+3C\cdot n_{uncles},$$
+from which $C$ can be obtained and all the payouts can be computed. That is, assuming we only pay validators at the end of each epoch.
+
+**Keeping estimates:** Another option is to keep estimates $e_{statements}$, $e_{blocks}$ and $e_{uncles}$ respectively on the number of issued validity statements, the number of (non-uncle) blocks produced, and the number of referenced uncles *per time slot* (NOT per epoch). The advantage of this mechanism is that it allows us to pay validators in each block, using the formula
+$$\frac{P_{NPoS}}{\text{# time slots per epoch}}=20C\cdot e_{statements}+
+20C\cdot e_{blocks}+3C\cdot e_{uncles},$$
+
+and from which $C$ and the payouts can be computed in each block. The estimates can be continuously updated, from one block to the next, using an exponential moving average as follows. Suppose we are producing a block $B$ with slot number $t$, having as parent a block $B'$ with slot number $t'$ ($t'<t$). Suppose moreover that $B'$ has estimates $e'_{statements}$, $e'_{blocks}$ and $e'_{uncles}$, and that in block $B$ we identify $u$ uncle references and $s$ validity statements. We then update the estimates for block $B$ as 
+
 \begin{align}
-P_{production}&=0.1\cdot P_{NPoS}\\
-P_{validity}&=0.9\cdot P_{NPoS},
+e_{statements}&=p\cdot s + (1-p)^{t-t'}\cdot e'_{statements}, \\
+e_{blocks}&=p\cdot 1+(1-p)^{t-t'}\cdot e'_{blocks}, \\
+e_{uncles}&=p\cdot u + (1-p)^{t-t'}\cdot e'_{uncles}.
 \end{align}
 
-because checking for validity is more critical for the system. (Q: should the ratio between $P_{production}$ and $P_{validity}$ depend on the number of validators?)
+where $p$ is a small parameter (say $p\approx 10^{-4}$) that determines the update speed of these estimates. The intuition behind these updates is as follows. If $s_t$ is the number of validity statements at time slot $t$ (where $s_t=0$ whenever the time slot has no block), then in the long term the value of estimate $e_{statements}$ at time slot $t$ will be a convex combination of all values $(s_{t'})_{t'\leq t}$ with exponentially decreasing weights. Namely,
 
+$$e_{estimate}=p\cdot[s_t + (1-p)\cdot s_{t-1} + (1-p)^2\cdot s_{t-2}+\cdots],$$
 
-#### Block production
+and similarly for $e_{blocks}$ and $e_{uncles}$. We suggest to have a somewhat larger parameter $p$ at genesis, so that our estimates converge quickly to realistic values and do not depend heavily on their initializations. However, in the long term $p$ should be small because we want our estimates to react only to long-term trends, and the payments perceived by validators to evolve slowly. At genesis, we initialize these estimates as follows:
 
-Block producers will include information about previously undiscovered uncles in their blocks, and we will reward both the block producer and the producers of the uncles. Let $P_{producer}$ and $P_{uncle}$ be the precise amounts we pay per block to the block producer and to each uncle, respectively. By the random nature of the protocol, the total amout we pay varies all the time, but we want it to be close to $P_{production}$ on average per time slot. Consequently, we first need to estimate the number of block producers and uncles per time slot.
+\begin{align}
+e_{statements} &= m\cdot c \\
+e_{blocks} &= c \\
+e_{uncles} &= m\cdot [1-(1-c)^{1/m}]-c,
+\end{align}
 
-Recall from the block-production protocol that in each time slot there can be no blocks, one block, or several blocks produced, depending on the number of validators that are slot leaders. Each validator $v$ is independently selected as slot leader with probability $1-(1-c)^{\alpha_v}$, where $\alpha_v$ is the relative stake of $v$ as a fraction of all validators' stake, and $c$ is a fixed constant between 0 and 1. If there are $m$ validators and they all have the same probability of becoming a leader then this probability is $1-(1-c)^{1/m}$.
-
-Let $e_{producers}$ be an estimate on the average number of (non-uncle) block producers per time slot, or in other words, the average proportion of time slots with at least one leader. The model above predicts that $e_{producers}=c$, so we initialize the estimate to that value. However, in practice this average might change as not all validators will be online and angaged in the protocol at all times. We update our estimate in each block using an exponential moving average, as follows. Suppose we are producing a block $B$ with slot number $t$, having as parent a block $B'$ with slot number $t'$ ($t'<t$) and estimate $e'_{producers}$. We then define the new estimate for block $B$ as 
-
-$$e_{producers}=p+(1-p)^{t-t'} e'_{producers},$$
-
-where $p$ is a parameter between 0 and 1 that determines the update speed of this estimate (and of other estimates defined below). We suggest a very small parameter $p$, say $p\leq 10^{-4}$, because we want our estimate to ignore random noise and react only to long-term trends, and we want the payments perceived by validators to evolve slowly. To understand the update formula for estimate $e_{producers}$, notice that if $1_t$ is an indicator variable having value 1 if time slot $t$ has at least one block producer and 0 otherwise, then in the long run the estimate at time slot $t$ is 
-
-$$e_{producers}=p\cdot[1_t+(1-p)\cdot 1_{t-1}+(1-p)^2\cdot 1_{t-2}+\cdots].$$
-
-Similarly, we keep track of an estimate $e_{uncles}$ of the average number of uncles per time slot. According to our model, the expected number of blocks per time slot is around $m[1-(1-c)^{1/m}]$, so the expected number of uncles would be $m[1-(1-c)^{1/m}]-c$. We initialize $e_{uncles}$ to that value. However, this value might vary in practice as block producers may not detect all uncles. We update it using again an exponential moving average, as follows. If we are producing a block $B$ at time slot $t$ which has detected $u$ uncles, and its parent block is $B'$ at time slot $t'$ ($t'<t$) having an estimate $e'_{uncles}$, we define the new estimate for block $B$ as
-
-$$e_{uncles}=p\cdot u + (1-p)^{t-t'}\cdot e'_{uncles}.$$
-
-We can now use these estimates to obtain the following formula for the expected total production payment per time slot:
-$$P_{production}=e_{producers}\cdot P_{producer} + e_{uncles}\cdot P_{uncle}, $$
-
-where we recall that $P_{producer}$ and $P_{uncle}$ are the payments per block to the block producer and to each uncle, respectively. If, for instance, we set the ratio $P_{producer}=4\cdot P_{uncle}$, the formula above gives $P_{uncle}=P_{production}/(4\cdot e_{producers}+e_{uncles})$. These last two formulas will be our definitions of $P_{uncle}$ and $P_{producer}$, and they will be computed in each block after updating the estimates. As our estimates evolve slowly over time, so do the payment amounts.
-
-#### Validity checking
-
-In each parachain, the group of validators assigned to it have the responsibility of checking the validity of each parachain block and issuing validity statements for it. The block producer of the relay chain will then include these statements from each parachain to its block. We then pay an amount $P_{statement}$ per block to the issuer of each (parachain) validity statement appearing in a relay chain block. We want the amount $P_{statement}$ to evolve slowly and to make the total average payment per time slot be close to $P_{validity}$.
-
-Let $e_{statements}$ be an estimate on the number of validity statements issued per time slot. If there are $m$ relay chain validators, then ideally all $m$ should issue validity statements of the different parachains in each block, so the value of $e_{statement}$ should be $m\cdot e_{producers}=m\cdot c$. We initialize it to that value, and update it using exponential moving averages as follows. If $B$ is the current relay chain validator at time slot $t$ having $s$ validity statements, and its parent is $B'$ at time slot $t'$ ($t'<t$) having an estimate $e'_{statements}$, then the new estimate for $B$ is 
-$$e_{statements} = p\cdot s + (1-p)^{t-t'}e'_{statements},$$
-
-for the same parameter $p$ as in block production. The formula for the total average payment per block gives
-$$P_{validity} = e_{statements}\cdot P_{statement},$$
-
-and so in each block, after updating $e_{statements}$, we compute the amount $P_{statement}=P_{validity}/e_{statements}$, and pay it to each issuer of a validity statement.
+where we recall from the BABE block production model that $c$ is the expected fraction of time slots having at least one leader, and $m\cdot [1- (1-c)^{1/m}]$ is the expected number of leaders per time slot. 
 
 ### Distribution of payment within validator slots
 
@@ -169,19 +168,17 @@ We make transaction fees a global parameter to simplify transaction handling log
 
 ### How a transaction fee is constituted and split
 
-A transaction fee includes a base fee to cover for signature verification costs and a variable fee that is proportional to the number of bytes to be put on chain. That is,
+There will be several types of transactions, with different fee levels. This fee differentiation is used to reflect the different computational costs incurred by transactions, and to encourage/discourage certain types of transactions. Thus, goverance will have to keep statistics on the types of transactions observed and their resource usage, to adjust the fees.
+
+Part of the transaction fee needs to go as a reward to the block producer for transaction inclusion, as otherwise they would have an incentive not to include transactions since smaller blocks are faster to produce, distribute and incorporate in chain. However, the block producer should not be rewarded the full amount of the fee, so they are discouraged from stuffing blocks. How much of the tx fee goes to the block producer is an adjustable parameter via governance; we originally suggest 50%. This percentage might depend on the transaction type, to encourage the block producer to include some txs over others. We suggest that the rest of the tx fees goes to treasury (instead of burning) to keep better control of inflation/deflation. 
+
+There can be an additional space in each block that is reserved for crucial or urgent transactions, so that they can be included even if the block is full. Fishermen txs that report misbehaviours would be an example of crucial transaction.
+
+A transaction fee includes a base fee and a variable fee that is proportional to the number of bytes to be put on chain. That is,
+
 $$f(tx):=f_{base}+size(tx)\cdot f_{byte},$$
-for some parameters $f_{base}$ and $f_{byte}$ and where $size(tx)$ is the number of bytes of transaction.
 
-Part of the transaction fee needs to go as a reward to block producers for transaction inclusion, as otherwise they would have an incentive not to include transactions since smaller blocks are faster to produce, distribute and incorporate in chain. Another part should be burned, to discourage validators from stuffing blocks. The burned proportion should be an adjustable parameter via governance. 
-**(Q: what are relevant parameters for deciding the amount that is burned? For a block producer, what should be the ratio between rewards from transaction fees and rewards from minting new tokens?)**
-
-Moreover, fees are determined by transaction type. Allow an additional fee to be given to block producer per transaction type, which can be adjusted by governance. This is to ensure that certain heavier transactions can be made to be included if usually ignored.
-
-Create an additional space for certain transactions in the block that can be included even if the block is full  for some system crucial transactions. For example, fishermen transactions that report misbehaviour or other similar system transactions.
-
-Evaluate all functions to determine the typical resource usage in order to add potential additional fees. 
-
+for some parameters $f_{base}$ and $f_{byte}$ and where $size(tx)$ is the number of bytes of transaction. The base fee will depend on the type of transaction, while the per-byte fee may be the same for all types.
 
 ### Adjustment of fees over time
 
@@ -220,100 +217,44 @@ We use the same parameters and the same formula as above to update the transacti
 
 The transaction fee is considered a base price. There will be a different field in the transaction called tip, and a user is free to put any amount of tokens in it or leave it at zero. Block producers can charge both the fee and tip, so they have an incentive to include transactions with large tips. There should be a piece of software that gives live suggestions to users for tips values, that depend on the market conditions and the size of the transaction; it should suggest no tip most of the time.
 
-
-## Slashing 
-
-Misbehavior in Polkadot is punished by slashing deposited stake. We impose slashing depending on the security impact they have Polkadot and whether it was part of an organized attack. 
-
-Parachain validators get slashed for misbehaving on availability, validation, and being offline. Relay chain validators get slashed for misbehaing in GRANDPA, block production, and availability. We do not slash relay chain validators for being offline currently because their offlineness is GRANDPA and block production has less of a negative impact and is expensive prove. 
-
-Furthermore, fishermen who are responsible to detect and report misbehavior in parachain validation, also have to put down stake. They submit claims of invality and get rewared if confirmed and slashed otherwise.
-
-Next we review slashing for validators (in both roles) and rewarding/slashing of fishermen.  
-
-### Consensus slashing:
-We slash relay chain validators for equivocation and incorrect voting without justification. 
-
-For **equivocation we slash ~5% of the misbehaving validator's stake if it happens unorganized and 100% otherwise**. The validator who reported the equivocation is rewarded 10 % of the slashed amount. 
-
-A GRANDPA vote is considered incorrect, if a validator votes for a chain at any given round that does not include a block that could have been finalized in previous rounds. Once this happens any one can challenge the incorrect vote and the validator needs to justify its incorrect vote. The only justifcation would be a proof that at least $n-f$ validators have equivocated or voted incorrectly in previous rounds. This justfication serves as a challenge for those validators, who need to provide justification for the new challenges. This process iterates until $n-f$ validators cannot justify their behavior or $f+1$ validators have equivocated and are going to be slashed for it. 
-
-For **incorrectness without justification we slash 15% of the misbehaving validator's stake if it is unorganized and 100% otherwise**. The validator who reported the incorrect vote without justification is rewarded 10 % of the slashed amount. 
-
-### Block production slashing:
-
-We slash relay chain validators for equivocation and incorrect block production. 
-When a block producer equivocates, produces more than one valid block only one of them can be added to the relay chain. The danger is that valid forks are established. The forks will be resolved once the next block producer doesnt equivocate anymore. Hence, equivocation is not a real threat to security as long as the majority of selected block producers dont equivocate. Therefore, we slash the **block producer who equivocates 1 % of his stake**. If a **validator produces an incorrect block it is also slashed 1%**.The validator who reported the equivocation or incorrect block production is rewarded 10 % of the slashed amount. 
-
-
-### Parachain validation slashing:
-
-We will **slash the parachain validators who signed for the parachain block validity that is not valid, 100% of their stake**.
-
-Once a fisherman has made a claim of invalidity for a parachain blob header, a number of relay chain validators are going to investigate this claim. If these validator agree on the claim, eiher the parachain validators or the fisherman will be slashed. If a single parachain blob header has both signed claims by validators that it is valid and that it is invalid, then all validators download the block and check its correctness.
-
-When relay chain validators disagree:
-- If 1/3 validators sign to say it is incorrect and we do not have 1/3 signed saying it is correct as well, then we slash all validators who signed to say it is correct. If this includes a majority of parachain validators, then **they should be slashed 100%**.
-
-- If over 1/3 sign to say it is correct but at most 1/3 to say that it is incorrect, then we **slash all validators who said it was incorrect 100 % of their stake**. 
-
-- If both happen, we consider the block invalid but don’t slash anyone. This can only happen if either we have 1/3 malicious validators or the state transition validation function is ambiguous on this input.  
-
-### Availability slashing: 
-
-Every parachain validator who signed off on the Merkle root is responsible for the correct construction and distribution of erasure coded pieces.
-
-Parachain validators can cause unavailability by either not distributing the erasure coded pieces or sending out pieces that cannot reconstruct a parachain blob. Hence, we slash parachain validators when
-a) a proof is submitted that $f+1$ erasure coded pieces of a blob cannot reconstruct the blob, or 
-b) $\frac{2}{3}$ relay chain validators claim they have not received an erasure coded piece for that blob. 
-
-Note, that if one or the minority of parachain validator misbehaves, the remainder parachain validators can guarantee availability. Hence, is a) or b) happens the majority of parachain validators are simultanously misbehaving. 
-In cases of a), it is an obvious attack and we **slash the misbehaving parachain validators who signed off on the blob header 100% of its stake**. In case of b), the security of Polkadot is not harmed and the only consequence is delay in finality and extra effort for carrying out attestion games. Moreover, there is a very small chance that the majority of parachain validators have, for example, all crashed at the same time. Hence, in case of b), we **slash the parachain validators who signed off on the blob header 10 % of their stake**. 
-The entity who reported a), the assigned validator, is rewarded 10 % of the slashed amount. 
-
-Each relay chain validator is responsible to keep the erasure coded piece it has received and only vote in GRANDPA if the erasure coded piece is available to him. 
-
-Once, a number of relay chain validators claim they have not received erasure coded pieces, all relay chain validators who voted in GRANDPA are requested to hand over their piece. We slash a relay chain validator who refuses to hand over the erasure coded piece of a parachain blob after it has voted for the relay chain block that includes the header of that parachain blob. This is proven by all relay chain validators asking for that piece and $\frac{2}{3}$ of relay chain validators reporting they have not received it. We **slash the misbehaving relay chain validator 100 % of their stake**. 
-
-When a blob is unavailable we carry out an attestion game to prove b). We **slash the relay chain validators who attested to an unavailable block 100%  of their stake**. Basically this are the minority who voted different then the $\frac{2}{3}$ of realy chain validators. The entity who reported it is rewarded 10% of the slashed amount. 
-
-### Offlineness slashing: 
-We want to encourage onlineness for validators at all time. In particular, for parachain validators being offline has a significant impact on the security of the parachain, therefore, we measure offlineness with responsiveness of validators for their parachain duties. If a parachain validator did not validate a parachain blob, within a certain time frame it needs to either challenge availability or validity otherwise it is considered unresponsive. If **offlineness happens for the first time we slash the unresponsive parachain validator a very small amount, e.g., 0.001 % of its stake**. However, if this happens in more than one consecutive rounds the slasing amount increases until a pre-set threshold (that can be set by the validator itself). Once the threshold is reached we kick the parachain validator out until it becomes responsive again. 
-
-If **offlineness happens simultaneously in mass, we slash a significant amount, e.g., 100 % of their stake**. 
-
-
-
-## Adding and removing parachains 
+## Adding and removing parachains
 
 The tentative plan for parachain allocation is described in:
 https://github.com/w3f/research/blob/master/docs/polkadot/ParachainAllocation.md
 
-
-## Treasury 
+## Treasury
 
 The system needs to continually raise funds, which we call the treasury. These funds are used to pay for developers that provide software updates, apply any changes decided by referenda, adjust parameters, and generally keep the system running smoothly.
 
 Funds for treasury are raised in two ways:
-1. by minting new tokens, leading to inflation, and
-2. by channelling some of the tokens set for burning from transaction fees and slashing.
+
+1.    by minting new tokens, leading to inflation, and
+2.   by channelling some of the tokens set for burning from transaction fees and slashing.
 
 Notice that these methods to raise funds mimic the traditional ways that governements raise funds: by minting coins which leads to controlled inflation, and by collecting taxes and fines.
 
-We could raise funds solely from minting new tokens, but we argue that it makes sense to redirect some of the stake set for burning into treasury: 
-  * By doing so we reduce the amount of actual stake burning, and this gives us better control over the inflation rate (notice that stake burning leads to deflation, and we can't control or predict the events that lead to burning).
-  * Suppose that there is a period in which there is an unusually high amount of stake burning, due to either misconducts or transaction fees. This fact is a symptom that there is something wrong with the system, that needs fixing. Hence, this will be precisely a period when we need to have more funds available in treasury to afford the development costs to fix the problem.
+We could raise funds solely from minting new tokens, but we argue that it makes sense to redirect into treasure the tokens from tx fees and slashing that would otherwise be burned:
 
------
-## Additional notes
+- By doing so we reduce the amount of actual stake burning, and this gives us better control over the inflation rate (notice that stake burning leads to deflation, and we can’t control or predict the events that lead to burning).
+
+- Following an event that produced heavy stake slashing, we might often have to reimburse the slashed stake, if there is evidence of no wrongdoing. Thus it makes sense to have the dots availabe in treasury, instead of burning and then minting.
+
+- Suppose that there is a period in which there is an unusually high amount of stake burning, due to either misconducts or transaction fees. This fact is a symptom that there is something wrong with the system, that needs fixing. Hence, this will be precisely a period when we need to have more funds available in treasury to afford the development costs to fix the problem.
+
+--
+Additional notes
+
 GRANDPA:
-https://github.com/w3f/consensus/blob/master/pdf/grandpa.pdf 
- 
+https://github.com/w3f/consensus/blob/master/pdf/grandpa.pdf
+
 Availability Scheme:
-https://github.com/w3f/research/blob/master/docs/polkadot/availability.md 
- 
+https://github.com/w3f/research/blob/master/docs/polkadot/availability.md
+
 BABE:
 https://github.com/w3f/research/tree/master/docs/polkadot/BABE
 
 Parachain Validity:
-https://github.com/w3f/research/blob/master/docs/polkadot/validity.md  
+https://github.com/w3f/research/blob/master/docs/polkadot/validity.md
+
+NPoS:
+http://research.web3.foundation/en/latest/polkadot/NPoS/1.%20An%20introduction%20to%20the%20validator%20election%20problem./
