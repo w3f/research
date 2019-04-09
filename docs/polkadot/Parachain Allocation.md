@@ -22,6 +22,8 @@ The remaining 80% of the slots can be more “publicly” or “commercially” 
 As long as at least one commercial slot is free, there is an associated price given by some sort of progressive curve, to control rapid increase of demand. If a commercial slot becomes free and no commercial slots are already free, then it is auctioned as follows.
 
 ## Auctioning Parachain Slots:
+One of the main reasons we use auctions is to have s fair and transparent parachain allocation procedure. 
+
 If a commercial slot becomes free and no commercial slots are already free, then it is set for auction with a 2-week window for posting blind bids for the auction.
 To participate in an auction for obtaining a slot, a parachain needs to deposit DOTs. A parachain candidate can issue additional native tokens in order to acquire DOTs. 
 If a parachain fails to obtain the slot, the returned DOTs can be used to buy back the native token and burn it.
@@ -39,6 +41,13 @@ To mitigate c) we can reserve a price. Note that b) still holds in the reserved 
 Lets assume we have a number of parachain slots available at any point of time. This number of slots increases gradually. We divide slots into time units of six months. A bidder can bid on a continuous range of units between 1 and 4 units at an auction. The open bids are added to the relay chain blocks. Bidders can submit new bids to outbid competitors. Once an epoch has ended in the next epoch a randomness is going to determine which block in the last epoch the auction ended, we call that block the terminating block. A dynamic program is going to compute the highest DOT per unit for each block for all bids entered in blocks until the terminating block. 
 
 Candle auctions []:
+
+Auctions with random close 
+
+(i) bidders wait until the end phase of the auction to bid; 
+(ii) a sizeable fraction of auctions is resolved early; 
+(iii) bid increments are typically small; 
+(iv) large bid increments are more likely to occur early in the auction
 
 By allowing for an n-sided market to determine the cost of connecting to the system, we ensure a Nash-equilibrium between the actors in question and allow for appropriate valuation of connecting to the system. (?)
 
