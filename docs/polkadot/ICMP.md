@@ -1,7 +1,7 @@
 # ICMP Scheme
 
 ## Motivation
-We want to enable inter-chain messageing among parachains. We want guarantee that when we send a block we are sure that we have received all the previous messages. Moreover, we want to put a limit on the size of incoming messages to avoid overflowing. 
+We want to enable inter-chain messaging among parachains. We want a guarantee that when we send a block we are sure that we have received all the previous messages. Moreover, we want to put a limit on the size of incoming messages to avoid overflowing. 
 
 ## Inter-chain messaging scheme assumptions
 
