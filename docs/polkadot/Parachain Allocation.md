@@ -22,35 +22,20 @@ The remaining 80% of the slots can be more “publicly” or “commercially” 
 As long as at least one commercial slot is free, there is an associated price given by some sort of progressive curve, to control rapid increase of demand. If a commercial slot becomes free and no commercial slots are already free, then it is auctioned as follows.
 
 ## Auctioning Parachain Slots:
-One of the main reasons we use auctions is to have s fair and transparent parachain allocation procedure. 
+We mainly use auctions to have a fair and transparent parachain allocation procedure. 
 
 If a commercial slot becomes free and no commercial slots are already free, then it is set for auction with a 2-week window for posting blind bids for the auction.
 To participate in an auction for obtaining a slot, a parachain needs to deposit DOTs. A parachain candidate can issue additional native tokens in order to acquire DOTs. 
 If a parachain fails to obtain the slot, the returned DOTs can be used to buy back the native token and burn it.
 
-### Related Work
-Sealed-bid auction needs less communication overhead for bidding than open-bid (iterative) auctions. In open auctions, the English auction [] has a dominat strategy. Among sealed-bid auctions, Vickrey [1] auctions: a) has a weakly dominant strategy that is bidding the true value of the bidder [2], which makes it more efficenit for bidders, b) in multiunit auctions, when the bids are interdependent and identically distributed, the expected price paid by a winner bidder of a Vickrey auction is at least as high as the expected price paid by a winner bidder of a first-price sealed-bid (discriminatory) auctions [3].
-
-Weaknesses:
-c) does not necessarily maximize seller profit 
-d) vulnerable to bidder collusion and shilling
-
-To mitigate c) we can reserve a price. Note that b) still holds in the reserved price setting. 
-
 ### Auction Scheme
-Lets assume we have a number of parachain slots available at any point of time. This number of slots increases gradually. We divide slots into time units of six months. A bidder can bid on a continuous range of units between 1 and 4 units at an auction. The open bids are added to the relay chain blocks. Bidders can submit new bids to outbid competitors. Once an epoch has ended in the next epoch a randomness is going to determine which block in the last epoch the auction ended, we call that block the terminating block. A dynamic program is going to compute the highest DOT per unit for each block for all bids entered in blocks until the terminating block. 
+Since sealed-bid auctions are hard to implement in a decetralized set up we decided to use an open (English) auction. 
 
-Candle auctions []:
+Lets assume we have a number of parachain slots available at any point of time. We divide slots into time units of six months. A bidder can bid on a continuous range of units between 1 and 4. The open bids are added to blocks of the relay chain. Once a block with a number of bids is added to the relay chain, everyone computes the winners for each slot according to the bids in the block and submits new bids to the next block to outbid those winners. Once an epoch (which includes several blocks of bids) has ended, in the next epoch a randomness obtained from a VRF function is going to determine which block in the last epoch was the last block, which we call the closing block. Hence, the ending of the auction is determined retroactively. We compute the highest DOT per unit for all bids entered in blocks until and including the closing block. The winners pays the amount of his bid. 
 
-Auctions with random close 
-
-(i) bidders wait until the end phase of the auction to bid; 
-(ii) a sizeable fraction of auctions is resolved early; 
-(iii) bid increments are typically small; 
-(iv) large bid increments are more likely to occur early in the auction
+Open question: do want to add a reserve price for longer ranges of units and have no reserve price for auctioning 1 unit. This would be mainly, because big project who have invested in setting up parachain do not increase the price of using a parachain for everyone. And so that small parachains with a small budget have a chance to get a slot. 
 
 By allowing for an n-sided market to determine the cost of connecting to the system, we ensure a Nash-equilibrium between the actors in question and allow for appropriate valuation of connecting to the system. (?)
-
 
 ## Parachain Scaling
 
@@ -59,8 +44,4 @@ We will auction parachains slots off in batches of 4 over the course of the 1st 
 One of the objectives of our roll-out plan is to maintain demand-supply balance for parachain slots such that there are appropriate economic incentives to be a validator on the network. Moreover, we want to allow for the proliferation of experimentation and novel use-cases as the network scales. 
 
 ## References
-[1] Vickrey, William. (1961). Counterspeculation, Auctions, and Competitive Sealed Tenders. The Journal of Finance. 
 
-[2] 
-
-[3] Milgrom, Paul. (2019). The economics of competitive bidding: a selective survey. 
