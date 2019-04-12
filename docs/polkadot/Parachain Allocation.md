@@ -35,9 +35,9 @@ Let us assume we have a number of parachain slots available at the time we start
 Once a block with a number of bids is added to the relay chain, everyone computes the winners according to the bids in the added block(s) and submits new bids to the next block to outbid those winners. This prodecure continues until the end of the epoch. In the next epoch, randomness obtained from a VRF function is going to determine which block from the previous epoch was the last (closing) block. Hence, the termination of the auction is determined retroactively. We compute the highest DOT per unit for all bids entered in blocks until and including the closing block. The winners pay the amount of their winning bids. 
 
 Advantages: 
--bidders submit serious bids from the beginning
--we prevent overbidding and snipping (this can harm total revenue for the seller, but this is not an objective for us)
--weaker bidders have a chance to win in the auction, which encourages entering. However, note that we do not have a comlteltey random close and the bidder still needs to be the best bidder among all bids in an entire given block for the least. For example, if the first block is the closing block, the bidders needs to be a winner amoung the bids in that block. This means that if high bids are in the first blocks, weaker bidders do not have much chance anymore. 
+- bidders submit serious bids from the beginning
+- we prevent overbidding and snipping (this can harm total revenue for the seller, but this is not an objective for us)
+- weaker bidders have a chance to win in the auction, which encourages entering. However, note that we do not have a comlteltey random close and the bidder still needs to be the best bidder among all bids in an entire given block for the least. For example, if the first block is the closing block, the bidders needs to be a winner amoung the bids in that block. This means that if high bids are in the first blocks, weaker bidders do not have much chance anymore. 
 
 TODO: does a weakly dominant strategy of English auctions still hold for our extension?
 
