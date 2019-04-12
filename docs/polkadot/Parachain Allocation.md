@@ -29,13 +29,19 @@ To participate in an auction for obtaining a slot, a parachain needs to deposit 
 If a parachain fails to obtain the slot, the returned DOTs can be used to buy back the native token and burn it.
 
 ### Auction Scheme
-Since sealed-bid auctions are hard to implement in a decetralized set up we decided to use an open (English) auction. 
+Since sealed-bid auctions are hard to implement in a decentralized set up we decided to use an open (English) auction with some changes as follows. 
 
-Lets assume we have a number of parachain slots available at any point of time. We divide slots into time units of six months. A bidder can bid on a continuous range of units between 1 and 4. The open bids are added to blocks of the relay chain. Once a block with a number of bids is added to the relay chain, everyone computes the winners for each slot according to the bids in the block and submits new bids to the next block to outbid those winners. Once an epoch (which includes several blocks of bids) has ended, in the next epoch a randomness obtained from a VRF function is going to determine which block in the last epoch was the last block, which we call the closing block. Hence, the ending of the auction is determined retroactively. We compute the highest DOT per unit for all bids entered in blocks until and including the closing block. The winners pays the amount of his bid. 
+Let us assume we have a number of parachain slots available at the time we start the auction. We divide each slot into time units of six months. A bidder can bid on a continuous range of units between 1 and 4. A bid is a tuple that consist of a bid unit range and bid value in DOTs. There is no distinction between individual slots that means for now everyone can bid only for one slot, multiple slots and overlapping of units is not permitted. These open bids are added to block that is added to the relay chain. 
+Once a block with a number of bids is added to the relay chain, everyone computes the winners according to the bids in the added block(s) and submits new bids to the next block to outbid those winners. This prodecure continues until the end of the epoch. In the next epoch, randomness obtained from a VRF function is going to determine which block from the previous epoch was the last (closing) block. Hence, the termination of the auction is determined retroactively. We compute the highest DOT per unit for all bids entered in blocks until and including the closing block. The winners pay the amount of their winning bids. 
 
-Open question: do want to add a reserve price for longer ranges of units and have no reserve price for auctioning 1 unit. This would be mainly, because big project who have invested in setting up parachain do not increase the price of using a parachain for everyone. And so that small parachains with a small budget have a chance to get a slot. 
+Advantages: 
+-bidders submit serious bids from the beginning
+-we prevent overbidding and snipping (this can harm total revenue for the seller, but this is not an objective for us)
+-weaker bidders have a chance to win in the auction, which encourages entering. However, note that we do not have a comlteltey random close and the bidder still needs to be the best bidder among all bids in an entire given block for the least. For example, if the first block is the closing block, the bidders needs to be a winner amoung the bids in that block. This means that if high bids are in the first blocks, weaker bidders do not have much chance anymore. 
 
-By allowing for an n-sided market to determine the cost of connecting to the system, we ensure a Nash-equilibrium between the actors in question and allow for appropriate valuation of connecting to the system. (?)
+TODO: does a weakly dominant strategy of English auctions still hold for our extension?
+
+By allowing for an n-sided market to determine the cost of connecting to the system, we ensure a weakly dominant Nash-equilibrium between the actors in question and allow for appropriate valuation of connecting to the system. 
 
 ## Parachain Scaling
 
