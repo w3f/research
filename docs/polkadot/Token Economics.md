@@ -44,20 +44,20 @@ As these payments are the main driver of inflation in the system, we first study
 
 ### Inflation model
 
-Let $x$ be the *staking rate* in NPoS at a particular point in time, i.e. the total amount of tokens staked by nominators and validators, divided by the total token supply. $x$ is always a value between 0 and 1. 
+Let \(x\) be the *staking rate* in NPoS at a particular point in time, i.e. the total amount of tokens staked by nominators and validators, divided by the total token supply. \(x\) is always a value between 0 and 1. 
 
-__Parameter:__ Let $\chi_{ideal}$ be the staking rate we would like to attain ideally in the long run. This value is probably between $0.3$ and $0.6$, and notice that our 3:2:1 rule calls for $\chi_{ideal}=0.5$. If it falls, the security is compromised, so we should give strong incentives to stake more. If it rises, we lose liquidity, which is also undesirable, so we should decrease the incentives sharply.
+__Parameter:__ Let \(\chi_{ideal}\) be the staking rate we would like to attain ideally in the long run. This value is probably between 0.3 and 0.6, and notice that our 3:2:1 rule calls for \(\chi_{ideal}=0.5\). If it falls, the security is compromised, so we should give strong incentives to stake more. If it rises, we lose liquidity, which is also undesirable, so we should decrease the incentives sharply.
 
-Let $i=i(x)$ be the yearly *interest rate* in NPoS; i.e., the total yearly amount of tokens minted to pay all validators and nominators for block production and Grandpa, divided by the total amount of tokens staked by them. We consider it as a function of $x$. Intuitively, $i(x)$ corresponds to the incentive we give people to stake. Hence, $i(x)$ should be a monotone decreasing function of $x$, as fewer and fewer incentives are needed when $x$ increases.
+Let \(i=i(x)\) be the yearly *interest rate* in NPoS; i.e., the total yearly amount of tokens minted to pay all validators and nominators for block production and Grandpa, divided by the total amount of tokens staked by them. We consider it as a function of \(x\). Intuitively, \(i(x)\) corresponds to the incentive we give people to stake. Hence, \(i(x)\) should be a monotone decreasing function of \(x\), as fewer and fewer incentives are needed when \(x\) increases.
 
-* We study the yearly interest rate (instead of the interest rate per block or per epoch) for ease of comprehension. This means that $i(x)$ is the total payout perceived by somebody that continuously stakes one unit of tokens during a year. The interest rate per block can be easily computed from it **(Q: do we consider compound interest in this computation? In other words, can the staked parties immediately reinvest their payment into stake?)**
-* Not every staked party will be paid proportional to their stake. For instance, a validator will be paid more than a nominator with equal stake, and a validator producing a block will be paid more than other validators. So, $i(x)$ only works as a guide of the average interest rate.
+* We study the yearly interest rate (instead of the interest rate per block or per epoch) for ease of comprehension. This means that \(i(x)\) is the total payout perceived by somebody that continuously stakes one unit of tokens during a year. The interest rate per block can be easily computed from it **(Q: do we consider compound interest in this computation? In other words, can the staked parties immediately reinvest their payment into stake?)**
+* Not every staked party will be paid proportional to their stake. For instance, a validator will be paid more than a nominator with equal stake, and a validator producing a block will be paid more than other validators. So, \(i(x)\) only works as a guide of the average interest rate.
 
-__Parameter:__ Let $i_{ideal}:=i(\chi_{ideal})$ be the interest rate we pay in the ideal scenario where $x=\chi_{ideal}$. This is the interest rate we should be paying most of the time. We suggest the value $i_{ideal}=0.2$, i.e. an ideal yearly interest rate of 20%.
+__Parameter:__ Let \(i_{ideal}:=i(\chi_{ideal})\) be the interest rate we pay in the ideal scenario where \(x=\chi_{ideal}\). This is the interest rate we should be paying most of the time. We suggest the value \(i_{ideal}=0.2\), i.e. an ideal yearly interest rate of 20%.
 
-Let $I$ be the yearly *inflation rate*; i.e.
+Let \(I\) be the yearly *inflation rate*; i.e.
 
-$$I=\frac{\text{token supply at end of year} - \text{token supply at begining of year}}{\text{token supply at begining of year}}.$$
+\((I=\frac{\text{token supply at end of year} - \text{token supply at begining of year}}{\text{token supply at begining of year}}.\))
 
 The inflation rate is given by
 
