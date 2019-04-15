@@ -228,7 +228,7 @@ For instance, suppose that we detect that during peak times some transactions ha
 
 In this mechanism, fees stay almost constant during short periods, adjusting only to long-term tendencies. We accept the fact that during spikes there will be long inclusion times, and allow the transactions to include tips to create a market for preferential inclusion.
 
-We use the same formula as above to update the transaction fees in each block, i.e. \(f_{byte} \leftarrow f_{byte}\cdot (1 + v(s-s^*) + v^2(s-s^*)^2/2\)$, except that we select a much smaller variability factor $v$. For instance, suppose that we want the fees to change by at most 30% during a day, and there are around \(k=10000\) blocks produced in a day. If \(s^*=0.25\) then we obtain \(v\leq 0.3/[10000(1-0.25)] = 0.00004\).
+We use the same formula as above to update the transaction fees in each block, i.e. \(f_{byte} \leftarrow f_{byte}\cdot (1 + v(s-s^*) + v^2(s-s^*)^2/2\), except that we select a much smaller variability factor $v$. For instance, suppose that we want the fees to change by at most 30% during a day, and there are around \(k=10000\) blocks produced in a day. If \(s^*=0.25\) then we obtain \(v\leq 0.3/[10000(1-0.25)] = 0.00004\).
 
 The transaction fee is considered a base price. There will be a different field in the transaction called tip, and a user is free to put any amount of tokens in it or leave it at zero. Block producers can charge both the fee and tip, so they have an incentive to include transactions with large tips. There should be a piece of software that gives live suggestions to users for tips values, that depend on the market conditions and the size of the transaction; it should suggest no tip most of the time.
 
