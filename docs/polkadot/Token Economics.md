@@ -48,58 +48,56 @@ Let $x$ be the *staking rate* in NPoS at a particular point in time, i.e. the to
 
 __Parameter:__ Let $\chi_{ideal}$ be the staking rate we would like to attain ideally in the long run. This value is probably between $0.3$ and $0.6$, and notice that our 3:2:1 rule calls for $\chi_{ideal}=0.5$. If it falls, the security is compromised, so we should give strong incentives to stake more. If it rises, we lose liquidity, which is also undesirable, so we should decrease the incentives sharply.
 
-Let $i=i(x)$ be the yearly *interest rate* in NPoS; i.e., the total yearly amount of tokens minted to pay all validators and nominators for block production and Grandpa, divided by the total amount of tokens staked by them. We consider it as a function of $x$. Intuitively, $i(x)$ corresponds to the incentive we give people to stake. Hence, $i(x)$ should be a monotone decreasing function of $x$, as less and less incentives are needed when $x$ increases.
+Let $i=i(x)$ be the yearly *interest rate* in NPoS; i.e., the total yearly amount of tokens minted to pay all validators and nominators for block production and Grandpa, divided by the total amount of tokens staked by them. We consider it as a function of $x$. Intuitively, $i(x)$ corresponds to the incentive we give people to stake. Hence, $i(x)$ should be a monotone decreasing function of $x$, as fewer and fewer incentives are needed when $x$ increases.
 
 * We study the yearly interest rate (instead of the interest rate per block or per epoch) for ease of comprehension. This means that $i(x)$ is the total payout perceived by somebody that continuously stakes one unit of tokens during a year. The interest rate per block can be easily computed from it **(Q: do we consider compound interest in this computation? In other words, can the staked parties immediately reinvest their payment into stake?)**
 * Not every staked party will be paid proportional to their stake. For instance, a validator will be paid more than a nominator with equal stake, and a validator producing a block will be paid more than other validators. So, $i(x)$ only works as a guide of the average interest rate.
 
-__Parameter:__ Let $i_{ideal}:=i(\chi_{ideal})$ be the interest rate we pay in the ideal scenario where $x=\chi_{ideal}$. This is the interest rate we should be paying most of the time. 
-
-We propose that when $x>\chi_{ideal}$, the interest rate have an exponential decrease. We choose an exponential decrease because we want the interest rate to fall sharply -to avoid illiquidity- while still being able to control its rate of change, $i(x+\varepsilon)/i(x)$, when $x$ increases by a small amount $\varepsilon$. Bounding how fast the interest rate changes is important for the nominators and validators. 
-
-__Parameter:__ Define the *decay rate* $d$ so that the interest rate halfs every time $x$ increases by $d$ units, provided that $x>\chi_{ideal}$. More concretely, if $x=\chi_{ideal}+kd$ for some $k>0$ then $i(x)=i_{ideal}/2^k$.
+__Parameter:__ Let $i_{ideal}:=i(\chi_{ideal})$ be the interest rate we pay in the ideal scenario where $x=\chi_{ideal}$. This is the interest rate we should be paying most of the time. We suggest the value $i_{ideal}=0.2$, i.e. an ideal yearly interest rate of 20%.
 
 Let $I$ be the yearly *inflation rate*; i.e.
 
 $$I=\frac{\text{token supply at end of year} - \text{token supply at begining of year}}{\text{token supply at begining of year}}.$$
 
 The inflation rate is given by
+
 $$I=I_{NPoS}+I_{treasury}+I_{fishermen}-I_{slashing} - I_{tx-fees},$$
 
 where $I_{NPoS}$ is the inflation caused by token minting to pay nominators and validators, $I_{treasury}$ is the inflation caused by minting for treasury, $I_{fishermen}$ is the inflation caused by minting to pay fishermen who detected a misconduct, $I_{slashing}$ is the deflation caused by burning following a misconduct, and $I_{tx-fees}$ is the deflation caused by burning transaction fees.
 
 * The rewards perceived by block producers from transaction fees (and tips) do not come from minting. This is why this term does not appear in the formula above.
 
-$I_{NPoS}$ should be by far the largest of these amounts, and thus the main driver of overall inflation. Notice that by channelling some of the tokens destined to burning -due to both slashing and transaction fees- into treasury, we decrease the other terms in the formula (see the section on treasury). If we consider $I_{NPoS}$ as a function of the staking rate $x$, then clearly the relation between $I_{NPoS}(x)$ and $i(x)$ is given by 
+$I_{NPoS}$ should be by far the largest of these amounts, and thus the main driver of overall inflation. Notice that by channelling all of the tokens destined to burning -due to both slashing and transaction fees- into treasury, we decrease the other terms in the formula (see the section on treasury). If we consider $I_{NPoS}$ as a function of the staking rate $x$, then clearly the relation between $I_{NPoS}(x)$ and $i(x)$ is given by 
+
 $$I_{NPoS}(x)=x\cdot i(x).$$
 
-From our previous analysis, we can see that $I_{NPoS}(\chi_{ideal})=\chi_{ideal}\cdot i_{ideal}$. Since we want to steer the market toward a staking rate of $x=\chi_{ideal}$, it makes sense that the inflation rate $I_{NPoS}(x)$ should be maximal at this value.
+From our previous analysis, we can see that $I_{NPoS}(\chi_{ideal})=\chi_{ideal}\cdot i_{ideal}$. Since we want to steer the market toward a staking rate of $x=\chi_{ideal}$, it makes sense that the inflation rate **$I_{NPoS}(x)$ should be maximal at this value**.
 
-__Parameter:__ Let $I_0$ as the limit of $I_{NPoS}(x)$ as $x$ goes to zero. On one hand, this value should be as small as possible, because we want to upper-bound the interest rate. On the other hand, it should not be zero, because we need to make sure to always cover at least the operational costs of the validators, even if nominators get paid nothing. Hence, $I_0$ represents an upper-bound estimate of the operational costs of all validators, expressed as a fraction of the total token supply.
+__Parameter:__ Let $I_0$ be the limit of $I_{NPoS}(x)$ as $x$ goes to zero. On one hand, this value should be as small as possible, because we want to upper-bound the interest rate. On the other hand, it should not be zero, because we need to make sure to always cover at least the operational costs of the validators, even if nominators get paid nothing. Hence, $I_0$ represents a tight upper-bound on our estimate of the operational costs of all validators, expressed as a fraction of the total token supply. We will make sure that $I_{NPoS}(x)$ is always above $I_0$ for all values of $x$, in particular also in the limit when $x$ goes to one.
 
+For simplicity, we propose that the inflation function grow linearly between $x=0$ and $x=\chi_{ideal}$. On the other hand, we propose that it decay exponentially between $x=\chi_{ideal}$ and $x=1$. We choose an exponential decrease for $I_{NPoS}(x)$ because this implies an exponential decrease for $i(x)$ as well, and we want the interest rate to fall sharply beyond $\chi_{ideal}$ to avoid illiquidity, while still being able to control its rate of change, $i(x+\varepsilon)/i(x)$, when $x$ increases by a small amount $\varepsilon$. Bounding how fast the interest rate changes is important for the nominators and validators. 
 
-For simplicity, we propose that the inflation function be linear between $x=0$ and $x=\chi_{ideal}$. From the previous observations, we obtain the following interest rate and inflation rate functions, which depend on the parameters $\chi_{ideal}$, $i_{ideal}$, $d$, and $I_0$. Let
+__Parameter:__ Define the *decay rate* $d$ so that the inflation rate decreases by at most 50% when $x$ shifts $d$ units to the right of $\chi_{ideal}$, i.e. $I_{NPoS}(\chi_{ideal} + d) \geq I_{NPoS}/2$. We suggest $d=0.05$. 
+
+ From the previous observations, we obtain the following interest rate and inflation rate functions, which depend on the parameters $\chi_{ideal}$, $i_{ideal}$, $d$, and $I_0$. Let
+
 \begin{align}
-i(x)&=\begin{cases}
-\frac{I_0}{x} + i_{ideal} - \frac{I_0}{\chi_{ideal}} 
+I_{NPoS}(x) &= \begin{cases}
+I_0 + x\Big(i_{ideal} - \frac{I_0}{\chi_{ideal}}\Big) 
 &\text{for } 0<x\leq \chi_{ideal}\\
-i_{ideal}\cdot 2^{(\chi_{ideal}-x)/d} 
+I_0 + (i_{ideal}\cdot \chi_{ideal} - I_0)\cdot 2^{(\chi_{ideal}-x)/d} 
 &\text{for } \chi_{ideal} < x \leq 1 
 \end{cases}, \text{ and}\\
 \\
-I_{NPoS}(x) = x\cdot i(x) &= \begin{cases}
-I_0 + x\Big(i_{ideal} - \frac{I_0}{\chi_{ideal}}\Big) 
-&\text{for } 0<x\leq \chi_{ideal}\\
-i_{ideal}\cdot x\cdot  2^{(\chi_{ideal}-x)/d} 
-&\text{for } \chi_{ideal} < x \leq 1 
-\end{cases}.
+i(x)&= I(x)/x.
 \end{align}
 
-It can be checked that $I_{NPoS}(0)=I_0$, $i(\chi_{ideal})=i_{ideal}$, $I_{NPoS}(x)$ is maximal at $x=\chi_{ideal}$ where it achieves a value of $\chi_{ideal}\cdot i_{ideal}$, and $i(x)$ is monotone decreasing, halving value every $d$ units for $x>\chi_{ideal}$.
+It can be checked that $I_{NPoS}\geq I_0$ for all $0\leq x \leq 1$ with equality for $x=0$, $i(\chi_{ideal})=i_{ideal}$, $I_{NPoS}(x)$ is maximal at $x=\chi_{ideal}$ where it achieves a value of $\chi_{ideal}\cdot i_{ideal}$, and $i(x)$ is monotone decreasing. 
 
-These functions can be plotted following this link: https://www.desmos.com/calculator/dnlxegtgpk
-As an example, when $I_0=0.05$, $\chi_{ideal}=0.5$, $i_{ideal}=0.2$ and $d=0.05$, we obtain the following plots, with $i(x)$ in red and $I_{NPoS}(x)$ in blue.
-![](https://i.imgur.com/qPzgxsN.png)
+These functions can be plotted following this link: https://www.desmos.com/calculator/2om7wkewhr
+As an example, when $I_0=0.025$, $\chi_{ideal}=0.5$, $i_{ideal}=0.2$ and $d=0.05$, we obtain the following plots, with $i(x)$ in red and $I_{NPoS}(x)$ in blue.
+
+![](https://i.imgur.com/Kk1MLJH.png)
 
 
 ### Payment details
@@ -107,7 +105,7 @@ As an example, when $I_0=0.05$, $\chi_{ideal}=0.5$, $i_{ideal}=0.2$ and $d=0.05$
 There are several protocols that honest validators are involved in, and we incentivize their involvement by either rewarding them for successful participation or slashing them in case of lack of participation, whichever is easier to detect. From this point of view, we decide to reward validators (and their nominators) only for *validity checking* and for *block production*, because they are easy to detect. 
 
 In the branch of validity checking, we reward:
-* each parachain validator for issuing a validity statement of the parachain block.
+* a parachain validator for each validity statement of the parachain block that it issues.
 
 In the branch of block production, we reward: 
 * the block producer for producing a (non-uncle) block in the relay chain,
@@ -120,11 +118,18 @@ The ratio between the rewards for each of these actions are parameters to be dec
 Let $P_{NPoS}$ be our target total payout to all validators (and their nominators) per epoch. The value of $P_{NPoS}$ is decided by governance depending on the desired interest rate and inflation rate (see section on inflation model). In order to decide the correct value of constant $C$ that ensures that the total payout is close to target $P_{NPoS}$, we need a mechanism to keep track of the average number of payable actions taking place in an epoch. We propose two mechanisms for it.
 
 **Keeping counters:** In each epoch, we can keep counters $n_{statements}$, $n_{blocks}$ and $n_{uncles}$ respectively on the number of issued validity statements, the number of (non-uncle) blocks produced, and the number of referenced uncles. At the end of the epoch, assuming the $20:20:2:1$ rule, we have the formula
+
 $$P_{NPoS}=20C\cdot n_{statements}+
 20C\cdot n_{blocks}+3C\cdot n_{uncles},$$
+
 from which $C$ can be obtained and all the payouts can be computed. That is, assuming we only pay validators at the end of each epoch.
 
+To compute the payouts, we keep counters of all the payable actions that *each* relay chain validator performed in the epoch; the above-mentioned counters are simply the aggregates of all the validators' counters. We also use these counters to combat unresponsiveness: If there is a relay chain validator $v$ that has zero payable actions throughout an entire epoch or couple of epochs, we kick $v$ out.
+
+(The method above is the one we suggest. The next method is given just for informational purposes.)
+
 **Keeping estimates:** Another option is to keep estimates $e_{statements}$, $e_{blocks}$ and $e_{uncles}$ respectively on the number of issued validity statements, the number of (non-uncle) blocks produced, and the number of referenced uncles *per time slot* (NOT per epoch). The advantage of this mechanism is that it allows us to pay validators in each block, using the formula
+
 $$\frac{P_{NPoS}}{\text{# time slots per epoch}}=20C\cdot e_{statements}+
 20C\cdot e_{blocks}+3C\cdot e_{uncles},$$
 
