@@ -57,7 +57,7 @@ __Parameter:__ Let \(i_{ideal}:=i(\chi_{ideal})\) be the interest rate we pay in
 
 Let \(I\) be the yearly *inflation rate*; i.e.
 
-\((I=\frac{\text{token supply at end of year} - \text{token supply at begining of year}}{\text{token supply at begining of year}}.\))
+$$I=\frac{\text{token supply at end of year} - \text{token supply at begining of year}}{\text{token supply at begining of year}}.$$
 
 The inflation rate is given by
 
@@ -95,6 +95,7 @@ i(x)&= I(x)/x.
 It can be checked that $I_{NPoS}\geq I_0$ for all $0\leq x \leq 1$ with equality for $x=0$, $i(\chi_{ideal})=i_{ideal}$, $I_{NPoS}(x)$ is maximal at $x=\chi_{ideal}$ where it achieves a value of $\chi_{ideal}\cdot i_{ideal}$, and $i(x)$ is monotone decreasing. 
 
 These functions can be plotted following this link: https://www.desmos.com/calculator/2om7wkewhr
+
 As an example, when $I_0=0.025$, $\chi_{ideal}=0.5$, $i_{ideal}=0.2$ and $d=0.05$, we obtain the following plots, with $i(x)$ in red and $I_{NPoS}(x)$ in blue.
 
 ![](https://i.imgur.com/Kk1MLJH.png)
@@ -124,7 +125,7 @@ $$P_{NPoS}=20C\cdot n_{statements}+
 
 from which $C$ can be obtained and all the payouts can be computed. That is, assuming we only pay validators at the end of each epoch.
 
-To compute the payouts, we keep counters of all the payable actions that *each* relay chain validator performed in the epoch; the above-mentioned counters are simply the aggregates of all the validators' counters. We also use these counters to combat unresponsiveness: If there is a relay chain validator $v$ that has zero payable actions throughout an entire epoch or couple of epochs, we kick $v$ out.
+To compute the payouts, we keep counters of all the payable actions that *each* relay chain validator performed in the epoch; the above-mentioned counters are simply the aggregates of all the validators' counters. We also **use these counters to combat unresponsiveness:** If there is a relay chain validator $v$ that has zero payable actions throughout an entire epoch or a certain number of epochs, we kick $v$ out.
 
 (The method above is the one we suggest. The next method is given just for informational purposes.)
 
@@ -133,7 +134,7 @@ To compute the payouts, we keep counters of all the payable actions that *each* 
 $$\frac{P_{NPoS}}{\text{# time slots per epoch}}=20C\cdot e_{statements}+
 20C\cdot e_{blocks}+3C\cdot e_{uncles},$$
 
-and from which $C$ and the payouts can be computed in each block. The estimates can be continuously updated, from one block to the next, using an exponential moving average as follows. Suppose we are producing a block $B$ with slot number $t$, having as parent a block $B'$ with slot number $t'$ ($t'<t$). Suppose moreover that $B'$ has estimates $e'_{statements}$, $e'_{blocks}$ and $e'_{uncles}$, and that in block $B$ we identify $u$ uncle references and $s$ validity statements. We then update the estimates for block $B$ as 
+and from which $C$ and the payouts can be computed in each block. The estimates can be continuously updated, from one block to the next, using an exponential moving average as follows. Suppose we are producing a block $B$ with slot number $t$, having as parent a block $B'$ with slot number $t'$ ($t'<t$). Suppose moreover that $B'$ has estimates \(e'_{statements}\), \(e'_{blocks}\) and \(e'_{uncles}\), and that in block $B$ we identify $u$ uncle references and $s$ validity statements. We then update the estimates for block $B$ as 
 
 \begin{align}
 e_{statements}&=p\cdot s + (1-p)^{t-t'}\cdot e'_{statements}, \\
@@ -173,11 +174,11 @@ We make transaction fees a global parameter to simplify transaction handling log
 
 ### How a transaction fee is constituted and split
 
-There will be several types of transactions, with different fee levels. This fee differentiation is used to reflect the different computational costs incurred by transactions, and to encourage/discourage certain types of transactions. Thus, goverance will have to keep statistics on the types of transactions observed and their resource usage, to adjust the fees.
+There will be several types of transactions, with different fee levels. This fee differentiation is used to reflect the different costs in resources incurred by transactions, and to encourage/discourage certain types of transactions. Thus, we need to analyze the resource usage of each type of transaction, to adjust the fees (to be done).
 
-Part of the transaction fee needs to go as a reward to the block producer for transaction inclusion, as otherwise they would have an incentive not to include transactions since smaller blocks are faster to produce, distribute and incorporate in chain. However, the block producer should not be rewarded the full amount of the fee, so they are discouraged from stuffing blocks. How much of the tx fee goes to the block producer is an adjustable parameter via governance; we originally suggest 50%. This percentage might depend on the transaction type, to encourage the block producer to include some txs over others. We suggest that the rest of the tx fees goes to treasury (instead of burning) to keep better control of inflation/deflation. 
+Part of the transaction fee needs to go as a reward to the block producer for transaction inclusion, as otherwise they would have an incentive not to include transactions since smaller blocks are faster to produce, distribute and incorporate in chain. However, the block producer should not be rewarded the full amount of the fee, so they are discouraged from stuffing blocks. How much of the tx fee goes to the block producer is an adjustable parameter via governance; we originally suggest 20%, and suggest that the other 80% go to treasury (instead of burning) to keep better control of inflation/deflation). This percentage might depend on the transaction type, to encourage the block producer to include certain tx types without necessarily increasing the fee. 
 
-There can be an additional space in each block that is reserved for crucial or urgent transactions, so that they can be included even if the block is full. Fishermen txs that report misbehaviours would be an example of crucial transaction.
+There will be an additional space in each block that is reserved only for crucial or urgent transactions, so that they can be included even if the block is full. Fishermen txs that report misbehaviours would be an example of crucial transaction.
 
 A transaction fee includes a base fee and a variable fee that is proportional to the number of bytes to be put on chain. That is,
 
@@ -187,9 +188,9 @@ for some parameters $f_{base}$ and $f_{byte}$ and where $size(tx)$ is the number
 
 ### Adjustment of fees over time
 
-The demand for transactions is  typically quite irregular on blockchains. On one hand, there are peaks of activity at the scale of hours within a day or days within a month. On the other hand, there are long term tendencies. We need a mechanism that automatically updates the transaction fees over time taking these factors into consideration. By the law of supply and demand, raising the fee should decrease the demand, and vice-versa.
+The demand for transactions is typically quite irregular on blockchains. On one hand, there are peaks of activity at the scale of hours within a day or days within a month. On the other hand, there are long term tendencies. We need a mechanism that automatically updates the transaction fees over time taking these factors into consideration. By the law of supply and demand, raising the fee should decrease the demand, and vice-versa.
 
-To deal with peaks of activity, we face the dilemma of hiking up transaction fees rapidly or having long transaction inclusion times - both undesirable effects. We propose two mechanisms. The first one adjusts the price very quickly, at the same pace as the peaks and valleys of activity. The second one adjusts slowly, at the pace of long term tendencies, and uses tipping to deal with long queues at peak hours.
+To deal with peaks of activity, we face the dilemma of hiking up transaction fees rapidly or having long transaction inclusion times - both undesirable effects. We propose two mechanisms. The first one adjusts the price very quickly, at the same pace as the peaks and valleys of activity. The second one adjusts slowly, at the pace of long term tendencies, and uses tipping to deal with long queues at peak hours. We propose to use the slow adjusting mechanism with tips, but provide details of both mechanisms for completeness.
 
 #### 1. Fast adjusting mechanism
 
@@ -197,28 +198,37 @@ In this mechanism the transaction fees vary greatly through time, but are fixed 
 
 Recall that a transaction fee is computed as $f(tx)=f_{base}+size(tx)\cdot f_{byte}$, for some parameters $f_{base}$ and $f_{byte}$, and where $size(tx)$ is the number of bytes in transaction. For simplicity, we fix the ratio between $f_{base}$ and $f_{byte}$ and scale both parameters by the same factor when adjusting over time. So it is enough to describe how we adjust $f_{byte}$.
 
-__Parameter:__ Let $s^*$ be our target block saturation level. This is a value between 0 and 1 that we select to be the desired long-term average of the saturation level of blocks. We originally suggest $s^*=0.25$, so that blocks are 25% full on average and the system can handle sudden spikes of up to 4x the average volume of transactions. This parameter can be adjusted depending on the observed volumes during spikes compared to average volumes, and in general it provides a trade-off between large average fees and long transaction inclusion times during spikes.
+__Parameter:__ Let \(s^*\) be our target block saturation level. This is a value between 0 and 1 that we select to be the desired long-term average of the saturation level of blocks. We originally suggest \(s^*=0.25\), so that blocks are 25% full on average and the system can handle sudden spikes of up to 4x the average volume of transactions. This parameter can be adjusted depending on the observed volumes during spikes compared to average volumes, and in general it provides a trade-off between higher average fees and longer transaction inclusion times during spikes.
 
-Let $s$ be the saturation level of the current block. If $s>s^*$ we slightly increase the transaction fees, and if $s<s^*$ we slightly decrease them. 
+Let \(s\) be the saturation level of the current block. If \(s>s^*\) we slightly increase the transaction fees, and if \(s<s^*\) we slightly decrease them. 
 
 **Parameter:** Let $v$ be a fee variability factor, which controls how quickly the transaction fees adjust. We update the per-byte transaction fee $f_{byte}$ from one block to the next as follows:
-$$f_{byte}^{new}= f_{byte}^{old}\cdot e^{v(s-s^*)}$$
-This is thus a feedback loop with multiplicative weight updates. It has the following desirable properties.
+
+$$f_{byte} \leftarrow f_{byte}\cdot (1+ v(s-s^*) + v^2(s-s^*)^2/2).$$
+
+This is thus a feedback loop with multiplicative weight updates. It is a very good approximation to using the more involved update \(f_{byte} \leftarrow f_{byte}\cdot e^{v(s-s^*)}\), which in turn has the following properties:
+
 * Assuming that $v$ is small, the relative change in fees is approximately proportional to the difference $(s-s^*)$, i.e.
-$$\frac{f_{byte}^{new} - f_{byte}^{old}}{f_{byte}^{old}}=e^{v(s-s^*)}-1\approx v(s-s^*).$$ 
-* If there is a period of time during which the blocks produced have an average saturation level of exactly $s^*$, the per-byte transaction fee will be exactly the same at the beginning and at the end of that period.
+
+$$\frac{f_{byte}^{new} - f_{byte}^{old}}{f_{byte}^{old}}\approx v(s-s^*).$$ 
+
+* If there is a period of time during which \(k\) blocks are produced and the average saturation level is \(s_{average}\), the relative change in fees during this period is approximately proportional to $k$ times the difference $(s_{average} - s^*)$, i.e.
+
+$$\frac{f_{byte}^{final} - f_{byte}^{initial}}{f_{byte}^{initial}}\approx vk(s_{average}-s^*).$$
 
 How to choose the variability factor $v$? Suppose that we decide that the fees should not change by more than a fraction $p$ during a period of $k$ blocks, even if there is 100% saturation in that period. We obtain the formula
-$$\frac{f_{byte}^{final} - f_{byte}^{initial}}{f_{byte}^{initial}}=e^{vk(s_{average}-s^*)}-1\leq e^{vk(1-s^*)} -1 \leq p,$$
-which gives us the bound $v\leq \frac{\ln(1+p)}{k(1-s^*)}$.
 
-For instance, suppose that we detect that during peak times some transactions have to wait for up to $k=20$ blocks to be included, and we consider it unfair for the user if the fees increase by more than 5% $(p=0.05)$ during that period. If $s^*=0.25$ then the formula above gives $v\leq \ln(1.05)/[20(1-0.25)]=0.00325$.
+$$\frac{f_{byte}^{final} - f_{byte}^{initial}}{f_{byte}^{initial}}\approx vk(s_{average}-s^*) \leq vk(1-s^*)\leq p,$$
+
+which gives us the bound $v\leq \frac{p}{k(1-s^*)}$.
+
+For instance, suppose that we detect that during peak times some transactions have to wait for up to $k=20$ blocks to be included, and we consider it unfair for the user if the fees increase by more than 5% $(p=0.05)$ during that period. If \(s^*=0.25\) then the formula above gives $v\leq 0.05/[20(1-0.25)]\approx 0.0033$.
 
 #### 2. Slow adjusting mechanism
 
 In this mechanism, fees stay almost constant during short periods, adjusting only to long-term tendencies. We accept the fact that during spikes there will be long inclusion times, and allow the transactions to include tips to create a market for preferential inclusion.
 
-We use the same parameters and the same formula as above to update the transaction fees in each block, i.e. $f_{byte}^{new}= f_{byte}^{old}\cdot e^{v(s-s^*)}$, except that we select a much smaller variability factor $v$, so that fees change by, say, at most 10% daily.
+We use the same formula as above to update the transaction fees in each block, i.e. \(f_{byte} \leftarrow f_{byte}\cdot (1 + v(s-s^*) + v^2(s-s^*)^2/2\)$, except that we select a much smaller variability factor $v$. For instance, suppose that we want the fees to change by at most 30% during a day, and there are around \(k=10000\) blocks produced in a day. If \(s^*=0.25\) then we obtain \(v\leq 0.3/[10000(1-0.25)] = 0.00004\).
 
 The transaction fee is considered a base price. There will be a different field in the transaction called tip, and a user is free to put any amount of tokens in it or leave it at zero. Block producers can charge both the fee and tip, so they have an incentive to include transactions with large tips. There should be a piece of software that gives live suggestions to users for tips values, that depend on the market conditions and the size of the transaction; it should suggest no tip most of the time.
 
@@ -233,8 +243,8 @@ The system needs to continually raise funds, which we call the treasury. These f
 
 Funds for treasury are raised in two ways:
 
-1.    by minting new tokens, leading to inflation, and
-2.   by channelling some of the tokens set for burning from transaction fees and slashing.
+1.   by minting new tokens, leading to inflation, and
+2.   by channelling the tokens set for burning from transaction fees and slashing.
 
 Notice that these methods to raise funds mimic the traditional ways that governements raise funds: by minting coins which leads to controlled inflation, and by collecting taxes and fines.
 
