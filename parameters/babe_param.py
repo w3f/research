@@ -16,7 +16,7 @@ Lsec = 31536000/2 #Life time of BABE in seconds
 r = pow(2,20)
 
 #precomputed c values for each maximum delay D (in terms of slot) value 
-cval = [0.2789, 0.2789, 0.0346, 0.0184, 0.0125, 0.0094, 0.0076, 0.0063, 0.0055, 0.0048, 0.0042, 0.0038, 0.0035, 0.0032, 0.0029, 0.0027, 0.0025, 0.0024, 0.0022, 0.0021, 0.002, 0.0019, 0.0018, 0.0017, 0.0016, 0.0016, 0.0015, 0.0015, 0.0014, 0.0013, 0.0013, 0.0013, 0.0012, 0.0012, 0.0011, 0.0011, 0.0011, 0.001, 0.001, 0.001, 0.2789, 0.2789, 0.0346, 0.0184, 0.0125, 0.0094, 0.0076, 0.0063, 0.0055, 0.0048, 0.0042, 0.0038, 0.0035, 0.0032, 0.0029, 0.0027, 0.0025, 0.0024, 0.0022, 0.0021, 0.002, 0.0019, 0.0018, 0.0017, 0.0016, 0.0016, 0.0015, 0.0015, 0.0014, 0.0013, 0.0013, 0.0013, 0.0012, 0.0012, 0.0011, 0.0011, 0.0011, 0.001, 0.001, 0.001, 0.001, 0.0009, 0.0009, 0.0009, 0.0009, 0.0008, 0.0008, 0.0008, 0.0008, 0.0008, 0.0007, 0.0007, 0.0007, 0.0007, 0.0007, 0.0007, 0.0007, 0.0006, 0.0006, 0.0006]
+cval = [0.2789, 0.2789, 0.0346, 0.0184, 0.0125, 0.0094, 0.0076, 0.0063, 0.0055, 0.0048, 0.0042, 0.0038, 0.0035, 0.0032, 0.0029, 0.0027, 0.0025, 0.0024, 0.0022, 0.0021, 0.002, 0.0019, 0.0018, 0.0017, 0.0016, 0.0016, 0.0015, 0.0015, 0.0014, 0.0013, 0.0013, 0.0013, 0.0012, 0.0012, 0.0011, 0.0011, 0.0011, 0.001, 0.001, 0.001, 0.001, 0.0009, 0.0009, 0.0009, 0.0009, 0.0008, 0.0008, 0.0008, 0.0008, 0.0008]
 
 #It finds the probability of breaking BABE in 2.5 years.
 #The computation is from Theorem 4
@@ -35,7 +35,7 @@ def pbabe(T, c, k, gamma, alpha,Dmax):
 
 #It finds the minimum k value which makes BABE secure
 def mink(T, c, gamma, alpha,D):
-    for k in range(10000):
+    for k in range(100000):
         if pbabe(T, c, k, gamma, alpha,D) <0.01:
             return k
 
@@ -44,6 +44,7 @@ def epochlen(T, gamma, alpha,Dmax):
     D = delta(Dmax,T)
     c = maxC(T,Dmax,alpha,gamma)
     k = mink(T, c, gamma, alpha,D)
+    print D,k,c
     s = (12 * k) / c
     return hour(2*s,T)
     
@@ -88,23 +89,27 @@ def maxC(T,Dmax,alpha,gamma):
     D = delta(Dmax,T)
     for i in range(10000,1,-1):
         c = i * 0.0001
-        g = minG(c,D,alpha)
-        if g <= gamma:
-                return c
+        stakeh = 0
+        if D == 0:
+            stakeh =  phi(c,alpha*gamma) * pow(1-c,1-alpha) / c
+        else:
+            stakeh = phi(c,alpha*gamma) * pow(1-c,1-alpha) / c * pow(1-c,D-1)
+        if stakeh > 0.5:
+            return float("{:.5f}".format(c))
     return 0
 
 #Finds the maximum c value to be resistant to maximum delay D in terms of slot
 def maxCwithD(D,alpha,gamma):
     for i in range(10000,1,-1):
         c = i * 0.0001
-        g = minG(c,D,alpha)
-        if g <= gamma:
-            a = minA(c,D,gamma)
-            if a < alpha:
-                return c
-
+        stakeh = 0
+        if D == 0:
+            stakeh =  phi(c,alpha*gamma) * pow(1-c,1-alpha) / c
+        else:
+            stakeh = phi(c,alpha*gamma) * pow(1-c,1-alpha) / c * pow(1-c,D-1)
+        if stakeh > 0.5:
+            return float("{:.5f}".format(c))
     return 0
-
 
 #Converts delay (Dmax) in seconds to delay in terms of slot given slot time T
 def delta(Dmax,T):
@@ -175,32 +180,54 @@ def minT(Dmax):
     return time
 
 
-#Finds the best slot time for a spesific block time (btime)
+#Finds the best slot time for a given block time (btime)
 def findT(alpha,gamma,btime,Dmax,Davg):
     diff = []
     tval = np.arange(0.05,5,0.001)
     bfun = np.vectorize(blocktime)
     bval = bfun(gamma,alpha,tval,Dmax,Davg)
+    print bval
+    minDiff = abs(btime-bval[0])
+    minT = tval[0]
     for i in range(len(bval)):
-        diff.append(float("{:.3f}".format(abs(bval[i]-btime))))
+        diff = float("{:.3f}".format(abs(btime-bval[i])))
+        if diff == 0:
+            return float("{:.3f}".format(tval[i]))
+        elif diff < minDiff:
+            minDiff = diff
+            minT = tval[i]
 
-    idx = diff.index(min(diff))    
-
-    return tval[idx], diff[idx]
+    if minDiff > 1:
+        return 0
+            
+    return float("{:.3f}".format(minT))
 
 
 ##### Related to Plotting #####
 
+def tval(alpha,gamma,Davg):
+    bval = np.arange(4,22,2)
+    tfun = np.vectorize(findT)
+    tval1 = tfun(alpha,gamma,bval,1,Davg)
+    tval2 = tfun(alpha,gamma,bval,2,Davg)
+    tval3 = tfun(alpha,gamma,bval,3,Davg)
+    tval4 = tfun(alpha,gamma,bval,4,Davg)
+    tval5 = tfun(alpha,gamma,bval,5,Davg)
+    tval6 = tfun(alpha,gamma,bval,6,Davg)
+    tval = [tval1,tval2,tval3,tval4,tval5,tval6]
+    return tval, bval
+
 #It plots six graphs where each corresponds a different maximum delay resistance in terms of seconds
 def plotBtime(tval,bval):
+    
     fig = plt.figure()
     
-    ax1 = fig.add_subplot(231)
-    ax2 = fig.add_subplot(232)
-    ax3 = fig.add_subplot(233)
-    ax4 = fig.add_subplot(234)
-    ax5 = fig.add_subplot(235)
-    ax6 = fig.add_subplot(236)
+    ax1 = fig.add_subplot(321)
+    ax2 = fig.add_subplot(322)
+    ax3 = fig.add_subplot(323)
+    ax4 = fig.add_subplot(324)
+    ax5 = fig.add_subplot(325)
+    ax6 = fig.add_subplot(326)
     
     ax1.set_xticks(bval)
     ax2.set_xticks(bval)
@@ -225,13 +252,6 @@ def plotBtime(tval,bval):
     ax4.set_ylabel('T')
     ax5.set_ylabel('T')
     ax6.set_ylabel('T')
-    
-    ax1.set_xlabel('Block time in seconds')
-    ax2.set_xlabel('Block time in seconds')
-    ax3.set_xlabel('Block time in seconds')
-    ax4.set_xlabel('Block time in seconds')
-    ax5.set_xlabel('Block time in seconds')
-    ax6.set_xlabel('Block time in seconds')
     
     ax1.plot(bval,tval[0],'ro', markersize=4)
     ax2.plot(bval,tval[1],'go', markersize=4)
