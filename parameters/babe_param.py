@@ -117,7 +117,7 @@ def delta(Dmax,T):
         
 
 #Finds the average block time when alpha of the validators are honestly behave
-#alpha and gamma needs to be chosen according normal process of BABE (e.g. alpha, gamma = 0.8)
+#alpha and gamma needs to be chosen according normal process of BABE (e.g. alpha = 1, gamma = 0.8)
 #because we want to find the average blocktime not block time when there is an attack
 
 def blocktime(gamma,alpha,T,Dmax, Davg):
@@ -134,7 +134,7 @@ def blocktime(gamma,alpha,T,Dmax, Davg):
     D = delta(Davg,T) #average network delay 
     L = Lsec/T
     p = condition(c,alpha, gamma,D) # probability of an honest block is added
-    return float("{:.3f}".format(L*T /(p * L * c)))
+    return float("{:.3f}".format(L*T /(p*L * c)))
 
 
 
@@ -185,8 +185,8 @@ def findT(alpha,gamma,btime,Dmax,Davg):
     diff = []
     tval = np.arange(0.05,5,0.001)
     bfun = np.vectorize(blocktime)
-    bval = bfun(gamma,alpha,tval,Dmax,Davg)
-    print bval
+    bval = bfun(gamma,1,tval,Dmax,Davg)
+    #print bval
     minDiff = abs(btime-bval[0])
     minT = tval[0]
     for i in range(len(bval)):
@@ -252,13 +252,16 @@ def plotBtime(tval,bval):
     ax4.set_ylabel('T')
     ax5.set_ylabel('T')
     ax6.set_ylabel('T')
+
+    ax5.set_xlabel('block time')
+    ax6.set_xlabel('block time')
     
-    ax1.plot(bval,tval[0],'ro', markersize=4)
-    ax2.plot(bval,tval[1],'go', markersize=4)
-    ax3.plot(bval,tval[2],'bo', markersize=4)
-    ax4.plot(bval,tval[3],'yo', markersize=4)
-    ax5.plot(bval,tval[4],'bd', markersize=4)
-    ax6.plot(bval,tval[5],'rd', markersize=4)
+    ax1.plot(bval,tval[0],'ro', markersize=8)
+    ax2.plot(bval,tval[1],'go', markersize=8)
+    ax3.plot(bval,tval[2],'bo', markersize=8)
+    ax4.plot(bval,tval[3],'yo', markersize=8)
+    ax5.plot(bval,tval[4],'bd', markersize=8)
+    ax6.plot(bval,tval[5],'rd', markersize=8)
 
     
     ax1.grid()
@@ -287,3 +290,11 @@ def divAxis(lst, distance):
             newlst.append(float("{:.3f}".format(last)))
         i = i + 1
     return newlst
+
+
+ 
+    
+    
+
+                
+
