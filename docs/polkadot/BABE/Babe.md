@@ -335,21 +335,18 @@ We need to satisfy two conditions $$\frac{1}{c}(\phi(\alpha\gamma)(1-c)^{\D-\alp
 *  c =  0.0094 if $\D = \lfloor \frac{D}{T}\rfloor = 5$
 *  c =  0.0076 if $\D = \lfloor \frac{D}{T}\rfloor = 6$
 
-In order to find the average block time (i.e., the required time to add one block to the best chain), we need the expected number of $\D$ and $2\D$-right isolated slots in $L$ slots. However, we use a different definition of $\D$ and $2\D$-right isolated slots in this analysis.  A slot is $\D$ (resp. $2\D$-right ) isolated slot if the slot leaders are all honest and at least one synchronized (resp. all honest and late) and the next $\D-1$ (resp. $2\D-1$) slots are empty.  Remark that the definitions of $\D$ and $2\D$ right isolated slots are more relaxed than the definitions in the proof of Theorem 1 because we do not care the growth of other chains as we care in the security analysis. We assume that the average network delay is 1 second. We compute the expected number of $\D$ and $2\D$-isolated slots according to average delay even though we use the secure $c$ value to have maximum network resistance. So, $\D = $\lfloor\frac{1}{T}\rfloor$ in the below computations.
 
-
-
+We compute the average block time in the case that the network delay is in average 1 second and all validators behave honestly, $gamma = 0.8$. In order to find, the probability of an unsychronized party's block added to the best chain, we find the probability of having $2\D$-right isolated slot meaning that the leaders are all honest and late and the next $2\D-1$ slots are empty. Remark that the definitions of $2\D$ right isolated slot is more relaxed than the definition in the proof of Theorem 1 because we do not care the growth of other chains as we care in the security analysis. We compute the expected number of  $2\D$-isolated slot according to average delay (1 sec) even though we use the secure $c$ value to have maximum network resistance. So, $\D = $\lfloor\frac{1}{T}\rfloor$ in the below computations.
 
 Given a non-empty slot, the probability that this slot is $2\D$-right isolated slot is  
 $$p_{H_L} \geq \frac{\phi(\alpha\beta)(1-c)^{1-\alpha\beta}}{c}(1-c)^{2\D-1}.$$ 
-Given a non-empty slot, the probability that this slot is $\D$-right isolated slot is
-$$p_{H_S}\geq \frac{\phi(\alpha\gamma)(1-c)^{1-\alpha}}{c}(1-c)^{\D-1}.$$
-The expected number of non-empty slot in $L$ is $Lc$. So, the expected number of $\D$ and $2\D$-right isolated slot in $Lc$ slot is  
-$$\mathbb{E} = Lc(p_{H_L}+p_{H_S}).$$ Then, the block time $T_{block} \leq \frac{LT}{\mathbb{E}} = \frac{T}{c(p_{H_L}+p_{H_S}}$. Remark that we have already had the condition that $p_{H_L} + p{H_S} \geq (1+ \epsilon)/2$ from the security even if we have maximumum network delay. 
 
-We give graphs for required slot time of a given block time below with different maximum network delay ($D = 1,2,3,4,5,6$ seconds) resistance. Slot time being 0 in the graphs means is that it is not possible to have the corresponding slot time.
+The expected number of non-empty slot in $L$ is $Lc$. So, the expected number of  $2\D$-right isolated slot in $Lc$ slot is  
+$\mathbb{E} = Lcp_{H_S}.$ Then, the block time $T_{block} \leq \frac{LT}{\mathbb{E}} = \frac{T}{c p_{H_S}}$. 
 
-![](https://i.imgur.com/VtZaOMG.png)
+We give graphs for required slot time to have the block time in $(-1,+1)$-neighborhood of the time in the x-axis with different maximum network delay ($D = 1,2,3,4,5,6$ seconds) resistance. Slot time being 0 in the graphs means is that it is not possible to have the corresponding block time.
+
+![](https://i.imgur.com/2jVymUX.png)
 
 If we decide to be resistant 6 seconds delay, we can choose $T = 3$ and have around 14 seconds block time if the average network delay is 1 second. In this case, the epoch length has to be around 27 hours to make sure that we have a good randomness and $k = 54$. If GRANDPA works well the epoch length can be around half of 27 hours.
 
