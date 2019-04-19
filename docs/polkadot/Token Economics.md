@@ -257,12 +257,12 @@ We could raise funds solely from minting new tokens, but we argue that it makes 
 --
 Additional notes
 
-[GRANDPA](https://github.com/w3f/consensus/blob/master/pdf/grandpa.pdf)
+Finality gadget [GRANDPA](https://github.com/w3f/consensus/blob/master/pdf/grandpa.pdf)
 
-[Availability Scheme](availability.md)
+The [availability scheme](availability.md)
 
-[BABE](BABE.md)
+Block production protocol [BABE](BABE.md)
 
-[Parachain Validity](validity.md)
+[Parachain Validity](validity.md) scheme
 
-[NPoS](NPoS.md)
+The [NPoS scheme](NPoS.md) fpr selecting validators
