@@ -234,7 +234,7 @@ The transaction fee is considered a base price. There will be a different field 
 
 ## Adding and removing parachains
 
-The tentative plan for parachain allocation is described [here](https://github.com/w3f/research/blob/master/docs/polkadot/Parachain%20Allocation.md)
+The tentative plan for parachain allocation is described [here](allocation.md)
 
 ## Treasury
 
