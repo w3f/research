@@ -259,8 +259,7 @@ Additional notes
 
 [GRANDPA](https://github.com/w3f/consensus/blob/master/pdf/grandpa.pdf)
 
-Availability Scheme:
-https://github.com/w3f/research/blob/master/docs/polkadot/availability.md
+[Availability Scheme](availability.md)
 
 BABE:
 https://github.com/w3f/research/tree/master/docs/polkadot/BABE
