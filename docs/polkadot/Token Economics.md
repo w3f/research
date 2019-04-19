@@ -262,8 +262,8 @@ Finality gadget [GRANDPA](https://github.com/w3f/consensus/blob/master/pdf/grand
 
 The [availability scheme](availability.md)
 
-Block production protocol [BABE](BABE.md)
+Block production protocol [BABE](BABE/BABE.md)
 
 [Parachain Validity](validity.md) scheme
 
-The [NPoS scheme](NPoS.md) fpr selecting validators
+The [NPoS scheme](NPoS/NPoS.md) fpr selecting validators
