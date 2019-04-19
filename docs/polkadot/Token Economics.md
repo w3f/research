@@ -234,7 +234,7 @@ The transaction fee is considered a base price. There will be a different field 
 
 ## Adding and removing parachains
 
-The tentative plan for parachain allocation is described [here](ParachainAllocation.md)
+The tentative plan for parachain allocation is described [here](Parachain-Allocation.md)
 
 ## Treasury
 
