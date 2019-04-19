@@ -266,4 +266,6 @@ Block production protocol [BABE](BABE/Babe.md)
 
 [Parachain Validity](validity.md) scheme
 
-The [NPoS scheme](1.%20An%20introduction%20to%20the%20validator%20election%20problem.md) for selecting validators
+The [NPoS scheme](intro.md) for selecting validators
+
+
