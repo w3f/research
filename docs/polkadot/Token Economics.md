@@ -261,11 +261,8 @@ Additional notes
 
 [Availability Scheme](availability.md)
 
-BABE:
-https://github.com/w3f/research/tree/master/docs/polkadot/BABE
+[BABE](BABE.md)
 
-Parachain Validity:
-https://github.com/w3f/research/blob/master/docs/polkadot/validity.md
+[Parachain Validity](validity.md)
 
-NPoS:
-http://research.web3.foundation/en/latest/polkadot/NPoS/1.%20An%20introduction%20to%20the%20validator%20election%20problem./
+[NPoS](NPoS.md)
