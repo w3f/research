@@ -234,9 +234,7 @@ The transaction fee is considered a base price. There will be a different field 
 
 ## Adding and removing parachains
 
-The tentative plan for parachain allocation is described in:
-https://github.com/w3f/research/blob/master/docs/polkadot/ParachainAllocation.md
-
+The tentative plan for parachain allocation is described [here](/Parachain Allocation.md)
 ## Treasury
 
 The system needs to continually raise funds, which we call the treasury. These funds are used to pay for developers that provide software updates, apply any changes decided by referenda, adjust parameters, and generally keep the system running smoothly.
@@ -259,8 +257,7 @@ We could raise funds solely from minting new tokens, but we argue that it makes 
 --
 Additional notes
 
-GRANDPA:
-https://github.com/w3f/consensus/blob/master/pdf/grandpa.pdf
+[GRANDPA](https://github.com/w3f/consensus/blob/master/pdf/grandpa.pdf)
 
 Availability Scheme:
 https://github.com/w3f/research/blob/master/docs/polkadot/availability.md
