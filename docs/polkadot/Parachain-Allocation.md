@@ -39,8 +39,6 @@ Advantages:
 - we prevent overbidding and snipping (this can harm total revenue for the seller, but this is not an objective for us)
 - weaker bidders have a chance to win in the auction, which encourages participation. However, note that we do not have a completely random close and the bidder still needs to be the best bidder among all bids in an entire given block for the least. For example, if the first block is the closing block, the bidders need to be a winner among the bids in that block. Our scheme is rather a hybrid between a hard close and a random close. 
 
-TODO: does a weakly dominant strategy of English auctions still hold for our extension?
-
 By allowing for an n-sided market to determine the cost of connecting to the system, we ensure a weakly dominant Nash-equilibrium between the actors in question and allow for appropriate valuation of connecting to the system. 
 
 ## Parachain Scaling
