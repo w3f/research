@@ -234,7 +234,7 @@ The transaction fee is considered a base price. There will be a different field 
 
 ## Adding and removing parachains
 
-The tentative plan for parachain allocation is described [here](Parachain Allocation.md)
+The tentative plan for parachain allocation is described [here](https://github.com/w3f/research/blob/master/docs/polkadot/Parachain%20Allocation.md)
 
 ## Treasury
 
@@ -266,4 +266,4 @@ Block production protocol [BABE](BABE/Babe.md)
 
 [Parachain Validity](validity.md) scheme
 
-The [NPoS scheme](../NPoS/) for selecting validators
+The [NPoS scheme](https://github.com/w3f/research/blob/master/docs/polkadot/NPoS/1.%20An%20introduction%20to%20the%20validator%20election%20problem.md) for selecting validators
