@@ -49,5 +49,4 @@ At Polkadot genesis there will be an estimated 5-15 available and the number of 
 We will auction parachains slots off in batches of 4 over the course of the 1st year, with new auctions planned every few weeks. Each batch of 4 will include a 6-month, 12-month, 18-month and 24-month parachain slot for auction. The general idea is that, in perpetuity, there is a constant rolling availability of parachains auctions so that if your project wants to become a “native parachain” in Polkadot there will be sufficient opportunities to claim a parachain slot.
 One of the objectives of our roll-out plan is to maintain demand-supply balance for parachain slots such that there are appropriate economic incentives to be a validator on the network. Moreover, we want to allow for the proliferation of experimentation and novel use-cases as the network scales. 
 
-## References
 
