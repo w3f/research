@@ -31,10 +31,10 @@ We are working on a implementation level specification of the protocol [here](ht
 To identify unique individual participants that will perform duties on the network we use public key cryptography. You can read more about our approach [here](https://github.com/w3f/research/tree/master/polkadot/keys) and see the particular crypto for the first implementation in the [Schnorrkel repo](https://github.com/w3f/schnorrkel).
 
 
-Validator keys indicated by the staking key are:  
- - transport layer: ed25519  
- - GRANDPA and consolidated reporting: BLS  
- - block production (VRF): Ristretto  
+Validator keys indicated by the staking key are:
+ - transport layer: ed25519
+ - GRANDPA and consolidated reporting: BLS
+ - block production (VRF): Ristretto
 
 ### 2.2 Proof-of-Stake
 
@@ -59,10 +59,10 @@ Use the same validator set for BABE as for GRANDPA as to avoid paying more in to
 
 ### 3.1 Utility
 
-Each state transition should bring some utility to the system participants. In order to ensure that this is the case:  
+Each state transition should bring some utility to the system participants. In order to ensure that this is the case:
 
-- state machines should provide some utility to participants  
-- state transitions processed by these state machines reflect well the state transition needs of participants.  
+- state machines should provide some utility to participants
+- state transitions processed by these state machines reflect well the state transition needs of participants.
 
 ![Utility](images/usefulness.png)
 
@@ -82,7 +82,9 @@ The blocks are produced by parachain collators, then they get validated using th
 
 ![Finality](images/canonicality.png)
 
-Finality of the Polkadot network state machines is achieved via a combination of a block production mechanism with eventual probabilistic consistency ([BABE scheme](BABE/Babe.md)) and [GRANDPA finality gadget](https://github.com/w3f/consensus/blob/master/pdf/grandpa.pdf). This approach allows for block production (thus transaction confirmations) to be fast, while allowing for as fast as possible economic finality with compact proofs.
+Finality of the Polkadot network state machines is achieved via a combination of a block production mechanism with eventual probabilistic consistency ([BABE scheme](BABE/Babe.md)) and [GRANDPA finality gadget](GRANDPA.md).
+
+This approach allows for block production (thus transaction confirmations) to be fast, while allowing for as fast as possible economic finality with compact proofs.
 
 ### 3.4 Availability
 
@@ -112,7 +114,7 @@ To ensure usability in realistic network conditions a reasonable bandwidth requi
 
 ## 4. Desired architectural qualities
 
-* Minimal: Polkadot should have as little functionality as possible.  
-* Simple: No additional complexity should be present in the base protocol.  
-* General: Polkadot can be optimized through making the model into which extensions fit as abstract as possible.  
-* Robust: Polkadot should provide a fundamentally stable base-layer.  
+* Minimal: Polkadot should have as little functionality as possible.
+* Simple: No additional complexity should be present in the base protocol.
+* General: Polkadot can be optimized through making the model into which extensions fit as abstract as possible.
+* Robust: Polkadot should provide a fundamentally stable base-layer.
