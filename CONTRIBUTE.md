@@ -9,5 +9,16 @@ a PDF viewer in the generated HTML pages. You need to:
 show up:
 
 ```html
-<iframe src="/web/viewer.html?file=/pdf/<name_of_your_pdf_file>" width="100%" height="550em"></iframe>
+<style>
+.md-grid {
+    max-width: inherit;
+}
+.md-sidebar--secondary {
+    display: none;
+}
+.md-content {
+    margin-right: 0em;
+}
+</style>
+<iframe src="/web/viewer.html?file=/pdf/<name_of_your_pdf_file>" width="100%" height="650em"></iframe>
 ```
