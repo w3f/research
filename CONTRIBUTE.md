@@ -5,7 +5,7 @@ a PDF viewer in the generated HTML pages. You need to:
 
 * Add the PDF file to `docs/pdf`.
 
-* Include this tag in the markdown page where you want the embedded viewer to
+* Include this code in the markdown page where you want the embedded viewer to
 show up:
 
 ```html
@@ -20,5 +20,5 @@ show up:
     margin-right: 0em;
 }
 </style>
-<iframe src="/web/viewer.html?file=/pdf/<name_of_your_pdf_file>" width="100%" height="650em"></iframe>
+<iframe src="/en/latest/web/viewer.html?file=/en/latest/pdf/<name_of_your_pdf_file>" width="100%" height="650em"></iframe>
 ```
