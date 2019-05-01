@@ -47,7 +47,8 @@ Bidders can bid on any consecutive range of units. However, everyone will add bi
 - Prevention of overbidding and bid sniping: Bid sniping is unfair to other bidders since they will loose the auction not because they had a lower valuation for the item but because they were not given the chance to counterbid. Avoiding overbidding may harm total revenue for the seller, but this is not an objective for us.
 - Weaker bidders have a chance to win: which encourages participation. However, note that we do not have a completely random auction close time and the bidder still needs to be the best bidder among all bids in an entire given block for the least. For example, if the first block is the closing block, the bidders need to be a winner among the bids in that block. Our scheme is rather a hybrid between a hard close and a random close. 
 
-By allowing for an n-sided market to determine the cost of connecting to the system, we ensure a weakly dominant Nash-equilibrium between the actors in question and allow for appropriate valuation of connecting to the system. 
+By allowing for an n-sided market to determine the cost of connecting to the system, we ensure a weakly dominant Nash-equilibrium between the bidders in question and allow for appropriate valuation of connecting to the system. 
+
 
 ## Parachain Scaling
 
@@ -58,6 +59,7 @@ One of the objectives of our roll-out plan is to maintain demand-supply balance 
 ## References
 
 [1] Vickrey, William. "Counterspeculation, Auctions, and Competitive Sealed Tenders". The Journal of Finance, 16 (1): 8–37, 1961.
+
 [2] Preston McAfee and John McMillan. "Auctions and Bidding". Journal of Economic Literature, 699–738, 1987.
 
 
