@@ -6,6 +6,7 @@
 A parachain is a peer-to-peer data structure that connects to the relay chain to become globally-coherent with other parachains connected to the relay chain.
 
 To run a parachain in Polkadot a parachain slot within Polkadot needs to be obtained. Since Polkadot is a resource-constraint system, there are a finite number of slots, which are rolled out gradually. Parachain slots are locked on a deposit basis.
+
 - Cost comes from implied dilution.
 - Should the dilution-fee not be sufficient to support network validation, i.e. because validators rewards become so low, a rental fee could also be introduced by the governance process.
 
@@ -34,7 +35,7 @@ Once the block with the bids is added to the relay chain, everyone computes the 
 
 For example, let us assume we have three bidders that want to submit bids for a parachain slot. Bidder $B_1$ submits the bid (1-4,75 DOT), bidder $B_2$ submits (3-4, 90 DOTs), and bidder $B_3$ submits (1-2, 30). In this example bidder $B_1$ wins because if bidder $B_2$ and bidder $B_3$ win each unit would only be locked for 60 DOTs, while of bidder_1 wins each unit is locked for 75 DOTs. 
 
-For the next block, everyone who has a higher valuation for the parachain slot submits new bids to the next block to outbid winners from the previous blocks. This procedure continues until the end of the epoch. In the next epoch, some randomness obtained from a VRF function (see [BABE](BABE/Babe.md), where the VRF function is also used for more information) is going to determine which block from the previous epoch was the last (closing) block of the auction. Hence, the auction closing time is determined retroactively. 
+For the next block, everyone who has a higher valuation for the parachain slot submits new bids to the next block to outbid winners from the previous blocks. This procedure continues until the end of the epoch. In the next epoch, some randomness obtained from a VRF function (see [BABE](BABE/Babe.md), where the VRF function is also used for more information) is going to determine which block from the previous epoch was the last (closing) block of the auction. Hence, the auction closing time is determined retroactively. However, note that we do not have a completely random auction closing time and the bidder still needs to be the best bidder among all bids in an entire given block for the least. This makes our case different than the traditional random close auctions such as canlde auctions. For example, if the first block is the closing block, the bidders need to be a winner among the bids in that block, while in a random close auction the auction might end after the first bid is submitted. Our scheme is rather a hybrid between an open auction with hard close and an open auction a random close. 
 
 The winner of the auction is determined based all the bids submitted in blocksuntil and including the closing block. The winners pay the value amount of their winning bids. 
 
@@ -45,9 +46,9 @@ Bidders can bid on any consecutive range of units. However, everyone will add bi
 
 - Serious bidding from the start: since the auction might close at the first block, bidders submit serious bids in the first block
 - Prevention of overbidding and bid sniping: Bid sniping is unfair to other bidders since they will loose the auction not because they had a lower valuation for the item but because they were not given the chance to counterbid. Avoiding overbidding may harm total revenue for the seller, but this is not an objective for us.
-- Weaker bidders have a chance to win: which encourages participation. However, note that we do not have a completely random auction close time and the bidder still needs to be the best bidder among all bids in an entire given block for the least. For example, if the first block is the closing block, the bidders need to be a winner among the bids in that block. Our scheme is rather a hybrid between a hard close and a random close. 
+- Weaker bidders have a chance to win: which encourages participation. 
 
-By allowing for an n-sided market to determine the cost of connecting to the system, we ensure a weakly dominant Nash-equilibrium between the bidders in question and allow for appropriate valuation of connecting to the system. 
+By allowing for an n-sided market to determine the cost of connecting to the system, we ensure a weakly dominant Nash-equilibrium between the bidders in question and allow for fair valuation of connecting to Polkadot. 
 
 
 ## Parachain Scaling
