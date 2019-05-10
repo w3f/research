@@ -120,7 +120,7 @@ This also can be combined with VDF output to prevent little bias by the adversar
 
 ## 3. Best Chain Selection
 
-Given a chain set \\(\mathbb{C}_j\\) an the parties current local chain \(C_{loc}\), the best chain algorithm eliminates all chains which do not include the finalized block \(B\) by GRANDPA. Let's denote the remaining chains by the set \(\mathbb{C}'_j\). If we do not have a finalized block by GRANDPA, then we use the probabilistic finality in the best chain selection algorithm (the probabilistically finalized block is the block which is $k$ block before than the last block of $C_{loc}$). 
+Given a chain set \(\mathbb{C}_j\) an the parties current local chain \(C_{loc}\), the best chain algorithm eliminates all chains which do not include the finalized block \(B\) by GRANDPA. Let's denote the remaining chains by the set \(\mathbb{C}'_j\). If we do not have a finalized block by GRANDPA, then we use the probabilistic finality in the best chain selection algorithm (the probabilistically finalized block is the block which is $k$ block before than the last block of $C_{loc}$). 
 
 
 We do not use the chain selection rule as in Ouroboros Genesis [3] because this rule is useful for parties who become online after a period of time and do not have any  information related to current valid chain (for parties always online the Genesis rule and Praos is indistinguishable with a negligible probability). Thanks to Grandpa finality, the new comers have a reference point to build their chain so we do not need the Genesis rule.
@@ -155,7 +155,7 @@ Now, we show the probability of having more than half honest and synchronized bl
 
 $$\mathsf{Pr}[ \sum_{v = 1}^n X_v \leq \mu(1-\delta)] \leq \exp(\frac{\delta^2\mu}{2}) $$
 
-Given that $0 < \delta \leq \frac{\epsilon}{1+\epsilon}$, \mu(1-\delta) \geq n/2$, this probability should be negligibly small with a $\delta \approx 1$ in order to have more than half honest and synchronized blocks in $n$ slots.
+Given that $0 < \delta \leq \frac{\epsilon}{1+\epsilon}$, $\mu(1-\delta) \geq n/2$, this probability should be negligibly small with a $\delta \approx 1$ in order to have more than half honest and synchronized blocks in $n$ slots.
 $$\tag*{\(\blacksquare\)}$$
 
 If $\epsilon \geq 0.1$ and $\delta = 0.09$, the probability of having less than half is less than $0.06$ if $n \geq 1200$.
@@ -163,7 +163,7 @@ If $\epsilon \geq 0.1$ and $\delta = 0.09$, the probability of having less than 
 
 We give another algorithm called consistency algorithm below. This can be run after the median algorithm to verify or update $t$ later on.
 
-**- Consistency Algorithm:** Let us first define *lower consistent blocks*. Given consecutive blocks \(\{B'_1, B'_2,...,B'_n \in C\) if for each block pair \(B'_u\) and \(B'_v\) which belong to the slots \(sl_u\) and \(sl_v\) (\(sl_u < sl_v\)), respectively are lower consistent for a party \(P_j\), if they arrive on \(t_u\) and \(t_v\) such that \(sl_v - sl_u = \lfloor\frac{t_v - t_u}{T}\rfloor\). We call *upper consistent* if for all blocks \(sl_v - sl_u = \lceil\frac{t_v - t_u}{T}\rceil\). Whenever \(P_j\) receives at least \(k\) either upper or lower consistent blocks, it outputs $t$ and \(sl = sl_u + \lfloor\frac{t}-t_u}{T}\rfloor\) where \(sl_u\) is the slot of one of the blocks in the block set.
+**- Consistency Algorithm:** Let us first define *lower consistent blocks*. Given consecutive blocks \(\{B'_1, B'_2,...,B'_n \in C\) if for each block pair \(B'_u\) and \(B'_v\) which belong to the slots \(sl_u\) and \(sl_v\) (\(sl_u < sl_v\)), respectively are lower consistent for a party \(P_j\), if they arrive on \(t_u\) and \(t_v\) such that \(sl_v - sl_u = \lfloor\frac{t_v - t_u}{T}\rfloor\). We call *upper consistent* if for all blocks \(sl_v - sl_u = \lceil\frac{t_v - t_u}{T}\rceil\). Whenever \(P_j\) receives at least \(k\) either upper or lower consistent blocks, it outputs $t$ and \(sl = sl_u + \lfloor\frac{t-t_u}{T}\rfloor\) where \(sl_u\) is the slot of one of the blocks in the block set.
 
 
 **Lemma 2:** Assuming that the network delay is at most \(\D\) and the honest parties' stake satisfies the condion in Theorem 2, \(P_j\)'s current slot is at most \(\D\)-behind or $2\D$ -behind of the correct slot $sl'$ at time $t$ (i.e., \(sl' - sl \leq \D\)).
