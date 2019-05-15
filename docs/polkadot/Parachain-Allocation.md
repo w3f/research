@@ -1,6 +1,6 @@
 (tentative plan for)
 
-# Parachains - Allocation & Scaling
+# Parachains - Allocation
 
 ## Introduction:
 To run a parachain in Polkadot a parachain slot needs to be obtained. Parachain slots are locked on a deposit basis. We define two types of parachains, namely, community beta slots and commercial slots. We want to reserve 20% slots for community beta parachain slots (“fair”, non- or limited-premine) chains that W3F will deploy or support. The remaining 80% of the slots can be more “publicly” or “commercially” opened. Commercial slot are auctioned as follows. 
