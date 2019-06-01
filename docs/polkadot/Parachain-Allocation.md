@@ -1,53 +1,17 @@
-(tentative plan for)
+# Parachain Allocation
 
-# Parachains - Allocation & Scaling
+## Introduction
+To run a parachain in Polkadot a parachain slot needs to be obtained. Parachain slots are locked on a deposit basis. We define two types of parachains, namely, community beta slots and commercial slots. We want to reserve 20% slots for community beta parachain slots (“fair”, non- or limited-premine) chains that W3F will deploy or support. The remaining 80% of the slots can be more “publicly” or “commercially” opened. Commercial slot are auctioned as follows. 
 
-## Introduction:
-A parachain is a peer-to-peer data structure that connects to the relay chain to become globally-coherent with other parachains connceted to the relay chain.
+## Auctioning Parachain Slots
+We use auctions to have a fair and transparent parachain allocation procedure. Since implementing seal-bid auctions are difficult and to avoid bid sniping we adopt an Candle auction with a retroactively determined close as follows. 
 
-To run a parachain in Polkadot a parachain slot within Polkadot needs to be obtained. Since Polkadot is a resource-constraint system, there are a finite number of slots, which are rolled out gradually. 
-Parachain slots are locked on a deposit basis.
-- Cost comes from implied dilution.
-- Should the dilution-fee not be sufficient to support network validation, i.e. because validators rewards become so low, a rental fee could also be introduced by the governance process.
+Once the auction has started within a fixed window (1 week?) bidders can post bids for the auction. Bids go into the block as transactions. Bidders are allowed to submit multiple bids. Bids that a bidder is submitting either should intersect with all winning bids by same bidder or be contiguous with winning bids by the same bidder. If an incoming bid is not changing the winners it is ignored. 
 
-The costs covers a number of things, for example, tx fees paid to block producer of the relay chain, blocking the slot, etc.
-Once a parachain wants to leave Polkadot its deposited tokens are released. There is no waiting period, however, releasing happens only once finality is reached.
+For 4 lease_periods we have 10 possible ranges. We store the winner for each one of the 10 ranges in a designated data structure. We need to make sure that a new bid does not have a gap with a winning bid on another interval from the same bidder. This means that once a bidder has won a bid for a given range, say for example lease_periods 1-2, then he cannot bid on 4 unless someone overbids him for 1-2. 
 
-## Parachain Allocation
+For any incoming bid the new winner is calculated by choosing the combination of bids where the average deposit for overall all 4 lease_periods is most. Once a bid is added to the block, the amount of their bid gets reserved. 
 
-We define two types of parachains, namely, community beta slots and commercial slots. 
+Once a fixed number of blocks have been produced for the auction a random numbers decides which one of the previous blocks was the closing block and we return the winners and their corresponding ranges for that closing block. The reserved funds of losers are going to be released once the ending time of the auction is determined and the final winners are decided. 
 
-We want to reserve 20% slots for community beta parachain slots (“fair”, non- or limited-premine) chains that W3F will deploy or support. This includes: Edgware, Ethereum-bridge, Bitcoin-bridge, Z-cash bridge. These parachain slots will be granted for up to a 2-year period. 
-The remaining 80% of the slots can be more “publicly” or “commercially” opened.
-As long as at least one commercial slot is free, there is an associated price given by some sort of progressive curve, to control rapid increase of demand. If a commercial slot becomes free and no commercial slots are already free, then it is auctioned as follows.
-
-## Auctioning Parachain Slots:
-We mainly use auctions to have a fair and transparent parachain allocation procedure. 
-
-If a commercial slot becomes free and no commercial slots are already free, then it is set for auction with a 2-week window for posting blind bids for the auction.
-To participate in an auction for obtaining a slot, a parachain needs to deposit DOTs. A parachain candidate can issue additional native tokens in order to acquire DOTs. 
-If a parachain fails to obtain the slot, the returned DOTs can be used to buy back the native token and burn it.
-
-### Auction Scheme
-
-Since sealed-bid auctions are hard to implement in a decentralized set up we decided to use an open (English) auction with some changes as follows. 
-
-Let us assume we have a number of parachain slots available at the time we start the auction. We divide each slot into time units of six months. A bidder can bid on a continuous range of units between 1 and 4. A bid is a tuple consisting of a unit range and bid value in DOTs. There is no distinction between individual slots that means for now everyone can bid only for one slot and bidding on overlapping units is not permitted. These open bids are added into a block that is added to the relay chain. Once this block is added to the relay chain, everyone computes the winners according to all bids that are added to the block and submits new bids to the next block to outbid those winners. This prodecure continues until the end of the epoch. In the next epoch, some randomness obtained from a VRF function is going to determine which block from the previous epoch was the last (closing) block of the auction. Hence, the auction ending time is determined retroactively. We compute the highest DOT per unit for all bids entered in blocks until and including the closing block. The winners pay the value amount of their winning bids. 
-
-**Strategy for bidding:** 
-Bidders can bid on any consecutive range of units. However, everyone will add bids with the maximum unit range that they need and only submit bids for smaller unit ranges if they loose the bid in a given block. While in the first auction bidders with a high budget will aim at bidding first on only high ranges, in next auctions, units that are immidiately after the old range that the bidder has already obtained are of very high value for those bidders because it prevents disruption in the their parachain operation. 
-
-**Advantages of our auction scheme:**
-- bidders submit serious bids in the first block
-- we prevent overbidding and snipping (this can harm total revenue for the seller, but this is not an objective for us)
-- weaker bidders have a chance to win in the auction, which encourages participation. However, note that we do not have a completely random auction close time and the bidder still needs to be the best bidder among all bids in an entire given block for the least. For example, if the first block is the closing block, the bidders need to be a winner among the bids in that block. Our scheme is rather a hybrid between a hard close and a random close. 
-
-By allowing for an n-sided market to determine the cost of connecting to the system, we ensure a weakly dominant Nash-equilibrium between the actors in question and allow for appropriate valuation of connecting to the system. 
-
-## Parachain Scaling
-
-At Polkadot genesis there will be an estimated 5-15 available and the number of available slots will increase during the first 1-2 years of operation to between 50 and 200 parachains total. 
-We will auction parachains slots off in batches of 4 over the course of the 1st year, with new auctions planned every few weeks. Each batch of 4 will include a 6-month, 12-month, 18-month and 24-month parachain slot for auction. The general idea is that, in perpetuity, there is a constant rolling availability of parachains auctions so that if your project wants to become a “native parachain” in Polkadot there will be sufficient opportunities to claim a parachain slot.
-One of the objectives of our roll-out plan is to maintain demand-supply balance for parachain slots such that there are appropriate economic incentives to be a validator on the network. Moreover, we want to allow for the proliferation of experimentation and novel use-cases as the network scales. 
-
-
+For example, let us assume we have three bidders that want to submit bids for a parachain slot. Bidder $B_1$ submits the bid (1-4,75 DOT), bidder $B_2$ submits (3-4, 90 DOTs), and bidder $B_3$ submits (1-2, 30). In this example bidder $B_1$ wins because if bidder $B_2$ and bidder $B_3$ win each unit would only be locked for an average of 60 DOTs or something else equivalent to 240 DOT-intervals, while of bidder_1 wins each unit is locked for 75 DOTs. 
