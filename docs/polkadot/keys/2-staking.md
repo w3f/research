@@ -1,7 +1,7 @@
 
 ## Nomination
 
-In some sense, all public keys derive their authority from some combination of ceremonies and certificates, with certificate root keys deriving tehir authority entirely from ceremonies.  As an example, trust-on-first-use schemes might be considered a pair of cerimonies, the key being associated to an identity first, and the threat of other comparing keys fingerprints.
+In some sense, all public keys derive their authority from some combination of ceremonies and certificates, with certificate root keys deriving their authority entirely from ceremonies.  As an example, trust-on-first-use schemes might be considered a pair of cerimonies, the key being associated to an identity first, and the threat of other comparing keys fingerprints.
 
 We apply this perspective to a consensus algorithm for a proof-of-stake blockchains like polkadot by regarding the chain itself as one large ceremony and treating the staked/bonded account as the root of trust.  We then have certificates issued by these staked account keys that authenticate both the session keys used by Polkadot validators and block producers, as well as the long-term transport layer authentication keys required by TLS or Noise (see concerns about libp2p's secio).  
 
