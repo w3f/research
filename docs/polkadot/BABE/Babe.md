@@ -17,21 +17,39 @@
 
 ## 1. Overview
 
-BABE stands for '**B**lind **A**ssignment for **B**lockchain **E**xtension'. 
-In BABE, we deploy Ouroboros Praos [2] style block production. 
+In Polkadot, we produce relay chain blocks using our
+ **B**lind **A**ssignment for **B**lockchain **E**xtension protocol,
+ abbreviated BABE.
+BABE assigns blocks production slots, according to stake,
+ using roughly the randomness cycle from Ouroboros Praos [2].
 
-In Ouroboros [1] and Ouroboros Praos [2], the best chain (valid chain) is the longest chain. In Ouroboros Genesis, the best chain can be the longest chain or the chain which is forked long enough and denser than the other chains in some interval. We have a different approach for the best chain selection based on GRANDPA and longest chain. In addition, we do not assume that all parties can access the current slot number which is more realistic assumption.
+In brief, all block producers have a verifiable random function (VRF)
+keys which they register with locked stake.  These VRFs produce secret
+randomness which determines when they produce blocks.  A priori, there
+is a risk that block producers could grind through VRF keys to bias
+results, so VRF inputs must include public randomness created only
+after the VRF key.  We therefore have epochs in which we create fresh
+public on-chain randomness by hashing together all the VRF outputs
+revealed in block creation during the epoch.  In this way, we cycle
+between private but verifiable randomness and collaborative public
+randomness.
+
+... TODO ...
+
+In Ouroboros [1] and Ouroboros Praos [2], the best chain (valid chain) is the longest chain. In Ouroboros Genesis, the best chain can be the longest chain or the chain which is forked long enough and denser than the other chains in some interval.  We have a different approach for the best chain selection based on GRANDPA and longest chain.  In addition, we do not assume that all parties can access the current slot number which is more realistic assumption.
 
 ## 2. BABE 
-In BABE, we have sequential non-overlaping epochs \((e_1, e_2,...)\), each of which contains a number of sequential slots (\(e_i = \{sl^i_{1}, sl^i_{2},...,sl^i_{t}\}\)) up to some bound \(t\).  We randomly assign each slot to a party, more than one parties, or no party at the beginning of the epoch.  These parties are called a slot leader.  We note that these assignments are private.  It is public after the assigned party (slot leader) produces the block in his slot.
 
-Each party \(P_j\) has at least one type of secret/public key pair:
+In BABE, we have sequential non-overlaping epochs \((e_1, e_2,\ldots)\), each of which consists of a number of sequential block production slots (\(e_i = \{sl^i_{1}, sl^i_{2},\ldots,sl^i_{t}\}\)) up to some bound \(t\).  At the beginning of an epoch, we randomly assign each block production slot to a "slot leader", often one party or no party, but sometimes more than one party.  These assignments are initially secrets known only to the assigned slot leader themselves, but eventually they publicly claim their slots when they produce a new block in one.
 
-*    Session keys consists of two keys: Verifiable random function (VRF) keys \((\skvrf_{j}, \pkvrf_{j})\) and the signing keys for blocks \((\sksgn_j,\pksgn_j)\). 
+Each party \(P_j\) has as *session key* containing at least two types of secret/public key pair:
 
-We favor VRF keys being relatively long lived, but parties should update their associated signing keys from time to time for forward security against attackers causing slashing.  More details related to these key are [here](https://github.com/w3f/research/tree/master/docs/polkadot/keys).
+* a verifiable random function (VRF) key \((\skvrf_{j}, \pkvrf_{j})\), and
+* a signing key for blocks \((\sksgn_j,\pksgn_j)\), possibly the same as the VRF key. 
 
-Each party \(P_j\) keeps a local set of blockchains \(\mathbb{C}_j =\{C_1, C_2,..., C_l\}\). These chains have some common blocks (at least the genesis block) until some height.
+We favor VRF keys being relatively long lived because new VRF keys cannot be used until well after creation and submission to the chain.  Yet, parties should update their associated signing keys from time to time to provide forward security against attackers who might exploit from creating slashable equivocations.  There are more details about session key available [here](https://github.com/w3f/research/tree/master/docs/polkadot/keys).
+
+Each party \(P_j\) keeps a local set of blockchains \(\mathbb{C}_j =\{C_1, C_2,..., C_l\}\).  All these chains have some common blocks, at least the genesis block, up until some height.
 
 We assume that each party has a local buffer that contains the transactions to be added to blocks. All transactions in a block is validated with a transaction validation function.
 
