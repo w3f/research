@@ -46,7 +46,7 @@ def epochlen(T, gamma, alpha,Dmax):
     k = mink(T, c, gamma, alpha,D)
     print D,k,c
     s = (12 * k) / c
-    return hour(2*s,T)
+    return hour(s,T)
     
 
 #Converts e number of slots given T into hour
@@ -207,7 +207,7 @@ def findT(alpha,gamma,btime,Dmax,Davg):
 
 def tval(alpha,gamma,Davg):
     bval = np.arange(4,22,2)
-    tfun = np.vectorize(findT)
+    tfun = np.vectorize(findT, otypes=[np.float])
     tval1 = tfun(alpha,gamma,bval,1,Davg)
     tval2 = tfun(alpha,gamma,bval,2,Davg)
     tval3 = tfun(alpha,gamma,bval,3,Davg)
