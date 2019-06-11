@@ -40,7 +40,7 @@ We assume that each party has a local buffer that contains the transactions to b
 
 BABE is almost the same as Ouroboros Praos [2] except chain selection rule and the slot time adjustment.
 
-In BABE, all validators have same amount of stake so their probability of being selected as slot leaders is equal. Given that we have $n$ validators and relative stake of each party is $\theta = S/n$ where $S$ is the total amount of stake, the probability of being selected is
+In BABE, all validators have same amount of stake so their probability of being selected as slot leaders is equal. Given that we have $n$ validators and relative stake of each party is $\theta = 1/n$  the probability of being selected is
 
 $$p = \phi_c(\theta) = 1-(1-c)^{\theta}$$
 
@@ -110,9 +110,9 @@ Before starting a new epoch $e_m$, there are certain things to be completed in t
 * (Session keys)
 * Epoch randomness
 
-If there is a validator update in BABE, this update has to be done until the end of the last block of the current epoch $e_{m-1}$ so that they are able to actively participate the block production in epoch $e_{m+1}$. 
+If there is a validator update in BABE, this update has to be done until the end of the last block of the current epoch $e_{m-1}$ so that they are able to actively participate the block production in epoch $e_{m+2}$. So, any validator update will valid in the BABE after at least two epoch's later.
 
-The new randomness for the new epoch is computed as in Ouroboros Praos [2]: Concatenate all the VRF outputs in blocks starting from the first slot of the epoch to the \(R/2^{th}\) slot of \(e_m\) (\(R\) is the epoch size). Assume that the concatenation is \(\rho\). Then the randomness in the next epoch:
+The new randomness for the new epoch is computed as in Ouroboros Praos [2]: Concatenate all the VRF outputs of blocks in the current epoch $e_{m-1}$ (let us assume  the concatenation is \(\rho\)). Then the randomness in epoch $e_{m+1}$:
 
 $$r_{m+1} = H(r_{m}||m+1||\rho)$$
 
@@ -294,15 +294,15 @@ $$\tag*{\(\blacksquare\)}$$
 Remark than even if \(\theta = 0\), we still have the common prefix property as in Ouroboros Praos [2].
 
 
-**Theorem 4 (Persistence and Liveness):** Fix parameters \(k, R, \D, L \in \mathbb{N}\), \(\epsilon \in (0,1)\) and \(r\). Let \(R \geq 24k/c(1+\epsilon)\) be the epoch length, \(L\) is the total lifetime of the system and $$\alpha(\gamma+(1-c)^\D\beta)(1-c)^\D \geq (1+\epsilon)/2$$
+**Theorem 4 (Persistence and Liveness):** Fix parameters \(k, R, \D, L \in \mathbb{N}\), \(\epsilon \in (0,1)\) and \(r\). Let \(R \geq 12k/c(1+\epsilon)\) be the epoch length, \(L\) is the total lifetime of the system and $$\alpha(\gamma+(1-c)^\D\beta)(1-c)^\D \geq (1+\epsilon)/2$$
 BABE satisfies persitence [2] with parameters \(k\) and liveness with parameters \(s \geq  12k/c(1+\epsilon)\) with probability \(1-\exp({\ln L\D c-\Omega(k-\ln tqk)})\) where \(r= 8tqk/(1+\epsilon)\) is the resetting power of the adversary during the randomness generation.
 
 
-**Proof (Sketch):** The proof is very similar to Theorem 9 in [2]. The idea is as follows: The randomness for the next epoch is resettable until  the slot number \(R/2(1+\epsilon) > 12k/c(1+\epsilon)\). Now let's check the chain growth in \(s = 12k/c(1+\epsilon)\) with \(\tau= \frac{\lambda c\alpha(\gamma+ \lambda \beta)}{6}\) where \(\lambda = (1-c)^\D\).
+**Proof (Sketch):** The proof is very similar to Theorem 9 in [2]. The idea is as follows: The randomness for the next epoch is resettable until  the end of the epoch \(R/c(1+\epsilon) > 12k/c(1+\epsilon)\). Now let's check the chain growth in \(s = 12k/c(1+\epsilon)\) with \(\tau= \frac{\lambda c\alpha(\gamma+ \lambda \beta)}{6}\) where \(\lambda = (1-c)^\D\).
 
 $$\tau s = \frac{(1-c)^\D c\alpha(\gamma+ (1-c)^{\D} \beta)}{6}\frac{12k}{c(1+\epsilon)} \geq k $$
 
-The stake distribution (for epoch $e_{j+2}$) which is updated until the end of epoch $e_j$ is finalized at latest in the slot number $12k/c(1+\epsilon)$ of epoch $e_{j+1}$. So it is finalized before the randomness of the next epoch's ($e_{j+2$) generated. In addition to this, chain growth property shows that there will be at least one honest block in the first $12k/c(1+\epsilon)$ slots. These two imply that the adversary cannot adapt his stake according to the random number for the next epoch \(e_{j+1}\) and this random number provides good randomness for the next epoch even though the adversary has capability of resetting \(r = 8tkq/(1+\epsilon)\) times (\(t\) is the number of corrupted parties and \(q\) is the maximum number of random-oracle queries for a party). So, the common prefix property still preserved with the dynamic staking. Therefore, we can conclude that persistence is satisfied thanks to the common prefix property of dynamic stake with the probability (comes from Theorem 1) $$2r\D Lf \exp({-\frac{(s-5\D)(1-c)^\D c\alpha(\gamma+ (1-c)^\D\beta)}{16\D}}) \space\space\space (3).$$ If we use the assumptions we can simplify this probability as \(\exp({\ln L\D c-\Omega(k-\ln tqk)}\).
+The stake distribution (for epoch $e_{j+3}$) which is updated until the end of epoch $e_j$ is finalized at latest in the last slot $12k/c(1+\epsilon)$ of epoch $e_{j+1}$. So it is finalized before the randomness of the epoch ($e_{j+3}$) generated. In addition to this, the chain growth property shows that there will be at least one honest block in the first $12k/c(1+\epsilon)$ slots. These two imply that the adversary cannot adapt validators' in or out according to the random number for the epoch \(e_{j+3}\) and this random number provides good randomness for the epoch even though the adversary has capability of resetting \(r = 8tkq/(1+\epsilon)\) times (\(t\) is the number of corrupted parties and \(q\) is the maximum number of random-oracle queries for a party). So, the common prefix property still preserved with the dynamic update. Therefore, we can conclude that persistence is satisfied thanks to the common prefix property of dynamic stake with the probability (comes from Theorem 1) $$2r\D Lf \exp({-\frac{(s-5\D)(1-c)^\D c\alpha(\gamma+ (1-c)^\D\beta)}{16\D}}) \space\space\space (3).$$ If we use the assumptions we can simplify this probability as \(\exp({\ln L\D c-\Omega(k-\ln tqk)}\).
 Liveness is the result of the chain growth and chain quality properties.
 $$\tag*{\(\blacksquare\)}$$
 
@@ -346,11 +346,11 @@ $\mathbb{E} = Lcp_{H_S}.$ Then, the block time $T_{block} \leq \frac{LT}{\mathbb
 
 We give graphs for required slot time to have the block time in $(-1,+1)$-neighborhood of the time in the x-axis with different maximum network delay ($D = 1,2,3,4,5,6$ seconds) resistance. Slot time being 0 in the graphs means is that it is not possible to have the corresponding block time.
 
-![](https://i.imgur.com/2jVymUX.png)
+![](https://i.imgur.com/Sz2iRE1.png)
 
-If we decide to be resistant 6 seconds delay, we can choose $T = 3$ and have around 14 seconds block time if the average network delay is 1 second. In this case, the epoch length has to be around 27 hours to make sure that we have a good randomness and $k = 54$. If GRANDPA works well the epoch length can be around half of 27 hours.
+If we decide to be resistant 6 seconds delay, we can choose $T = 3.905$ and have around 14 seconds block time if the average network delay is 1 second. In this case, the epoch length has to be around 4.5 hours to make sure that we have a good randomness and $k = 96$. If GRANDPA works well the epoch length can be around half of 4.5 hours.
 
-If we decide to be resistant 4 seconds delay, we can choose $T = 2   $ and have around 10 seconds block time if the average network delay is 1 second. In this case, the epoch length has to be around 18 hours to make sure that we have a good randomness and $k = 55$. If GRANDPA works well the epoch length can be around half of 18 hours.
+If we decide to be resistant 4 seconds delay, we can choose $T = 2.78   $ and have around 10 seconds block time if the average network delay is 1 second. In this case, the epoch length has to be around 3.2 hours to make sure that we have a good randomness and $k = 97$. If GRANDPA works well the epoch length can be around half of 3.2 hours.
 
 
 ## References
