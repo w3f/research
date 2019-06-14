@@ -6,7 +6,7 @@
 
 * Level 1. Misconducts that are likely to happen eventually to most validators, such as isolated cases of unresponsiveness. We slash up to 0.1% of the stake in the validator slot, or exercise non-slashing punishments only like kicking out the validator. 
 
-* Level 2. Misconducts that can occur in good faith, but show bad practices. Examples are repeated or concurrent cases of unresponsiveness, and isolated cases of equivocation. We want culprits to seriously re-consider their practices, and we slash up to 1%.
+* Level 2. Misconducts that can occur in good faith, but show bad practices. Examples are concurrent cases of unresponsiveness, and isolated cases of equivocation. We want culprits to seriously re-consider their practices, and we slash up to 1%.
 
 * Level 3. Misconducts that are unlikely to happen in good faith or by accident, but do not lead to serious security risks or resource use. They show i) a concerning level of coordination/correlation among validators, ii) that the software of the validator node has been modified, iii) that a validator account has been hacked, or iv) that there is a bug in the software (if this last case is confirmed we would reimburse any slashings). Examples are concurrent cases of equivocation, or isolated cases of unjustified voting in Grandpa. We want culprits to lose a considerable amount of power, meaning both stake and reputation, and we want the punishment to work as a deterrent. We slash up to 10%.
 
