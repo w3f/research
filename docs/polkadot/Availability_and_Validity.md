@@ -11,4 +11,4 @@
     margin-right: 0em;
 }
 </style>
-<iframe src="../../web/viewer.html?file=../pdf/Availability_Validity.pdf" width="100%" height="650em"></iframe>
+<iframe src="../../web/viewer.html?file=../pdf/availability_validity/main.pdf" width="100%" height="650em"></iframe>
