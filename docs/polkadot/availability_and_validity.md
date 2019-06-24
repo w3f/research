@@ -1,0 +1,12 @@
+<style>
+.md-grid {
+    max-width: inherit;
+}
+.md-sidebar--secondary {
+    display: none;
+}
+.md-content {
+    margin-right: 0em;
+}
+</style>
+<iframe src="/en/latest/web/viewer.html?file=/en/latest/pdf/<Availability_Validity.pdf>" width="100%" height="650em"></iframe>
