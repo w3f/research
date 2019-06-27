@@ -260,11 +260,11 @@ Additional notes
 
 Finality gadget [GRANDPA](https://github.com/w3f/consensus/blob/master/pdf/grandpa.pdf)
 
-The [availability scheme](availability.md)
+The [availability scheme](Availability_and_Validity.md)
 
 Block production protocol [BABE](BABE/Babe.md)
 
-[Parachain Validity](validity.md) scheme
+[Parachain Validity](Availability_and_Validity.md) scheme
 
 The [NPoS scheme](NPoS/index.md) for selecting validators
 
