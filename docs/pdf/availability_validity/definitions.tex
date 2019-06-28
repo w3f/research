@@ -3,7 +3,7 @@
 \paragraph{Notations} $\V= \{V_1,V_2,...,V_n\}$ is the validator set consisting of validators $V_i$. $\pv$ is a set of parachain validators and $\pv \subset \V$. For the sake of distinction, we denote parachain validators by $PV_i \equiv V_i$.
 
 \begin{definition}[Blob]
-A blob is a tuple $(B, \pi, M)$ where $B$ is the parachain block, $\pi$ is the validity proof of $B$ and $M$ is the outgoing messages from that parachain.
+A blob is a tuple $(B, \pi, M)$ where $B$ is the parachain block, $\pi$ is the validity proof of $B$ and $M$ is the set of outgoing messages from that parachain.
 \end{definition}
 
 
@@ -18,9 +18,9 @@ Erasure code consists of two algorithms: $\divi_k$ and $\recons$ Given data $D$,
 
 \end{definition}
 
-In other words, erasure code divides  data into $n$ pieces and at least $k$ out of $n$ pieces are enough the construct the data.
+In other words, erasure code divides data into $n$ pieces and at least $k$ out of $n$ pieces are enough to construct the data.
 
-In the availability and validity protocol in Section \ref{sec:protocol}, parachain validators divide a blob into $n$ pieces. These $n$ pieces corresponds the $B_{data}$ in Definition \ref{def:header} and so the $\recons$ algorithm in Definition \ref{def:header}  corresponds the $\recons$ algorithm of the erasure code in Definition \ref{def:erasure}.
+In the availability and validity protocol in Section \ref{sec:protocol}, parachain validators divide a blob into $n$ pieces. These $n$ pieces corresponds to the $B_{data}$ in Definition \ref{def:header} and so the $\recons$ algorithm in Definition \ref{def:header}  corresponds to the $\recons$ algorithm of the erasure code in Definition \ref{def:erasure}.
 
 
 
@@ -37,7 +37,7 @@ In the availability and validity protocol in Section \ref{sec:protocol}, paracha
 %Given a total stake $S$ and slashing value $x$, the risk value is defined as $p\frac{x}{S}$ where $p$ is the probability of getting caught.
 %\end{definition}
 
-The active parties in availability and validity scheme are validators, parachain validators, fishermen and collators. 
+The active parties in the availability and validity scheme are validators, parachain validators, fishermen and collators. 
 
 
 
@@ -77,7 +77,7 @@ A block is unavailable if less than $k$ erasure code of its blob obtained by hon
 
 
 \begin{definition}[Security of Availability]
-Assume that  at most number of $f$ validators are corrupted. If the probability of having a finalized block in the relay chain which includes an unavailable block is negligible, then the availability protocol is secure against malicious validators.
+Assume that at most number of $f$ validators are corrupted. If the probability of having a finalized block in the relay chain which includes an unavailable block is negligible, then the availability protocol is secure against malicious validators.
 \end{definition}
 
 %More formal definition

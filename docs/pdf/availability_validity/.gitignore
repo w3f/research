@@ -1,0 +1,4 @@
+#exclude generated files
+*.pdf
+*.aux
+*.log
