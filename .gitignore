@@ -3,3 +3,4 @@ _build/
 lib/
 include/
 bin/
+.DS_Store
