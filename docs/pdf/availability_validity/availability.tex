@@ -17,12 +17,12 @@ The protocol consists of two phases ``Parachain phase'' and ``Relay Chain Phase'
  
 
 
-\paragraph{Relay Chain Phase:} This phase is to make sure that an valid and available block's header is in the relay chain. 
+\paragraph{Relay Chain Phase:} This phase is to make sure that a valid and available block's header is in the relay chain. 
 
 \begin{itemize}
     \item After receiving the signatures from parachain validators in the parachain phase, the distributor sends  for each validator $V_j$ all signatures  $\{\sigma_j^k\}_{PV_k \in \pv'} $ where $\pv' \subseteq \pv$ representing the set of parachain validators who send a signature for $V_j$. 
 
-    \item If $V_j$ receives at least $\kappa$ signatures for $B$, it adds it to the block list which is keeps the data to be included to the relay chain. Later on, if this validator is the designated validator in BABE to produce the block, it creates block headers $\bh$ (Definition \ref{def:header}) for the blocks in the block list. $\bh$ including $\{\sigma_j^k\}_{PV_k \in \pv'} $.  These signatures are necessary to show which parachain validators approve for $B$. Then, he produces the relay chain block which including the header. See \href{http://research.web3.foundation/en/latest/polkadot/BABE/Babe/}{BABE} for details.
+    \item If $V_j$ receives at least $\kappa$ signatures for $B$, it adds it to the block list which keeps the data to be included to the relay chain. Later on, if this validator is the designated validator in BABE to produce the block, it creates block headers $\bh$ (Definition \ref{def:header}) for the blocks in the block list. $\bh$ including $\{\sigma_j^k\}_{PV_k \in \pv'} $.  These signatures are necessary to show which parachain validators approve for $B$. Then, he produces the relay chain block which includes the header. See \href{http://research.web3.foundation/en/latest/polkadot/BABE/Babe/}{BABE} for details.
 
     \item At the same time, each validator $V_j$ examines the each block in the relay chain if it includes unavailable block headers. If $V_j$ sees a block header $\bh$ in a block of the best relay chain whose erasure code piece $d_j$ is not received by $V_j$ (unavailable code piece), then he asks for it first from parachain validators. If a parachain validator sends valid $d_j, r, \mprf_j $, then the protocol ends. Otherwise, it asks for it to collators of the corresponding parachain. If $V_j$ receives a valid $d_j, r, \mprf_j $, the protocol ends. If $V_j$ does not receive any response in $\Delta T$ times later after seeing $\bh$, he runs the unavailability protocol in Section \ref{sec:unavail}.
 
@@ -30,7 +30,7 @@ The protocol consists of two phases ``Parachain phase'' and ``Relay Chain Phase'
 
 \subsection{Unavailability Protocol}
 \label{sec:unavail}
-If a validator could not obtain the missing piece in $\Delta T$ times (availability grace period) after seeing a block header $B_{head}$ in a block of the relay chain, then he announces the unavailability of this piece. As soon as receiving an unavailability announcement, the assigned validator sends the erasure code piece with the proof, if he has. The details of how assigned validator is selected and how he obtains the erasure codes are given in Section \ref{sec:validitycheck}. If any validator sees at least $f+1$ unavailability announcements from different validators, then he does not vote to finalize the block  which includes a block header whose pieces are missing and its descendants because it is a sign that the parachain validators do not properly completed availability protocol. If $2/3$ of the validators announces unavailability of a piece, the parachain validators who signed for that block are slashed. 
+If a validator could not obtain the missing piece in $\Delta T$ times (availability grace period) after seeing a block header $B_{head}$ in a block of the relay chain, then he announces the unavailability of this piece. As soon as receiving an unavailability announcement, the assigned validator sends the erasure code piece with the proof, if he has it. The details of how the assigned validator is selected and how he obtains the erasure codes are given in Section \ref{sec:validitycheck}. If any validator sees at least $f+1$ unavailability announcements from different validators, then he does not vote to finalize the block which includes a block header whose pieces are missing and its descendants because it is a sign that the parachain validators have not properly completed availability protocol. If $2/3$ of the validators announce unavailability of a piece, the parachain validators who signed for that block are slashed. 
 
 %TODO slashing process
 
@@ -38,7 +38,7 @@ If a validator could not obtain the missing piece in $\Delta T$ times (availabil
 
 \subsection{Validity Check}
 \label{sec:validitycheck}
-With the unavailability protocol, we can detect the block headers whose pieces are missing. Beyond this, we also need to detect whether an invalid block headers are in the relay chain blocks. For example, if all parachain validators are malicious, they can sign for an invalid block. We can catch this by only reconstructing the blob with the available pieces. In validity check protocol, we describe how extra validators (different than parachain validator) is assigned to check the validity of blocks and how malicious activities are detected.
+With the unavailability protocol, we can detect the block headers whose pieces are missing. Beyond this, we also need to detect whether an invalid block headers are in the relay chain blocks. For example, if all parachain validators are malicious, they can sign for an invalid block. We can catch this only by reconstructing the blob with the available pieces. In validity check protocol, we describe how extra validators (different from parachain validator) is assigned to check the validity of blocks and how malicious activities are detected.
 
 
 We first give some parameters before giving the details of the protocol.
@@ -90,11 +90,11 @@ There are a three-factor validity check during the availability protocol:
          H(ID_{PC} || \mathtt{VRF}_{\sk^v_j}(H_{B})) < \frac{\vcheck - |\pv|}{|\V|-|\pv|}   
     \end{equation}
     
-     where $H_B$ is the hash of the relay chain block whose VRF randomness is $r_t$. Remark that we have more number of checks for equivocation because it is a sign of an malicious activity. Malicious validators can see who is in condition (\ref{cond:mod}) or (\ref{cond:time}) and if no honest is in them, they can equivocate which includes an invalid block. Therefore, we need different conditions than the condition (\ref{cond:mod}) and the condition (\ref{cond:time}).
+     where $H_B$ is the hash of the relay chain block whose VRF randomness is $r_t$. Remark that we have greater number of checks for equivocation because it is a sign of malicious activity. Malicious validators can see who is in condition (\ref{cond:mod}) or (\ref{cond:time}) and if no honest is in them, they can equivocate which includes an invalid block. Therefore, we need different conditions than the condition (\ref{cond:mod}) and the condition (\ref{cond:time}).
     
-    In a moment, $V_j$ satisfies the condition (\ref{cond:mod}), (\ref{cond:time}), (\ref{cond:modequiv}) or (\ref{cond:equiv}), $V_j$ has a right the check the validity. For this, it follows the extra validity check protocol.
+    In a moment, $V_j$ satisfies the condition (\ref{cond:mod}), (\ref{cond:time}), (\ref{cond:modequiv}) or (\ref{cond:equiv}), $V_j$ has a right to check the validity. For this, it follows the extra validity check protocol.
     
-    We note that if number of $\vcheck$ validators satisfy the condition (\ref{cond:mod}) or (\ref{cond:time} ) for a parachain with the identifier $ID_{PC}$ and no equivocation exist, then satisfying condition (\ref{cond:modequiv}) or (\ref{cond:equiv}) does not rewarded.
+    We note that if number of $\vcheck$ validators satisfy the condition (\ref{cond:mod}) or (\ref{cond:time} ) for a parachain with the identifier $ID_{PC}$ and no equivocation exist, then satisfying condition (\ref{cond:modequiv}) or (\ref{cond:equiv}) does not get rewarded.
     
 \end{enumerate}
 
