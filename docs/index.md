@@ -1,6 +1,6 @@
 # Research at Web3 Foundation
 
-Web3 Foundation Research is being done in an in-house research team as well as in collaboration with various projects and reasearch groups. The in-house team is mostly located in Zug, Switzerland. 
+Web3 Foundation Research is being done in an in-house research team as well as in collaboration with various projects and research groups. The in-house team is mostly located in Zug, Switzerland. 
 
 Our research generally focuses on areas of:  
 - Decentralised algorithms: consensus, optimization, game theory  
