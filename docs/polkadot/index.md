@@ -16,15 +16,13 @@ So let us start with abstract state machines. A state machine has a certain stat
 
 The data that determines the state transitions is structured as bundles of transactions - individual small state transitions triggered by the users of the system. Each bundle is called a block. In order to achieve its properties, ensures that those blocks are hash connected forming joint data structure.
 
-![Data structure](images/data_structure.png)
-
 ## 1. Specification of the Polkadot Runtime Environment
 
 We are working on a implementation level specification of the protocol [here](https://github.com/w3f/polkadot-re-spec).
 
 ## 2. Identifying participants to run the network
 
-![Participants](images/participants.png)
+![Data structure](images/data_structure.png)
 
 ### 2.1 Keys
 
