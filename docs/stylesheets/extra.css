@@ -1,0 +1,11 @@
+.md-header-nav {
+    background-color: black;
+}
+
+[data-md-color-primary=deep-orange] .md-header {
+    background-color: black;
+}
+
+.md-footer {
+    margin-top: 10%;
+}

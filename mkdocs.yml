@@ -26,6 +26,10 @@ theme:
   logo: 'images/w3f_logo.svg'
   feature: false
 
+  # Extra css for further customization 
+extra_css:
+  - 'stylesheets/extra.css'
+
 extra:
   social:
     - type: 'github'
