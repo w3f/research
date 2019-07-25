@@ -163,7 +163,7 @@ An invalid vote is defined as a vote (either pre-vote or pre-commit) for a chain
 
 For the time being we propose not to slash this misconduct, because it does not lead to a dangerous attack, assuming an honest majority of Grandpa voters, and because there does not seem to be an efficient detection mechanism. 
 
-As a safeguard, we only advise adjusting the Grandpa protocol so that each voter keeps track of the validity status of all relay chain blocks (and of all parachain blobs), and that by default a voter A ignores any vote from voter a B for a chain which, from the point of view of A, contains non-validated blocks. Similarly, a Granpa voter should ignore any vote that is either currently being challenged or found to be faulty, by a procedure of unjustified vote or rejecting set of votes (see sections above).
+As a safeguard, we only advise adjusting the Grandpa protocol so that each voter keeps track of the validity status of all relay chain blocks (and of all parachain blobs), and that by default a voter A ignores any vote from a voter B for a chain which, from the point of view of A, contains non-validated blocks. Similarly, a Granpa voter should ignore any vote that is either currently being challenged or found to be faulty, by a procedure of unjustified vote or rejecting set of votes (see sections above).
 
 ## Babe
 
