@@ -46,7 +46,7 @@ If a large number of validators are kicked out, or simply unresponsive, we can o
 * any rewards for reporting a misconduct,
 * the (weighted) nominators supporting each validator (to know who to slash/reward),
 * the number of payable actions of each validator so far in the current era,
-* whether that validator is the target of an ongoing challenge (for unjustified votes in Granpa), etc.
+* whether that validator is the target of an ongoing challenge (for unjustified votes in Grandpa), etc.
 
 This database should be off-chain and should *resist chain reversions*. Moreover, we should be able to see who the validators were, up to 8 weeks in the past, so that we can slash the culprits of a misconduct that is detected late (this is the same period that we freeze the nominators and validators' stake). We will also use this database to ensure that a validator is not slashed twice for the same misconduct.
 
@@ -78,7 +78,7 @@ We identify two types of detection mechanisms.
 
 We propose two different methods to detect unresponsiveness.
 
-**Method 1.** Validators have an "I'm online" heartbit, which is a signed message submitted on-chain every session. If a validator takes too long to send this message, we can mark them as inactive. 
+**Method 1.** Validators have an "I'm online" heartbeat, which is a signed message submitted on-chain every session. If a validator takes too long to send this message, we can mark them as inactive. 
 
 The advantage of this method is that we can detect unresponsive validators very quickly, and act upon this information, for instance by ending the current era early. A disadvantage is that it only detects validators that are accidentally off-line, and not those who are purposely unresponsive as part of an attack on the system.
 
