@@ -105,7 +105,7 @@ We use the following slashing mechanism, which has no reporters. If at the end o
 
 $0.05\cdot \min\{\frac{3(k-1)}{n}, 1\}$
 
-from each one of them. Notice that this fraction is zero for isolated cases, less than one third of a percent for two concurrent cases (assuming $n\geq 50$), growing to 5% for the critical case when around 1/3 of all validators are unresponsive (we don't want to punish too harshly for concurrent unresponsiveness, as it could potentially happen in good faith. The parameter of 5% can be adjusted). We consider it a misconduct of level 1 if the slashing fraction is at most 1%, and of level 3 otherwise. However, we do not immediately remove unresponsive validators from the current era, as removing a validator is equivalent to marking it as unresponsive (so the cure would not be better than the disease), and because it is algorithmically simpler to just check at the end of each era. 
+from each one of them. Notice that this fraction is zero for isolated cases, less than one third of a percent for two concurrent cases (assuming $n\geq 50$), growing to 5% for the critical case when around 1/3 of all validators are unresponsive (we don't want to punish too harshly for concurrent unresponsiveness, as it could potentially happen in good faith. The parameter of 5% can be adjusted). We consider it a misconduct of level 2 if the slashing fraction is at most 1%, and of level 3 otherwise. However, we do not immediately remove unresponsive validators from the current era, as removing a validator is equivalent to marking it as unresponsive (so the cure would not be better than the disease), and because it is algorithmically simpler to just check at the end of each era. 
  
 ## Grandpa
 
