@@ -2,3 +2,8 @@
 \paragraph{BABE}
 
 \paragraph{GRANDPA}
+For the relay chain consensus, we want provably finality, which makes bridges to chains outside Polkadot easier, and we also want the ability to revert chains in the short term if parachain blocks are unavailable for invalid.
+So we combine a block production mechanism BABE with the ability to fork and that gives eventual consensus with a finality gadget GRANDPA, that can finalise blocks and provide proofs that they are final.
+BABE is similar to Ourobors Praos[citation needed] but with a fixed set of validators and improved resilience to clock drift.
+It works by dividing time into slots in each of which validators computing a Verifiable Random Function(VRF) which will decide whether they have the ability to produce a valid block in that slot.
+For fork-choice, we go with the longest chain that includes all blocks finalised by GRANDPA.

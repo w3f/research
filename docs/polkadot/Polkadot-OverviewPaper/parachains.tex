@@ -2,5 +2,10 @@
  \paragraph{Block Production}
 
  \paragraph{Validity and Availability}
+ Once a block is created it is important that the parachain blob is available for a while.
+ The naive solution for this would be broadcasting/gossip the parachain blobs to all, which is not a feasible option because the parachain blobs are big.
+ We want to find an efficient solution to ensure parachain blobs from any recently created parachain block are available.
 
+To this end we designed an availability scheme that uses erasure coding \cite{} to distribute the parachain PoV to all validators.
+When any misbehaviour, unavailability particularly in relation to invalidity, is detected the PoV can be reconstructed from the distributed erasure coded pieces. 
  \paragraph{ICMP}
