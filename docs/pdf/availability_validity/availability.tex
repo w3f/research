@@ -1,16 +1,16 @@
 \section{Availability and Validity Protocol}
 \label{sec:protocol}
 
-The protocol consists of two phases ``Parachain phase'' and ``Relay Chain Phase''. The parachain phase is executed between collator and parachain validators. In the end of this phase, the parachain validators validates the block and provide its erasure codes to the validators. Then, the relay chain phase begins. If parachain phase is executed correctly, then the relay chain phase includes extra validation of a parachain block, adding the block header to the relay chain and finalizing that relay chain block. Otherwise, unavailability protocol is run between validators. The details are as follows: 
+The protocol consists of two phases ``Parachain phase'' and ``Relay Chain Phase''. The parachain phase is executed between collators and parachain validators. In the end of this phase, the parachain validators validate the block and provide its erasure code pieces to the validators. Then, the relay chain phase begins. If the parachain phase is executed correctly, then the relay chain phase includes extra validation of a parachain block, adding the block header to the relay chain and finalizing that relay chain block. Otherwise, unavailability protocol is run between validators. The details are as follows: 
 
 \paragraph{Parachain Phase:} This phase is between parachain validators and collators of the corresponding parachain.
 
 \begin{itemize}
-    \item For each parachain block $B$, a collator runs the $\prove(B,PC,M)$ and obtains the proof $\pi$ for validity of the block $B$. Then, he sends the blob $\bb = (B,\pi,M)$ to the corresponding parachain validators to show that the block is valid and can be added to the relay chain. 
+    \item For each parachain block $B$, a collator runs the $\prove(B,PC,M)$ and obtains the proof $\pi$ for the validity of  block $B$. Then, he sends the blob $\bb = (B,\pi,M)$ to the corresponding parachain validators to show that the block is valid and can be added to the relay chain. 
     
-    \item Each parachain validator $PV_i$ checks the validity of the block by running the $\verify$ algorithm for the blob $\bb$. If it outputs 0, they ignore the block and store the block as invalid. Otherwise, $PV_i$ runs the $\divi(\bb)$ to obtain the erasure codes $\mathcal{D} = \{d_1,d_2,...,d_n\}$ of $\bb$.
+    \item Each parachain validator $PV_i$ checks the validity of the block by running the $\verify$ algorithm for the blob $\bb$. If it outputs 0, they ignore the block and store the block as invalid. Otherwise, $PV_i$ runs the $\divi(\bb)$ to obtain the erasure code pieces $\mathcal{D} = \{d_1,d_2,...,d_n\}$ of $\bb$.
     
-    \item $PV_i$ constructs a Merkle tree  with  leaves $d_1,d_2,...,d_n$. Let us denote the root of the Merkle tree by $r$. At the end, $PV_i$ signs for each validator $V_j$ the message $(d_j, r, \mprf_i, B_{info})$ and gives each signature $\sigma_i^j$ to the distributor parachain validator. Here, $\mprf_i$ is the proof that shows that $d_i$ is one of the leaves of the Merkle tree with the root $r$ and $B_{info}$ is identifying information of $B$. We note that the distributor can be selected randomly or in order. Each parachain validator also gives the erasure codes to at least one (trusted) collator in order to backup the piece.
+    \item $PV_i$ constructs a Merkle tree  with  leaves $d_1,d_2,...,d_n$. Let us denote the root of the Merkle tree by $r$. At the end, $PV_i$ signs for each validator $V_j$ the message $(d_j, r, \mprf_i, B_{info})$ and gives each signature $\sigma_i^j$ to the distributor parachain validator. Here, $\mprf_i$ is the proof that shows that $d_i$ is one of the leaves of the Merkle tree with the root $r$ and $B_{info}$ is identifying information of $B$. We note that the distributor can be selected randomly or in order. Each parachain validator also gives the erasure code piece to at least one (trusted) collator in order to backup the piece.
 \end{itemize}
 
 
@@ -20,17 +20,17 @@ The protocol consists of two phases ``Parachain phase'' and ``Relay Chain Phase'
 \paragraph{Relay Chain Phase:} This phase is to make sure that a valid and available block's header is in the relay chain. 
 
 \begin{itemize}
-    \item After receiving the signatures from parachain validators in the parachain phase, the distributor sends  for each validator $V_j$ all signatures  $\{\sigma_j^k\}_{PV_k \in \pv'} $ where $\pv' \subseteq \pv$ representing the set of parachain validators who send a signature for $V_j$. 
+    \item After receiving the signatures from parachain validators in the parachain phase, the distributor sends  for each validator $V_j$ all signatures  $\{\sigma_j^k\}_{PV_k \in \pv'} $ where $\pv' \subseteq \pv$ representing the set of parachain validators who sent a signature for $V_j$. 
 
     \item If $V_j$ receives at least $\kappa$ signatures for $B$, it adds it to the block list which keeps the data to be included to the relay chain. Later on, if this validator is the designated validator in BABE to produce the block, it creates block headers $\bh$ (Definition \ref{def:header}) for the blocks in the block list. $\bh$ including $\{\sigma_j^k\}_{PV_k \in \pv'} $.  These signatures are necessary to show which parachain validators approve for $B$. Then, he produces the relay chain block which includes the header. See \href{http://research.web3.foundation/en/latest/polkadot/BABE/Babe/}{BABE} for details.
 
-    \item At the same time, each validator $V_j$ examines the each block in the relay chain if it includes unavailable block headers. If $V_j$ sees a block header $\bh$ in a block of the best relay chain whose erasure code piece $d_j$ is not received by $V_j$ (unavailable code piece), then he asks for it first from parachain validators. If a parachain validator sends valid $d_j, r, \mprf_j $, then the protocol ends. Otherwise, it asks for it to collators of the corresponding parachain. If $V_j$ receives a valid $d_j, r, \mprf_j $, the protocol ends. If $V_j$ does not receive any response in $\Delta T$ times later after seeing $\bh$, he runs the unavailability protocol in Section \ref{sec:unavail}.
+    \item At the same time, each validator $V_j$ examines  each block in the relay chain if it includes unavailable block headers. If $V_j$ sees a block header $\bh$ in a block of the best relay chain whose erasure code piece $d_j$ is not received by $V_j$ (unavailable code piece), then he asks for it first from parachain validators. If a parachain validator sends valid $d_j, r, \mprf_j $, then the protocol ends. Otherwise, it asks for it from collators of the corresponding parachain. If $V_j$ receives a valid $d_j, r, \mprf_j $, the protocol ends. If $V_j$ does not receive any response in $\Delta T$ time after seeing $\bh$, he runs the unavailability protocol in Section \ref{sec:unavail}.
 
 \end{itemize}
 
 \subsection{Unavailability Protocol}
 \label{sec:unavail}
-If a validator could not obtain the missing piece in $\Delta T$ times (availability grace period) after seeing a block header $B_{head}$ in a block of the relay chain, then he announces the unavailability of this piece. As soon as receiving an unavailability announcement, the assigned validator sends the erasure code piece with the proof, if he has it. The details of how the assigned validator is selected and how he obtains the erasure codes are given in Section \ref{sec:validitycheck}. If any validator sees at least $f+1$ unavailability announcements from different validators, then he does not vote to finalize the block which includes a block header whose pieces are missing and its descendants because it is a sign that the parachain validators have not properly completed availability protocol. If $2/3$ of the validators announce unavailability of a piece, the parachain validators who signed for that block are slashed. 
+If a validator could not obtain the missing piece in $\Delta T$ time (availability grace period) after seeing a block header $B_{head}$ in a block of the relay chain, then he announces the unavailability of this piece. As soon as receiving an unavailability announcement, the assigned validator sends the erasure code piece with the proof, if he has it. The details of how the assigned validator is selected and how he obtains the erasure codes are given in Section \ref{sec:validitycheck}. If any validator sees at least $f+1$ unavailability announcements from different validators, then he does not vote to finalize the block which includes a block header whose pieces are missing  because it is a sign that the parachain validators have not properly completed availability protocol. If $2/3$ of the validators announce unavailability of a piece, the parachain validators who signed for that block are slashed. 
 
 %TODO slashing process
 
@@ -38,11 +38,11 @@ If a validator could not obtain the missing piece in $\Delta T$ times (availabil
 
 \subsection{Validity Check}
 \label{sec:validitycheck}
-With the unavailability protocol, we can detect the block headers whose pieces are missing. Beyond this, we also need to detect whether an invalid block headers are in the relay chain blocks. For example, if all parachain validators are malicious, they can sign for an invalid block. We can catch this only by reconstructing the blob with the available pieces. In validity check protocol, we describe how extra validators (different from parachain validator) is assigned to check the validity of blocks and how malicious activities are detected.
+With the unavailability protocol, we can detect the block headers whose pieces are missing. Beyond this, we also need to detect whether invalid block headers are in the relay chain blocks. For example, if all parachain validators are malicious, they can sign for an invalid block. We can catch this only by reconstructing the blob with the available pieces. In the validity check protocol, we describe how extra validators (different from parachain validator) are assigned to check the validity of blocks and how malicious activities are detected.
 
 
 We first give some parameters before giving the details of the protocol.
-The first parameter $\vcheck$ defines total number of validator checks needed for a block header.
+The first parameter $\vcheck$ defines the total number of validator checks needed for a block header.
 
 $$\vcheck = |\pv| + \mu +\lceil \runav + \rinv \rceil$$
 
@@ -72,7 +72,7 @@ There are a three-factor validity check during the availability protocol:
     \begin{equation}\label{cond:mod}
         ID_{PC} = \mathtt{VRF}_{\sk^v_{j}}(r_{t}) \mod m    
     \end{equation}
-     Here, $ID_{PC} \in \mathbb{N}$ is the identifier of a parachain $PC$ and $r_{t}$ is the VRF randomness of the block producer of slot $t$ in the relay chain (See \href{http://research.web3.foundation/en/latest/polkadot/BABE/Babe/}{BABE} for the details of $r_t$). For the current time $T$ where $T > \Delta T$, if  number of $\vcheck$ is not completed with condition (\ref{cond:mod}) or $\mu + \lceil r_a + r_f \rceil < n/m$ , each validator $V_j$ checks the following condition:
+     Here, $ID_{PC} \in \mathbb{N}$ is the identifier of a parachain $PC$ and $r_{t}$ is the VRF randomness of the block producer of slot $t$ in the relay chain (See \href{http://research.web3.foundation/en/latest/polkadot/BABE/Babe/}{BABE} for the details of $r_t$). For the current time $T$ where $T > \Delta T$, if  less than $\vcheck$ amount of checks are completed with condition (\ref{cond:mod}) or $\mu + \lceil r_a + r_f \rceil < n/m$ , each validator $V_j$ checks the following condition:
      \begin{equation}\label{cond:time}
         H(ID_{PC} || \mathtt{VRF}_{\sk^v_j}(V)) < \frac{\mu + \lceil r_a + r_f \rceil - \theta}{|\V|-|\pv|}+\tau  
     \end{equation}
@@ -90,9 +90,9 @@ There are a three-factor validity check during the availability protocol:
          H(ID_{PC} || \mathtt{VRF}_{\sk^v_j}(H_{B})) < \frac{\vcheck - |\pv|}{|\V|-|\pv|}   
     \end{equation}
     
-     where $H_B$ is the hash of the relay chain block whose VRF randomness is $r_t$. Remark that we have greater number of checks for equivocation because it is a sign of malicious activity. Malicious validators can see who is in condition (\ref{cond:mod}) or (\ref{cond:time}) and if no honest is in them, they can equivocate which includes an invalid block. Therefore, we need different conditions than the condition (\ref{cond:mod}) and the condition (\ref{cond:time}).
+     where $H_B$ is the hash of the relay chain block whose VRF randomness is $r_t$. Remark that we have greater number of checks for equivocation because it is a sign of malicious activity. Malicious validators can see who is in condition (\ref{cond:mod}) or (\ref{cond:time}) and if there is  no honest validator with the conditions (\ref{cond:mod}) or (\ref{cond:time}), they can equivocate which includes an invalid block. Therefore, we need different conditions than the condition (\ref{cond:mod}) and the condition (\ref{cond:time}).
     
-    In a moment, $V_j$ satisfies the condition (\ref{cond:mod}), (\ref{cond:time}), (\ref{cond:modequiv}) or (\ref{cond:equiv}), $V_j$ has a right to check the validity. For this, it follows the extra validity check protocol.
+    When $V_j$ satisfies the condition (\ref{cond:mod}), (\ref{cond:time}), (\ref{cond:modequiv}) or (\ref{cond:equiv}), $V_j$ has a right to check the validity. For this, it follows the extra validity check protocol.
     
     We note that if number of $\vcheck$ validators satisfy the condition (\ref{cond:mod}) or (\ref{cond:time} ) for a parachain with the identifier $ID_{PC}$ and no equivocation exist, then satisfying condition (\ref{cond:modequiv}) or (\ref{cond:equiv}) does not get rewarded.
     
@@ -100,26 +100,26 @@ There are a three-factor validity check during the availability protocol:
 
 
 \paragraph{Extra Validity Check:}
-An assigned validator $V_j$ for the extra validity check ask for the blob or the erasure code in the following order until receiving all information to check the validity of the block header:
+An assigned validator $V_j$  asks for the blob for the extra validity check or the erasure code pieces in the following order until receiving all information to check the validity of the block header:
 \begin{enumerate}
     \item Parachain validators who signed for it: asked for the blob
     \item Other parachain validators who did not sign for it: asked for the blob
-    \item Validators: asked for the erasure code with the proof. Assuming that $V_j$ has a set $\mathcal{D}'$ of a correct erasure codes where $|\mathcal{D}'|<k$. He asks for at least number of $k-|\mathcal{D}'|$ pieces in $\mathcal{D}\setminus \mathcal{D}'$ to the validators.
+    \item Validators: asked for the erasure code piece with the proof. Assuming that $V_j$ has a set $\mathcal{D}'$ of a correct erasure codes where $|\mathcal{D}'|<k$. He asks for at least number of $k-|\mathcal{D}'|$ pieces in $\mathcal{D}\setminus \mathcal{D}'$ from the validators.
     
     \item Collators: asked for the erasure codes or the blob. We note that $V_j$ can ask for the blob or the erasure code, if he is connected to the collators network.
     
 \end{enumerate}
 
-At the end,  if $V_j$'s attempt in option 1 and 2 above is unsuccessful and  obtains all missing pieces instead of blob $\bb$, he adds them to the set $\mathcal{D}'$ and reconstructs  $\bb = (B,\pi,M)$ with the algorithm $\recons(\mathcal{D}')$. 
+In the end,  if $V_j$'s attempt in option 1 and 2 above is unsuccessful and  obtains all missing pieces instead of blob $\bb$, he adds them to the set $\mathcal{D}'$ and reconstructs  $\bb = (B,\pi,M)$ with the algorithm $\recons(\mathcal{D}')$. 
 
 In any case, either obtaining $\bb$ from $PV$s or the reconstruction algorithm, $V_j$ checks the validity of the block by  running  $\verify(\bb)\rightarrow b$.
 \begin{itemize}
-    \item if $b = 0$ (the blob is invalid), $V_j$ signs that the block is invalid. Whenever a validator receives a valid signature from another validators saying that the block is invalid, this validator obtains the blob as the same way that extra validators obtains and follow the same process.
-    \item if $b = 1$ (the blob is valid), $V_j$ signs that the block is valid. $V_j$ also  runs the $\divi((B,\pi,M))$ to obtain the erasure codes $\mathcal{D} = \{d_1,d_2,...,d_n\}$ and constructs a Merkle tree  whose leaves are $d_1,d_2,...,d_n$. At the end, he gives away the missing piece of a validator with the Merkle tree proof whenever a validator announces unavailability. 
+    \item if $b = 0$ (the blob is invalid), $V_j$ signs that the block is invalid. Whenever a validator receives a valid signature from another validator saying that the block is invalid, this validator obtains the blob  the same way that extra validators obtain and follow the same process.
+    \item if $b = 1$ (the blob is valid), $V_j$ signs that the block is valid. $V_j$ also  runs the $\divi((B,\pi,M))$ to obtain the erasure codes $\mathcal{D} = \{d_1,d_2,...,d_n\}$ and constructs a Merkle tree  whose leaves are $d_1,d_2,...,d_n$. In the end, he gives away the missing piece of the validator with the Merkle tree proof whenever a validator announces unavailability. 
 \end{itemize}
 
 
-At the end of the validity protocol, if at least $f+1$ signatures are given by the validators saying that the block is invalid, then it is considered as invalid.
+In the end of the validity protocol, if at least $f+1$ signatures are given by the validators saying that the block is invalid, then it is considered as invalid.
 \subsection{Slashing and Rewarding}
 
 \underline{\textbf{Fisherman}} 
@@ -138,7 +138,7 @@ If at least $f+1$ validators sign for the validity of a block and less than $f+1
 
 We note that $f+1$ validity signatures and $f+1$ invalidity signatures are not possible given that at most $f$ validators are malicious and proof of block algorithms  are correct (See Definition \ref{def:pob}).
 
-\emph{Rewarding:} All parachain validators and extra validators who signed for the final decision (either valid or invalid) of a block receives a reward. 
+\emph{Rewarding:} All parachain validators and extra validators who signed for the final decision (either valid or invalid) of a block receive a reward. 
 
-Eligibility of the reward can be easily checked for the parachain validators and extra validators who satisfies the condition when $\tau = 0$ in Condition \ref{eq:valCon}. Latter, we just need to verify the VRF proof.
+Eligibility of the reward can be easily checked for the parachain validators and extra validators who satisfies the conditions when $\tau = 0$. Latter, we just need to verify the VRF proof.
 However, it is not easy to verify the condition for $\tau > 0$, because this value is subjective. Therefore, we may not need to be very precise for this $\tau$ value, if the signature of the validator is correct.

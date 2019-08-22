@@ -3,7 +3,7 @@
 \paragraph{Notations} $\V= \{V_1,V_2,...,V_n\}$ is the validator set consisting of validators $V_i$. $\pv$ is a set of parachain validators and $\pv \subset \V$. For the sake of distinction, we denote parachain validators by $PV_i \equiv V_i$.
 
 \begin{definition}[Blob]
-A blob is a tuple $(B, \pi, M)$ where $B$ is the parachain block, $\pi$ is the validity proof of $B$ and $M$ is the set of outgoing messages from that parachain.
+A blob is a tuple $(B, \pi, M)$ where $B$ is the parachain block, $\pi$ is the proof of validity of $B$ and $M$ is the set of outgoing messages from that parachain.
 \end{definition}
 
 
@@ -46,7 +46,7 @@ The active parties in the availability and validity scheme are validators, parac
 
 \item Parachain validators are responsible to validate a blob. They can be malicious.
 \item Collators are the full nodes of parachain and provide a PoV blob to the responsible parachain validators. They can be malicious and collude with parachain validators.
-\item Validators are responsible of maintaining relay chain and finalizing the blocks in the relay chain. A validator can be also a parachain validator. 
+\item Validators are responsible for maintaining the relay chain and finalizing the blocks in the relay chain. A validator can also be a parachain validator. 
 \item Fishermen inspects any malicious activity. If any exists they announce and prove it.  
 
 
@@ -57,7 +57,7 @@ In our security model, we assume that all parties except fishermen can be malici
 
 
 \begin{definition}[Proof of Validity (PoV)]\label{def:pob}
-PoV consists of two algorithms $\prove$ and $\verify$:
+PoV consists of two algorithms: $\prove$ and $\verify$:
 \begin{itemize}
     \item $\prove$  takes the block $B$, the parachain $PC$ and the outgoing messages from $PC$ as an input and outputs the proof $\pi$.
     \item $\verify$  takes the blob $(B,\pi,M)$ as an input and outputs 1 (valid) or 0 (invalid).
@@ -72,7 +72,7 @@ We note that $B\in PC$ (resp. $B \notin PC$) means that the block $B$ is a valid
 
 
 \begin{definition}[Unavailable Block]\label{def:unavail}
-A block is unavailable if less than $k$ erasure code of its blob obtained by honest validators.
+A block is unavailable if less than $k$ erasure code pieces of its blob are obtained by honest validators.
 \end{definition}
 
 
