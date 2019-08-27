@@ -17,9 +17,15 @@ We cannot assume that all events that warrant slashing a particular stash accoun
 We might assume $\min \{ x_{\eta,\nu_j,e}, x_{\eta,\nu_j,e'} \}$ to be the "same" stake, but this does not obviously buy us much.  We therefore suggest the slashing $\eta$ the amount $\max_e \sum_{\nu \in \Nu_e} p_{\eta,\nu,e} x_{\eta,\nu,e}$ where again $\Nu_e$ is the validators nominated by $\eta$ in era $e$
 
 
-We ask that slashing by monotonic increasing for all parties so that validators cannot reduce any nominator's slash by additional miss-behavior.  In other words, the amount any nominator gets slashed can only increase with more slashings evnts, even ones involving the same validator but not the same nominator.
+We take several additional actions whenever some validator $\nu$ causes the slashing of some nominator $\eta$:  We freeze $\eta$'s exposure $x_{\eta,\nu,e}$ where $e$ was our era that maximizes $\sum_{\nu \in \Nu_e} p_{\eta,\nu,e} x_{\eta,\nu,e}$.  We reduce any nominations of other validators by $\eta$ proportionally.  If $\eta$ is not $\nu$ then we revoke $\eta$'s nomination of $\nu$.  
+
+We unfreeze $\eta$'s remaining exposure after one unbonding period elapses, as measured from the block height where the slash got recorded.  We permit $\eta$ to start unbonding their remaining exposure.  We also permit $\eta$ to unfreeze their remaining exposure earlier, but doing so may expose them to older slashes again, so they should be discouraged form doing so.
+
+
+We ask that slashing by monotonic increasing for all parties so that validators cannot reduce any nominator's slash by additional miss-behavior.  In other words, the amount any nominator gets slashed can only increase with more slashings events, even ones involving the same validator but not the same nominator.
 
 We think fairness imposes this condition because otherwise validators can reduce the slash of their favoured nominators, normally by making other nominators be slashed more.  We know trusted computing environments (TEE) avoid this issue, but we do not currently foresee requiring that all validators use them.
 
 There are no meaningful limits on the diversity of nominators who nominated a particular validator within the unbonding period.  In consequence, almost every validator can be slashed simultaneously, thanks to by monotonicity and the validator adding past equivocations, which enables an array of "rage quit attacks".  In other words, we cannot bound the total stake destroyed by a combined slashing event much below the slash applied to the total stake of the network.
+
 
