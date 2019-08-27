@@ -7,7 +7,7 @@ In any era $e$, there is a fixed amount of stake aka base exposure $x_{\eta,\nu,
 
 We remove any validator $\nu$ whenever they gets slashed, which prevents repeated slashing after that point.  There is however an issue that $\nu$ might get slashed multiple times before the chain acknowledges the slash and kicks $\nu$.  In consequence, if era $e$ sees validator $\nu$ slashed for several distinct proportions $p_i$, then we define $p_{\eta,\nu,e} := \max_i p_i$ and slash their nominator $\eta$ only $p_{\eta,\nu,e} x_{\eta,\nu,e}$.
 
-We have no current concerns about multiple miss-behaviours from the same validator $\nu$ in one era, but if we invent some in future then the slashing lock could combine them before producing these $p_i$.  We know this would complicates cross era logic, but this should be address by considering the specific miss-behaviour.
+We have no current concerns about multiple miss-behaviours from the same validator $\nu$ in one era, but if we invent some in future then the slashing lock could combine them before producing these $p_i$.  We know this would complicate cross era logic, but such issues should be addressed by considering the specific miss-behaviour.
 
 We do however worry about miss-behaviours from different validators $\nu \ne \nu'$ both because nomination must restrict Sibels and also because correlated slashing need not necessarily involve the same validators.  We therefore let $\Nu_{\eta,e}$ denote the validators nominated by $\eta$ in era $e$ and slash $\sum_{\nu \in \Nu_e} p_{\eta,\nu,e} x_{\eta,\nu,e}$ from $\eta$ when multiple validators $\nu \in \Nu_{\eta,e}$ get slashed.
 
