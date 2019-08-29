@@ -19,7 +19,7 @@ The system also encourages any DOT holder to participate as a **nominator**. A n
 
 This nominator-validator arrangement gives strong security guarantees. It allows for the system to select validators with massive amounts of aggregate stake — much higher than any single party’s DOT holdings — and eliminate candidates with low stake. In fact, at any given moment we expect there to be a considerable fraction of all the DOTs supply be staked in NPoS. This makes it very difficult for an adversarial entity to get validators elected (as they need to build a fair amount of reputation to get the required backing) and very costly to attack the system (because any attack will result in large amounts of DOTs being slashed).
 
-Our NPoS scheme is much more efficient than proof-of-work (PoW) and faster than standard proof-of-stake (PoS): it allows for virtually all DOT holding actors to continuously participate, thus maintaining high levels of security, while simultaneously keeping the number of validators bounded and hence all the essential network operations efficient.
+Our NPoS scheme is much more efficient than proof-of-work (PoW) and faster than standard proof-of-stake (PoS). Networks with deterministic finality must have a limited validator set (the size can be changed with governance). NPoS allows for virtually all DOT holders to continuously participate, thus maintaining high levels of security by putting more value at stake and allowing more people to earn a yield based on their holdings.
 
 ## The election process
 
