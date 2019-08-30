@@ -16,10 +16,9 @@ We cannot assume that all events that warrant slashing a particular stash accoun
 
 We might assume $\min \{ x_{\eta,\nu_j,e}, x_{\eta,\nu_j,e'} \}$ to be the "same" stake, but this does not obviously buy us much.  We therefore suggest the slashing $\eta$ the amount $\max_e \sum_{\nu \in \Nu_e} p_{\eta,\nu,e} x_{\eta,\nu,e}$ where again $\Nu_e$ is the validators nominated by $\eta$ in era $e$
 
+We cannot slash for anything beyond the unbonding period and must expire slashing records when they go past the unbonding period.  We implement this by recording all slash events with some value $s_{\eta,\nu,e}$ but if $e'$ is later than $e$ then we record the initial slash $s_{\eta,\nu,e} := p_{\eta,\nu,e} x_{\eta,\nu_j,e}$ at $e$ and record a lesser slash $s_{\eta,\nu,e'} := p_{\eta,\nu,e'} x_{\eta,\nu_j,e'} - p_{\eta,\nu,e} x_{\eta,\nu_j,e}$ at the later $e'$.  These $s_{\eta,\nu,e}$ values permit slashes to expire without unfairly increasing other slashes.
 
-We take several additional actions whenever some validator $\nu$ causes the slashing of some nominator $\eta$:  We freeze $\eta$'s exposure $x_{\eta,\nu,e}$ where $e$ was our era that maximizes $\sum_{\nu \in \Nu_e} p_{\eta,\nu,e} x_{\eta,\nu,e}$.  We reduce any nominations of other validators by $\eta$ proportionally.  If $\eta$ is not $\nu$ then we revoke $\eta$'s nomination of $\nu$.  
-
-We unfreeze $\eta$'s remaining exposure after one unbonding period elapses, as measured from the block height where the slash got recorded.  We permit $\eta$ to start unbonding their remaining exposure.  We also permit $\eta$ to unfreeze their remaining exposure earlier, but doing so may expose them to older slashes again, so they should be discouraged form doing so.
+We take several additional actions whenever some validator $\nu$ causes the slashing of some nominator $\eta$:  If $\eta$ is not $\nu$ then we revoke $\eta$'s nomination of $\nu$.  If we slash $\eta$ for epoch $e'$ but in epoch $e$, and $p_{\eta,\nu,e'} x_{\eta,\nu_j,e'} > p_{\eta,\nu,e} x_{\eta,\nu_j,e}$, then we proportionally remove the extra lost stake $p_{\eta,\nu,e'} x_{\eta,\nu_j,e'} - p_{\eta,\nu,e} x_{\eta,\nu_j,e'}$ from all $\eta$'s slashes.
 
 
 We ask that slashing by monotonic increasing for all parties so that validators cannot reduce any nominator's slash by additional miss-behavior.  In other words, the amount any nominator gets slashed can only increase with more slashings events, even ones involving the same validator but not the same nominator.
