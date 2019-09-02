@@ -5,7 +5,9 @@ We need our slashing algorithm to be fair and effective.  We discuss how this me
 
 In any era $e$, there is a fixed amount of stake aka base exposure $x_{\eta,\nu,e}$ assigned by any nominator $\eta$ to any validator $\nu$.  We demand that slashing never exceeds nominators' exposure because doing so creates an incentive to break up stash keys.  We avoid encouraging such Sibel behavior in Polkadot because doing so makes Polkadot unfair and harms our information about nominator behavior.
 
-We remove any validator $\nu$ whenever they gets slashed, which prevents repeated slashing after that point.  There is however an issue that $\nu$ might get slashed multiple times before the chain acknowledges the slash and kicks $\nu$.  In consequence, if era $e$ sees validator $\nu$ slashed for several distinct proportions $p_i$, then we define $p_{\eta,\nu,e} := \max_i p_i$ and slash their nominator $\eta$ only $p_{\eta,\nu,e} x_{\eta,\nu,e}$.
+We immediately remove any validator $\nu$ whenever they gets slashed, which prevents repeated slashing after that point.  There is however an issue that $\nu$ might get slashed multiple times before the chain acknowledges the slash and kicks $\nu$.  In consequence, if era $e$ sees validator $\nu$ slashed for several distinct proportions $p_i$, then we define $p_{\eta,\nu,e} := \max_i p_i$ and slash their nominator $\eta$ only $p_{\eta,\nu,e} x_{\eta,\nu,e}$.  
+
+We also like that $\max$ is commutative, meaning we slash the same regardless of the order in which they are detected.
 
 We have no current concerns about multiple miss-behaviours from the same validator $\nu$ in one era, but if we invent some in future then the slashing lock could combine them before producing these $p_i$.  We know this would complicate cross era logic, but such issues should be addressed by considering the specific miss-behaviour.
 
@@ -16,14 +18,22 @@ We cannot assume that all events that warrant slashing a particular stash accoun
 
 We might assume $\min \{ x_{\eta,\nu_j,e}, x_{\eta,\nu_j,e'} \}$ to be the "same" stake, but this does not obviously buy us much.  We therefore suggest the slashing $\eta$ the amount $\max_e \sum_{\nu \in \Nu_e} p_{\eta,\nu,e} x_{\eta,\nu,e}$ where again $\Nu_e$ is the validators nominated by $\eta$ in era $e$
 
-We cannot slash for anything beyond the unbonding period and must expire slashing records when they go past the unbonding period.  We implement this by recording all slash events with some value $s_{\eta,\nu,e}$ but if $e'$ is later than $e$ then we record the initial slash $s_{\eta,\nu,e} := p_{\eta,\nu,e} x_{\eta,\nu_j,e}$ at $e$ and record a lesser slash $s_{\eta,\nu,e'} := p_{\eta,\nu,e'} x_{\eta,\nu_j,e'} - p_{\eta,\nu,e} x_{\eta,\nu_j,e}$ at the later $e'$.  These $s_{\eta,\nu,e}$ values permit slashes to expire without unfairly increasing other slashes.
-
-We take several additional actions whenever some validator $\nu$ causes the slashing of some nominator $\eta$:  First, if $\eta$ is not $\nu$ then we revoke $\eta$'s nomination of $\nu$.  Second, if we slash $\eta$ for epoch $e'$ but in epoch $e$, and $p_{\eta,\nu,e'} x_{\eta,\nu_j,e'} > p_{\eta,\nu,e} x_{\eta,\nu_j,e}$, then we remove the extra lost stake $p_{\eta,\nu,e'} x_{\eta,\nu_j,e'} - p_{\eta,\nu,e} x_{\eta,\nu_j,e'}$ proportionally from all $\eta$'s slashes.  
-
-We also {\em pause} all of $\eta$'s stake across all validators, temporarily reducing those validator's stake.  We later unpause $\eta$'s stake after one unbonding period elapses, as measured from either the earliest slash or from the block height where the slash got recorded.  We permit $\eta$ to start unbonding paused stake.  We also permit $\eta$ to unpause their remaining exposure earlier before the unbonding period elapses.  We treat any slashes for violations after the unpause as unconnected to the slashes before though, making them additive, not computed via a max.
+In particular, there is an extortion attack in which someone runs many poorly staked validators, receives nominations, and then threatens their nominators with being slashed.  We cannot prevent such attacks entirely, but this outer $\max_e$ reduces the damage over formula that add slashing from different eras.
 
 
-We ask that slashing by monotonic increasing for all parties so that validators cannot reduce any nominator's slash by additional miss-behavior.  In other words, the amount any nominator gets slashed can only increase with more slashings events, even ones involving the same validator but not the same nominator.
+We cannot slash for anything beyond the unbonding period and must expire slashing records when they go past the unbonding period.  We implement this by recording all slash events along with some value $s_{\eta,\nu,e}$ recording the amount actually slashed at that time.  If $e'$ is later than $e$ then we record the initial slash $s_{\eta,\nu,e} := p_{\eta,\nu,e} x_{\eta,\nu_j,e}$ at $e$ and record a lesser slash $s_{\eta,\nu,e'} := p_{\eta,\nu,e'} x_{\eta,\nu_j,e'} - p_{\eta,\nu,e} x_{\eta,\nu_j,e}$ at the later $e'$.  These $s_{\eta,\nu,e}$ values permit slashes to expire without unfairly increasing other slashes.
+
+We take several additional actions whenever some validator $\nu$ causes the slashing of some nominator $\eta$:  
+
+First, we post a slashing transaction to the chain, which drops $\vu$ from the active validator list by invalidating their session keys, which makes everyone ignore $\vu$ from the remainder of the era, and also invalides any future blocks that do not ignore $\vu$.  We also remove all nomination approval votes by any nominator for $\nu$, even those who currently allocate $\vu$ zero stake.
+
+Second, we remove all $\eta$'s nomination approval votes for future eras.  We do not remove $\eta$'s current nominations for the current era or reduce the stake currently backing other validators.  Also we permit $\eta$ to add new nomination approval votes for future eras during the current era.  We also notify $\eta$ that $\nu$ cause them to be slashed.  
+
+We treat any future nominations by $\eta$ separately from any that happen in the current era or before.  in other words, we partition the eras into _slashing periods_ for $\eta$ which are maximal contiguous sequence of eras $\bar{e} = \[ e_1, \ldots, e_n \]$ such that $e_n$ is the least era in which $\eta$ gets slashed for actions in one of the $e_i$.  We let $\bar{e}$ range over the slashing periods for $\eta$ then we have slashed $\eta$ in total  
+$$ \sum_{\bar{e} \in \bar{E}} \max_{e \in \bar{e}} \sum_{\nu \in \Nu_e} p_{\eta,\nu,e} x_{\eta,\nu,e} $$
+
+
+We ask that slashing be monotonic increasing for all parties so that validators cannot reduce any nominator's slash by additional miss-behavior.  In other words, the amount any nominator gets slashed can only increase with more slashings events, even ones involving the same validator but not the same nominator.
 
 We think fairness imposes this condition because otherwise validators can reduce the slash of their favoured nominators, normally by making other nominators be slashed more.  We know trusted computing environments (TEE) avoid this issue, but we do not currently foresee requiring that all validators use them.
 
