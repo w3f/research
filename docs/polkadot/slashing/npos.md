@@ -11,12 +11,12 @@ We also like that $\max$ is commutative, meaning we slash the same regardless of
 
 We have no current concerns about multiple miss-behaviours from the same validator $\nu$ in one era, but if we invent some in future then the slashing lock could combine them before producing these $p_i$.  We know this would complicate cross era logic, but such issues should be addressed by considering the specific miss-behaviour.
 
-We do however worry about miss-behaviours from different validators $\nu \ne \nu'$ both because nomination must restrict Sibels and also because correlated slashing need not necessarily involve the same validators.  We therefore let $\Nu_{\eta,e}$ denote the validators nominated by $\eta$ in era $e$ and slash $\sum_{\nu \in \Nu_e} p_{\eta,\nu,e} x_{\eta,\nu,e}$ from $\eta$ when multiple validators $\nu \in \Nu_{\eta,e}$ get slashed.
+We do however worry about miss-behaviours from different validators $\nu \ne \nu'$ both because nomination must restrict Sibels and also because correlated slashing need not necessarily involve the same validators.  We therefore let $N_{\eta,e}$ denote the validators nominated by $\eta$ in era $e$ and slash $\sum_{\nu \in N_e} p_{\eta,\nu,e} x_{\eta,\nu,e}$ from $\eta$ when multiple validators $\nu \in N_{\eta,e}$ get slashed.
 
 
 We cannot assume that all events that warrant slashing a particular stash account get detected early or occur within the same era.  If $e$ and $e'$ are distinct eras then we expect $x_{\eta,\nu_j,e} \ne x_{\eta,\nu_j,e'}$ so the above arguments fail.  Indeed, we cannot even sum slashes applied to different validators because doing so could quickly exceeds nominators exposure $x_{\eta,\nu,e}$.
 
-We might assume $\min \{ x_{\eta,\nu_j,e}, x_{\eta,\nu_j,e'} \}$ to be the "same" stake, but this does not obviously buy us much.  We therefore suggest the slashing $\eta$ the amount $\max_e \sum_{\nu \in \Nu_e} p_{\eta,\nu,e} x_{\eta,\nu,e}$ where again $\Nu_e$ is the validators nominated by $\eta$ in era $e$
+We might assume $\min \{ x_{\eta,\nu_j,e}, x_{\eta,\nu_j,e'} \}$ to be the "same" stake, but this does not obviously buy us much.  We therefore suggest the slashing $\eta$ the amount $\max_e \sum_{\nu \in N_e} p_{\eta,\nu,e} x_{\eta,\nu,e}$ where again $N_e$ is the validators nominated by $\eta$ in era $e$
 
 In particular, there is an extortion attack in which someone runs many poorly staked validators, receives nominations, and then threatens their nominators with being slashed.  We cannot prevent such attacks entirely, but this outer $\max_e$ reduces the damage over formula that add slashing from different eras.
 
@@ -25,12 +25,12 @@ We cannot slash for anything beyond the unbonding period and must expire slashin
 
 We take several additional actions whenever some validator $\nu$ causes the slashing of some nominator $\eta$:  
 
-First, we post a slashing transaction to the chain, which drops $\vu$ from the active validator list by invalidating their session keys, which makes everyone ignore $\vu$ from the remainder of the era, and also invalides any future blocks that do not ignore $\vu$.  We also remove all nomination approval votes by any nominator for $\nu$, even those who currently allocate $\vu$ zero stake.
+First, we post a slashing transaction to the chain, which drops $\nu$ from the active validator list by invalidating their session keys, which makes everyone ignore $\nu$ from the remainder of the era, and also invalides any future blocks that do not ignore $\nu$.  We also remove all nomination approval votes by any nominator for $\nu$, even those who currently allocate $\nu$ zero stake.
 
 Second, we remove all $\eta$'s nomination approval votes for future eras.  We do not remove $\eta$'s current nominations for the current era or reduce the stake currently backing other validators.  Also we permit $\eta$ to add new nomination approval votes for future eras during the current era.  We also notify $\eta$ that $\nu$ cause them to be slashed.  
 
-We treat any future nominations by $\eta$ separately from any that happen in the current era or before.  in other words, we partition the eras into _slashing periods_ for $\eta$ which are maximal contiguous sequence of eras $\bar{e} = \[ e_1, \ldots, e_n \]$ such that $e_n$ is the least era in which $\eta$ gets slashed for actions in one of the $e_i$.  We let $\bar{e}$ range over the slashing periods for $\eta$ then we have slashed $\eta$ in total  
-$$ \sum_{\bar{e} \in \bar{E}} \max_{e \in \bar{e}} \sum_{\nu \in \Nu_e} p_{\eta,\nu,e} x_{\eta,\nu,e} $$
+We treat any future nominations by $\eta$ separately from any that happen in the current era or before.  in other words, we partition the eras into _slashing periods_ for $\eta$ which are maximal contiguous sequence of eras $\bar{e} = \left[ e_1, \ldots, e_n \right]$ such that $e_n$ is the least era in which $\eta$ gets slashed for actions in one of the $e_i$.  We let $\bar{e}$ range over the slashing periods for $\eta$ then we have slashed $\eta$ in total  
+$$ \sum_{\bar{e} \in \bar{E}} \max_{e \in \bar{e}} \sum_{\nu \in N_e} p_{\eta,\nu,e} x_{\eta,\nu,e} $$
 
 
 We ask that slashing be monotonic increasing for all parties so that validators cannot reduce any nominator's slash by additional miss-behavior.  In other words, the amount any nominator gets slashed can only increase with more slashings events, even ones involving the same validator but not the same nominator.
