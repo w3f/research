@@ -1,1 +1,10 @@
 \subsection{Networking}
+
+We need networking for a number of components of Polkadot.
+These components are: the consensus protocol GRANDPA,
+the block production mechanism for relay chain, receiving of parachain blocks,
+distribution and recovery of erasure coded pieces for the availability and validity scheme, and the
+interchain messaging scheme.
+
+
+We use gossiping for all parts, except distributing and recovery of erasure coded pieces for the availability and validity mechanism.
