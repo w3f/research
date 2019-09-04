@@ -18,15 +18,15 @@ The _block ingress roots_ are $R(Ingress_{B,p}) = \{\forall y\neq p,  R(E^B_{y,p
 
 The _total accumulated ingress_ of a parachain $p$ at block $B$ is defined by the recursive function 
 
-$TotalIngress(B,p) = \begin{cases}
-B = Genesis & [] \\ 
-otherwise & TotalIngress(parent(B),p) || Ingress_{B,p}
-\end{cases}$
+$$TotalIngress(B,p) = \begin{cases}
+\emptyset, & B = Genesis \\ 
+TotalIngress(parent(B),p) \cup Ingress_{B,p}, & B \neq Genesis
+\end{cases}$$
 
-$R(TotalIngress(B,p)) = \begin{cases}
-B = Genesis & [] \\ 
-otherwise & R(TotalIngress(parent(B),p)) || R(Ingress_{B,p})
-\end{cases}$
+$$R(TotalIngress(B,p)) = \begin{cases}
+\emptyset, & B = Genesis \\ 
+R(TotalIngress(parent(B),p)) \cup R(Ingress_{B,p}), & B \neq Genesis
+\end{cases}$$
 
 This is a list containing all the ingress of every parachain to $p$ in every block from the genesis up to $B$.
 
@@ -34,16 +34,17 @@ Parachains must process $Ingress_{B,p}$ after $Ingress_{parent(B),p}$. Additiona
 
 Every parachain has a value $watermark_p$ which is the relay chain block hash for which it has most recently processed any ingress. This is initially set to $Genesis$. To define a structure containing all un-processed messages to a parachain, we introduce the _pending_ ingress, which is defined by the recursive function 
 
-$PendingIngress(B,p) = \begin{cases}
-Hash(B) = watermark_p & [] \\ 
-otherwise & PendingIngress(parent(B),p) || Ingress_{B,p}
-\end{cases}$
+$$PendingIngress(B,p) = \begin{cases}
+\emptyset, & Hash(B) = watermark_p \\ 
+PendingIngress(parent(B),p) \cup Ingress_{B,p}, & Hash(B) \neq watermark_p
+\end{cases}$$
 
 The _pending ingress roots_ $R(PendingIngress(B,p))$ can be computed by a similar process to $R(TotalIngress(B,p))$.
 
 A parachain candidate for $p$ building on top of relay-chain block $B$ is allowed to process any prefix of $PendingIngress(B,p)$.
 
 Recall that all information the runtime has about parachains is from `CandidateReceipt`s produced by validating a parachain candidate block and included in a relay-chain block. The candidate has a number of fields. Here are some relevant ones:
+
   - Egress Roots: `Vec<(ParaId, Hash)>`. When included in a relay chain block $B$ for parachain $p$, each hash, paired with unique parachain $y$ is $R(E^B_{p,y})$
   - a new value for $watermark_p$ when the receipt is for parachain $p$. The runtime considers the value from the most recent parachain candidate it has received as current. It must be at least as high as the previous value of $watermark_p$ _and_ be in the ancestry of any block $B$ the candidate is included in.
 
@@ -54,7 +55,7 @@ The goal of a collator on $p$ building on relay chain parent $B$ is to acquire a
 The simplest way to do this is with a gossip protocol.
 At every block $B$ and parachain $p$ $R(PendingIngress(B, p))$ is available from the runtime.
 
-What the runtime makes available for every parachain and block $p,B$ is a list of ingress-lists pending ingress roots at that block, each list paired with the block number the root was first meant to be routed. `root([])` is omitted from ingress-lists and empty lists are omitted. Sorted ascending by block number. All block numbers are less than `num(B)` and refer to the block in the same chain.
+What the runtime makes available for every parachain and block $p,B$ is a list of ingress-lists pending ingress roots at that block, each list paired with the block number the root was first meant to be routed. $R(\emptyset)$ is omitted from ingress-lists and empty lists are omitted. Sorted ascending by block number. All block numbers are less than `num(B)` and refer to the block in the same chain.
 
 In Rust (TODO: transcribe to LaTeX)
 `fn ingress(B, p) -> Vec<(BlockNumber, Vec<(ParaId, Hash)>)>`
@@ -68,6 +69,7 @@ The runtime also makes available the pending _egress_ from a given $B,p$. This f
 A bounded gossip system is one where nodes have a filtration mechanism for incoming packets that can be communicated to peers.
 
 We have the following requirements for nodes:
+
   1. Nodes never have to consider an unbounded number of gossip messages. The gossip messages they are willing to consider should be determined by some state sent to peers.
   2. The work a node has to do to figure out if one of its peers will accept a message should be relatively small
   3. The block-state of leaves is available but no guarantees are made about older blocks' states.
@@ -115,6 +117,7 @@ Note that while we cannot stop peers from sending us disallowed messages, such b
 
 
 We maintain our local information:
+
   - $leaves$, a list of our best up to `MAX_CHAIN_HEADS` leaf-hashes of the block DAG
   - $leaves_k$, for each peer $k$ the latest list of their best up to `MAX_CHAIN_HEADS` leaf-hashes of the block DAG (based on what they have sent us).
   - $leafTopics(l) \rightarrow \{queueTopic(h)\}$ for each unrouted root $h$ for all parachains for a leaf $l$ in $leaves$.
@@ -123,21 +126,24 @@ We maintain our local information:
 --- 
 
 **On new leaf $B$**
+
 1. Update $leaves$, $leafTopics$, and $expectedQueues$. (haven't benchmarked but i would conservatively estimate 100ms operation)
-1. Send peers new $leaves$.
-1. If a collator on $p$, execute `egress(B,p)`. For any message queue roots that are known and have not been propagated yet, put corresponding `Queue` message in the propagation pool.
+2. Send peers new $leaves$.
+3. If a collator on $p$, execute `egress(B,p)`. For any message queue roots that are known and have not been propagated yet, put corresponding `Queue` message in the propagation pool.
 
 ---
 
 **On new chain heads declaration from peer $k$**
+
 1. Update $leaves_k$
-1. $\forall H \in leaves\ \cap\ leaves_k$ do $broadcastTopic(k,t)$ for each $t$ in $leafTopics(H)$.
+2. $\forall H \in leaves\ \cap\ leaves_k$ do $broadcastTopic(k,t)$ for each $t$ in $leafTopics(H)$.
 
 ---
 
 **On `Queue` message $m$ from $k$ on topic $t$**
 
 We define `good(m)` to be a local acceptance criterion:
+
   - The `root` hash of the message is in $expectedQueues(t)$.
   - The trie root of given messages equals `root`.
 
@@ -172,10 +178,11 @@ Secondly, nodes shouldn't have to do a lot of work to figure out whether to prop
 Since chain-state is not assumed available from prior blocks, we have no good way of determining if egress actually should be sent to peers on that earlier block. A relaxation of this by extending to a constant number of ancestors is discussed in the future improvements section.
 
 Still, only propagating to peers that are synchronized to the same chain head is reasonable with the following assumptions (some empirical but reasonable and probably overestimated values):
-1. New valid blocks are issued on average at least 5 seconds apart (we are aiming for more like 10-15 seconds actually)
-2. Block propagation time is within 2 seconds over the "useful" portion of the gossip graph.
-3. Neighbors in the gossip graph have <=500ms latency.
-4. Meaningfully propagating messages before synchronizing to the heads of the DAG is probably not worthwhile
+
+ 1. New valid blocks are issued on average at least 5 seconds apart (we are aiming for more like 10-15 seconds actually)
+ 2. Block propagation time is within 2 seconds over the "useful" portion of the gossip graph.
+ 3. Neighbors in the gossip graph have <=500ms latency.
+ 4. Meaningfully propagating messages before synchronizing to the heads of the DAG is probably not worthwhile
 
 If we assume that no nodes broadcast updated $leaves$ until after the block has fully propagated (this is clearly not going to be the case in practice), then that leaves time after updating $leaves$ for a full 2.5 hops at 500ms latency to gossip `Queue`s until the next block. Real values are almost certainly better. And the good news is that not all egress has to be propagated within one block-time -- over time it is more and more likely that participants obtain earlier messages.
 
@@ -184,13 +191,9 @@ This is a scheme which results in all participants seeing all messages. It almos
 **Future Improvements (roughly, from sooner to later)**:
 
  1. A section above describes why propagating egress to peers who are _arbitrarily_ far back is a bad idea, but we can reasonably keep track of the last $a$ ancestors of all of our leaves once we're synced and just following normal block production. The first reasonable choice for $a$ is 1 (keep parents). This probably gets us 90% of the gains we need, simply because there is a "stutter" when requiring leaf-sets to intersect and two peers need to update each other about the new child before sending any more messages.
-
  2. Extend the definition of $E^B_{x,y}$ to allow chains to censor each other. For instance, by saying that parachain $y$ can inform the relay chain not to route messages from $x$ at block $B$ (and later inform it to start routing again at block $B'$). Then for any block $b$ between $B$ and $B'$, we would have the runtime consider $E^b_{x,y} = \emptyset$ regardless of what the `CandidateReceipt` for $x$ at $b$ said. Actually, since the runtime deals only in trie root hashes, it would really just ignore $R(E^b_{x,y})$ from the candidate receipt and set it to $R(\emptyset)$.
-
  3. Extend to support a smarter topology where not everyone sees everything. Perhaps two kinds of topics, those based on $(B, Chain_{from})$ and those based on $(B, Chain_{to})$ would make this more viable. 
-
  4. Use some kind of smart set reconciliation (e.g. https://github.com/sipa/minisketch) to minimize gossip bandwidth.
-
  5. Incentivize distribution with something like Probabilistic Micropayments.
 
 ---
