@@ -1,25 +1,32 @@
-\subsection{Networking}
+\subsection{Networking}\label{sec:networking}
 
 We need networking for a number of components of Polkadot.
-These components are: the consensus protocol GRANDPA \ref{sec:grandpa},
-the block production mechanism for relay chain \ref{sec:},
-receiving parachain blocks,
-distribution and recovery of erasure coded pieces for the availability and validity scheme \ref{sec:}, and
-the interchain messaging scheme \ref{sec:}.
+These components are:
+\begin{itemize}
+\item sending around votes for the consensus protocol GRANDPA \ref{sec:grandpa}
+\item sending around blocks for the block production scheme for relay chain \ref{sec:}
+\item receiving parachain blocks
+\item distributing and recovering of erasure coded pieces for the availability and validity scheme \ref{sec:}
+\item sending messages from one parachain to another for the interchain messaging scheme \ref{sec:}
+\end{itemize}
 
 We will not discuss the networking details of parachain block production, since it is out of scope for Polkadot.
 
 We use gossiping for all parts mentioned above, except distributing and recovery of erasure coded pieces for the availability and validity mechanism, where we use direct routing for scalability.
+
+The entites that are involved in our networking are validators, full nodes, and collators.
 
 \subsubsection{Gossiping}
 For node discovery we use a similar networking scheme as many other blockchains do that is using the widely used distributed hast table (DHT), Kademlia \cite{}.
 Kademlia is a DHT that uses XOR distance metric for finding a node and is often used for networks with high churn.
 We use Protocols Labs libp2p libraries \cite{} Kademlia implementation with some changes for this purpose.
 
-We apply some restriction to prevent DoSing as follows.
+Moreover, we apply some restriction to the gossiping protocol to prevent bandwidth problems, e.g., denial-of-service (DoS-ed) as follows.
 
-Polite GRANDPA:
-Sentry nodes:
-Preventing Eclipsing:
+Polite GRANDPA where only two votes are received for each type of vote, round number, and voter. Any further votes will be ignored.
+
+Sentry nodes are proxy servers who receive all the traffic that would go to a certain validator and forward the traffic after duplicates are removed.
+
+To prevent Eclipsing \cite{} we allow for routing tables that are large enough to contain at least some honest nodes.
 
 \subsubsection{Direct Routing}
