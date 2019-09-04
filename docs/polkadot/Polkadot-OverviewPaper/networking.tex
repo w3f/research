@@ -1,14 +1,25 @@
 \subsection{Networking}
 
 We need networking for a number of components of Polkadot.
-These components are: the consensus protocol GRANDPA \ref{},
-the block production mechanism for relay chain \ref{},
-receiving of parachain blocks,
-distribution and recovery of erasure coded pieces for the availability and validity scheme \ref{}, and
-the interchain messaging scheme \ref{}.
+These components are: the consensus protocol GRANDPA \ref{sec:grandpa},
+the block production mechanism for relay chain \ref{sec:},
+receiving parachain blocks,
+distribution and recovery of erasure coded pieces for the availability and validity scheme \ref{sec:}, and
+the interchain messaging scheme \ref{sec:}.
+
+We will not discuss the networking details of parachain block production, since it is out of scope for Polkadot.
 
 We use gossiping for all parts mentioned above, except distributing and recovery of erasure coded pieces for the availability and validity mechanism, where we use direct routing for scalability.
 
+\subsubsection{Gossiping}
 For node discovery we use a similar networking scheme as many other blockchains do that is using the widely used distributed hast table (DHT), Kademlia \cite{}.
 Kademlia is a DHT that uses XOR distance metric for finding a node and is often used for networks with high churn.
 We use Protocols Labs libp2p libraries \cite{} Kademlia implementation with some changes for this purpose.
+
+We apply some restriction to prevent DoSing as follows.
+
+Polite GRANDPA:
+Sentry nodes:
+Preventing Eclipsing:
+
+\subsubsection{Direct Routing}
