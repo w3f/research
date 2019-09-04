@@ -1,13 +1,26 @@
 \subsection{Parachains}
+\subsubsection{Block Production}
+In outline, a collator produces a parachain block, sends it to the parachain validators, who sign its header as valid, and the header with enough signatures is placed on the relay chain. At this point, the parachain block is as canonical as the relay chain block its header appeared in. If that is in the best chain, so is the parachain block and when that is finalised, so is the parachain block.
 
-\paragraph{Block Production}
+Because the parachain validators switch parachains frequently, they are stateless clients of the parachain. Thus we distinguish between the parachain block $B$, which is enough for full nodes of the parachain such as collators to update the parachain state, and the {\em Proof of Validity(PoV) block} $B_{PoV}$, which a validator who does not have the parachain state can verify.
 
- \paragraph{Validity and Availability}
- Once a block is created it is important that the parachain blob is available for a while.
- The naive solution for this would be broadcasting/gossip the parachain blobs to all, which is not a feasible option because the parachain blobs are big.
- We want to find an efficient solution to ensure parachain blobs from any recently created parachain block are available.
+Any validator should be able to verify $B_{PoV}$ given the relay chain state using the parachain's {\em state transition validation function}(STVF), the wasm code for which is also on the relay chain. The STVF takes as input the PoV block, the header of the last parachain block from this parachain, and the message roots of all parachain blocks that have sent messages to this parachain since the last parachain block (see \ref{sec:ICMP} for details such as the range needed) and should output the validity of the block and its outgoing messages. The PoV block should contain any outgoing messages and for most parachains, it will also contain the parachain block. If it does contain the parachain block, the parachai validators should gossip the block to the parachain network,as a back up to the collator itself doing so. If it does not, then the parachain will need its own scheme to make sure that the parachain block data is available.
+
+The PoV block will frequently be the parachain block, its outgoing messages, its header and a light client proof, i.e. merkle proofs that give all elements of the input and output state that are used or modified by the state transition from the input and output state roots. However the inclusion of the light client proof is optional and other types of proof are possible. For example a parachain may use succinct or zero knowledge proofs of validity that can guve more scalability than light client proofs. Or a permissioned chain could take signatures from authorities in place of much of the proof.
+
+To aid in censorship resistance, a parachain may want to use proof of work or proof of stake to selected collators. This can be implemented in the STVF and need not be a part of the Polkadot protocol.So for proof of work, the STVF would check that the blockhash is sufficiently small. However, for speed, it would be useful to ensure that most relay chain blocks can include a parachain block. For PoW, this would necessitate it being probable that multiple collators are allowed to produce a block. As such we will still need a tie-breaker for the parachain validators to coordinate on validating the same parachain block first. This may be the golden ticked scheme of \cite{spottypaper}.
+
+
+\subsubsection{Validity and Availability} \label{sec:validity-and-availability}
+Once a block is created it is important that the parachain blob is available for a while.
+The naive solution for this would be broadcasting/gossip the parachain blobs to all relay chain nodes, which is not a feasible option because the are are many parachains and the PoV blocks may be big.
+We want to find an efficient solution to ensure PoV blocks from any recently created parachain block are available.
+ 
+For a single chain, such as bitcoin, as long as 51% of hashpower is honest, not making block data available ensures that np honest miner builds on it so it will not be in the final chain. However parachain consensus for us is determined by relay chain consenus. A parachain block is canonical when it's header is in the relay chain. We have no guarantees that anyone other than the collator and parachain validators have seen the PoV block. If these collude then the rest of the parachain network need not have it and then most collators cannot build a new block and its invalidity may not be discovered. We would like the consensus particpants, here the validators, to collectively guarantee the availability rather than relying on a few nodes.
 
 To this end we designed an availability scheme that uses erasure coding \cite{} to distribute the parachain PoV to all validators.
 When any misbehaviour, unavailability particularly in relation to invalidity, is detected the PoV can be reconstructed from the distributed erasure coded pieces.
 
-\paragraph{ICMP}
+If a block is available, then full nodes of the parachain, and any light client that has the PoV block can check its validity. We rely on nodes actin as {\em fishermen} to report invalidity in this case. They would need to back any claim with their own stake in DOTs. We would assume that most collators would be fishermen, as they have a stake in continued validity of the chain and are alrerady running full nodes, so all they need is stake in DOTs.
+
+\subsubsection{ICMP} \label{sec:ICMP}
