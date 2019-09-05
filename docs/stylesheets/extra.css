@@ -9,3 +9,12 @@
 .md-footer {
     margin-top: 10%;
 }
+
+.md-nav--secondary__title {
+    margin-bottom: 10%;
+    font-size: 2em;
+}
+
+.md-nav--secondary__item {
+    margin-top: 10%;
+}
