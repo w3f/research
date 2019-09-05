@@ -13,4 +13,5 @@ Before going to KU Leuven, I was a research assistant and teaching assistant in 
 
 I obtained my M.Sc. in Computer Science from Saarland University, where I worked for two years as a part-time student assistant at DFKI (German Research Center for Artificial Intelligence) in the Secure Systems group, led by Dr. Werner Stephan, helping with verifying secure partitioning for the PikeOS operating system. 
 
+## Selected Publications
 
