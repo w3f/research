@@ -7,7 +7,7 @@ Polkadot needs networking for a number of its components as follows.
 \item distributing produced blocks for relay chain \ref{sec:relaychainblockproduction}
 \item receiving parachain blocks that have been produced by parachains
 \item distributing and recovering of erasure coded pieces for the availability and validity scheme \ref{sec:validity-and-availability}
-\item sending messages from one parachain to another for the interchain messaging scheme \ref{sec:ICMP}
+\item sending messages from a parachain to another parachain for the interchain messaging scheme \ref{sec:ICMP}
 \end{itemize}
 
 We use \emph{gossiping} for all networking use cases mentioned above, except for distributing and recovery of erasure coded pieces for the availability and validity mechanism, where we use \emph{direct routing} for scalability.
