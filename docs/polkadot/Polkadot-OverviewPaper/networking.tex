@@ -4,10 +4,10 @@ The entites that are involved in our networking are validators, full nodes, and 
 Polkadot needs networking for a number of its components as follows.
 \begin{itemize}
 \item distributing votes for the consensus protocol GRANDPA \ref{sec:grandpa}
-\item distributing produced blocks for relay chain \ref{sec:}
+\item distributing produced blocks for relay chain \ref{sec:relaychainblockproduction}
 \item receiving parachain blocks that have been produced by parachains
-\item distributing and recovering of erasure coded pieces for the availability and validity scheme \ref{sec:}
-\item sending messages from one parachain to another for the interchain messaging scheme \ref{sec:}
+\item distributing and recovering of erasure coded pieces for the availability and validity scheme \ref{sec:validity-and-availability}
+\item sending messages from one parachain to another for the interchain messaging scheme \ref{sec:ICMP}
 \end{itemize}
 
 We use \emph{gossiping} for all networking use cases mentioned above, except for distributing and recovery of erasure coded pieces for the availability and validity mechanism, where we use \emph{direct routing} for scalability.
@@ -19,7 +19,7 @@ We refer to all the entites as nodes when describing networking.
 
 \subsubsection{Gossiping}
 The main idea of gossiping is to broadcast every newly received message in the nodes local network (peers that the node is aware of).
-For node discovery we use a similar networking scheme as many other blockchains do that is using the widely used distributed hast table (DHT), Kademlia \cite{}.
+For node discovery we use a similar networking scheme as many other blockchains do that is using the widely used distributed hast table (DHT), Kademlia \cite{Maymounkov:2002:Kademila}.
 Kademlia is a DHT that uses XOR distance metric for finding a node and is often used for networks with high churn.
 We use Protocols Labs' libp2p libraries \cite{} Kademlia implementation with some changes for this purpose.
 
@@ -33,9 +33,10 @@ We use \emph{Sentry nodes} that are proxy servers who receive all the traffic th
 To prevent Eclipsing attacks \cite{} we allow for routing tables that are large enough to contain at least some honest nodes.
 
 \subsubsection{Direct Routing}
-
+The aim of direct routing is only to send messages to the intended receiver.
+This is saving lots of traffic and is useful when messages only have one receiver and do not need to reach more than one validator such as in the case of erasure coded pieces.
 
 \subsubsection{Interchain Messaging}
 If the sending parachain and the receiving parachain have common honest full nodes then the message will be gossiped from without issue.
-However, if parachain validators of the receiving parachain realize that the message has not arrived they request the message from the parachain validator of the sending parachain. 
+However, if parachain validators of the receiving parachain realize that the message has not arrived they request the message from the parachain validator of the sending parachain.
 Once, they receive it they gossip it in the receiving parachain.
