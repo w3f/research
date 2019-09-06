@@ -16,8 +16,6 @@ At Web3 Foundation I work on a number of tasks as follows.
 
 Before joining W3F, I obtained my PhD in the Electronic Engineering from KU Leuven in the renowned Computer Security and Industrial Cryptography (COSIC) group, under the supervision of Prof. Claudia Diaz and co-supervision of Dr. Markulf Kohlweiss (University of Edinburgh). I was also affiliated to imec. My PhD thesis was titled "Investigating and Improving Anonymous Communication Systems." I obtained my M.Sc. in Computer Science from Saarland University, where I worked for two years as a part-time student assistant at DFKI (German Research Center for Artificial Intelligence) in the Secure Systems group, led by Dr. Werner Stephan, helping with verifying secure partitioning for the PikeOS operating system. 
 
-For more information about my research profile see [here](https://sites.google.com/site/fatemeshirazi/). You can also find the list of my publication at [DBLP](https://dblp.org/pers/hd/s/Shirazi:Fatemeh) or my google scholar [profile](https://scholar.google.de/citations?user=iltE1wwAAAAJ&hl=en).  
-
 ## Selected Publications
 
 [1] Fatemeh Shirazi, Milivoj Simeonovski, Muhammad Rizwan Asghar, Michael Backes, Claudia Diaz: 
@@ -42,3 +40,4 @@ in Proceedings of the 8th workshop on Requirements Engineering for Electronic Vo
 
 
 
+**For more information about my research profile see [here](https://sites.google.com/site/fatemeshirazi/). You can also find the list of my publication at [DBLP](https://dblp.org/pers/hd/s/Shirazi:Fatemeh) or my google scholar [profile](https://scholar.google.de/citations?user=iltE1wwAAAAJ&hl=en).**
