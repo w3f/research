@@ -7,6 +7,7 @@ At Web3 Foundation I work on a number of tasks as follows.
 * coordinating our academic collaborations
 
 **Research Areas**
+
 * Blockchain technologies
 * Privacy-enhancing technologies, in particular, anonymous communication networks
 * Online voting systems
