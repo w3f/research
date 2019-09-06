@@ -1,5 +1,6 @@
 \subsection{Parachains}
-\subsubsection{Block Production}
+
+\subsubsection{Block Production}\label{sec:parachainblockproduction}
 In outline, a collator produces a parachain block, sends it to the parachain validators, who sign its header as valid, and the header with enough signatures is placed on the relay chain. At this point, the parachain block is as canonical as the relay chain block its header appeared in. If that is in the best chain, so is the parachain block and when that is finalised, so is the parachain block.
 
 Because the parachain validators switch parachains frequently, they are stateless clients of the parachain. Thus we distinguish between the parachain block $B$, which is enough for full nodes of the parachain such as collators to update the parachain state, and the {\em Proof of Validity(PoV) block} $B_{PoV}$, which a validator who does not have the parachain state can verify.
@@ -15,7 +16,7 @@ To aid in censorship resistance, a parachain may want to use proof of work or pr
 Once a block is created it is important that the parachain blob is available for a while.
 The naive solution for this would be broadcasting/gossip the parachain blobs to all relay chain nodes, which is not a feasible option because the are are many parachains and the PoV blocks may be big.
 We want to find an efficient solution to ensure PoV blocks from any recently created parachain block are available.
- 
+
 For a single chain, such as bitcoin, as long as 51% of hashpower is honest, not making block data available ensures that np honest miner builds on it so it will not be in the final chain. However parachain consensus for us is determined by relay chain consenus. A parachain block is canonical when it's header is in the relay chain. We have no guarantees that anyone other than the collator and parachain validators have seen the PoV block. If these collude then the rest of the parachain network need not have it and then most collators cannot build a new block and its invalidity may not be discovered. We would like the consensus particpants, here the validators, to collectively guarantee the availability rather than relying on a few nodes.
 
 To this end we designed an availability scheme that uses erasure coding \cite{} to distribute the parachain PoV to all validators.
