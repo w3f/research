@@ -1,6 +1,6 @@
 # Fatemeh Shirazi
 
-![Me](https://i.imgur.com/vpQbH1x.jpg =200x) 
+![Me](https://i.imgur.com/vpQbH1x.jpg =200x50) 
 
 At Web3 Foundation I work on a number of tasks as follows.
 
