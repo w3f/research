@@ -1,6 +1,6 @@
 # Fatemeh Shirazi
 
-<img style="float: right" src="Fatemeh.jpg" alt="drawing" width="200">
+<img style="float: right" src="Fatemeh.jpg" alt="drawing" width="200" classes="float-right">
 
 At Web3 Foundation I work on a number of tasks as follows.
 
