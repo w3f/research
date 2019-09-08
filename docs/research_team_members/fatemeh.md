@@ -1,6 +1,6 @@
 # Fatemeh Shirazi
 
-![](Fatemeh.jpeg =200x50) 
+<img style="float: right;" src="Fatemeh.jpg" alt="drawing" width="200">
 
 At Web3 Foundation I work on a number of tasks as follows.
 
