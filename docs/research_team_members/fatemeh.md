@@ -1,7 +1,7 @@
 # Fatemeh Shirazi
 
 
-<img  align="right" src="https://i.imgur.com/nM6R0Pu.jpg" width="240" />
+<img  align="right" src="https://i.imgur.com/nM6R0Pu.jpg" width="180" />
 
 
 At Web3 Foundation I work on a number of tasks as follows.
