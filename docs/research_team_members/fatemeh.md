@@ -1,6 +1,8 @@
 # Fatemeh Shirazi
 
-<img  align="right" src="research/docs/research_team_members/Fatemeh.jpg" width="240" />
+
+![](https://i.imgur.com/nM6R0Pu.jpg ){: width=200 height=50 align="right"}
+
 
 At Web3 Foundation I work on a number of tasks as follows.
 
