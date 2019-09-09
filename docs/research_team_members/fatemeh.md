@@ -1,7 +1,8 @@
 # Fatemeh Shirazi
 
 <img align="right" src="Fatemeh.jpg" width="240">
-![Fatemeh.jpg](align=right width=240)
+
+![align=right width=240](Fatemeh.jpg)
 
 At Web3 Foundation I work on a number of tasks as follows.
 
