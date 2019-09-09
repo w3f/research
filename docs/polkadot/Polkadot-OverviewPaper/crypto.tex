@@ -1,1 +1,37 @@
 \subsection{Cryptography}
+
+In polkadot, we necessarily distinguish among different permissions and functionalities with different keys and key types, respectively.  We roughly categories these into account keys with which users interact and session keys that nodes manage without operator intervention beyond the certification process.
+
+\subsubsection{Accounts}
+
+Account keys have an associated balance of which portions can be {\em locked} to play roles in staking, resource rental, and governance, including waiting out some unlocking period.  We allow several locks of varying durations, both because these roles impose different restrictions, and for multiple unlocking periods running concurrently. 
+
+We encourage active participation in all these roles, but they all require occasional signatures from accounts.  At the same time, account keys have better physical security when kept in inconvenient locations, like safety deposit boxes, which makes signing arduous.  We avoid this friction for users as follows.
+
+Accounts may declare themselves to be {\em stash accounts} by registering a certificate on-chain that delegates all validator operation and nomination powers to some {\em controller account} and designates some proxy key for governance.  In this state, the controller and proxy accounts can sign for the stash account in staking and governance functions, respectively, but not transfer fund. 
+
+At present, we suport both ed25519 and schnorrkel/sr25519 for account keys.  These are both Schnorr-like signatures implemented using the Ed25519 curve, so both offer extremely similar security.  We recommend ed25519 keys for users who require HSM support or other external key management solution, while schnorrkel/sr25519 provides more blockchain-friendly functionality like HDKD and multi-signatures.  
+
+In particular, schnorrkel/sr25519 uses the Ristretto implementation \cite{Ristretto} of Mike Hamburg's Decaf \cite[\S7]{Decaf}, which provide the 2-torsion free points of the Ed25519 curve as a prime order group.  Avoiding the cofactor like this means Ristretto makes implementing more complex protocols significantly safer.  We employ Blake2b for most conventional hashing in polkadot, but schnorrkel/sr25519 itself uses STROBE128, which is based on Keccak-f(1600) and provides a hashing interface well suited to signatures and NIZKs.
+% See https://github.com/w3f/schnorrkel/blob/master/annoucement.md for more detailed design notes.
+
+\subsubsection{Sessions}
+
+Session keys each fill roughly one particular role in consensus or security.  As a rule, session keys gain authority only from a session certificate signed by some controller key and that delegates appropriate stake.  
+
+We impose no prior restrictions on the cryptography employed by specific substrate modules or associated session keys types.  
+
+In BABE \S\ref{sec:babe}, validators use schnorrkel/sr25519 keys both for a verifiable random function (VRF) based on on NSEC5 \cite{NSEC5}, as well as for regular Schnorr signatures.  Our VRF assigns block productions slots and provides a source of randomness, which requires that BABE keys be registered at least one full session before being used.
+
+We reduce VRF output malleability by hashing the signer's public key along side the input, which dramatically improves security when used with HDKD.  We also hash the VRF input and output together when providing output used elsewhere, which improves compossibility in security proofs. See the 2Hash-DH construction from Theorem 2 on page 32 in appendix C of \cite{Praos}.  
+
+In GRANDPA \S\ref{sec:grandpa}, validators shall vote using BLS signatures, which supports convenient signature aggregation and select ZCash's BLS12-381 curve for performance.  There is a risk that BLS12-381 might drops significantly below 128 bits of security, due to number field sieve advancements.  If and when this happens, we expect upgrading GRANDPA to another curve to be straightforward. 
+% https://mailarchive.ietf.org/arch/msg/cfrg/eAn3_8XpcG4R2VFhDtE_pomPo2Q
+
+% TODO: ImOnline
+% ref. https://github.com/paritytech/substrate/issues/3546
+
+We treat libp2p's transport keys roughly like session keys too, but they include the transport keys for sentry nodes, not just for the validator itself.  As such, the operator interacts slightly more with these.
+
+We permit controller keys to revoke session key validity of course, but controllers could pause operation for shorter periods.  We similarly permit controllers to register new session keys in advance, which enables a clean handover between validator machines.
+
