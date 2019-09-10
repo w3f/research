@@ -17,9 +17,9 @@ Once a fixed number of blocks have been produced for the auction a random number
 For example, let us assume we have three bidders that want to submit bids for a parachain slot. Bidder $B_1$ submits the bid (1-4,75 DOT), bidder $B_2$ submits (3-4, 90 DOTs), and bidder $B_3$ submits (1-2, 30). In this example bidder $B_1$ wins because if bidder $B_2$ and bidder $B_3$ win each unit would only be locked for an average of 60 DOTs or something else equivalent to 240 DOT-intervals, while of bidder $B_1$ wins each unit is locked for 75 DOTs.
 
 ## Analysis
-TODO: Summarize existing results fo analyzing English auctions.
-
 Our auction design has two fundamental design differences with English auctions; 1) A retroactive random close 2) a non uniformity on having private or public valuation for the item on auction.
+
+TODO: Summarize existing results fo analyzing English auctions.
 
 For our analysis, we are interested in a number of goals such as *fairness*, *having a dominant strategy*, and *maximizing revenue*. Finally we discuss how we could keep the auction results relatively similar accross a number of auctions. We might need this to have a stable valuation for our token DOT.
 
@@ -27,8 +27,8 @@ One of the main objectives of our action scheme is to make it *fair*. By being f
 
 Having a random retroactive close does not reduce fairness for bidders with private valuation. Hence, we want to show that the Candle auction is fair for users (bidders with private strategy profiles) and smarts contracts (bidders with public strategy profiles).
 
-We want to show that we are fair towards smart contracts such that they cannot be griefed with no costs by users who will bid above their valuation for this purpose.
+We want to show that we are fair towards smart contracts such that they cannot be grieved with no costs by users who will bid above their valuation for this purpose.
 
 We want to present a strategy for smart contracts that is nearly dominant when everyone does not bid above their valuation. By nearly dominant we refer to Epsilon-equilibrium \cite{}. A strategy profile that is nearly dominant, satisfies the condition of Nash equilibrium within a factor of some well defined epsilon.
 
-We follow up by showing that bidding above ones valuation (with the intention of griefing for example) introduces risks for those bidders.
+We follow up by showing that bidding above ones valuation (with the intention of grieving for example) introduces risks for those bidders.
