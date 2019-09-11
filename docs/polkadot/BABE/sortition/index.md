@@ -103,17 +103,17 @@ In general, there are several approaches that work with smaller numbers of slots
 
 ### Secondary randomness
 
-We limit the damage caused by spamming pre-announces by resorting the pre-announces using randomness created only after their publication.
+We limit the damage caused by spamming pre-announces by resorting the pre-announces using randomness created only after their publication.  Let $f$ denote the identity map if using non-pairing based scheme or a hash function if using pairing based VRF.
 
-In epoch $e$, any block producer $V = v G$ creates a limited number of VRF outputs 
+In epoch $e+0$, any block producer $V = v G$ creates a limited number of VRF outputs 
 $$ (\omega_{V,e,i},\pi_{V,e,i}) := VRF_v(r_e || i) \quad \textrm{for $i < N$,} $$
 each of which they send to another block producer $V'$ identified by $H(\omega_{V,e,i} || "WHO")$.
 
-We divide epoch $e+1$ into three steps:  In the first half, $V'$ publishes at most $N'$ such values $H(\omega_{V,e,i})$.  In the second half, if $V'$ did not publish $H(\omega_{V,e,i})$, then $V$ may publish $H(\omega_{V,e,i})$ itself.  At the end of epoch $e+1$, we sort the $H(r_{e+1} || H(\omega_{V,e,i}))$.  The first $N''$ of these are the blocks of epoch $e+2$, which block producers claim by revealing $(\omega_{V,e,i},\pi_{V,e,i})$.  
+We divide epoch $e+1$ into three steps:  In the first half, $V'$ publishes at most $N'$ such values $f(\omega_{V,e,i})$.  In the second half, if $V'$ did not publish $f(\omega_{V,e,i})$, then $V$ may publish $f(\omega_{V,e,i})$ itself.  At the end of epoch $e+1$, we sort the $H(r_{e+1} || f(\omega_{V,e,i}))$.  
 
-If $V$ does not make the block for $\omega_{V,e,i}$ then $V'$ reveals $(\omega'_{V',e},\pi'_{V',e})$ in epoch $e+3$.  We might slash $V'$ for not doing this, but doing this does not appear essential. 
+In epoch $e+2$, we declare first $N''$ of these the block production slot allocations, so block producers claim their slots by revealing $(\omega_{V,e,i},\pi_{V,e,i})$.  If $f(\omega_{V,e,i})$ is a curve point, then anyone may encrypt transactions to the block producer $V$ using $f(\omega_{V,e,i})$ as their public key, and then sending the ciphertext to $V'$. 
 
-In epoch $e+4$, we define $r_{e+4}$ by hashing $r_{e+3}$ together with all revealed $\omega_{V,e,i}$ in their block production order, irregardless of whether the block got produced or not.
+In epoch $e+3$, we let $\Omega_{e+3}$ denote all $\omega_{V,e,i}$ revealed either in block production in epoch $e+2$ or else in non-anonymous pre-announce in epoch $e+1$.  We now define $r_{e+3}$ by hashing $r_{e+2}$ together with all points in $\Omega_{e+3}$.  In this way, you could only alter $r_{e+3}$ by not making your own block, not by attacking a non-anonymous pre-announce.
 
 
 
