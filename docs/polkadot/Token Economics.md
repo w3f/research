@@ -1,6 +1,6 @@
 ====================================================================
 
-**Authors**: Alfonso Cevallos, Fatemeh Shirazi
+**Authors**: Alfonso Cevallos, Fatemeh Shirazi (minor)
 
 **Last updated**: 12.07.2019
 
