@@ -26,7 +26,7 @@ theme:
   logo: 'images/w3f_logo.svg'
   feature: false
 
-  # Extra css for further customization 
+  # Extra css for further customization
 extra_css:
   - 'stylesheets/extra.css'
 
@@ -38,3 +38,9 @@ extra:
       link: 'https://twitter.com/web3foundation'
     - type: 'medium'
       link: 'https://medium.com/web3foundation'
+  news:
+    - "18.08.19: Handan wrote a paper describing the relevant time technique used in Polkadot’s block production protocol BABE with the title: “Ouroboros Clepsydra: Ouroboros Praos in Universally Composable Relative Time Model” that will be shortly available online."
+    - "15.08.19: Syed and Alfonso will hold an exercise session for Polkadot’s bridge design in Copenhagen Blockchain Summer School. In addition, Alfonso will be giving a talk at the Nordic Blockchain Summit 2019."
+    - "05.08.19: Alistair, Fatemeh, and Jeff are in Berlin for our networking workshop with Parity."
+    - "22.07.19: Alistair gave a number of talks focusing on Polkadot’s Validity and Avalibility scheme in Beijing, Shanghai, Hangzhou, and Chengzhu during Polkadot China tour in July."
+    - "28.06.19: Fatemeh is PC member for CBT 2019."

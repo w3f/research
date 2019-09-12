@@ -24,7 +24,7 @@ We cannot slash for anything beyond the unbonding period and must expire slashin
 
 We take several additional actions whenever some validator $\nu$ causes the slashing of some nominator $\eta$:  
 
-First, we post a slashing transaction to the chain, which drops $\nu$ from the active validator list by invalidating their session keys, which makes everyone ignore $\nu$ from the remainder of the era, and also invalides any future blocks that do not ignore $\nu$.  We also remove all nomination approval votes by any nominator for $\nu$, even those who currently allocate $\nu$ zero stake.
+First, we post a slashing transaction to the chain, which drops $\nu$ from the active validator list by invalidating their session keys, which makes everyone ignore $\nu$ for the remainder of the era, and also invalidates any future blocks that do not ignore $\nu$.  We also remove all nomination approval votes by any nominator for $\nu$, even those who currently allocate $\nu$ zero stake.
 
 Second, we remove all $\eta$'s nomination approval votes for future eras.  We do not remove $\eta$'s current nominations for the current era or reduce the stake currently backing other validators.  Also we permit $\eta$ to add new nomination approval votes for future eras during the current era.  We also notify $\eta$ that $\nu$ cause them to be slashed.  
 
