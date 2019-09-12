@@ -1,6 +1,6 @@
 ====================================================================
 
-**Authors**: Fatemeh Shirazi
+**Authors**: Fatemeh Shirazi (design also from Gavin Wood and Alistair Stewart)
 
 **Last updated**: 12.09.2019
 
