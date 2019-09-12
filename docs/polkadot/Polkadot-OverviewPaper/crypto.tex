@@ -12,7 +12,7 @@ Accounts may declare themselves to be {\em stash accounts} by registering a cert
 
 At present, we suport both ed25519 and schnorrkel/sr25519 for account keys.  These are both Schnorr-like signatures implemented using the Ed25519 curve, so both offer extremely similar security.  We recommend ed25519 keys for users who require HSM support or other external key management solution, while schnorrkel/sr25519 provides more blockchain-friendly functionality like HDKD and multi-signatures.  
 
-In particular, schnorrkel/sr25519 uses the Ristretto implementation \cite{Ristretto} of Mike Hamburg's Decaf \cite[\S7]{Decaf}, which provide the 2-torsion free points of the Ed25519 curve as a prime order group.  Avoiding the cofactor like this means Ristretto makes implementing more complex protocols significantly safer.  We employ Blake2b for most conventional hashing in polkadot, but schnorrkel/sr25519 itself uses STROBE128, which is based on Keccak-f(1600) and provides a hashing interface well suited to signatures and NIZKs.
+In particular, schnorrkel/sr25519 uses the Ristretto implementation \cite{Ristretto} of Mike Hamburg's Decaf \cite[\S7]{Decaf}, which provide the 2-torsion free points of the Ed25519 curve as a prime order group.  Avoiding the cofactor like this means Ristretto makes implementing more complex protocols significantly safer.  We employ Blake2b for most conventional hashing in polkadot, but schnorrkel/sr25519 itself uses STROBE128 \cite{STROBE}, which is based on Keccak-f(1600) and provides a hashing interface well suited to signatures and NIZKs.
 % See https://github.com/w3f/schnorrkel/blob/master/annoucement.md for more detailed design notes.
 
 \subsubsection{Session keys}\label{sec:session_keys}
