@@ -62,6 +62,7 @@ To send messages from one parachain (sending parachain) to another parachain (re
 2. A relay chain full node is in the domain of both the sending and receiving parachain, gossiping the message suffices
 3. Parachain validator of receiving parachain does not see the message being gossiped, then it request the message directly from the parachain validator of the sending parachain (PV at the moment of sending). The PV of the sending parachain are responsible to keep the messages available. The parachain validators of the sending parachain directly send the messages to the receiving parachain PV's. Finally, the PV's of the receiving parachain gossip the messages in the receiving parachain network.
 
+
 The are three main networking protocols we require for Polkadot as follows:
 i) GRANDPA gossping
 ii) Parachain networking, which includes
@@ -69,3 +70,5 @@ ii) Parachain networking, which includes
 * sending/ receiving erasure coded pieces
 
 iii) Interchain message-passing
+
+Next, these schemes will be described. 
