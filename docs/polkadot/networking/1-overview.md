@@ -23,12 +23,12 @@ S= Sending e.g., $PC_{S}$ refers to the sending parachain's collators and full n
 | ----------------- | ----------- | --------- |-----|
 | Parachain TXs     | PC          | G        |Depends on Parachain|
 | PoV block         | PC + PV    | D         |-|
-| Parachain Block   | PC + PV     | G:PC, D:PV  |P$_0$,...,P$_n$|
+| Parachain Block   | PC + PV     | G:PC, D:PV  |$P_0$,...,$P_n$|
 | Attestations      | V           | G        |V|
 | Relay chain TXs   | V           | G         |V|
 | Relay chain block | PC + V       | G$^B$        |General|
-| Messages         | PC$_{R + S}$ | G (\text{fallback}->D:PV$_{R}$ \text{ request } PV$_{S}$\text{ and then uses }G\text{ at }PC$_{R}$\text{ to spread them, second fallback}->D: PV$_{R}$\text{ recover messages from erasure codes obtained from }V\text{ and use }G\text{ at }PC$_{R}$\text{ to spread them})         |V|
-| Erasure coded    | V           | G$^*$         |V|
+| Messages         | $PC_{R + S}$ | G (\text{fallback}->D:$PV_{R}$ \text{ request } $PV_{S}$\text{ and then uses }G\text{ at }$PC_{R}$\text{ to spread them, second fallback}->D: $PV_{R}$\text{ recover messages from erasure codes obtained from }V\text{ and use }G\text{ at }$PC_{R}$\text{ to spread them})         |V|
+| Erasure coded    | V           | $G^*$         |V|
 | GRANDPA Votes     | V           | G        |V|
 
 
