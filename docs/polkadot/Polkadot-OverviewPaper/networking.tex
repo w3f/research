@@ -44,11 +44,11 @@ However, if parachain validators of the receiving parachain realize that the mes
 Once, they receive it they gossip it in the receiving parachain.
 
 \subsubsection{Overview}
-Below we give an overview of where and how each type of message is sent. The column *Nets* refers to the networks where a type of message is traversing and the column *Mode* refers to the type of  routing. The column *Static DHT Prefixes* refers to the DHT prefixes of the receivers if we use a one DHT for all and use prefixes to separate sub-networks.
+Below we give an overview of where and how each type of message is sent. The column \emph{Nets} refers to the networks where a type of message is traversing and the column \emph{Mode} refers to the type of  routing. The column \emph{Static DHT Prefixes} refers to the DHT prefixes of the receivers if we use a one DHT for all and use prefixes to separate sub-networks.
 
 We use gossiping mainly when the message type is small. For example, GRANDPA votes and attestation are very small. For bigger data structures we need to either use bloom filters or use direct routing.
 
-**Nets**:
+\textbf{Nets}:
 
 $PC$ = Parachain Collator and parachain full nodes
 
@@ -56,7 +56,7 @@ $PV$= Parachain Validators
 
 $V$ = Validator and relay chain full nodes (->Validator Network ID on chain)
 
-**Mode**:
+\textbf{Mode}:
 
 $D$ = Direct transfer
 
