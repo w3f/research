@@ -17,7 +17,7 @@ B = Big / Bloomfiltered
 R= Receving e.g., $PC_{R}$ refers to the receiving parachain's collators and full nodes
 S= Sending e.g., $PC_{S}$ refers to the sending parachain's collators and full nodes
 
-* should soon change gossiping into direct routing
+\* should soon change gossiping into direct routing
 
 | Message type              | Nets        | Mode      | Static DHT Prefixes|
 | ----------------- | ----------- | --------- |-----|
