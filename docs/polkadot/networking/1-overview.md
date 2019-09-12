@@ -15,32 +15,39 @@ In Polkadot we need to send a number of messages to a number of entities. Below 
 
 We use gossiping mainly when the message type is small. For example, GRANDPA votes and attestation are very small. For bigger data structures we need to either use bloom filters or use direct routing.
 
-Nets:
-PC = Parachain Collator and parachain full nodes
-PV= Parachain Validators
-V = Validator and relay chain full nodes (->Validator Network ID on chain)
+**Nets**:
 
-Mode:
-D = Direct transfer
-G = Gossip
+$PC$ = Parachain Collator and parachain full nodes
 
-B = Big / Bloomfiltered
-R= Receving e.g., $PC_{R}$ refers to the receiving parachain's collators and full nodes
-S= Sending e.g., $PC_{S}$ refers to the sending parachain's collators and full nodes
+$PV$= Parachain Validators
+
+$V$ = Validator and relay chain full nodes (->Validator Network ID on chain)
+
+**Mode**:
+
+$D$ = Direct transfer
+
+$G$ = Gossip
+
+$B$ = Big / Bloomfiltered
+
+$R$ = Receving e.g., $PC_{R}$ refers to the receiving parachain's collators and full nodes
+
+$S$ = Sending e.g., $PC_{S}$ refers to the sending parachain's collators and full nodes
 
 \* should soon change gossiping into direct routing
 
 | Message type              | Nets        | Mode      | Static DHT Prefixes|
 | ----------------- | ----------- | --------- |-----|
-| Parachain TXs     | PC          | G        |Depends on Parachain|
-| PoV block         | PC + PV    | D         |-|
-| Parachain Block   | PC + PV     | G:PC, D:PV  |$P_0$,...,$P_n$|
-| Attestations      | V           | G        |V|
-| Relay chain TXs   | V           | G         |V|
-| Relay chain block | PC + V       | G$^B$        |General|
-| Messages         | $PC_{R + S}$ | G (fallback->D:$PV_{R}$ request $PV_{S}$ and then uses G at $PC_{R}$ to spread them, second fallback->D: $PV_{R}$ recover messages from erasure codes obtained from V and use G at $PC_{R}$ to spread them)         |V|
-| Erasure coded    | V           | $G^*$         |V|
-| GRANDPA Votes     | V           | G        |V|
+| Parachain TXs     | $PC$          | $G$        |Depends on Parachain|
+| PoV block         | $PC$ + $PV$    | $D$         |-|
+| Parachain Block   | $PC$ + $PV$     | $G$:$PC$, $D$:$PV$  |$P_0$,...,$P_n$|
+| Attestations      | $V$           | $G$        |$V$|
+| Relay chain TXs   | $V$           | $G$         |$V$|
+| Relay chain block | $PC$ + $V$       | $G^B$        |General|
+| Messages         | $PC_{R + S}$ | $G$ (fallback->D:$PV_{R}$ request $PV_{S}$ and then uses G at $PC_{R}$ to spread them, second fallback->D: $PV_{R}$ recover messages from erasure codes obtained from V and use G at $PC_{R}$ to spread them)         |V|
+| Erasure coded    | $V$           | $G^*$         |$V$|
+| GRANDPA Votes     | $V$           | $G$        |$V$|
 
 
 ## Critical Paths for Networking
