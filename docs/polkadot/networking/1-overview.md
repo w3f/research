@@ -27,7 +27,7 @@ S= Sending e.g., $PC_{S}$ refers to the sending parachain's collators and full n
 | Attestations      | V           | G        |V|
 | Relay chain TXs   | V           | G         |V|
 | Relay chain block | PC + V       | G$^B$        |General|
-| Messages         | $PC_{R + S}$ | G (\text{fallback}->D:$PV_{R}$ \text{ request } $PV_{S}$\text{ and then uses }G\text{ at }$PC_{R}$\text{ to spread them, second fallback}->D: $PV_{R}$\text{ recover messages from erasure codes obtained from }V\text{ and use }G\text{ at }$PC_{R}$\text{ to spread them})         |V|
+| Messages         | $PC_{R + S}$ | G (fallback->D:$PV_{R}$ request $PV_{S}$ and then uses G at $PC_{R}$ to spread them, second fallback->D: $PV_{R}$ recover messages from erasure codes obtained from V and use G at $PC_{R}$ to spread them)         |V|
 | Erasure coded    | V           | $G^*$         |V|
 | GRANDPA Votes     | V           | G        |V|
 
