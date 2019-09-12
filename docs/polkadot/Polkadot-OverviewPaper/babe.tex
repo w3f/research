@@ -1,3 +1,15 @@
-\paragraph{Blind Assignment for Blockchain Extension (BABE)}
+\subsubsection{Blind Assignment for Blockchain Extension (BABE)}
 
-In Polkadot, we produce relay chain blocks using our Blind Assignment for Blockchain Extension protocol, abbreviated BABE. BABE assigns validators randomly to blocks production slots using  the randomness generated with blocks. These assignments are completely private until the assigned parties produce the block.
+In Polkadot, we produce relay chain blocks using our Blind Assignment for Blockchain Extension protocol, abbreviated BABE. BABE assigns validators randomly to blocks production slots using  the randomness generated with blocks. These assignments are completely private until the assigned parties produce their blocks. Therefore, we use ``Blind Assignment'' in the protocol name. 
+
+We may have slots without any assignments. We call these slot as empty slot. In order to fill the empty slots, we have secondary block production mechanism based on Aura. We note that these blocks do not contribute the security of BABE. 
+
+Next, we describe BABE together with its security properties. Then, we explain the secondary block production mechanism and discuss about its contribution on BABE.
+
+\paragraph{BABE:}
+
+
+
+
+
+
