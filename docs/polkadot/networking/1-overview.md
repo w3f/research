@@ -1,8 +1,8 @@
 # Networking for Polkadot
 
-In Polkadot we need to send a number of messages to a number of entitites. Below we give an overview of where and how each type of message is sent. The column *Nets* refers to the networks where a type of message is traversing and the column *Mode* refers to the type of  routing. The column *Static DHT Prefixes* refers to the DHT prefixes of the receivers if we use a one DHT for all and use prefixes to separate sub-networks.
+In Polkadot we need to send a number of messages to a number of entities. Below we give an overview of where and how each type of message is sent. The column *Nets* refers to the networks where a type of message is traversing and the column *Mode* refers to the type of  routing. The column *Static DHT Prefixes* refers to the DHT prefixes of the receivers if we use a one DHT for all and use prefixes to separate sub-networks.
 
-We use gossping mainly when the message type is small. For example, GRANDPA votes and attestation are very small. For bigger data sructures we need to either use bloom filters or use direct routing.
+We use gossiping mainly when the message type is small. For example, GRANDPA votes and attestation are very small. For bigger data structures we need to either use bloom filters or use direct routing.
 
 Nets:
 PC = Parachain Collator and parachain full nodes
@@ -36,7 +36,7 @@ S= Sending e.g., $PC_{S}$ refers to the sending parachain's collators and full n
 
 We have two important goals: a) inclusion of parachain blocks (PBlocks) in Relay chain, and b) Relay chain blocks (RBlocks) get finalized.
 
-The ciritical networking for reaching these goals are in order as follows.
+The critical networking for reaching these goals are in order as follows.
 
 ### a) PBlock gets included on Relay chain
 
@@ -65,11 +65,9 @@ To send messages from one parachain (sending parachain) to another parachain (re
 
 The are three main networking protocols we require for Polkadot as follows:
 
-i) GRANDPA gossping
+i) GRANDPA gossiping
 
-ii) Parachain networking, which includes
-* gossiping parachain blocks
-* sending/ receiving erasure coded pieces
+ii) Parachain networking, which includes: gossiping parachain blocks and sending/ receiving erasure coded pieces
 
 iii) Interchain message-passing
 
