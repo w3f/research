@@ -1,8 +1,16 @@
+====================================================================
+
+**Authors**: Rob Habermeier 
+
+**Last updated**: 12.09.2019
+
+====================================================================
+
 ## Attestation Gossip
 
-We have an attestation-gossip scheme such that nodes can potentially have earliest access to see misbehavior, which means a fisherman reward is open to them. In the attestation gossip the latest block is distributed. 
+We have an attestation-gossip scheme such that nodes can potentially have earliest access to see misbehavior, which means a fisherman reward is open to them. In the attestation gossip the latest block is distributed.
 
-A new attestation topic is started for each new block. 
+A new attestation topic is started for each new block.
 A topic expires when the block to which it refers to is no longer a _viable leaf_: either some competing fork has finalized, or some new block has been built on top of this.
 
 `fn topic_for(header_hash) = H('parachain_attestation' ++ header_hash)`

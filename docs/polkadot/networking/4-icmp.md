@@ -1,10 +1,18 @@
+====================================================================
+
+**Authors**: Rob Habermeier 
+
+**Last updated**: 12.09.2019
+
+====================================================================
+
 ## Inter-chain Message Passing: Egress Queue Data Fetching
 
-Inter-chain messages are gossiped from one parachain network to another parachain network. If there are nodes in common between these two networks this is easy. However, if the destination parachain validators realize that the message has not been gossiped in the recipient parachain, they request the message from the parachain validator of the sending parachain and then gossip it themselves in the recipient parachain network. 
+Inter-chain messages are gossiped from one parachain network to another parachain network. If there are nodes in common between these two networks this is easy. However, if the destination parachain validators realize that the message has not been gossiped in the recipient parachain, they request the message from the parachain validator of the sending parachain and then gossip it themselves in the recipient parachain network.
 
 All information that the runtime has is in the form of `CandidateReceipt`s. The author of a block may submit up to one `CandidateReceipt` from each parachain in the block (in practice, only those which are attested by a number of validators, although this detail is not relevant here).
 
-Every parachain block in Polkadot produces a possible-empty list of messages to route to every other block. These are known as "egress queues". $E^B_{x,y}$ is the egress queue from chain $x$ to $y$ at block $B$. 
+Every parachain block in Polkadot produces a possible-empty list of messages to route to every other block. These are known as "egress queues". $E^B_{x,y}$ is the egress queue from chain $x$ to $y$ at block $B$.
 
 There is also $R(E^B_{x, y})$, which is the root hash of the merkle-patricia trie formed from mapping the index of each message in $E^B_{x,y}$ to the message data.
 
@@ -16,15 +24,15 @@ The _block ingress_ of a parachain $p$ at block $B$ is the set $Ingress_{B,p} = 
 
 The _block ingress roots_ are $R(Ingress_{B,p}) = \{\forall y\neq p,  R(E^B_{y,p}) \}$
 
-The _total accumulated ingress_ of a parachain $p$ at block $B$ is defined by the recursive function 
+The _total accumulated ingress_ of a parachain $p$ at block $B$ is defined by the recursive function
 
 $$TotalIngress(B,p) = \begin{cases}
-\emptyset, & B = Genesis \\ 
+\emptyset, & B = Genesis \\
 TotalIngress(parent(B),p) \cup Ingress_{B,p}, & B \neq Genesis
 \end{cases}$$
 
 $$R(TotalIngress(B,p)) = \begin{cases}
-\emptyset, & B = Genesis \\ 
+\emptyset, & B = Genesis \\
 R(TotalIngress(parent(B),p)) \cup R(Ingress_{B,p}), & B \neq Genesis
 \end{cases}$$
 
@@ -32,10 +40,10 @@ This is a list containing all the ingress of every parachain to $p$ in every blo
 
 Parachains must process $Ingress_{B,p}$ after $Ingress_{parent(B),p}$. Additionally, if any message from $Ingress_{B,p}$ is processed, they all must be.
 
-Every parachain has a value $watermark_p$ which is the relay chain block hash for which it has most recently processed any ingress. This is initially set to $Genesis$. To define a structure containing all un-processed messages to a parachain, we introduce the _pending_ ingress, which is defined by the recursive function 
+Every parachain has a value $watermark_p$ which is the relay chain block hash for which it has most recently processed any ingress. This is initially set to $Genesis$. To define a structure containing all un-processed messages to a parachain, we introduce the _pending_ ingress, which is defined by the recursive function
 
 $$PendingIngress(B,p) = \begin{cases}
-\emptyset, & Hash(B) = watermark_p \\ 
+\emptyset, & Hash(B) = watermark_p \\
 PendingIngress(parent(B),p) \cup Ingress_{B,p}, & Hash(B) \neq watermark_p
 \end{cases}$$
 
@@ -80,7 +88,7 @@ Assuming we build on top of the attestation-gossip system, peers communicate the
 
 ### Simple Gossip for ICMP queue routing: Topics based on relay-chain block where messages are issued
 
-Recall 
+Recall
 
 `fn ingress(B, p) -> Vec<(BlockNumber, Vec<(ParaId, Hash)>)>`
 and
@@ -90,7 +98,7 @@ Since `ingress` is invoked at a given block $B$ we can easily transform `BlockNu
 
 Messages start un-routed and end up being routed.
 
-We propose a gossip system where we define 
+We propose a gossip system where we define
 
 $queueTopic(block\_hash: H) \rightarrow H$
 Messages on this topic have the format
@@ -122,8 +130,8 @@ We maintain our local information:
   - $leaves_k$, for each peer $k$ the latest list of their best up to `MAX_CHAIN_HEADS` leaf-hashes of the block DAG (based on what they have sent us).
   - $leafTopics(l) \rightarrow \{queueTopic(h)\}$ for each unrouted root $h$ for all parachains for a leaf $l$ in $leaves$.
   - $expectedQueues(t) \rightarrow H$: a map from topics to root hashes. Has entries for all $t\in\cup_{l \in leaves}leafTopics(l)$
- 
---- 
+
+---
 
 **On new leaf $B$**
 
@@ -147,7 +155,7 @@ We define `good(m)` to be a local acceptance criterion:
   - The `root` hash of the message is in $expectedQueues(t)$.
   - The trie root of given messages equals `root`.
 
-If `good(m)`, note $k$ as beneficial and place $m$ in propagation pool. Otherwise, note $k$ as wasteful. This is useful for peer-set cultivation. 
+If `good(m)`, note $k$ as beneficial and place $m$ in propagation pool. Otherwise, note $k$ as wasteful. This is useful for peer-set cultivation.
 
 (**rob**: if $leaves_k$ doesn't imply knowledge of $t$, should we note mistrust of the peer?)
 
@@ -173,7 +181,7 @@ The decision to only propagate unrouted messages to peers who share the same vie
 
 First, we don't want nodes to have to process an unbounded number of messages. That means that messages for $queueTopic(H)$ where $H$ is _unknown_ to the node are unreasonable since there is an unbounded number of such $H$.
 
-Secondly, nodes shouldn't have to do a lot of work to figure out whether to propagate a message to a specific peer or not. Assume that $leaves \cap leaves_k = \emptyset$ _but_ that some entries of $leaves_k$ are ancestors of entries of $leaves$. We have to do $O(n)$ work for each $l \in leaves_k$ to figure that out, though. Then, we have to figure out if a given message is unrouted at that prior block. Naïvely we would assume that if a message is still unrouted at a later block in the same chain that it was not routed earlier, but with chain-state reversions from fishermen this may not be true. 
+Secondly, nodes shouldn't have to do a lot of work to figure out whether to propagate a message to a specific peer or not. Assume that $leaves \cap leaves_k = \emptyset$ _but_ that some entries of $leaves_k$ are ancestors of entries of $leaves$. We have to do $O(n)$ work for each $l \in leaves_k$ to figure that out, though. Then, we have to figure out if a given message is unrouted at that prior block. Naïvely we would assume that if a message is still unrouted at a later block in the same chain that it was not routed earlier, but with chain-state reversions from fishermen this may not be true.
 
 Since chain-state is not assumed available from prior blocks, we have no good way of determining if egress actually should be sent to peers on that earlier block. A relaxation of this by extending to a constant number of ancestors is discussed in the future improvements section.
 
@@ -192,7 +200,7 @@ This is a scheme which results in all participants seeing all messages. It almos
 
  1. A section above describes why propagating egress to peers who are _arbitrarily_ far back is a bad idea, but we can reasonably keep track of the last $a$ ancestors of all of our leaves once we're synced and just following normal block production. The first reasonable choice for $a$ is 1 (keep parents). This probably gets us 90% of the gains we need, simply because there is a "stutter" when requiring leaf-sets to intersect and two peers need to update each other about the new child before sending any more messages.
  2. Extend the definition of $E^B_{x,y}$ to allow chains to censor each other. For instance, by saying that parachain $y$ can inform the relay chain not to route messages from $x$ at block $B$ (and later inform it to start routing again at block $B'$). Then for any block $b$ between $B$ and $B'$, we would have the runtime consider $E^b_{x,y} = \emptyset$ regardless of what the `CandidateReceipt` for $x$ at $b$ said. Actually, since the runtime deals only in trie root hashes, it would really just ignore $R(E^b_{x,y})$ from the candidate receipt and set it to $R(\emptyset)$.
- 3. Extend to support a smarter topology where not everyone sees everything. Perhaps two kinds of topics, those based on $(B, Chain_{from})$ and those based on $(B, Chain_{to})$ would make this more viable. 
+ 3. Extend to support a smarter topology where not everyone sees everything. Perhaps two kinds of topics, those based on $(B, Chain_{from})$ and those based on $(B, Chain_{to})$ would make this more viable.
  4. Use some kind of smart set reconciliation (e.g. https://github.com/sipa/minisketch) to minimize gossip bandwidth.
  5. Incentivize distribution with something like Probabilistic Micropayments.
 

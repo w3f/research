@@ -1,6 +1,6 @@
 ====================================================================
 
-**Authors**: Rob Habermeier, Fatemeh Shirazi (minor)
+**Authors**: Rob Habermeier, Fatemeh Shirazi 
 
 **Last updated**: 12.09.2019
 
