@@ -105,15 +105,20 @@ In general, there are several approaches that work with smaller numbers of slots
 
 We limit the damage caused by spamming pre-announces by resorting the pre-announces using randomness created only after their publication.  Let $f$ denote the identity map if using non-pairing based scheme or a hash function if using pairing based VRF.
 
-In epoch $e+0$, any block producer $V = v G$ creates a limited number of VRF outputs 
+We divide epoch $e+0$ into three phases:  In the first phase, any block producer $V = v G$ creates a limited number of VRF outputs 
 $$ (\omega_{V,e,i},\pi_{V,e,i}) := VRF_v(r_e || i) \quad \textrm{for $i < N$,} $$
-each of which they send to another block producer $V'$ identified by $H(\omega_{V,e,i} || "WHO")$.
+each of which they send to another block producer $V'$ identified by $H(\omega_{V,e,i} || "WHO")$.  
 
-We divide epoch $e+1$ into three steps:  In the first half, $V'$ publishes at most $N'$ such values $f(\omega_{V,e,i})$.  In the second half, if $V'$ did not publish $f(\omega_{V,e,i})$, then $V$ may publish $f(\omega_{V,e,i})$ itself.  At the end of epoch $e+1$, we sort the $H(r_{e+1} || f(\omega_{V,e,i}))$.  
+In the second phase, $V'$ publishes at most $N'$ such values $f(\omega_{V,e,i})$.  
 
-In epoch $e+2$, we declare first $N''$ of these the block production slot allocations, so block producers claim their slots by revealing $(\omega_{V,e,i},\pi_{V,e,i})$.  If $f(\omega_{V,e,i})$ is a curve point, then anyone may encrypt transactions to the block producer $V$ using $f(\omega_{V,e,i})$ as their public key, and then sending the ciphertext to $V'$. 
+In the third phase, if $V'$ did not publish $f(\omega_{V,e,i})$, then $V$ may publish $f(\omega_{V,e,i})$ itself.  
 
-In epoch $e+3$, we let $\Omega_{e+3}$ denote all $\omega_{V,e,i}$ revealed either in block production in epoch $e+2$ or else in non-anonymous pre-announce in epoch $e+1$.  We now define $r_{e+3}$ by hashing $r_{e+2}$ together with all points in $\Omega_{e+3}$.  In this way, you could only alter $r_{e+3}$ by not making your own block, not by attacking a non-anonymous pre-announce.
+At the end of epoch $e+0$, we sort the $H(r_{e+1} || f(\omega_{V,e,i}))$ to declare first $N''$ of these the block production slot allocations for epoch $e+1$.
 
+In epoch $e+1$, any block producers claim their slots by revealing their $(\omega_{V,e,i},\pi_{V,e,i})$.  
+
+If $f(\omega_{V,e,i})$ is a curve point, then anyone may encrypt transactions to the block producer $V$ without knowing $V$'s identity by using $f(\omega_{V,e,i})$ as $V$'s public key, and then sending the ciphertext to $V'$. 
+
+In epoch $e+2$, we let $\Omega_{e+2}$ denote all $\omega_{V,e,i}$ revealed either in block production in epoch $e+1$ or else in non-anonymous pre-announce in epoch $e+0$ phase three.  We now define $r_{e+2}$ by hashing $r_{e+1}$ together with all points in $\Omega_{e+2}$.  In this way, you could only alter $r_{e+2}$ by not making your own block, not by attacking a non-anonymous pre-announce.
 
 
