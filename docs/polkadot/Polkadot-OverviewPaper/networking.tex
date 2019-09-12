@@ -4,9 +4,10 @@ The entites that are involved in our networking are validators, full nodes, and 
 Polkadot needs networking for a number of its components as follows.
 \begin{itemize}
 \item distributing votes for the consensus protocol GRANDPA \ref{sec:grandpa}
-\item distributing produced blocks for relay chain \ref{sec:relaychainblockproduction}
+\item distributing relay chain blocks\ref{sec:relaychainblockproduction}, parachain blocks, and PoV blocks
 \item receiving parachain blocks that have been produced by parachains
 \item distributing and recovering of erasure coded pieces for the availability and validity scheme \ref{sec:validity-and-availability}
+\item distributing attestations for the availability and validity scheme \ref{sec:validity-and-availability}
 \item sending messages from a parachain to another parachain for the interchain messaging scheme \ref{sec:ICMP}
 \end{itemize}
 
