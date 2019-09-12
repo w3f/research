@@ -43,7 +43,7 @@ If the sending parachain and the receiving parachain have common honest full nod
 However, if parachain validators of the receiving parachain realize that the message has not arrived they request the message from the parachain validator of the sending parachain.
 Once, they receive it they gossip it in the receiving parachain.
 
-
+\subsubsection{Overview}
 Below we give an overview of where and how each type of message is sent. The column *Nets* refers to the networks where a type of message is traversing and the column *Mode* refers to the type of  routing. The column *Static DHT Prefixes* refers to the DHT prefixes of the receivers if we use a one DHT for all and use prefixes to separate sub-networks.
 
 We use gossiping mainly when the message type is small. For example, GRANDPA votes and attestation are very small. For bigger data structures we need to either use bloom filters or use direct routing.
@@ -68,9 +68,10 @@ $R$ = Receving e.g., $PC_{R}$ refers to the receiving parachain's collators and 
 
 $S$ = Sending e.g., $PC_{S}$ refers to the sending parachain's collators and full nodes
 
-\begin{table}[]
+\begin{table}[h]
 \begin{tabular}{lllll}
-& Message type  & Nets  & Mode  & Static DHT Prefixes \\
+& \textbf{Message type}  & \textbf{Nets}  & \textbf{Mode}  & \textbf{Static DHT Prefixes} \\
+\hline
 & Parachain TXs  & $PC$   & $G$   &Depends on Parachain\\
 & PoV block  & $PC$ + $PV$  & $D$         & - \\
 & Parachain Block & $PC$ + $PV$   & $G$:$PC$, $D$:$PV$ &$P_0$,...,$P_n$\\
