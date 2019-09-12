@@ -14,10 +14,10 @@ D = Direct transfer
 G = Gossip
 
 B = Big / Bloomfiltered
-R= Receving e.g., PC$_{R}$ refers to the receiving parachain's collators and full nodes
-S= Sending e.g., PC$_{S}$ refers to the sending parachain's collators and full nodes
+R= Receving e.g., $PC_{R}$ refers to the receiving parachain's collators and full nodes
+S= Sending e.g., $PC_{S}$ refers to the sending parachain's collators and full nodes
 
-"*" should soon change gossiping into direct routing
+* should soon change gossiping into direct routing
 
 | Message type              | Nets        | Mode      | Static DHT Prefixes|
 | ----------------- | ----------- | --------- |-----|
@@ -64,11 +64,13 @@ To send messages from one parachain (sending parachain) to another parachain (re
 
 
 The are three main networking protocols we require for Polkadot as follows:
+
 i) GRANDPA gossping
+
 ii) Parachain networking, which includes
 * gossiping parachain blocks
 * sending/ receiving erasure coded pieces
 
 iii) Interchain message-passing
 
-Next, these schemes will be described. 
+Next, these schemes will be described.
