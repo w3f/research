@@ -1,6 +1,6 @@
 ====================================================================
 
-**Authors**: Fatemeh Shirazi, Rob Habermeier
+**Authors**: Fatemeh Shirazi
 
 **Last updated**: 12.09.2019
 
@@ -81,6 +81,7 @@ To send messages from one parachain (sending parachain) to another parachain (re
 3. Parachain validator of receiving parachain does not see the message being gossiped, then it request the message directly from the parachain validator of the sending parachain (PV at the moment of sending). The PV of the sending parachain are responsible to keep the messages available. The parachain validators of the sending parachain directly send the messages to the receiving parachain PV's. Finally, the PV's of the receiving parachain gossip the messages in the receiving parachain network.
 
 
+
 The are three main networking protocols we require for Polkadot as follows:
 
 i) GRANDPA gossiping
@@ -89,4 +90,4 @@ ii) Parachain networking, which includes: gossiping parachain blocks and sending
 
 iii) Interchain message-passing
 
-Next, these schemes will be described.
+Next, the schemes will be described in details.
