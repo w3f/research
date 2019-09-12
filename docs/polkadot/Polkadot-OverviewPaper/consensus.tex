@@ -1,12 +1,12 @@
 \subsection{Consensus}
 
 
-%NETWORK ASSUMPTION
+%NETWORK ASSUMPTION.
 \input{babe.tex}
 \input{relativetime.tex}
 
 \paragraph{GRANDPA} \label{sec:grandpa}
->>>>>>> 1025dae86869253208ef8bc26f2f878d4f7c7971
+
 For the relay chain consensus, we want provably finality, which makes bridges to chains outside Polkadot easier, and we also want the ability to revert chains in the short term if parachain blocks are unavailable for invalid.
 So we combine a block production mechanism BABE with the ability to fork and that gives eventual consensus with a finality gadget GRANDPA, that can finalise blocks and provide proofs that they are final.
 BABE is similar to Ourobors Praos[citation needed] but with a fixed set of validators and improved resilience to clock drift.
