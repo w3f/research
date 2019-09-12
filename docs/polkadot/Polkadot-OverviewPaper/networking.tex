@@ -1,12 +1,13 @@
 \subsection{Networking}\label{sec:networking}
+
 Networking is an essential part of decentralized technologies.
-The entites that are involved in our networking are validators, full nodes, and collators.
 Polkadot needs networking for a number of its components as follows.
 \begin{itemize}
 \item distributing votes for the consensus protocol GRANDPA \ref{sec:grandpa}
-\item distributing produced blocks for relay chain \ref{sec:relaychainblockproduction}
+\item distributing relay chain blocks\ref{sec:relaychainblockproduction}, parachain blocks, and PoV blocks
 \item receiving parachain blocks that have been produced by parachains
 \item distributing and recovering of erasure coded pieces for the availability and validity scheme \ref{sec:validity-and-availability}
+\item distributing attestations for the availability and validity scheme \ref{sec:validity-and-availability}
 \item sending messages from a parachain to another parachain for the interchain messaging scheme \ref{sec:ICMP}
 \end{itemize}
 
@@ -41,3 +42,46 @@ This is saving lots of traffic and is useful when messages only have one receive
 If the sending parachain and the receiving parachain have common honest full nodes then the message will be gossiped from without issue.
 However, if parachain validators of the receiving parachain realize that the message has not arrived they request the message from the parachain validator of the sending parachain.
 Once, they receive it they gossip it in the receiving parachain.
+
+
+Below we give an overview of where and how each type of message is sent. The column *Nets* refers to the networks where a type of message is traversing and the column *Mode* refers to the type of  routing. The column *Static DHT Prefixes* refers to the DHT prefixes of the receivers if we use a one DHT for all and use prefixes to separate sub-networks.
+
+We use gossiping mainly when the message type is small. For example, GRANDPA votes and attestation are very small. For bigger data structures we need to either use bloom filters or use direct routing.
+
+**Nets**:
+
+$PC$ = Parachain Collator and parachain full nodes
+
+$PV$= Parachain Validators
+
+$V$ = Validator and relay chain full nodes (->Validator Network ID on chain)
+
+**Mode**:
+
+$D$ = Direct transfer
+
+$G$ = Gossip
+
+$B$ = Big / Bloomfiltered
+
+$R$ = Receving e.g., $PC_{R}$ refers to the receiving parachain's collators and full nodes
+
+$S$ = Sending e.g., $PC_{S}$ refers to the sending parachain's collators and full nodes
+
+\begin{table}[]
+\begin{tabular}{lllll}
+& Message type  & Nets  & Mode  & Static DHT Prefixes \\
+& Parachain TXs  & $PC$   & $G$   &Depends on Parachain\\
+& PoV block  & $PC$ + $PV$  & $D$         & - \\
+& Parachain Block & $PC$ + $PV$   & $G$:$PC$, $D$:$PV$ &$P_0$,...,$P_n$\\
+& Attestations   & $V$   & $G$  & $V$ \\
+& Relay chain TXs & $V$    & $G$   & $V$ \\
+& Relay chain block & $PC$ + $V$  & $G^B$   & General \\
+& Messages  & $PC_{R + S}$ & $G^*$     & V \\
+& Erasure coded    & $V$           & $G$ (D later)        &$V$\\
+& GRANDPA Votes   &$V$          & $G$      &$V$\\
+\end{tabular}
+\end{table}
+
+* fallback->D:$PV_{R}$ request $PV_{S}$ and then uses G at $PC_{R}$ to spread them,
+second fallback->D: $PV_{R}$ recover messages from erasure codes obtained from V and use G at $PC_{R}$ to spread them.
