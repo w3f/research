@@ -9,7 +9,7 @@ Any validator should be able to verify $B_{PoV}$ given the relay chain state usi
 
 The PoV block will frequently be the parachain block, its outgoing messages, its header and a light client proof, i.e. merkle proofs that give all elements of the input and output state that are used or modified by the state transition from the input and output state roots. However the inclusion of the light client proof is optional and other types of proof are possible. For example a parachain may use succinct or zero knowledge proofs of validity that can guve more scalability than light client proofs. Or a permissioned chain could take signatures from authorities in place of much of the proof.
 
-To aid in censorship resistance, a parachain may want to use proof of work or proof of stake to selected collators. This can be implemented in the STVF and need not be a part of the Polkadot protocol. So for proof of work, the STVF would check that the blockhash is sufficiently small. However, for speed, it would be useful to ensure that most relay chain blocks can include a parachain block. For PoW, this would necessitate it being probable that multiple collators are allowed to produce a block. As such we will still need a tie-breaker for the parachain validators to coordinate on validating the same parachain block first. This may be the golden ticked scheme of \cite{spottypaper}.
+To aid in censorship resistance, a parachain may want to use proof of work or proof of stake to selected collators. This can be implemented in the STVF and need not be a part of the Polkadot protocol. So for proof of work, the STVF would check that the blockhash is sufficiently small. However, for speed, it would be useful to ensure that most relay chain blocks can include a parachain block. For PoW, this would necessitate it being probable that multiple collators are allowed to produce a block. As such we will still need a tie-breaker for the parachain validators to coordinate on validating the same parachain block first. This may be the golden ticked scheme of \cite{2016:Wood:Polkadot}.
 
 
 \subsubsection{Validity and Availability} \label{sec:validity-and-availability}
@@ -24,4 +24,9 @@ When any misbehaviour, unavailability particularly in relation to invalidity, is
 
 If a block is available, then full nodes of the parachain, and any light client that has the PoV block can check its validity. We rely on nodes actin as {\em fishermen} to report invalidity in this case. They would need to back any claim with their own stake in DOTs. We would assume that most collators would be fishermen, as they have a stake in continued validity of the chain and are alrerady running full nodes, so all they need is stake in DOTs.
 
-\subsubsection{ICMP} \label{sec:ICMP}
+\subsubsection{Inter Chain Messaging Protocol (ICMP)} \label{sec:ICMP}
+
+ICMP is the protocol that parachains use to send messages. We would like guarantees that messages arrive quickly and that messages from one parachain to another arrive in order. As a result of these properties, we wil need to require that a parachain accepts all incoming messages.
+
+
+
