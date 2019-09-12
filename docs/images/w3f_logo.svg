@@ -1,1 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 457 136.07"><defs><style>.a{fill:#fff;}</style></defs><title>w3f_logo</title><path class="a" d="M240.55,31.68l-43.26,133.4h-40.4L131.34,83.9l-26.68,81.19H64.26L21,31.68H59.88l26.87,85.19L115,31.68h34.69l26.87,86,28-86Z" transform="translate(-21 -31.68)"/><path class="a" d="M345.45,98.67q8.86,10.2,8.86,24.68a40.25,40.25,0,0,1-6.38,21.92q-6.39,10.1-19.44,16.29t-32.3,6.19a115.46,115.46,0,0,1-27.92-3.43,82.7,82.7,0,0,1-23.92-9.72l13.72-28.4a61.52,61.52,0,0,0,17.63,8.2A68.94,68.94,0,0,0,295,137.26q9.73,0,15.44-3.62a11.5,11.5,0,0,0,5.72-10.29q0-13-20.39-13H280V86.57l23.82-25.73h-52.6V31.68h96.43V55.31L320,85Q336.6,88.47,345.45,98.67Z" transform="translate(-21 -31.68)"/><path class="a" d="M411.11,60.84V90.19H470v29.16H411.11v45.74H373.37V31.68H478V60.84Z" transform="translate(-21 -31.68)"/></svg>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 23.0.6, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 350 350" style="enable-background:new 0 0 350 350;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#FFFFFF;}
+</style>
+<title>Web3Foundation_4</title>
+<path class="st0" d="M233.3,140.1v-14.6c0-5.3-3.2-10.1-8.1-12.1L134.5,76v8.1l80.8,33.3c1.7,0.7,2.5,2.7,1.8,4.4
+	c-0.3,0.8-1,1.5-1.8,1.8L134.5,157v32.6l48.7-20.1l32,13.2c1.7,0.7,2.5,2.7,1.8,4.4c-0.3,0.8-1,1.5-1.8,1.8l-80.7,33.3v51.5
+	l90.7-37.4c4.9-2,8.1-6.8,8.1-12.1v-33.5c0-5.3-3.2-10.1-8.1-12.1L193,165.4l32.1-13.2C230,150.2,233.3,145.4,233.3,140.1z"/>
+</svg>
