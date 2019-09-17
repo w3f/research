@@ -159,7 +159,8 @@ If a party \(P_j\) is a newly joining party, he downloads chains and receives bl
 
 
 **- Median Algorithm:**
-The party $P_j$ stores the arrival time $t_i$ of $n$ blocks with their corresponding slot time $sl_i$. Let us denote the stored arrival times of blocks by \(t_1,t_2,...,t_n\) whose slot numbers are \(sl_1,sl_2,...,sl_n\), respectively. Remark that these slot numbers do not have to be consecutive since some slots may be empty, with multiple slot leaders or the slot leader is offline, late or early. After storing $n$ arrival times, $P_j$ sorts the following list \(\{t_1+a_1T, t_2+a_2T,..., t_n+a_nT_\}\) where $a_i = sl - sl_i$. Here, $sl$ is a slot number that $P_j$ wants to learn at what time it corresponds in his local time. At the end. $P_j$  outputs the median of the ordered list as ($t$) and $sl$. 
+The party $P_j$ stores the arrival time $t_i$ of $n$ valid blocks having a slot number $sl_i$ which is greater than  the slot number of the last finalized block (GRANDPA block or if GRANDPA is slower than the probabilistic finality then probabilistically finalized block).
+Let us denote the stored arrival times of blocks by \(t_1,t_2,...,t_n\) whose slot numbers are \(sl_1,sl_2,...,sl_n\), respectively. Remark that these slot numbers do not have to be consecutive since some slots may be empty, with multiple slot leaders or the slot leader is offline, late or early. After storing $n$ arrival times, $P_j$ sorts the following list \(\{t_1+a_1T, t_2+a_2T,..., t_n+a_nT_\}\) where $a_i = sl - sl_i$. Here, $sl$ is a slot number that $P_j$ wants to learn at what time it corresponds in his local time. At the end. $P_j$  outputs the median of the ordered list as ($t$) and $sl$. 
 
 ![](https://i.imgur.com/yGYw9CL.png)
 
