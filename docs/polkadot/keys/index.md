@@ -5,11 +5,13 @@ In polkadot, we necessarily distinguish among different permissions and function
 
 ## Account keys
 
-Account keys have an associated balance of which portions can be {\em locked} to play roles in staking, resource rental, and governance, including waiting out some unlocking period.  We allow several locks of varying durations, both because these roles impose different restrictions, and for multiple unlocking periods running concurrently. 
+Account keys have an associated balance of which portions can be _locked_ to play roles in staking, resource rental, and governance, including waiting out some unlocking period.  We allow several locks of varying durations, both because these roles impose different restrictions, and for multiple unlocking periods running concurrently. 
 
 We encourage active participation in all these roles, but they all require occasional signatures from accounts.  At the same time, account keys have better physical security when kept in inconvenient locations, like safety deposit boxes, which makes signing arduous.  We avoid this friction for users as follows.
 
-Accounts may declare themselves to be {\em stash accounts} by registering a certificate on-chain that delegates all validator operation and nomination powers to some {\em controller account}, and also designates some proxy key for governance votes.  In this state, the controller and proxy accounts can sign for the stash account in staking and governance functions, respectively, but not transfer fund. 
+Accounts declare themselves to be _stash accounts_ when locking funds for staking.  All stash accounts register a certificate on-chain that delegates all validator operation and nomination powers to some _controller account_, and also designates some _proxy key_ for governance votes.  In this state, the controller and proxy accounts can sign for the stash account in staking and governance functions, respectively, but not transfer fund.  
+
+As a result, the stash account's locked funds can benefit from maximum physical security, while still actively participating via signatures from their controller or proxy account keys.  At anytime the stash account can replace its controller or proxy account keys, such as if operational security mistakes might've compromised either.
 
 At present, we suport both ed25519 and schnorrkel/sr25519 for account keys.  These are both Schnorr-like signatures implemented using the Ed25519 curve, so both offer extremely similar security.  We recommend ed25519 keys for users who require HSM support or other external key management solution, while schnorrkel/sr25519 provides more blockchain-friendly functionality like HDKD and multi-signatures.  
 
@@ -17,7 +19,12 @@ In particular, schnorrkel/sr25519 uses the [Ristretto](https://doc.dalek.rs/curv
 
 ## Session keys
 
-Session keys each fill roughly one particular role in consensus or security.  As a rule, session keys gain authority only from a session certificate signed by some controller key and that delegates appropriate stake.  
+Session keys each fill roughly one particular role in consensus or security.  All session keys gain their authority from a session certificate that is signed by some controller key and that delegates appropriate stake.  
+
+At any time, the controller key can pause or revoke this session certificate and/or issue replacement with new session keys.  All new session keys can be registered in advance, and some must be, so validators can cleanly transition to new hardware by issuing session certificates that only become valid after some future session.  We suggest using pause for emergency maintenance and using revocation if a session key might be compromised.  
+
+We suggest session keys remain tied to one physical machine, so validator operators issue the session certificate using the RPC protocol, not handle the session secret keys themselves.   In particular, we caution against duplicating session secret keys across machines because such "high availability" designs invariably gets validator operators slashed.  Anytime new validator hardware must be started quickly the operator should first start the new node, and then certify the new session keys it creates using the RPC protocol.  
+
 
 We impose no prior restrictions on the cryptography employed by specific substrate modules or associated session keys types.  
 
@@ -34,9 +41,6 @@ In GRANDPA, validators shall vote using BLS signatures, which supports convenien
 TODO: ImOnline ..  ref. https://github.com/paritytech/substrate/issues/3546 etc.
 
 We treat libp2p's transport keys roughly like session keys too, but they include the transport keys for sentry nodes, not just for the validator itself.  As such, the operator interacts slightly more with these.
-
-We permit controller keys to revoke session key validity of course, but controllers could pause operation for shorter periods.  We similarly permit controllers to register new session keys in advance, which enables a clean handover between validator machines.
-
 
 
 

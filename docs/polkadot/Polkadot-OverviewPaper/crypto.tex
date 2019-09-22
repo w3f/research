@@ -8,7 +8,9 @@ Account keys have an associated balance of which portions can be {\em locked} to
 
 We encourage active participation in all these roles, but they all require occasional signatures from accounts.  At the same time, account keys have better physical security when kept in inconvenient locations, like safety deposit boxes, which makes signing arduous.  We avoid this friction for users as follows.
 
-Accounts may declare themselves to be {\em stash accounts} by registering a certificate on-chain that delegates all validator operation and nomination powers to some {\em controller account}, and also designates some proxy key for governance votes.  In this state, the controller and proxy accounts can sign for the stash account in staking and governance functions, respectively, but not transfer fund. 
+Accounts that lock funds for staking are called {\em stash accounts}.  All stash accounts register a certificate on-chain that delegates all validator operation and nomination powers to some {\em controller account}, and also designates some {\em proxy key} for governance votes.  In this state, the controller and proxy accounts can sign for the stash account in staking and governance functions respectively, but not transfer fund.  
+
+\smallskip
 
 At present, we suport both ed25519 and schnorrkel/sr25519 for account keys.  These are both Schnorr-like signatures implemented using the Ed25519 curve, so both offer extremely similar security.  We recommend ed25519 keys for users who require HSM support or other external key management solution, while schnorrkel/sr25519 provides more blockchain-friendly functionality like HDKD and multi-signatures.  
 
@@ -18,6 +20,14 @@ In particular, schnorrkel/sr25519 uses the Ristretto implementation \cite{Ristre
 \subsubsection{Session keys}\label{sec:session_keys}
 
 Session keys each fill roughly one particular role in consensus or security.  As a rule, session keys gain authority only from a session certificate signed by some controller key and that delegates appropriate stake.  
+
+At any time, the controller key can pause or revoke this session certificate and/or issue replacement with new session keys.  All new session keys can be registered in advance, and some must be, so validators can cleanly transition to new hardware by issuing session certificates that only become valid after some future session.  We suggest using pause for emergency maintenance and using revocation if a session key might be compromised.  
+
+We prefer if session keys remain tied to one physical machine because doing so minimizes the risk of accedental equivocation.  We ask validator operators to issue session certificate using an RPC protocol, not handle the session secret keys themselves.  
+
+Almost all currently running proof-of-stack networks have a neglegent public key infrastructure that encourages duplicating session secret keys across machines, which reduces security and leads to pointless slashing.
+
+\smallskip
 
 We impose no prior restrictions on the cryptography employed by specific substrate modules or associated session keys types.  
 
