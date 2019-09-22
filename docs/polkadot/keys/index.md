@@ -9,7 +9,7 @@ Account keys have an associated balance of which portions can be {\em locked} to
 
 We encourage active participation in all these roles, but they all require occasional signatures from accounts.  At the same time, account keys have better physical security when kept in inconvenient locations, like safety deposit boxes, which makes signing arduous.  We avoid this friction for users as follows.
 
-Accounts may declare themselves to be {\em stash accounts} by registering a certificate on-chain that delegates all validator operation and nomination powers to some {\em controller account} and designates some proxy key for governance.  In this state, the controller and proxy accounts can sign for the stash account in staking and governance functions, respectively, but not transfer fund. 
+Accounts may declare themselves to be {\em stash accounts} by registering a certificate on-chain that delegates all validator operation and nomination powers to some {\em controller account}, and also designates some proxy key for governance votes.  In this state, the controller and proxy accounts can sign for the stash account in staking and governance functions, respectively, but not transfer fund. 
 
 At present, we suport both ed25519 and schnorrkel/sr25519 for account keys.  These are both Schnorr-like signatures implemented using the Ed25519 curve, so both offer extremely similar security.  We recommend ed25519 keys for users who require HSM support or other external key management solution, while schnorrkel/sr25519 provides more blockchain-friendly functionality like HDKD and multi-signatures.  
 
@@ -21,7 +21,11 @@ Session keys each fill roughly one particular role in consensus or security.  As
 
 We impose no prior restrictions on the cryptography employed by specific substrate modules or associated session keys types.  
 
-In BABE, validators use schnorrkel/sr25519 keys both for a verifiable random function (VRF) based on on [NSEC5](https://eprint.iacr.org/2017/099.pdf), as well as for regular Schnorr signatures.  Our VRF assigns block productions slots and provides a source of randomness, which requires that BABE keys be registered at least one full session before being used.
+In BABE, validators use schnorrkel/sr25519 keys both for a verifiable random function (VRF) based on on [NSEC5](https://eprint.iacr.org/2017/099.pdf), as well as for regular Schnorr signatures.
+
+A VRF is the public-key analog of a pseudo-random function (PRF), aka cryptographic hash function with a distinguished key, such as many MACs.  We award block productions slots when the block producer scores a low enough VRF output $\mathtt{VRF}(r_e || \mathtt{slot_number} )$, so anyone with the VRF public keys can verify that blocks were produced in the correct slot, but only the block producers know their slots in advance via their VRF secret key.
+
+As in [Ouroboros Praos](https://eprint.iacr.org/2017/573.pdf), we provide a source of randomness $r_e$ for the VRF inputs by hashing together all VRF outputs form the previous session, which requires that BABE keys be registered at least one full session before being used.
 
 We reduce VRF output malleability by hashing the signer's public key along side the input, which dramatically improves security when used with HDKD.  We also hash the VRF input and output together when providing output used elsewhere, which improves compossibility in security proofs. See the 2Hash-DH construction from Theorem 2 on page 32 in appendix C of ["Ouroboros Praos: An adaptively-secure, semi-synchronous proof-of-stake blockchain"](https://eprint.iacr.org/2017/573.pdf).  
 
