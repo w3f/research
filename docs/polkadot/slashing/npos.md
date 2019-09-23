@@ -28,7 +28,7 @@ First, we post a slashing transaction to the chain, which drops $\nu$ from the a
 
 Second, we remove all $\eta$'s nomination approval votes for future eras.  We do not remove $\eta$'s current nominations for the current era or reduce the stake currently backing other validators.  Also we permit $\eta$ to add new nomination approval votes for future eras during the current era.  We also notify $\eta$ that $\nu$ cause them to be slashed.  
 
-We treat any future nominations by $\eta$ separately from any that happen in the current era or before.  in other words, we partition the eras into _slashing periods_ for $\eta$ which are maximal contiguous sequence of eras $\bar{e} = \left[ e_1, \ldots, e_n \right]$ such that $e_n$ is the least era in which $\eta$ gets slashed for actions in one of the $e_i$.  We let $\bar{e}$ range over the slashing periods for $\eta$ then we have slashed $\eta$ in total  
+We treat any future nominations by $\eta$ separately from any that happen in the current era or before.  in other words, we partition the eras into _slashing spans_ for $\eta$ which are maximal contiguous sequence of eras $\bar{e} = \left[ e_1, \ldots, e_n \right]$ such that $e_n$ is the least era in which $\eta$ gets slashed for actions in one of the $e_i$.  We let $\bar{e}$ range over the slashing spans for $\eta$ then we have slashed $\eta$ in total  
 $$ \sum_{\bar{e} \in \bar{E}} \max_{e \in \bar{e}} \sum_{\nu \in N_e} p_{\eta,\nu,e} x_{\eta,\nu,e} $$
 
 
