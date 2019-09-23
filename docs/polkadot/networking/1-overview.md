@@ -80,7 +80,37 @@ To send messages from one parachain (sending parachain) to another parachain (re
 2. A relay chain full node is in the domain of both the sending and receiving parachain, gossiping the message suffices
 3. Parachain validator of receiving parachain does not see the message being gossiped, then it request the message directly from the parachain validator of the sending parachain (PV at the moment of sending). The PV of the sending parachain are responsible to keep the messages available. The parachain validators of the sending parachain directly send the messages to the receiving parachain PV's. Finally, the PV's of the receiving parachain gossip the messages in the receiving parachain network.
 
+## Bounded Gossip Protocols
 
+We treat the goals of our networking protocols as black-boxes. While gossip may not be the most efficient way to implement many of them, it will fulfill the black-box functionality.
+
+In some cases, we will be able to gossip only among a known set of nodes, e.g. validators. In the case that we are not, the design of the gossip protocol will differ from a classical gossip protocol substantially. For these cases, we introduce the notion of a _bounded_ gossip protocol.
+
+We have the following requirements for nodes:
+
+  1. Nodes never have to consider an unbounded number of gossip messages. The gossip messages they are willing to consider should be determined by some state sent to peers.
+  2. The work a node has to do to figure out if one of its peers will accept a message should be relatively small
+
+
+A bounded gossip system is one where nodes have a filtration mechanism forincoming packets that can be communicated to peers.
+
+Nodes maintain a "propagation pool" of messages. When a node would like to circulate a message, it puts it into the pool until marked as expired. Every message is associated with a _topic_. Topics are used to group messages or encode metadata about them. They are not sent over the wire, but are rather determined by the contents of the message.
+
+We define a node's peer as any other node directly connected by an edge in the gossip graph, i.e. a node with which the node has a direct connection. The node's peers may vary over time.
+
+For every peer $k$, the node maintains a _filtration criterion_ $allowed_k(m) \rightarrow bool$
+
+Whenever a new peer $k$ connects, all messages from the pool (filtered according to $allowed_k$ ) are sent to that peer.
+
+Whenever a peer places a new message $m$ in its propagation pool, it sends this message to all peers $k$ where $allowed_k(m) \rightarrow true$.
+
+Nodes can additionally issue a command $propagateTopic(k,t)$ to propagate all messages with topic $t$ to $k$ which pass $allowed_k$.
+
+Multiple bounded-gossip protocols can be safely joined by a short-circuiting binary OR over each of the $allowed_k$ functions, provided that they do not overlap in the topics that they claim. 
+
+Note that while we cannot stop peers from sending us disallowed messages, such behavior can be detected, considered impolite, and will lead to eventual disconnection from the peer.
+
+## Main subprotocols
 
 The are three main networking protocols we require for Polkadot as follows:
 
@@ -90,4 +120,5 @@ ii) Parachain networking, which includes: gossiping parachain blocks and sending
 
 iii) Interchain message-passing
 
-Next, the schemes will be described in details.
+Next, the schemes will be described in detail.
+
