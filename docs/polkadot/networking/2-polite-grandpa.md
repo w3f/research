@@ -8,6 +8,8 @@
 
 ## Gossiping GRANDPA communication (polite-grandpa)
 
+This document defines a _bounded_ gossip protocol for circulation of GRANDPA votes.
+
 We have a number of entities:
 
 - Authorities might be grandpa voters or block producers, but for now we assume they are the same.
@@ -16,7 +18,7 @@ We have a number of entities:
 Authorities progress in rounds casting votes:
 
 - For each round a new _round topic_ is created. That is a hash where the preimage includes round number.
-- All votes are broadcasted on the round topic.
+- All votes for a round are categorized under the round topic.
 - The expected number of messages under honest conditions on a round topic is: N_Authorities * 2 + 1.
 
 Round message types:

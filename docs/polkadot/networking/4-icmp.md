@@ -65,28 +65,23 @@ At every block $B$ and parachain $p$ $R(PendingIngress(B, p))$ is available from
 
 What the runtime makes available for every parachain and block $p,B$ is a list of ingress-lists pending ingress roots at that block, each list paired with the block number the root was first meant to be routed. $R(\emptyset)$ is omitted from ingress-lists and empty lists are omitted. Sorted ascending by block number. All block numbers are less than `num(B)` and refer to the block in the same chain.
 
-In Rust (TODO: transcribe to LaTeX)
+In Rust pseudo-code (TODO: transcribe to LaTeX)
 `fn ingress(B, p) -> Vec<(BlockNumber, Vec<(ParaId, Hash)>)>`
 
 The runtime also makes available the pending _egress_ from a given $B,p$. This follows the same constraints as the ingress list w.r.t. ordering and omission of empty lists. The `ParaId` here is the recipient chain, while in the `ingress` function it is the sending chain.
 
 `fn egress(B, p) -> Vec<(BlockNumber, Vec<(ParaId, Hash)>)>`.
 
-(**rob** we probably want a better term than "bounded" and an earlier definition as this is helpful for our requirements on GRANDPA and attestation-gossip as well)
-
-A bounded gossip system is one where nodes have a filtration mechanism for incoming packets that can be communicated to peers.
-
-We have the following requirements for nodes:
-
-  1. Nodes never have to consider an unbounded number of gossip messages. The gossip messages they are willing to consider should be determined by some state sent to peers.
-  2. The work a node has to do to figure out if one of its peers will accept a message should be relatively small
-  3. The block-state of leaves is available but no guarantees are made about older blocks' states.
-  4. The collators and full nodes of a parachain can be expected to hold onto all egress of all parachain blocks they have executed.
-  5. Validators are not required to hold onto egress of any blocks.
+We make the following assumptions about nodes:
+  1. The block-state of leaves is available but no guarantees are made about older blocks' states.
+  2. The collators and full nodes of a parachain can be expected to hold onto all egress of all parachain blocks they have executed.
+  3. Validators are not required to hold onto egress of any blocks.
 
 Assuming we build on top of the attestation-gossip system, peers communicate the leaves they believe best to each other.
 
 ### Simple Gossip for ICMP queue routing: Topics based on relay-chain block where messages are issued
+
+This section describes a _bounded_ gossip protocol (see overview for definition) for the circulation of ICMP message queues.
 
 Recall
 
@@ -108,21 +103,6 @@ struct Queue {
     messages: Vec<Message>,
 }
 ```
-
-(TODO: place this description of the gossip mechanism higher up).
-
-Nodes maintain a "propagation pool" of messages. When a node would like to circulate a message, it puts it into the pool until marked as expired. Every message is associated with a topic.
-
-For every peer $k$, the node maintains a _filtration criterion_ $allowed_k(m) \rightarrow bool$
-
-Whenever a new peer $k$ connects, all messages from the pool (filtered according to $allowed_k$ ) are sent to that peer.
-
-Whenever a peer places a new message $m$ in its propagation pool, it sends this message to all peers $k$ where $allowed_k(m) \rightarrow true$.
-
-Nodes can additionally issue a command $propagateTopic(k,t)$ to propagate all messages with topic $t$ to $k$ which pass $allowed_k$.
-
-Note that while we cannot stop peers from sending us disallowed messages, such behavior can be detected, considered impolite, and will lead to eventual disconnection from the peer.
-
 
 We maintain our local information:
 
