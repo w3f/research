@@ -1,8 +1,8 @@
 ====================================================================
 
-**Authors**: Fatemeh Shirazi
+**Authors**: Fatemeh Shirazi, Rob Habermeier
 
-**Last updated**: 12.09.2019
+**Last updated**: 24.09.2019
 
 **Note**: This write-up contains notes from a networking workshop 05.08.19-06.08.19 at Parity Technologies.
 
@@ -73,12 +73,6 @@ The critical networking for reaching these goals are in order as follows.
 3. PValidators or Validators $\xrightarrow[]{\text{PoV Blocks}}$ Validators: G, Direct sending
 4. Validators$\xrightarrow[]{\text{GRANDPA Votes}}$ Validators: G
 
-## Interchain Messaging
-To send messages from one parachain (sending parachain) to another parachain (receiving parachain) depending on the setup the follwong steps will be carried out.
-
-1. When full nodes of the sending parachain are also part of the domain of the receiving parachain, gossiping the message suffices
-2. A relay chain full node is in the domain of both the sending and receiving parachain, gossiping the message suffices
-3. Parachain validator of receiving parachain does not see the message being gossiped, then it request the message directly from the parachain validator of the sending parachain (PV at the moment of sending). The PV of the sending parachain are responsible to keep the messages available. The parachain validators of the sending parachain directly send the messages to the receiving parachain PV's. Finally, the PV's of the receiving parachain gossip the messages in the receiving parachain network.
 
 ## Bounded Gossip Protocols
 
@@ -92,7 +86,7 @@ We have the following requirements for nodes:
   2. The work a node has to do to figure out if one of its peers will accept a message should be relatively small
 
 
-A bounded gossip system is one where nodes have a filtration mechanism forincoming packets that can be communicated to peers.
+A bounded gossip system is one where nodes have a filtration mechanism for incoming packets that can be communicated to peers.
 
 Nodes maintain a "propagation pool" of messages. When a node would like to circulate a message, it puts it into the pool until marked as expired. Every message is associated with a _topic_. Topics are used to group messages or encode metadata about them. They are not sent over the wire, but are rather determined by the contents of the message.
 
@@ -106,7 +100,7 @@ Whenever a peer places a new message $m$ in its propagation pool, it sends this 
 
 Nodes can additionally issue a command $propagateTopic(k,t)$ to propagate all messages with topic $t$ to $k$ which pass $allowed_k$.
 
-Multiple bounded-gossip protocols can be safely joined by a short-circuiting binary OR over each of the $allowed_k$ functions, provided that they do not overlap in the topics that they claim. 
+Multiple bounded-gossip protocols can be safely joined by a short-circuiting binary OR over each of the $allowed_k$ functions, provided that they do not overlap in the topics that they claim.
 
 Note that while we cannot stop peers from sending us disallowed messages, such behavior can be detected, considered impolite, and will lead to eventual disconnection from the peer.
 
@@ -116,9 +110,8 @@ The are three main networking protocols we require for Polkadot as follows:
 
 i) GRANDPA gossiping
 
-ii) Parachain networking, which includes: gossiping parachain blocks and sending/ receiving erasure coded pieces
+ii) Parachain networking, which includes: gossiping parachain blocks (attestation gossip) and sending/ receiving erasure coded pieces
 
 iii) Interchain message-passing
 
 Next, the schemes will be described in detail.
-

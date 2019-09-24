@@ -1,12 +1,13 @@
 ====================================================================
 
-**Authors**: Rob Habermeier 
+**Authors**: Rob Habermeier
 
 **Last updated**: 12.09.2019
 
 ====================================================================
+## Parachain networking
 
-## Attestation Gossip
+### Attestation Gossip: gossiping parachain blocks
 
 We have an attestation-gossip scheme such that nodes can potentially have earliest access to see misbehavior, which means a fisherman reward is open to them. In the attestation gossip the latest block is distributed.
 
@@ -49,3 +50,5 @@ Erasure-coded availability pieces are meant to be propagated, but we are ignorin
         - Signature
         - Relay Chain Parent Hash
     - This is an attestation against the candidate with given hash. May only be sent to peers who are aware of the `Candidate`.
+
+### Direct Routing: sending/ receiving erasure coded pieces

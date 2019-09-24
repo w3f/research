@@ -1,12 +1,20 @@
 ====================================================================
 
-**Authors**: Rob Habermeier 
+**Authors**: Rob Habermeier, Fatemeh Shirazi
 
-**Last updated**: 12.09.2019
+**Last updated**: 24.09.2019
 
 ====================================================================
 
-## Inter-chain Message Passing: Egress Queue Data Fetching
+## Interchain Messaging Overview
+To send messages from one parachain (sending parachain) to another parachain (receiving parachain) depending on the setup the following steps will be carried out.
+
+1. When full nodes of the sending parachain are also part of the domain of the receiving parachain, gossiping the message suffices
+2. A relay chain full node is in the domain of both the sending and receiving parachain, gossiping the message suffices
+3. Parachain validator of receiving parachain does not see the message being gossiped, then it request the message directly from the parachain validator of the sending parachain (PV at the moment of sending). The PV of the sending parachain are responsible to keep the messages available. The parachain validators of the sending parachain directly send the messages to the receiving parachain PoV's. Finally, the PV's of the receiving parachain gossip the messages in the receiving parachain network.
+
+
+### Inter-chain Message Passing: Egress Queue Data Fetching
 
 Inter-chain messages are gossiped from one parachain network to another parachain network. If there are nodes in common between these two networks this is easy. However, if the destination parachain validators realize that the message has not been gossiped in the recipient parachain, they request the message from the parachain validator of the sending parachain and then gossip it themselves in the recipient parachain network.
 
