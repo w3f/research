@@ -159,10 +159,13 @@ If a party \(P_j\) is a newly joining party, he downloads chains and receives bl
 
 
 **- Median Algorithm:**
-The party $P_j$ stores the arrival time $t_i$ of $n$ valid blocks having a slot number $sl_i$ which is greater than  the slot number of the last finalized block (GRANDPA block or if GRANDPA is slower than the probabilistic finality then probabilistically finalized block).
+Each validaor $P_j$ stores the arrival time $t_i$ of blocks that belongs to an epoch $e$. At the end of the epoch,  $P_j$ retrieves the arrival time $t_i$ of only finalized blocks that belong to the epoch $e$. We note that if epoch length is too short than validators may consider the arrival time of blocks in more than one epoch. This should be decided according to epoch lenght and slot length later. In the next epoch, all validators updates their clock according to the result of the median algorithm given below. We note that it is very crtitical for validators to update their clocks at the same time with using the same blocks for the synchronization.
+
 Let us denote the stored arrival times of blocks by \(t_1,t_2,...,t_n\) whose slot numbers are \(sl_1,sl_2,...,sl_n\), respectively. Remark that these slot numbers do not have to be consecutive since some slots may be empty, with multiple slot leaders or the slot leader is offline, late or early. After storing $n$ arrival times, $P_j$ sorts the following list \(\{t_1+a_1T, t_2+a_2T,..., t_n+a_nT_\}\) where $a_i = sl - sl_i$. Here, $sl$ is a slot number that $P_j$ wants to learn at what time it corresponds in his local time. At the end. $P_j$  outputs the median of the ordered list as ($t$) and $sl$. 
 
 ![](https://i.imgur.com/yGYw9CL.png)
+
+
 
 **Lemma 1:** Asuming that $\D$ is the maximum network delay in terms of slot number and \(\alpha\gamma(1-c)^\D \geq (1+\epsilon)/2\)  where \(\alpha\) is the honest stake and $\gamma\alpha$ is the honest and synchronized parties' stake and $\epsilon \in (0,1)$,  \(sl' - sl \leq \D\) with the median algorithm where $sl'$ the correct slot number of time $t$ with probability 1 - \exp(\frac{\delta^2\mu}{2} where $0 < \delta \leq \frac{\epsilon}{1+\epsilon}$ and $\mu = n(1+\epsilon)/2$.
 
