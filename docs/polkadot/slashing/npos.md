@@ -51,3 +51,13 @@ We think fairness imposes this condition because otherwise validators can reduce
 There are no meaningful limits on the diversity of nominators who nominated a particular validator within the unbonding period.  In consequence, almost every validator can be slashed simultaneously, thanks to by monotonicity and the validator adding past equivocations, which enables an array of "rage quit attacks".  In other words, we cannot bound the total stake destroyed by a combined slashing event much below the slash applied to the total stake of the network.
 
 
+In fact, we find that monotonicity also constrains our rewards for offense reports that result in slashing:  If a validator $\nu$ gets slashed, then they could freely equivocate more and report upon themselves to earn back some of the slashed value.  
+
+We define $f_\infty < 0.1$ to be the maximum proportion of a slash that ever gets paid out.  We also define $f_1 < {1\over2}$ to be the proportion of $f_\infty$ paid out initially on the first offence detection.  So a fresh slash of value $s$ results in a payout of $f_\infty $f_1 s$.
+
+We consider a slash of value $s := $p_{\nu',e} x_{\eta,\nu',e}$ being applied to the nominator $\eta$.  We let $s_{\eta,i}$ and $s_{\eta,i+1}$ denote $\eta$'s actual slash in slashing span $\bar{e}$ given by $\max_{e \in \bar{e}} \sum_{\nu \in N_e} p_{\nu,e} x_{\eta,\nu,e}$ before and after applying the new slash, respectively, so when $\eta$'s slash increases by $s_{\eta,i+1} - s_{\eta,i}$.
+
+We track the value $s_{\eta,i}$ in $\eta$'s slashing span record, but we also track another value $t_{\eta,i} < s_{\eta,i}$ that represents the total amount paid out so far.  If $s_{\eta,i+1} > s_{\eta,i}$ then we pay out $r := f_1 (f_\infty s_{\eta,i+1} - t_{\eta,i})$ and increase $t_{\eta,i}$ by this amount.  If $s_{\eta,i+1} = s_{\eta,i}$ then we pay out $r := f_1 \max(f_\infty s - t_{\eta,i},0)$.  In either case, we store $t_{\eta,i+1} := t_{\eta,i} + r$.
+
+In this way, our validator $\nu$ cannot reclaim more than $f_\infty $f_1 s$ from a slash of value $s$  even by repeatedly equivocations.
+
