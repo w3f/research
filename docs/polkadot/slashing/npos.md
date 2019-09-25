@@ -26,13 +26,13 @@ In particular, there is an extortion attack in which someone runs many poorly st
 
 We kept our slashing simple and fixed some fairness issues with the outer maximum $\max_e cdots\$, but created another problem:  If $\nu$ gets slashed once, then $\nu$ could thereafter commit similar offenses with impunity.  As this situation is neither fair nor effective, we must limit $\eta$ and $\nu$ impunity either by limiting the eras spanned by this outer maximum, or else by removing their impunity gradually.  
 
-We want this impunity to disappear as quickly as possible, so we suggest defining an explicit span based on offence detection times and the nominator's own voluntary reenlistment.  As nominators might make mistakes in reenlistment, we detail several additional actions taken whenever some validator $\nu$ causes the slashing of some nominator $\eta$:  
+We want this impunity to disappear as quickly as possible and minimize further risks to the network.  We suggest defining an explicit span based on offence detection times and the nominator's own voluntary reenlistment.  As nominators might make mistakes in reenlistment, we detail several additional actions taken whenever some validator $\nu$ causes the slashing of some nominator $\eta$.  
 
 First, we post a slashing transaction to the chain, which drops $\nu$ from the active validator list by invalidating their session keys, which makes everyone ignore $\nu$ for the remainder of the era, and also invalidates any future blocks that do not ignore $\nu$.  We also remove all nomination approval votes by any nominator for $\nu$, even those who currently allocate $\nu$ zero stake.
 
 Second, we remove all $\eta$'s nomination approval votes for future eras.  We do not remove $\eta$'s current nominations for the current era or reduce the stake currently backing other validators.  Also we permit $\eta$ to add new nomination approval votes for future eras during the current era.  We also notify $\eta$ that $\nu$ cause them to be slashed.  
 
-These state alterations minimize the risks of unintentional reenlistment any nominator.  We thus feel justified in treating any future nominations by $\eta$ separately from any that happen in the current era or before, which now permits defining the eras spanned by the outer maximum:
+These state alterations minimize the risks of unintentional reenlistment any nominator, while also minimising risks to the network.  We thus feel justified in treating any future nominations by $\eta$ separately from any that happen in the current era or before, which now permits defining the eras spanned by the outer maximum:
 
 We partition the eras into _slashing spans_ for $\eta$ which are maximal contiguous sequence of eras $\bar{e} = \left[ e_1, \ldots, e_n \right]$ such that $e_n$ is the least era in which $\eta$ gets slashed for actions in one of the $e_i$.  We let $\bar{e}$ range over the slashing spans for $\eta$ then we have slashed $\eta$ in total  
 $$ \sum_{\bar{e} \in \bar{E}} \max_{e \in \bar{e}} \sum_{\nu \in N_e} p_{\nu,e} x_{\eta,\nu,e} $$
