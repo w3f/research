@@ -1,15 +1,37 @@
 \subsection{Parachains}
 
 \subsubsection{Block Production}\label{sec:parachainblockproduction}
-In outline, a collator produces a parachain block, sends it to the parachain validators, who sign its header as valid, and the header with enough signatures is placed on the relay chain. At this point, the parachain block is as canonical as the relay chain block its header appeared in. If that is in the best chain, so is the parachain block and when that is finalised, so is the parachain block.
+In outline, a collator produces a parachain block, sends it to the parachain validators,
+who sign its header as valid, and the header with enough signatures is placed on the relay chain.
+At this point, the parachain block is as canonical as the relay chain block its header appeared in.
+If that is in the best chain, so is the parachain block and when that is finalised, so is the parachain block.
 
-Because the parachain validators switch parachains frequently, they are stateless clients of the parachain. Thus we distinguish between the parachain block $B$, which is enough for full nodes of the parachain such as collators to update the parachain state, and the {\em Proof of Validity(PoV) block} $B_{PoV}$, which a validator who does not have the parachain state can verify.
+Because the parachain validators switch parachains frequently, they are stateless clients of the parachain.
+Thus we distinguish between the parachain block $B$, which is enough for full nodes of the parachain such as collators to update the parachain state,
+and the {\em Proof of Validity(PoV) block} $B_{PoV}$, which a validator who does not have the parachain state can verify.
 
-Any validator should be able to verify $B_{PoV}$ given the relay chain state using the parachain's {\em state transition validation function}(STVF), the wasm code for which is also on the relay chain. The STVF takes as input the PoV block, the header of the last parachain block from this parachain, and the message roots of all parachain blocks that have sent messages to this parachain since the last parachain block (see \ref{sec:ICMP} for details such as the range needed) and should output the validity of the block and its outgoing messages. The PoV block should contain any outgoing messages and for most parachains, it will also contain the parachain block. If it does contain the parachain block, the parachai validators should gossip the block to the parachain network,as a back up to the collator itself doing so. If it does not, then the parachain will need its own scheme to make sure that the parachain block data is available.
+Any validator should be able to verify $B_{PoV}$ given the relay chain state using the parachain's {\em state transition validation function}(STVF),
+the wasm code for which is also on the relay chain.
+The STVF takes as input the PoV block, the header of the last parachain block from this parachain,
+and the message roots of all parachain blocks that have sent messages to this parachain since the last parachain block
+(see \ref{sec:ICMP} for details such as the range needed) and should output the validity of the block and its outgoing messages.
+The PoV block should contain any outgoing messages and for most parachains, it will also contain the parachain block.
+If it does contain the parachain block, the parachain validators should gossip the block to the parachain network,as a back up to the collator itself doing so.
+If it does not, then the parachain will need its own scheme to make sure that the parachain block data is available.
 
-The PoV block will frequently be the parachain block, its outgoing messages, its header and a light client proof, i.e. merkle proofs that give all elements of the input and output state that are used or modified by the state transition from the input and output state roots. However the inclusion of the light client proof is optional and other types of proof are possible. For example a parachain may use succinct or zero knowledge proofs of validity that can guve more scalability than light client proofs. Or a permissioned chain could take signatures from authorities in place of much of the proof.
+The PoV block will frequently be the parachain block, its outgoing messages, its header and a light client proof,
+i.e. Merkle proofs that give all elements of the input and output state that are used or modified by the state transition from the input and output state roots.
+However the inclusion of the light client proof is optional and other types of proof are possible.
+For example a parachain may use succinct or zero knowledge proofs of validity that can give more scalability than light client proofs.
+Or a permissioned chain could take signatures from authorities in place of much of the proof.
 
-To aid in censorship resistance, a parachain may want to use proof of work or proof of stake to selected collators. This can be implemented in the STVF and need not be a part of the Polkadot protocol. So for proof of work, the STVF would check that the blockhash is sufficiently small. However, for speed, it would be useful to ensure that most relay chain blocks can include a parachain block. For PoW, this would necessitate it being probable that multiple collators are allowed to produce a block. As such we will still need a tie-breaker for the parachain validators to coordinate on validating the same parachain block first. This may be the golden ticked scheme of \cite{2016:Wood:Polkadot}.
+To aid in censorship resistance, a parachain may want to use proof of work or proof of stake to selected collators.
+This can be implemented in the STVF and need not be a part of the Polkadot protocol. So for proof of work,
+the STVF would check that the blockhash is sufficiently small.
+However, for speed, it would be useful to ensure that most relay chain blocks can include a parachain block.
+For PoW, this would necessitate it being probable that multiple collators are allowed to produce a block.
+As such we will still need a tie-breaker for the parachain validators to coordinate on validating the same parachain block first.
+This may be the golden ticked scheme of \cite{2016:Wood:Polkadot}.
 
 
 \subsubsection{Validity and Availability} \label{sec:validity-and-availability}
@@ -17,30 +39,49 @@ Once a block is created it is important that the parachain blob is available for
 The naive solution for this would be broadcasting/gossip the parachain blobs to all relay chain nodes, which is not a feasible option because the are are many parachains and the PoV blocks may be big.
 We want to find an efficient solution to ensure PoV blocks from any recently created parachain block are available.
 
-For a single chain, such as bitcoin, as long as 51\% of hashpower is honest, not making block data available ensures that np honest miner builds on it so it will not be in the final chain. However parachain consensus for us is determined by relay chain consenus. A parachain block is canonical when it's header is in the relay chain. We have no guarantees that anyone other than the collator and parachain validators have seen the PoV block. If these collude then the rest of the parachain network need not have it and then most collators cannot build a new block and its invalidity may not be discovered. We would like the consensus particpants, here the validators, to collectively guarantee the availability rather than relying on a few nodes.
+For a single chain, such as bitcoin, as long as 51\% of hashpower is honest, not making block data available ensures that np honest miner builds on it so it will not be in the final chain. However parachain consensus for us is determined by relay chain consenus.
+A parachain block is canonical when it's header is in the relay chain.
+We have no guarantees that anyone other than the collator and parachain validators have seen the PoV block.
+If these collude then the rest of the parachain network need not have it and then most collators cannot build a new block and its invalidity may not be discovered.
+We would like the consensus particpants, here the validators, to collectively guarantee the availability rather than relying on a few nodes.
 
 To this end we designed an availability scheme that uses erasure coding \cite{} to distribute the parachain PoV to all validators.
 When any misbehaviour, unavailability particularly in relation to invalidity, is detected the PoV can be reconstructed from the distributed erasure coded pieces.
 
-If a block is available, then full nodes of the parachain, and any light client that has the PoV block can check its validity. We rely on nodes actin as {\em fishermen} to report invalidity in this case. They would need to back any claim with their own stake in DOTs. We would assume that most collators would be fishermen, as they have a stake in continued validity of the chain and are alrerady running full nodes, so all they need is stake in DOTs.
+If a block is available, then full nodes of the parachain, and any light client that has the PoV block can check its validity.
+We rely on nodes actin as {\em fishermen} to report invalidity in this case. They would need to back any claim with their own stake in DOTs.
+We would assume that most collators would be fishermen, as they have a stake in continued validity of the chain and are already running full nodes, so all they need is stake in DOTs.
 
 \subsubsection{Inter Chain Messaging Protocol (ICMP)} \label{sec:ICMP}
 
-ICMP is the protocol that parachains use to send messages. We would like guarantees that messages arrive quickly, that messages from one parachain to another arrive in order and that messages that arrive were indeed sent in the final history. As a result of these properties, we will need to require that a parachain accepts all incoming messages. 
+ICMP is the protocol that parachains use to send messages.
+We would like guarantees that messages arrive quickly, that messages from one parachain to another arrive in order,
+and that messages that arrive were indeed sent in the final history.
+As a result of these properties, we will need to require that a parachain accepts all incoming messages.
 
-The way relay chain blocks include headers of parachain blocks gives a synchronous notion of time for parachain blocks, just by relay chain block numbers. Additionally it allows us to authenticate messages as being sent in the history given by the relay chain i.e. it is impossible that one parachain sends a message, then reorgs so that that message was not sent, but then the message is recieved. This holds even though the system may not have reached finality over whether the message was sent, because any relay chain provides a consistent history. To this end, parachain headers contain a message rootof outgoing messages, as well as a bitfield indicating which other parachains were sent messages from this parachain in this block. The message root is the root of a Merkle tree of message roots for each parachain that messages are sent to, and these in turn are the root of a Merkle tree of the actual messages.
+The way relay chain blocks include headers of parachain blocks gives a synchronous notion of time for parachain blocks,
+just by relay chain block numbers.
+Additionally it allows us to authenticate messages as being sent in the history given by the relay chain
+i.e. it is impossible that one parachain sends a message,
+then reorgs so that that a message was not sent, but has been received.
+This holds even though the system may not have reached finality over whether the message was sent, because any relay chain provides a consistent history.
+To this end, parachain headers contain a message root of outgoing messages, as well as a bitfield indicating which other parachains were sent messages in this block.
+The message root is the root of a Merkle tree of message roots for each parachain that messages are sent to,
+and these in turn are the root of a Merkle tree of the actual messages.
 
-However the messages themselves are passed, they should also be sent with the Merkle proof that allows nodes of the recieving parachain to authenticate that they were send by a particular parachain block whose header was in a particular relay chain block.
+However the messages themselves are passed, they should also be sent with the Merkle proof that allows nodes of the receiving parachain
+to authenticate that they were send by a particular parachain block whose header was in a particular relay chain block.
 
-A parachain block contains a reference to the relay chain block, by block hash or block number, that it recieves all messages up to. This will likely be constrained to advance in some manner. To produce a parachain block on parachain $\Par$ with builds on a particular relay chain block $B$, a collator would need to look at which parachain headers between the relay chain block that the last parachain block of this chain built on, and for each of those that indicated that they sent messages to $\Par$, it needs the corresponding message data. Thus it can construct a PoV block so that the STVF can validate that all such messages were acted on.
+A parachain block contains a reference to the relay chain block, by block hash or block number, that it recieves all messages up to.
+This will likely be constrained to advance in some manner.
+To produce a parachain block on parachain $\Par$ which builds on a particular relay chain block $B$,
+a collator would need to look at which parachain headers were built between the relay chain block that the last parachain block of this chain built on,
+and for each of those that indicated that they sent messages to $\Par$, it needs the corresponding message data.
+Thus it can construct a PoV block so that the (STVF) can validate that all such messages were acted on.
 
-Since a parachain must accept all messages that are sent to it, we implement a method for parachains to make it illegal for another parachain to send it any messages that can be used in the case of spam occuring.
+Since a parachain must accept all messages that are sent to it,
+we implement a method for parachains to make it illegal for another parachain to send it any messages that can be used in the case of spam occurring.
 
-If any node is connected to both parachain networks, then it should forward messages from one parachain to the other, when the parachaim header is included ina relay chain block. The relay chain should at least act as a back up. The parachain validators are connected to the parachain network. 
-
-
-
-
-
-
-
+If any node is connected to both parachain networks, then it should forward messages from one parachain to the other,
+when the parachaim header is included in a relay chain block. The relay chain should at least act as a back up.
+The parachain validators are connected to the parachain network.

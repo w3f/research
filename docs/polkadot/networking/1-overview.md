@@ -78,7 +78,9 @@ The critical networking for reaching these goals are in order as follows.
 
 We treat the goals of our networking protocols as black-boxes. While gossip may not be the most efficient way to implement many of them, it will fulfill the black-box functionality.
 
-In some cases, we will be able to gossip only among a known set of nodes, e.g. validators. In the case that we are not, the design of the gossip protocol will differ from a classical gossip protocol substantially. For these cases, we introduce the notion of a _bounded_ gossip protocol.
+In some cases, we will be able to gossip only among a known set of nodes, e.g., validators.
+In the case that we are not, the design of the gossip protocol will differ from a classical gossip protocol substantially.
+For these cases, we introduce the notion of a _bounded_ gossip protocol.
 
 We have the following requirements for nodes:
 

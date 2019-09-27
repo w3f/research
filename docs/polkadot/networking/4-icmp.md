@@ -11,20 +11,28 @@ To send messages from one parachain (sending parachain) to another parachain (re
 
 1. When full nodes of the sending parachain are also part of the domain of the receiving parachain, gossiping the message suffices
 2. A relay chain full node is in the domain of both the sending and receiving parachain, gossiping the message suffices
-3. Parachain validator of receiving parachain does not see the message being gossiped, then it request the message directly from the parachain validator of the sending parachain (PV at the moment of sending). The PV of the sending parachain are responsible to keep the messages available. The parachain validators of the sending parachain directly send the messages to the receiving parachain PoV's. Finally, the PV's of the receiving parachain gossip the messages in the receiving parachain network.
+3. Parachain validator of receiving parachain does not see the message being gossiped, then it request the message directly from the parachain validator of the sending parachain (PV at the moment of sending).
+The PV of the sending parachain are responsible to keep the messages available.
+The parachain validators of the sending parachain directly send the messages to the receiving parachain PoV's.
+Finally, the PV's of the receiving parachain gossip the messages in the receiving parachain network.
 
 
 ### Inter-chain Message Passing: Egress Queue Data Fetching
 
-Inter-chain messages are gossiped from one parachain network to another parachain network. If there are nodes in common between these two networks this is easy. However, if the destination parachain validators realize that the message has not been gossiped in the recipient parachain, they request the message from the parachain validator of the sending parachain and then gossip it themselves in the recipient parachain network.
+Inter-chain messages are gossiped from one parachain network to another parachain network.
+If there are nodes in common between these two networks this is easy.
+However, if the destination parachain validators realize that the message has not been gossiped in the recipient parachain, they request the message from the parachain validator of the sending parachain and then gossip it themselves in the recipient parachain network.
 
-All information that the runtime has is in the form of `CandidateReceipt`s. The author of a block may submit up to one `CandidateReceipt` from each parachain in the block (in practice, only those which are attested by a number of validators, although this detail is not relevant here).
+All information that the runtime has is in the form of `CandidateReceipt`s.
+The author of a block may submit up to one `CandidateReceipt` from each parachain in the block (in practice, only those which are attested by a number of validators, although this detail is not relevant here).
 
-Every parachain block in Polkadot produces a possible-empty list of messages to route to every other block. These are known as "egress queues". $E^B_{x,y}$ is the egress queue from chain $x$ to $y$ at block $B$.
+Every parachain block in Polkadot produces a possible-empty list of messages to route to every other block.
+These are known as "egress queues". $E^B_{x,y}$ is the egress queue from chain $x$ to $y$ at block $B$.
 
 There is also $R(E^B_{x, y})$, which is the root hash of the merkle-patricia trie formed from mapping the index of each message in $E^B_{x,y}$ to the message data.
 
-The pending messages to a chain should be processed in the next block for that chain. If there are no blocks for a chain in some time, the messages can begin to pile up.
+The pending messages to a chain should be processed in the next block for that chain.
+If there are no blocks for a chain in some time, the messages can begin to pile up.
 
 Collators and full nodes of a parachain $p$ have executed all blocks of that parachain and should have knowledge of $E^B_{p, x}$ for all $B,x$.
 
@@ -34,35 +42,39 @@ The _block ingress roots_ are $R(Ingress_{B,p}) = \{\forall y\neq p,  R(E^B_{y,p
 
 The _total accumulated ingress_ of a parachain $p$ at block $B$ is defined by the recursive function
 
-$$TotalIngress(B,p) = \begin{cases}
+$$T_{Ingress}(B,p) = \begin{cases}
 \emptyset, & B = Genesis \\
-TotalIngress(parent(B),p) \cup Ingress_{B,p}, & B \neq Genesis
+T_{Ingress}(parent(B),p) \cup Ingress_{B,p}, & B \neq Genesis
 \end{cases}$$
 
-$$R(TotalIngress(B,p)) = \begin{cases}
+$$R(T_{Ingress}(B,p)) = \begin{cases}
 \emptyset, & B = Genesis \\
-R(TotalIngress(parent(B),p)) \cup R(Ingress_{B,p}), & B \neq Genesis
+R(T_{Ingress}(parent(B),p)) \cup R(Ingress_{B,p}), & B \neq Genesis
 \end{cases}$$
 
 This is a list containing all the ingress of every parachain to $p$ in every block from the genesis up to $B$.
 
 Parachains must process $Ingress_{B,p}$ after $Ingress_{parent(B),p}$. Additionally, if any message from $Ingress_{B,p}$ is processed, they all must be.
 
-Every parachain has a value $watermark_p$ which is the relay chain block hash for which it has most recently processed any ingress. This is initially set to $Genesis$. To define a structure containing all un-processed messages to a parachain, we introduce the _pending_ ingress, which is defined by the recursive function
+Every parachain has a value $watermark_p$ which is the relay chain block hash for which it has most recently processed any ingress.
+This is initially set to $Genesis$.
+To define a structure containing all un-processed messages to a parachain, we introduce the _pending_ ingress, which is defined by the recursive function.
 
-$$PendingIngress(B,p) = \begin{cases}
+$$P_{Ingress}(B,p) = \begin{cases}
 \emptyset, & Hash(B) = watermark_p \\
-PendingIngress(parent(B),p) \cup Ingress_{B,p}, & Hash(B) \neq watermark_p
+P_{Ingress}(parent(B),p) \cup Ingress_{B,p}, & Hash(B) \neq watermark_p
 \end{cases}$$
 
-The _pending ingress roots_ $R(PendingIngress(B,p))$ can be computed by a similar process to $R(TotalIngress(B,p))$.
+The _pending ingress roots_ $R(P_{Ingress}(B,p))$ can be computed by a similar process to $R(T_{Ingress}(B,p))$.
 
 A parachain candidate for $p$ building on top of relay-chain block $B$ is allowed to process any prefix of $PendingIngress(B,p)$.
 
 Recall that all information the runtime has about parachains is from `CandidateReceipt`s produced by validating a parachain candidate block and included in a relay-chain block. The candidate has a number of fields. Here are some relevant ones:
 
   - Egress Roots: `Vec<(ParaId, Hash)>`. When included in a relay chain block $B$ for parachain $p$, each hash, paired with unique parachain $y$ is $R(E^B_{p,y})$
-  - a new value for $watermark_p$ when the receipt is for parachain $p$. The runtime considers the value from the most recent parachain candidate it has received as current. It must be at least as high as the previous value of $watermark_p$ _and_ be in the ancestry of any block $B$ the candidate is included in.
+  - a new value for $watermark_p$ when the receipt is for parachain $p$.
+  The runtime considers the value from the most recent parachain candidate it has received as current.
+  It must be at least as high as the previous value of $watermark_p$ _and_ be in the ancestry of any block $B$ the candidate is included in.
 
 (**rob**: disallow empty list where pending egress non-empty?)
 
@@ -71,7 +83,9 @@ The goal of a collator on $p$ building on relay chain parent $B$ is to acquire a
 The simplest way to do this is with a gossip protocol.
 At every block $B$ and parachain $p$ $R(PendingIngress(B, p))$ is available from the runtime.
 
-What the runtime makes available for every parachain and block $p,B$ is a list of ingress-lists pending ingress roots at that block, each list paired with the block number the root was first meant to be routed. $R(\emptyset)$ is omitted from ingress-lists and empty lists are omitted. Sorted ascending by block number. All block numbers are less than `num(B)` and refer to the block in the same chain.
+What the runtime makes available for every parachain and block $p,B$ is a list of ingress-lists pending ingress roots at that block, each list paired with the block number the root was first meant to be routed.
+$R(\emptyset)$ is omitted from ingress-lists and empty lists are omitted.
+Sorted ascending by block number. All block numbers are less than `num(B)` and refer to the block in the same chain.
 
 In Rust pseudo-code (TODO: transcribe to LaTeX)
 `fn ingress(B, p) -> Vec<(BlockNumber, Vec<(ParaId, Hash)>)>`
@@ -125,7 +139,8 @@ We maintain our local information:
 
 1. Update $leaves$, $leafTopics$, and $expectedQueues$. (haven't benchmarked but i would conservatively estimate 100ms operation)
 2. Send peers new $leaves$.
-3. If a collator on $p$, execute `egress(B,p)`. For any message queue roots that are known and have not been propagated yet, put corresponding `Queue` message in the propagation pool.
+3. If a collator on $p$, execute `egress(B,p)`.
+For any message queue roots that are known and have not been propagated yet, put corresponding `Queue` message in the propagation pool.
 
 ---
 
@@ -143,7 +158,8 @@ We define `good(m)` to be a local acceptance criterion:
   - The `root` hash of the message is in $expectedQueues(t)$.
   - The trie root of given messages equals `root`.
 
-If `good(m)`, note $k$ as beneficial and place $m$ in propagation pool. Otherwise, note $k$ as wasteful. This is useful for peer-set cultivation.
+If `good(m)`, note $k$ as beneficial and place $m$ in propagation pool. Otherwise, note $k$ as wasteful.
+This is useful for peer-set cultivation.
 
 (**rob**: if $leaves_k$ doesn't imply knowledge of $t$, should we note mistrust of the peer?)
 
@@ -167,9 +183,14 @@ Practically, once every couple of seconds. This prevents our pool from growing i
 
 The decision to only propagate unrouted messages to peers who share the same view of which leaves are current may be a bit controversial, but it is well-justified by some of the prior conditions we set out.
 
-First, we don't want nodes to have to process an unbounded number of messages. That means that messages for $queueTopic(H)$ where $H$ is _unknown_ to the node are unreasonable since there is an unbounded number of such $H$.
+First, we don't want nodes to have to process an unbounded number of messages.
+That means that messages for $queueTopic(H)$ where $H$ is _unknown_ to the node are unreasonable since there is an unbounded number of such $H$.
 
-Secondly, nodes shouldn't have to do a lot of work to figure out whether to propagate a message to a specific peer or not. Assume that $leaves \cap leaves_k = \emptyset$ _but_ that some entries of $leaves_k$ are ancestors of entries of $leaves$. We have to do $O(n)$ work for each $l \in leaves_k$ to figure that out, though. Then, we have to figure out if a given message is unrouted at that prior block. Naïvely we would assume that if a message is still unrouted at a later block in the same chain that it was not routed earlier, but with chain-state reversions from fishermen this may not be true.
+Secondly, nodes shouldn't have to do a lot of work to figure out whether to propagate a message to a specific peer or not.
+Assume that $leaves \cap leaves_k = \emptyset$ _but_ that some entries of $leaves_k$ are ancestors of entries of $leaves$.
+We have to do $O(n)$ work for each $l \in leaves_k$ to figure that out, though.
+Then, we have to figure out if a given message is unrouted at that prior block.
+Naïvely we would assume that if a message is still unrouted at a later block in the same chain that it was not routed earlier, but with chain-state reversions from fishermen this may not be true.
 
 Since chain-state is not assumed available from prior blocks, we have no good way of determining if egress actually should be sent to peers on that earlier block. A relaxation of this by extending to a constant number of ancestors is discussed in the future improvements section.
 
@@ -180,18 +201,23 @@ Still, only propagating to peers that are synchronized to the same chain head is
  3. Neighbors in the gossip graph have <=500ms latency.
  4. Meaningfully propagating messages before synchronizing to the heads of the DAG is probably not worthwhile
 
-If we assume that no nodes broadcast updated $leaves$ until after the block has fully propagated (this is clearly not going to be the case in practice), then that leaves time after updating $leaves$ for a full 2.5 hops at 500ms latency to gossip `Queue`s until the next block. Real values are almost certainly better. And the good news is that not all egress has to be propagated within one block-time -- over time it is more and more likely that participants obtain earlier messages.
+If we assume that no nodes broadcast updated $leaves$ until after the block has fully propagated (this is clearly not going to be the case in practice), then that leaves time after updating $leaves$ for a full 2.5 hops at 500ms latency to gossip `Queue`s until the next block.
+Real values are almost certainly better.
+And the good news is that not all egress has to be propagated within one block-time -- over time it is more and more likely that participants obtain earlier messages.
 
-This is a scheme which results in all participants seeing all messages. It almost certainly will not scale beyond a small number of initial chains but will serve functionally as a starting protocol.
+This is a scheme which results in all participants seeing all messages.
+It almost certainly will not scale beyond a small number of initial chains but will serve functionally as a starting protocol.
 
 **Future Improvements (roughly, from sooner to later)**:
 
- 1. A section above describes why propagating egress to peers who are _arbitrarily_ far back is a bad idea, but we can reasonably keep track of the last $a$ ancestors of all of our leaves once we're synced and just following normal block production. The first reasonable choice for $a$ is 1 (keep parents). This probably gets us 90% of the gains we need, simply because there is a "stutter" when requiring leaf-sets to intersect and two peers need to update each other about the new child before sending any more messages.
- 2. Extend the definition of $E^B_{x,y}$ to allow chains to censor each other. For instance, by saying that parachain $y$ can inform the relay chain not to route messages from $x$ at block $B$ (and later inform it to start routing again at block $B'$). Then for any block $b$ between $B$ and $B'$, we would have the runtime consider $E^b_{x,y} = \emptyset$ regardless of what the `CandidateReceipt` for $x$ at $b$ said. Actually, since the runtime deals only in trie root hashes, it would really just ignore $R(E^b_{x,y})$ from the candidate receipt and set it to $R(\emptyset)$.
+ 1. A section above describes why propagating egress to peers who are _arbitrarily_ far back is a bad idea, but we can reasonably keep track of the last $a$ ancestors of all of our leaves once we're synced and just following normal block production.
+ The first reasonable choice for $a$ is 1 (keep parents). This probably gets us 90% of the gains we need, simply because there is a "stutter" when requiring leaf-sets to intersect and two peers need to update each other about the new child before sending any more messages.
+ 2. Extend the definition of $E^B_{x,y}$ to allow chains to censor each other. For instance, by saying that parachain $y$ can inform the relay chain not to route messages from $x$ at block $B$ (and later inform it to start routing again at block $B'$).
+ Then for any block $b$ between $B$ and $B'$, we would have the runtime consider $E^b_{x,y} = \emptyset$ regardless of what the `CandidateReceipt` for $x$ at $b$ said. Actually, since the runtime deals only in trie root hashes, it would really just ignore $R(E^b_{x,y})$ from the candidate receipt and set it to $R(\emptyset)$.
  3. Extend to support a smarter topology where not everyone sees everything. Perhaps two kinds of topics, those based on $(B, Chain_{from})$ and those based on $(B, Chain_{to})$ would make this more viable.
  4. Use some kind of smart set reconciliation (e.g. https://github.com/sipa/minisketch) to minimize gossip bandwidth.
  5. Incentivize distribution with something like Probabilistic Micropayments.
 
 ---
 
-A collator or validator seeking to collect egress queues at a block $B$ and parachain $p$ simply invokes `ingress(B,p)` and searches the propagation pool for the relevant messages, waiting for any which have not been gossipped yet.
+A collator or validator seeking to collect egress queues at a block $B$ and parachain $p$ simply invokes `ingress(B,p)` and searches the propagation pool for the relevant messages, waiting for any which have not been gossiped yet.
