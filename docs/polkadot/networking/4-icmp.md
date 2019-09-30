@@ -61,7 +61,7 @@ All information the runtime has about parachains is from `CandidateReceipt`s pro
 
 (**rob**: disallow empty list where pending egress non-empty?)
 
-The goal of a collator on $p$ building on relay chain parent $B$ is to acquire as long of a prefix of $P_{Ingress}(B, p)$ as it can.
+A collator or validator seeking to collect egress queues at a block $B$ and parachain $p$ simply invokes `ingress(B,p)` and searches the propagation pool for the relevant messages, waiting for any which have not been gossiped yet. The goal of a collator on $p$ building on relay chain parent $B$ is to acquire as long of a prefix of $P_{Ingress}(B, p)$ as it can.
 
 The simplest way to do this is with a gossip protocol.
 Messages are gossiped from one parachain network to another parachain network.
@@ -220,8 +220,6 @@ It almost certainly will not scale beyond a small number of initial chains but w
 
 
  ---
-
- A collator or validator seeking to collect egress queues at a block $B$ and parachain $p$ simply invokes `ingress(B,p)` and searches the propagation pool for the relevant messages, waiting for any which have not been gossiped yet.
 
 
  All information that the runtime has is in the form of `CandidateReceipt`s.
