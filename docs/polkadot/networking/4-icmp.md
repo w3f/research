@@ -50,9 +50,9 @@ P_{Ingress}(parent(B),p) \cup Ingress_{B,p}, & Hash(B) \neq watermark_p
 
 The _pending ingress roots_ $R(P_{Ingress}(B,p))$ can be computed by a similar process to $R(T_{Ingress}(B,p))$.
 
-A parachain candidate for $p$ building on top of relay-chain block $B$ is allowed to process any prefix of $PendingIngress(B,p)$.
+A parachain candidate for $p$ building on top of relay-chain block $B$ is allowed to process any prefix of $P_{Ingress}(B,p)$.
 
-Recall that all information the runtime has about parachains is from `CandidateReceipt`s produced by validating a parachain candidate block and included in a relay-chain block. The candidate has a number of fields. Here are some relevant ones:
+All information the runtime has about parachains is from `CandidateReceipt`s produced by validating a parachain candidate block and included in a relay-chain block. The candidate has a number of fields. Here are some relevant ones:
 
   - Egress Roots: `Vec<(ParaId, Hash)>`. When included in a relay chain block $B$ for parachain $p$, each hash, paired with unique parachain $y$ is $R(E^B_{p,y})$
   - a new value for $watermark_p$ when the receipt is for parachain $p$.
@@ -66,7 +66,6 @@ The goal of a collator on $p$ building on relay chain parent $B$ is to acquire a
 The simplest way to do this is with a gossip protocol. Inter-chain messages are gossiped from one parachain network to another parachain network.
 If there are nodes in common between these two networks this is easy.
 However, if the destination parachain validators realize that the message has not been gossiped in the recipient parachain, they request the message from the parachain validator of the sending parachain and then gossip it themselves in the recipient parachain network.
-
 
 At every block $B$ and parachain $p$ $R(P_{Ingress}(B, p))$ is available from the runtime.
 
