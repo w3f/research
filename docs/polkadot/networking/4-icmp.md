@@ -12,7 +12,7 @@
 Every parachain block in Polkadot produces a possible-empty list of messages to route to every other block.
 These are known as "egress queues". $E^B_{x,y}$ is the egress queue from chain $x$ to $y$ at block $B$.
 
-There is also $R(E^B_{x, y})$, which is the root hash of the merkle-patricia trie formed from mapping the index of each message in $E^B_{x,y}$ to the message data.
+There is also $R(E^B_{x, y})$, which is the root hash of the Merkle-Patricia trie [] formed from mapping the index of each message in $E^B_{x,y}$ to the message data.
 
 The pending messages to a chain should be processed in the next block for that chain.
 If there are no blocks for a chain in some time, the messages can begin to pile up.
