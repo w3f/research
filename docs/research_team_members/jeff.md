@@ -1,6 +1,6 @@
 # Jeff Burdges
 
-![](Jeff.jpg width=200)
+![](Jeff.jpg)
 
 Jeff is a cryptography researcher at the Web 3 Foundation, where he works on diverse topics around as collaborative randomness and block production. Jeff has found vulnerabilities in cryptographic systems, most recently the BIP32-Ed25519 proposal. He is also researching a new peer-to-peer private messaging service that will use mix networks.
 
