@@ -5,26 +5,9 @@
 **Last updated**: 24.09.2019
 
 ====================================================================
-
-## Interchain Messaging Overview
-To send messages from one parachain (sending parachain) to another parachain (receiving parachain) depending on the setup the following steps will be carried out.
-
-1. When full nodes of the sending parachain are also part of the domain of the receiving parachain, gossiping the message suffices
-2. A relay chain full node is in the domain of both the sending and receiving parachain, gossiping the message suffices
-3. Parachain validator of receiving parachain does not see the message being gossiped, then it request the message directly from the parachain validator of the sending parachain (PV at the moment of sending).
-The PV of the sending parachain are responsible to keep the messages available.
-The parachain validators of the sending parachain directly send the messages to the receiving parachain PoV's.
-Finally, the PV's of the receiving parachain gossip the messages in the receiving parachain network.
-
+## ICMP
 
 ### Inter-chain Message Passing: Egress Queue Data Fetching
-
-Inter-chain messages are gossiped from one parachain network to another parachain network.
-If there are nodes in common between these two networks this is easy.
-However, if the destination parachain validators realize that the message has not been gossiped in the recipient parachain, they request the message from the parachain validator of the sending parachain and then gossip it themselves in the recipient parachain network.
-
-All information that the runtime has is in the form of `CandidateReceipt`s.
-The author of a block may submit up to one `CandidateReceipt` from each parachain in the block (in practice, only those which are attested by a number of validators, although this detail is not relevant here).
 
 Every parachain block in Polkadot produces a possible-empty list of messages to route to every other block.
 These are known as "egress queues". $E^B_{x,y}$ is the egress queue from chain $x$ to $y$ at block $B$.
@@ -80,8 +63,12 @@ Recall that all information the runtime has about parachains is from `CandidateR
 
 The goal of a collator on $p$ building on relay chain parent $B$ is to acquire as long of a prefix of $PendingIngress(B, p)$ as it can.
 
-The simplest way to do this is with a gossip protocol.
-At every block $B$ and parachain $p$ $R(PendingIngress(B, p))$ is available from the runtime.
+The simplest way to do this is with a gossip protocol. Inter-chain messages are gossiped from one parachain network to another parachain network.
+If there are nodes in common between these two networks this is easy.
+However, if the destination parachain validators realize that the message has not been gossiped in the recipient parachain, they request the message from the parachain validator of the sending parachain and then gossip it themselves in the recipient parachain network.
+
+
+At every block $B$ and parachain $p$ $R(P_{Ingress}(B, p))$ is available from the runtime.
 
 What the runtime makes available for every parachain and block $p,B$ is a list of ingress-lists pending ingress roots at that block, each list paired with the block number the root was first meant to be routed.
 $R(\emptyset)$ is omitted from ingress-lists and empty lists are omitted.
@@ -208,6 +195,18 @@ And the good news is that not all egress has to be propagated within one block-t
 This is a scheme which results in all participants seeing all messages.
 It almost certainly will not scale beyond a small number of initial chains but will serve functionally as a starting protocol.
 
+ ## Interchain Messaging Routing Overview
+ To send messages from one parachain (sending parachain) to another parachain (receiving parachain) depending on the setup the following steps will be carried out.
+
+ 1. When full nodes of the sending parachain are also part of the domain of the receiving parachain, gossiping the message suffices
+ 2. A relay chain full node is in the domain of both the sending and receiving parachain, gossiping the message suffices
+ 3. Parachain validator of receiving parachain does not see the message being gossiped, then it request the message directly from the parachain validator of the sending parachain (PV at the moment of sending).
+ The PV of the sending parachain are responsible to keep the messages available.
+ The parachain validators of the sending parachain directly send the messages to the receiving parachain PoV's.
+ Finally, the PV's of the receiving parachain gossip the messages in the receiving parachain network.
+
+
+
 **Future Improvements (roughly, from sooner to later)**:
 
  1. A section above describes why propagating egress to peers who are _arbitrarily_ far back is a bad idea, but we can reasonably keep track of the last $a$ ancestors of all of our leaves once we're synced and just following normal block production.
@@ -218,6 +217,13 @@ It almost certainly will not scale beyond a small number of initial chains but w
  4. Use some kind of smart set reconciliation (e.g. https://github.com/sipa/minisketch) to minimize gossip bandwidth.
  5. Incentivize distribution with something like Probabilistic Micropayments.
 
----
 
-A collator or validator seeking to collect egress queues at a block $B$ and parachain $p$ simply invokes `ingress(B,p)` and searches the propagation pool for the relevant messages, waiting for any which have not been gossiped yet.
+
+ ---
+
+ A collator or validator seeking to collect egress queues at a block $B$ and parachain $p$ simply invokes `ingress(B,p)` and searches the propagation pool for the relevant messages, waiting for any which have not been gossiped yet.
+
+
+ All information that the runtime has is in the form of `CandidateReceipt`s.
+ The author of a block may submit up to one `CandidateReceipt` from each parachain in the block (in practice, only those which are attested by a number of validators, although this detail is not relevant here).
+ ---
