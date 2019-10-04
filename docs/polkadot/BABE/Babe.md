@@ -1,4 +1,12 @@
+====================================================================
 
+Author: Handan Kilinc Alper
+
+Last updated: 20.09.2019
+
+Email: handan@web3.foundation
+
+====================================================================
 \(
    \def\skvrf{\mathsf{sk}^v}
    \def\pkvrf{\mathsf{pk}^v}
