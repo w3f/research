@@ -39,8 +39,9 @@ extra:
     - type: 'medium'
       link: 'https://medium.com/web3foundation'
   news:
-    - "09.09.19: At devcon day 1, Fatemeh will give a short presentation about Polkadot's needs for p2p. On day 4, Alistair will give a devcon talk on our availabiltiy and validity scheme and Alfosnos will give a short presentation about governenace."
-    - "05.09.19: Alistair will be giving a talk at the NodeTokyo 2019 (https://nodetokyo.jp/)." 
+    - "12.10.19: Alistair will be participating in panel at an event organized by Near protocol right after devcon5 on the 12.10.19."
+    - "09.10.19: At devcon day 1, Fatemeh will give a short presentation about Polkadot's needs for p2p. On day 4, Alistair will give a devcon talk on our availabiltiy and validity scheme and Alfosnos will give a short presentation about governenace."
+    - "05.10.19: Alistair will be giving a talk at the NodeTokyo 2019 (https://nodetokyo.jp/)." 
     - "17.09.19: Alistair's poster on GRANDPA has been accepted as an ACM CCS poster and will be pesented in CCS'19 in London."
     - "16.09.19: Alistair will be giving a number of talks in China in the next two weeks."
     - "18.08.19: Handan wrote a paper describing the relevant time technique used in Polkadot’s block production protocol BABE with the title: “Ouroboros Clepsydra: Ouroboros Praos in Universally Composable Relative Time Model” that will be shortly available online."
