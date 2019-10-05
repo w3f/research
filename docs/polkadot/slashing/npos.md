@@ -24,7 +24,7 @@ where again $N_e$ is the validators nominated by $\eta$ in era $e$
 In particular, there is an extortion attack in which someone runs many poorly staked validators, receives nominations, and then threatens their nominators with being slashed.  We cannot prevent such attacks entirely, but this outer $\max_e$ reduces the damage over formula that add slashing from different eras.
 
 
-We kept our slashing simple and fixed some fairness issues with the outer maximum $\max_e cdots\$, but created another problem:  If $\nu$ gets slashed once, then $\nu$ could thereafter commit similar offenses with impunity.  As this situation is neither fair nor effective, we must limit $\eta$ and $\nu$ impunity either by limiting the eras spanned by this outer maximum, or else by removing their impunity gradually.  
+We kept our slashing simple and fixed some fairness issues with the outer maximum $\max_e \cdots$, but created another problem:  If $\nu$ gets slashed once, then $\nu$ could thereafter commit similar offenses with impunity.  As this situation is neither fair nor effective, we must limit $\eta$ and $\nu$ impunity either by limiting the eras spanned by this outer maximum, or else by removing their impunity gradually.  
 
 We want this impunity to disappear as quickly as possible and minimize further risks to the network.  We suggest defining an explicit span based on offence detection times and the nominator's own voluntary reenlistment.  As nominators might make mistakes in reenlistment, we detail several additional actions taken whenever some validator $\nu$ causes the slashing of some nominator $\eta$.  
 
