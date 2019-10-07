@@ -59,7 +59,7 @@ We consider a slash of value $s := p_{\nu',e} x_{\eta,\nu',e}$ being applied to 
 
 We track the value $s_{\eta,i}$ in $\eta$'s slashing span record, but we also track another value $t_{\eta,i} < s_{\eta,i}$ that represents the total amount paid out so far.  If $s_{\eta,i+1} > s_{\eta,i}$ then we pay out $r := f_1 (f_\infty s_{\eta,i+1} - t_{\eta,i})$ and increase $t_{\eta,i}$ by this amount.  If $s_{\eta,i+1} = s_{\eta,i}$ then we pay out $r := f_1 \max(f_\infty s - t_{\eta,i},0)$.  In either case, we store $t_{\eta,i+1} := t_{\eta,i} + r$.
 
-In this way, our validator $\nu$ cannot reclaim more than $f_\infty $f_1 s$ from a slash of value $s$, even by repeatedly equivocations.  Any slash of size $s_{\eta,i}$ always results in some payout, but slashes less than $t_{\eta,i}$ never pay out.
+In this way, our validator $\nu$ cannot reclaim more than $f_\infty f_1 s$ from a slash of value $s$, even by repeatedly equivocations.  Any slash of size $s_{\eta,i}$ always results in some payout, but slashes less than $t_{\eta,i}$ never pay out.
 
 We acknowledge the above scheme requires considering all impacted $\eta$ when doing payouts.  We have some minimum stake $x'$ that validator operators must provide themselves, meaning $x_{\nu,\nu,e} > x'$.  If $x_{\nu,\nu,e} > f_\infty \sum_\eta x_{\eta,\nu,e}$ then we could replace $f_\infty$ above with the $f'_{\nu,e}$ such that $f'_{\nu,e} x_{\nu,\nu,e} = f_\infty \sum_\eta x_{\eta,\nu,e}$, and only apply the payouts to slashes against validator operators.  We'd have similar payouts initially, but smaller payouts in cross era slashing.  We suppose validator operators could exploit this make reporting unprofitable, but only in rather niche situations.
 
