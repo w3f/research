@@ -6,9 +6,10 @@
 
 At Web3 Foundation I work on a number of tasks:
 
-* research challenges of Polkadot such as interoperability, networking, and auctions
-* coordinating our academic collaborations
-* a research project aiming at designing a privacy-enhancing messaging service for decentralized applications
+* help design and coordinate W3F's research agenda
+* work on research challenges of Polkadot such as interoperability, networking, and auctions
+* coordinating our external academic collaborations
+* help with a research project aiming at designing a privacy-enhancing messaging service for decentralized applications
 
 **Research Areas**
 
