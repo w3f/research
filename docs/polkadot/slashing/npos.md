@@ -53,7 +53,7 @@ There are no meaningful limits on the diversity of nominators who nominated a pa
 
 In fact, we find that monotonicity also constrains our rewards for offense reports that result in slashing:  If a validator $\nu$ gets slashed, then they could freely equivocate more and report upon themselves to earn back some of the slashed value.  
 
-We define $f_\infty < 0.1$ to be the maximum proportion of a slash that ever gets paid out.  We also define $f_1 < {1\over2}$ to be the proportion of $f_\infty$ paid out initially on the first offence detection.  So a fresh slash of value $s$ results in a payout of $f_\infty $f_1 s$.
+We define $f_\infty < 0.1$ to be the maximum proportion of a slash that ever gets paid out.  We also define $f_1 < {1\over2}$ to be the proportion of $f_\infty$ paid out initially on the first offence detection.  So a fresh slash of value $s$ results in a payout of $f_\infty f_1 s$.
 
 We consider a slash of value $s := p_{\nu',e} x_{\eta,\nu',e}$ being applied to the nominator $\eta$.  We let $s_{\eta,i}$ and $s_{\eta,i+1}$ denote $\eta$'s actual slash in slashing span $\bar{e}$ given by $\max_{e \in \bar{e}} \sum_{\nu \in N_e} p_{\nu,e} x_{\eta,\nu,e}$ before and after applying the new slash, respectively, so when $\eta$'s slash increases by $s_{\eta,i+1} - s_{\eta,i}$.
 
