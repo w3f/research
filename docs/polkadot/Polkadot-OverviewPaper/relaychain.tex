@@ -9,7 +9,22 @@ A <i>Markle radix-16 trie</i> keeps the Merkle hashes corresponding to the $(key
 
 To keep state size in control, the relay chain state is solely used to facilitate relay chain operation such as staking and identifying Validators. It is not suppose to store any information regarding the internal operation of the parachains.
 
+\paragraph{State transition}
+Like any transaction-based transition system, Polkadot state changes via an executing ordered set of instructions. These instructions (traditionally known as transactions), are refereed to as extrinsics in Polkadot Jargon covering any data is provided from ``outside'' of the machine's state which can affect state transition. Polkadot relay chain is divided into two major components. The execution logic of the state-transition function is mainly encapsulated in the ``Runtime'' while all other generic operations which are commonly shared among modern block chain based replicated state machines are embedded into the runtime environment, In particular the latter is in charge of network communication, block production and consensus engines.
+
+Runtime functions are compiled into a Web assembly module and is stored as part of the state. The runtime environment communicates the extrinsics with the Runtime and interact with it to execute enable the state transition. In this way, the state transition logic itself can be upgraded as a part of state transition.
+
+\paragraph{Extrinsics}
+
+Extrinsics are the input data supplied to the Polkadot Relay chain state machine to transition to a new states. Extrinsics are needed to be stored into blocks of the relay chain in order to achieve consensus among the state machine replica. Extrinsics are divided into two broad categories namely Transactions and Inherents.
+
+Transactions are signed and are gossiped around on the network between nodes. In contrast Inherents are not signed and are not gossiped individually but rather only when they are included in a block. They inherents in a block are assumed to be valid if super majority of validators assume so. Timestamp is an example of inherent extrinsics which must be included in each Polkadot Relay chain block.
+
 \paragraph{Transaction Inclusion}
+
+\paragraph{Block format}
+
+\paragraph{Consensus}
 
 \paragraph{Block Building}\label{sec:relaychainblockproduction}
  
