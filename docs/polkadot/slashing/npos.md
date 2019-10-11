@@ -51,15 +51,37 @@ We think fairness imposes this condition because otherwise validators can reduce
 There are no meaningful limits on the diversity of nominators who nominated a particular validator within the unbonding period.  In consequence, almost every validator can be slashed simultaneously, thanks to by monotonicity and the validator adding past equivocations, which enables an array of "rage quit attacks".  In other words, we cannot bound the total stake destroyed by a combined slashing event much below the slash applied to the total stake of the network.
 
 
-In fact, we find that monotonicity also constrains our rewards for offense reports that result in slashing:  If a validator $\nu$ gets slashed, then they could freely equivocate more and report upon themselves to earn back some of the slashed value.  
+## Rewards for slashable offense reports
 
-We define $f_\infty < 0.1$ to be the maximum proportion of a slash that ever gets paid out.  We also define $f_1 < {1\over2}$ to be the proportion of $f_\infty$ paid out initially on the first offence detection.  So a fresh slash of value $s$ results in a payout of $f_\infty f_1 s$.
+Interestingly, we find that monotonicity also constrains our rewards for offense reports that result in slashing:  If a validator $\nu$ gets slashed, then they could freely equivocate more and report upon themselves to earn back some of the slashed value.  
 
-We consider a slash of value $s := p_{\nu',e} x_{\eta,\nu',e}$ being applied to the nominator $\eta$.  We let $s_{\eta,i}$ and $s_{\eta,i+1}$ denote $\eta$'s actual slash in slashing span $\bar{e}$ given by $\max_{e \in \bar{e}} \sum_{\nu \in N_e} p_{\nu,e} x_{\eta,\nu,e}$ before and after applying the new slash, respectively, so when $\eta$'s slash increases by $s_{\eta,i+1} - s_{\eta,i}$.
+### Rewards based on slashing nominators
+
+We define $f_\infty$ to be the maximum proportion of a slash that ever gets paid out, presumably $f_\infty < 0.1$.  We also define $f_1 < {1\over2}$ to be the proportion of $f_\infty$ paid out initially on the first offence detection.  So a fresh slash of value $s$ results in a payout of $f_\infty f_1 s$.
+
+We consider a slash of value $s := p_{\nu,e} x_{\eta,\nu,e}$ being applied to the nominator $\eta$.  We let $s_{\eta,i}$ and $s_{\eta,i+1}$ denote $\eta$'s actual slash in slashing span $\bar{e}$ given by $\max_{e \in \bar{e}} \sum_{\nu \in N_e} p_{\nu,e} x_{\eta,\nu,e}$ before and after applying the new slash, respectively, so when $\eta$'s slash increases by $s_{\eta,i+1} - s_{\eta,i}$.
 
 We track the value $s_{\eta,i}$ in $\eta$'s slashing span record, but we also track another value $t_{\eta,i} < s_{\eta,i}$ that represents the total amount paid out so far.  If $s_{\eta,i+1} > s_{\eta,i}$ then we pay out $r := f_1 (f_\infty s_{\eta,i+1} - t_{\eta,i})$ and increase $t_{\eta,i}$ by this amount.  If $s_{\eta,i+1} = s_{\eta,i}$ then we pay out $r := f_1 \max(f_\infty s - t_{\eta,i},0)$.  In either case, we store $t_{\eta,i+1} := t_{\eta,i} + r$.
 
 In this way, our validator $\nu$ cannot reclaim more than $f_{\infty} f_1 s$ from a slash of value $s$, even by repeatedly equivocations.  Any slash of size $s_{\eta,i}$ always results in some payout, but slashes less than $t_{\eta,i}$ never pay out.
 
-We acknowledge the above scheme requires considering all impacted $\eta$ when doing payouts.  We have some minimum stake $x'$ that validator operators must provide themselves, meaning $x_{\nu,\nu,e} > x'$.  If $x_{\nu,\nu,e} > f_{\infty} \sum_\eta x_{\eta,\nu,e}$ then we could replace $f_{\infty}$ above with the $f_{\nu,e}$ such that $f_{\nu,e} x_{\nu,\nu,e} = f_{\infty} \sum_\eta x_{\eta,\nu,e}$, and only apply the payouts to slashes against validator operators.  We'd have similar payouts initially, but smaller payouts in cross era slashing.  We suppose validator operators could exploit this make reporting unprofitable, but only in rather niche situations.
+### Rewards based on slashing only validators
+
+We dislike that the above reward scheme requires considering all impacted $\eta$ when doing payouts, so we propose to compute rewards only for validators being slashed instead.  We shall require that validators always get slashed whenever their nominators get slashed, which means validators cannot be slashed 100% without their nominators all also being slashed 100%.
+
+We have some minimum exposure aka stake $x'$ that validator operators must provide themselves, meaning $x_{\nu,\nu,e} \ge x'$.  As a simplifying assumption, we ask that $f_\infty$ be kept small enough that rewards can always be covered by the validators' exposure, meaning $x' \ge f_{\infty} \sum_\eta x_{\eta,\nu,e}$.  We do not explore any cases where this fails here, but doing so requires a subtle definition of some $x' > x_{\nu,\nu,e}$ such that rewards still cannot create inflation. 
+
+We now define $f' > f_{\infty}$ such that $f' x' = f_{\infty} x_{\min}$ where $x_{\min} = \sum_\eta x_{\eta,\nu,e}$ is our required minimum total stake for any validator.  In the above scheme, we shall replace $f_{\infty}$ by $f'$ and only apply the payouts to slashes against validator operators minimum exposure $x'$, meaning replace the slash value $p_{\nu,e} x_{\eta,\nu,e}$ by $\max_{e \in \bar{e}} p_{\nu,e} x'$.
+
+
+We consider a slash of value $s := p_{\nu,e} x_{\nu,\nu,e}$ being applied to the validator $\nu$.  We define the _minimum validator adjusted slash__ value $s' := p_{\nu,e} x'$ to be the fraction of this slash applied to the minimum validator stake $x'$.  We have a _total minimum validator adjusted slash_ given by $\max_{e \in \bar{e}} p_{\nu,e} x'$, which provides an analog of total regular slashes but only considering the validator themselves.
+
+We next let $s'_{\nu,i}$ and $s'_{\nu,i+1}$ denote $\nu$'s total validator adjusted slash in their slashing span $\bar{e}$ before and after applying the new slash, respectively, so when $\nu$'s total validator adjusted slash increases by $s'_{\nu,i+1} - s'_{\nu,i} = \max(s' - s'_{\nu,i},0)$.
+
+We track the value $s'_{\nu,i}$ in the validator $\nu$'s slashing span record, but we also track another value $t_{\nu,i} < s'_{\nu,i}$ that represents the total amount paid out so far.  If $s'_{\nu,i+1} > s'_{\nu,i}$ then we pay out $r := f_1 (f' s'_{\nu,i+1} - t_{\nu,i})$ and increase $t_{\eta,i}$ by this amount.  If $s'_{\nu,i+1} = s'_{\nu,i}$ then we pay out $r := f_1 \max(f' s' - t_{\nu,i},0)$.  In either case, we store $t_{\nu,i+1} := t_{\nu,i} + r$.
+
+In this way, our validator $\nu$ cannot reclaim more than $f' f_1 s$ from a slash of value $s$, even by repeatedly equivocations.  Any slash of size $s_{\nu,i}$ always results in some payout, but slashes less than $t_{\nu,i}$ never pay out.
+
+In both scheme, we have similar payouts initially, but our second scheme with payouts based only on the validator slashes results in smaller reward payouts when cross era slashing logic kicks in.  As an example, if a validator $\nu$ gets similar slashes for different epochs, then the $r_1$ factor would reduce the entire reward if payouts are based only on the validator slashes, but if $\nu$ has disjoin nominators in every epoch then the $r_1$ factor makes only a minimal appearance. 
+
 
