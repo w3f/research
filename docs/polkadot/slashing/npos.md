@@ -74,7 +74,7 @@ We have some minimum exposure aka stake $x'$ that validator operators must provi
 We now define $f' > f_{\infty}$ such that $f' x' = f_{\infty} x_{\min}$ where $x_{\min} = \sum_\eta x_{\eta,\nu,e}$ is our required minimum total stake for any validator.  In the above scheme, we shall replace $f_{\infty}$ by $f'$ and only apply the payouts to slashes against validator operators minimum exposure $x'$, meaning replace the slash value $p_{\nu,e} x_{\eta,\nu,e}$ by $\max_{e \in \bar{e}} p_{\nu,e} x'$.
 
 
-We consider a slash of value $s := p_{\nu,e} x_{\nu,\nu,e}$ being applied to the validator $\nu$.  We define the _minimum validator adjusted slash__ value $s' := p_{\nu,e} x'$ to be the fraction of this slash applied to the minimum validator stake $x'$.  We have a _total minimum validator adjusted slash_ given by $\max_{e \in \bar{e}} p_{\nu,e} x'$, which provides an analog of total regular slashes but only considering the validator themselves.
+We consider a slash of value $s := p_{\nu,e} x_{\nu,\nu,e}$ being applied to the validator $\nu$.  We define the _minimum validator adjusted slash_ value $s' := p_{\nu,e} x'$ to be the fraction of this slash applied to the minimum validator stake $x'$.  We have a _total minimum validator adjusted slash_ given by $\max_{e \in \bar{e}} p_{\nu,e} x'$, which provides an analog of total regular slashes but only considering the validator themselves.
 
 We next let $s'_{\nu,i}$ and $s'_{\nu,i+1}$ denote $\nu$'s total validator adjusted slash in their slashing span $\bar{e}$ before and after applying the new slash, respectively, so when $\nu$'s total validator adjusted slash increases by $s'_{\nu,i+1} - s'_{\nu,i} = \max(s' - s'_{\nu,i},0)$.
 
