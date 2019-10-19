@@ -30,7 +30,7 @@ We want this impunity to disappear as quickly as possible and minimize further r
 
 First, we post a slashing transaction to the chain, which drops $\nu$ from the active validator list by invalidating their session keys, which makes everyone ignore $\nu$ for the remainder of the era, and also invalidates any future blocks that do not ignore $\nu$.  We also remove all nomination approval votes by any nominator for $\nu$, even those who currently allocate $\nu$ zero stake.
 
-Second, we remove all $\eta$'s nomination approval votes for future eras.  We do not remove $\eta$'s current nominations for the current era or reduce the stake currently backing other validators.  Also we permit $\eta$ to add new nomination approval votes for future eras during the current era.  We also notify $\eta$ that $\nu$ cause them to be slashed.  
+Second, we mark all $\eta$'s nomination approval votes for future eras as _suppressed_.  We do not suppress or remove $\eta$'s current nominations for the current era or reduce the stake currently backing other validators.  Also, we permit $\eta$ to update their nomination approval votes for future eras during the current era, thus removing the suppressed flag.  We also notify $\eta$ that $\nu$ cause them to be slashed.  
 
 These state alterations minimize the risks of unintentional reenlistment any nominator, while also minimising risks to the network.  We thus feel justified in treating any future nominations by $\eta$ separately from any that happen in the current era or before, which now permits defining the eras spanned by the outer maximum:
 
@@ -48,8 +48,32 @@ We ask that slashing be monotonic increasing for all parties so that validators 
 
 We think fairness imposes this condition because otherwise validators can reduce the slash of their favoured nominators, normally by making other nominators be slashed more.  We know trusted computing environments (TEE) avoid this issue, but we do not currently foresee requiring that all validators use them.
 
-There are no meaningful limits on the diversity of nominators who nominated a particular validator within the unbonding period.  In consequence, almost every validator can be slashed simultaneously, thanks to by monotonicity and the validator adding past equivocations, which enables an array of "rage quit attacks".  In other words, we cannot bound the total stake destroyed by a combined slashing event much below the slash applied to the total stake of the network.
+There are no meaningful limits on the diversity of nominators who nominated a particular validator within the unbonding period.  As a direct consequence of monotonicity, almost every nominators can be slashed simultaneously, even if only one validator gets slashed.  In particular, there are "rage quit attacks" in which one widely trusted validator adds past equivocations that cover many nominators.  We therefore cannot bound the total stake destroyed by a combined slashing event much below the slash applied to the total stake of the network.
 
+
+## Suppressed nominations in Phragmen 
+
+We defined a slashing span $\bar{e}$ for a nominator $\eta$ to end after the era $e$ during which a slashing event during $\bar{e}$ gets detected and acknowledged by the chain.  We asked above that all $\eta$'s nomination approval votes, for any validator, should be _suppressed_ after the era $e$ that ends a slashing span $\bar{e}$, but never defined suppressed.  
+
+
+Claim.  We must end a nominator's slashing span $\bar{e}$ whenever we detect a slash.  
+
+Proof.  Let $x'$ be the validators' minimum self exposure and let $y$ be the stake to become a validator.  Some nominator $\eta_1$ nominates validators $\nu_e$ for $e=1\ldots$ with her account of $y-x'$ stake.  In epoch $e-1$, $\nu_i$ stakes enough to become a validator in epoch $e$, so $\nu_1$ stakes only $x'$ and $\nu_i$ for $i>1$ stakes somewhat more.  In epoch $i$, $\nu_i$ commits a violation.  If we did not end $\eta_1$'s slashing span $\bar{e}$ then then max_{e \in \bar{e}} rule would prevent these slashes from actually slashing $\eta_1$ further.  In this way, a planned series of violations causing slashes across epochs only actually slashes $x' / y$ of the desired slash value.  $\square$
+
+
+We suppress a slashed nominator $\eta$'s votes because otherwise $\eta$'s next slashing span restarts automatically, by the claim, which causes two problems:  First, we consider $\eta$'s judgement flawed, so they should reevaluate their votes' risks, both for themselves and the network's good.  Second, $\eta$ could easily be slashed several times if reports are prompt, but only once if reports are delayed, which incentivizes delaying reports.  
+
+If suppressed votes are ignored by our nomination algorithm (Phragmen's method), then $\eta$ must participate manually in restarting their next slashing span, which gives them time to reevaluate and clearly makes them responsible.  
+
+At the same time, there is a risk many nominators could be slashed nearly simultaneously, perhaps only by some small amount.  If these fail to renominate quickly, then much of the total stake invested by nominators becomes suppressed, not unlike the "rage quit attacks" enabled by monotonicity. 
+
+As a compromise, we propose that suppressed nominations should not be outright ignored, but instead heavily deprioritised. 
+
+TODO:  Adapt our Phragmen heuristic
+
+## Reduced rewards
+
+TODO:  How small should a slash be to ignore the slashing span system?
 
 ## Rewards for slashable offense reports
 
