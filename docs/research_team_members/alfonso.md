@@ -10,11 +10,11 @@ I work in the analysis and optimization of decentralized algorithms, making sure
 
 **Selected publications**
 
+• A. Cevallos, Fr. Eisenbrand, R. Zenklusen. *An improved analysis of local search for max-sum diversification.* Mathematics of Operations Research, 2019.
+
 • M. Aprile, A. Cevallos, Y. Faenza. *On 2-level polytopes arising in combinatorial settings.* SIAM Journal on Discrete Mathematics (SIDMA), 2018.
 
 • A. Cevallos, S. Weltge, R. Zenklusen. *Lifting linear extension complexity bounds to the mixed-integer setting.* Symp. on Discrete Algorithms (SODA), 2018.
-
-• A. Cevallos, F. Eisenbrand, R. Zenklusen. *Local search for max-sum diversifcation.* Symp. on Discrete Algorithms (SODA), 2017.
 
 • A. Cevallos, F. Eisenbrand, R. Zenklusen. *Max-sum diversity via convex programming.* Symp. on Computational Geometry (SoCG), 2016.
 
