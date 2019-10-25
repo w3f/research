@@ -5,6 +5,8 @@ Authors:  Jeffrey Burdges, Robert Habermeier, Alfonso Cevallos, (and Alistair St
 
 We need our slashing algorithm to be fair and effective.  We discuss how this means slashing must respect nominators' exposure, be anti-Sibel, and be monotonic. 
 
+TODO:  Anything about era boundaries?
+
 ## Reduced rewards
 
 TODO:  How small should a slash be to ignore the slashing span system?
@@ -17,7 +19,9 @@ We immediately remove any validator $\nu$ whenever they gets slashed, which prev
 
 <small>As an aside, we could write $p_{\eta,\nu,e}$ throughout if we wanted to slash different nominators differently, like by slashing the validator themselves more, i.e. $p_{\nu,\nu,e} > p_{\eta,\nu,e}$ for $\nu \ne \eta$.  We abandoned this idea because validators could always be their own nominators.</small>
 
-We actually have only minimal concerns about multiple miss-behaviours from the same validator $\nu$ in one era, but if we discover some in future then the slashing lock could combine them before producing these $p_i$.  In other words, $p_{\nu,e} \ge \max_i p_i$ with equality by default, but a strict inequality remains possible for some $p_i$ combinations.  We expect this would complicate cross era logic, but such issues should be addressed by considering the specific miss-behaviour.  In essence, this $p_{\nu,e} := \max_i p_i$ definition provides default mechanism for combining slashes within one era that is simple, fair, and commutative, but alternative logic remains possible so long as we slash the same regardless of the order in which offenses are detected.
+We actually have only minimal concerns about multiple miss-behaviours from the same validator $\nu$ in one era, but if we discover some in future then the slashing lock could combine them before producing these $p_i$.  In other words, $p_{\nu,e} \ge \max_i p_i$ with equality by default, but a strict inequality remains possible for some $p_i$ combinations.  We expect this would complicate cross era logic, but such issues should be addressed by considering the specific miss-behaviour.  
+
+In essence, this $p_{\nu,e} := \max_i p_i$ definition provides default mechanism for combining slashes within one era that is simple, fair, and commutative, but alternative logic remains possible so long as we slash the same regardless of the order in which offenses are detected.  We emphasise that future slashing logic might take numerous factors into consideration, so doing $\max_i p_i_$ here retains the most flexibility for future slashing logic.
 
 
 We do however worry about miss-behaviours from different validators $\nu \ne \nu'$ both because nomination must restrict Sibels and also because correlated slashing need not necessarily involve the same validators.  We therefore let $N_{\eta,e}$ denote the validators nominated by $\eta$ in era $e$ and slash $\sum_{\nu \in N_e} p_{\nu,e} x_{\eta,\nu,e}$ from $\eta$ when multiple validators $\nu \in N_{\eta,e}$ get slashed.
