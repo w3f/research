@@ -1,5 +1,8 @@
 # Slashing across eras with NPoS
 
+Authors:  Jeffrey Burdges, Robert Habermeier, Alfonso Cevallos, (and Alistair Stewart once he reviews it closely)
+
+
 We need our slashing algorithm to be fair and effective.  We discuss how this means slashing must respect nominators' exposure, be anti-Sibel, and be monotonic. 
 
 ## Reduced rewards
@@ -55,7 +58,7 @@ We handle the nominator $\eta$ less speedily though.  We merely update the slash
 
 We also mark $\eta$ _suppressed_ which partially _suppresses_ all of $\eta$'s nomination approval votes for future eras.  We do not suppress or remove $\eta$'s current nominations for the current era or reduce the stake currently backing other validators.  In principle, we could suppresses $\eta$'s nomination approval votes somewhat whenever $\eta$ gets slashed in previous slashing spans, but doing so appears unnecessary because suppression really comes only as part of ending a slashing span. 
 
-Also, we permit $\eta$ to update their nomination approval votes for future eras during the current or future era, but doing so removes them from the aka suppressed state.  We also notify $\eta$ that $\nu$ cause them to be slashed and supressed.  
+Also, we permit $\eta$ to update their nomination approval votes for future eras during the current or future era, but doing so removes them from the aka suppressed state.  We also notify $\eta$ that $\nu$ cause them to be slashed and suppressed.  
 
 These state alterations reduce the risks of unintentional reenlistment of any nominator, while also balancing risks to the network.  In particular, these measures provide justification for treating any future nominations by $\eta$ separately from any that happen in the current era or before.
 
