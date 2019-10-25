@@ -90,7 +90,9 @@ If suppression does nothing ($\xi = 0$), then at the next epoch $\eta$ enters a 
 
 If suppression removes all $\eta$'s nominations ($\xi = \infty$), then $\eta$ remains completely safe, but widespread slashing could remove massive amounts of stake from the system if many nominators get slashed nearly simultaneously, perhaps only by some small amount.  If these fail to renominate quickly, then much of the total stake invested by nominators becomes suppressed, not unlike the "rage quit attacks" enabled by monotonicity.  We consider this problematic because an adversary might suddenly control more than one third of the stake.
 
-We think $\xi = 1$ or $2$ sounds reasonable.  We suspect $\xi > 2$ meshed poorly with our 2/3rds honest assumption elsewhere.  At some point $\xi < 0.5$ creates similar issues to $\xi = 0$, but no intuitive arguments present themselves. 
+We think $\xi = 1$ or $2$ sounds reasonable.  We suspect $\xi > 2$ meshes poorly with our 2/3rds honest assumption elsewhere.  At some point $\xi < 0.5$ creates similar issues to $\xi = 0$, but no intuitive arguments present themselves. 
+
+We have intentionally kept the above computation $\xi \sum_{\bar{e} \in E} s_{\eta,\bar{e}}$ extremely simple so that $\xi$ can dynamically be changed by governance to reintroduce suppressed stake in an emergency.  We code could change $\xi$ automatically but doing so appears pointless.
 
 TODO:  Import any discussion from Alfonso's text
 
