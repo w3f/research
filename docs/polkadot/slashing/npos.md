@@ -125,7 +125,7 @@ We now define $f' > f_0$ such that $f' x' = {1-f_1 \over f_1} f_{\infty} x_{\min
 
 We consider a slash of value $s := p_{\nu,e} x_{\nu,\nu,e}$ being applied to the validator $\nu$.  We define the _minimum validator adjusted slash_ value $s' := p_{\nu,e} x'$ to be the fraction of this slash applied to the minimum validator stake $x'$.  We have a _total minimum validator adjusted slash_ given by $\max_{e \in \bar{e}} p_{\nu,e} x'$, which provides an analog of total regular slashes but only considering the validator themselves.
 
-We next let $s^{\prime}_{\nu,i}$ and $s'_{\nu,i+1}$ denote $\nu$'s total validator adjusted slash in their slashing span $\bar{e}$ before and after applying the new slash, respectively, so when $\nu$'s total validator adjusted slash increases by $s'_{\nu,i+1} - s'_{\nu,i} = \max(s' - s'_{\nu,i},0)$.
+We next let $s\prime_{\nu,i}$ and $s'_{\nu,i+1}$ denote $\nu$'s total validator adjusted slash in their slashing span $\bar{e}$ before and after applying the new slash, respectively, so when $\nu$'s total validator adjusted slash increases by $s'_{\nu,i+1} - s'_{\nu,i} = \max(s' - s'_{\nu,i},0)$.
 
 We track the value $s'_{\nu,i}$ in the validator $\nu$'s slashing span record, but we also track another value $t_{\nu,i} < s'_{\nu,i}$ that represents the total amount paid out so far.  If $s'_{\nu,i+1} > s'_{\nu,i}$ then we pay out $r := f_1 (f' s'_{\nu,i+1} - t_{\nu,i})$ and increase $t_{\eta,i}$ by this amount.  If $s'_{\nu,i+1} = s'_{\nu,i}$ then we pay out $r := f_1 \max(f' s' - t_{\nu,i},0)$.  In either case, we store $t_{\nu,i+1} := t_{\nu,i} + r$.
 
