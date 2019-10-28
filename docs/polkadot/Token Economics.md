@@ -2,7 +2,7 @@
 
 **Authors**: Alfonso Cevallos, Fatemeh Shirazi (minor)
 
-**Last updated**: 17.10.2019
+**Last updated**: 28.10.2019
 
 ====================================================================
 
@@ -162,7 +162,7 @@ Some of the properties we want to achieve relative to relay-chain transactions a
 4. Blocks are typically far from full, so that peaks can be dealt with effectively and long inclusion times are rare.
 5. Fees evolve slowly enough, so that the fee of a particular tx can be predicted accurately within a frame of a few minutes.
 6. For any tx, its fee level is strictly larger than the reward perceived by the block producer for processing it. Otherwise, the block producer is incentivized to stuff blocks with fake txs.
-7. For any tx, the processing reward perceived by the block producer is high enough to incentivize tx inclusion, yet low enough not to incentivize a block producer to create a fork and steal the transactions of the previous block. Effectively, this means that that the marginal reward perceived for including an additional tx is higher than the corresponding marginal cost of processing it, but the total reward for producing a full block is not much larger than the reward for producing an empty block (even when tips are factored in).
+7. For any tx, the processing reward perceived by the block producer is high enough to incentivize tx inclusion, yet low enough not to incentivize a block producer to create a fork and steal the transactions of the previous block. Effectively, this means that that the marginal reward perceived for including an additional tx is considerably higher than the corresponding marginal cost of processing it, but the total reward for producing a full block is not much larger than the reward for producing an empty block (even when tips are factored in).
 
 For the time being, we focus on satisfying properties 1 through 6 (without 2'), and we leave properties 2' and 7 for a further update. We also need more analysis on property 2.
 
@@ -171,11 +171,36 @@ The amount of transactions that are processed in a relay-chain block can be regu
 
 ### Limits on resource usage
 
-There will be several types of transactions, with different fee levels. This fee differentiation is used to reflect the different costs in resources incurred by transactions, and to encourage/discourage certain types of transactions. Thus, we need to analyze the resource usage of each type of transaction, to adjust the fees (to be done).
+We identify four resources which can be consumed when processing a tx:
 
-Part of the transaction fee needs to go as a reward to the block producer for transaction inclusion, as otherwise they would have an incentive not to include transactions since smaller blocks are faster to produce, distribute and incorporate in chain. However, the block producer should not be rewarded the full amount of the fee, so they are discouraged from stuffing blocks. How much of the tx fee goes to the block producer is an adjustable parameter via governance; we originally suggest 20%, and suggest that the other 80% go to treasury (instead of burning) to keep better control of inflation/deflation). This percentage might depend on the transaction type, to encourage the block producer to include certain tx types without necessarily increasing the fee.
+* Length: data size of the tx in bytes within the relay-chain block,
+* Time: time it takes to import it (i/o and cpu),
+* Memory: amount of memory it takes when processing,
+* State: amount of state storage increase it induces.
 
-There will be an additional space in each block that is reserved only for crucial or urgent transactions, so that they can be included even if the block is full. Fishermen txs that report misbehaviours would be an example of crucial transaction.
+Notice that unlike the other three resources which are consumed only once, state storage has a permanent cost over the network. Hence for state storage we could have rent or other Runtime mechanisms, to better match fees with the true cost of a tx, and ensure the state size remains bounded. This needs further consideration.
+
+For the time being, we suggest the following limits on resource usage when processing a block. These parameters are to be further adjusted via governance based on real-life data or more sophisticated mechanisms. 
+
+* Length: 5MB
+* Time: 2 seconds
+* Memory: 10 GB
+* State: 1 MB increase 
+
+Each tx consumes some amount of these resources depending on its type, input arguments, and current state. Consequently we will classify transactions based on these parameters, and run tests to examine their typical resource usage. For simplicity, we decided to perform the analysis for the worst-case state, and make resource usage depend only on transaction type and input. We also don't inspect the precise input arguments but only look at their byte length.
+
+To simplify our model further, we define a tx *weight* as a parameter that captures the time, memory and state resources of a tx. Specifically, we define a tx weight as the *max* of its typical time, memory and state usage, each measured as a fraction of the corresponding block limit. Then, given a collection of txs, we will sum up their lengths on one hand, and their weights on the other hand, and we will allow them within the same block only if both limits are respected. This is a hard constraint on resource usage which must be respected in each block.
+
+We add a further constraint on resource usage. We distinguish between "normal" txs and "operational" txs, where the latter type corresponds to high-priority txs such a fisherman reports. A collection of normal txs is allowed within the same block only if both their sum of lengths and their sum of weights are both below 75% of the respective limits. This is to ensure that each block has a guarantee space for operational txs (at least 25% of resources). 
+
+**Details about establishing typical resource usage for txs.** Length is easy to determine by inspection. For time and memory usage, we prepare the chain with the worst case state (the state for which the time and memory requirements to import this tx type should be the largest. We generate 10k transactions for a given transaction type with input which should take the longest to import for that state, and we measure the mean and standard deviation for the resource usage with the Wasm environment. If the standard deviation is greater than 10% of the mean, we increase the sample space above 10k. Finally, state increase is by inspection, based on worst cases for a large sample of txs.
+
+
+### Setting transaction fees
+
+We use the model described above to set the fee level of a tx based on three parameters: the tx type, its length, and its weight. This fee differentiation is used to reflect the different costs in resources incurred per transaction, and also to encourage/discourage certain tx market behaviors.
+
+As mentioned earlier, part of the tx fee needs to go to the block producer, to incentivize inclusion, but not all of it, so the block producer is discouraged from stuffing blocks with bogus txs. For simplicity, we originally suggest that 20% of each tx fee goes to the block producer, with the remaining 80% going to treasury. We remark that a fraction could also be set for burning, but we choose not to do so to keep better control of the inflation rate. In the future this percentage may be adjusted, and could be made dependent on the tx type, to encourage the block producer to include certain tx types without necessarily adjusting the fee.
 
 A transaction fee includes a base fee and a variable fee that is proportional to the number of bytes to be put on chain. That is,
 
