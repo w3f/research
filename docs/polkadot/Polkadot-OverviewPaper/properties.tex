@@ -1,28 +1,25 @@
 \section{Properties}
 
  \subsection{Utility}
- 
- Polkadot provides a reliable network for multiple independent parachains to communicate with each other by keeping the key principles scalability, governance, and interoperability.  The main component of this network is the main chain of Polkadot called ``relay chain'' which holds the states of parachains and makes sure their validity. Indeed, the scalability of Polkadot comes from the fact that each parachain is conducted in parallel by the relay chain. 
- 
+
+ Polkadot provides a reliable network for multiple independent parachains to communicate with each other by keeping the key principles scalability, governance, and interoperability.  The main component of this network is the main chain of Polkadot called ``relay chain'' which holds the states of parachains and makes sure their validity. Indeed, the scalability of Polkadot comes from the fact that each parachain is conducted in parallel by the relay chain.
+
  \subsection{Validity}
 Each parachain in Polkadot has its own state transition function that defines how a parachain can move from the current state to a new state.   Validators in relay chain  know these functions and these functions let them  check whether a given state is valid or not.  In Polkadot, we have three levels of validity checks for each state of each parachain. The first-level check of a parachain state is executed by validators who are responsible for this parachain. These validators are called parachain validators and they shift from one parachain to another parachain periodically. The second level of check is executed by staked parties called fishermen which report to validators if they see any invalid state to receive some reward. And the last level of check is executed by randomly chosen validators after seeing no invalidity reports by parachain validators. These checks guarantee that it is almost impossible to have a finalized invalid state in the relay chain.
 
  \subsection{Finality}
- 
- 
+
+
  It is important to provide finality on a state of a parachain to preserve reliable communication in Polkadot so that parachains act by relying on the fact that the data provided by Polkadot related to other parachains will never change.  Polkadot provides the finality property via relay chain which is based on a heterogeneous consensus mechanism: provable consensus and probable consensus. The relay chain provides provable consensus with GRANDPA (GHOST-based Recursive ANcestor Deriving Prefix Agreement)  finality gadget. Validators are supposed to vote for a chain in GRANDPA  which has valid blocks (e.g., having valid states of parachains). The probable consensus is based on the block production mechanism of the relay chain that is called BABE (Blind Assignment for Blockchain Extension). BABE is a proof-of-stake based block production mechanism that privately and evenly assigns validators to produce blocks.
- 
+
 
  \subsection{Availability}
 The availability of messages in the relay chain is very critical because only available data can be validated. We call this data blob consisting of the parachain state and the proof of validity of that state. In Polkadot, we provide availability via erasure codes of blobs which are distributed to validators. Thus, when a validator needs a blob, he/she can contact with some subset of validators to construct the blob. We guarantee that an unavailable blob cannot be finalized in the relay chain since it cannot be validated.
 
- \subsection{Messaging Reliability}
+ \subsection{Messaging Reliability} Message reliability refers guaranteeing having a reliable ordering what messages have been sent and received by which parachain or parathread. 
 
  \subsection{Reasonable Size and Bandwidth}
 
  How do we achieve them?
 
  Briefly breaking them down into components.
- 
- 
-
