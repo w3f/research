@@ -2,7 +2,7 @@
 
 **Authors**: Alfonso Cevallos, Fatemeh Shirazi (minor)
 
-**Last updated**: 04.10.2019
+**Last updated**: 17.10.2019
 
 ====================================================================
 
@@ -121,9 +121,9 @@ In the branch of block production, we reward:
 * the block producer for each reference to a previously unreferenced uncle, and
 * the producer of each referenced uncle block.
 
-These are thus considered "payable actions". We define a point system where a validator earns a certain amount of points for each payable action executed, and at the end of each era they are paid proportional to their earned points. (The exact DOT value of each point is not known a priori because it depends on the total number of points earned by all validators in a given era. This is because the total payout per era depends on the inflation model established above, and not on the number of payable actions). 
+These are thus considered "payable actions". We define a point system where a validator earns a certain amount of points for each payable action executed, and at the end of each era they are paid proportional to their earned points. (The exact DOT value of each point is not known a priori because it depends on the total number of points earned by all validators in a given era. This is because we want the total payout per era to depend on the inflation model established above, and not on the number of payable actions executed). 
 
-__Adjustable parameter:__ We propose the following point system: 
+__Adjustable parameters:__ We propose the following point system: 
 
 * 20 points for each validity statement,
 * 20 points for each (non-uncle) block produced,
@@ -137,29 +137,39 @@ sum_{\text{validators } v} c_v^e$ be the total number of points earned by all va
 
 $$\frac{c_v^e}{c^e} \cdot P^e_{NPoS}.$$
 
-We remark that we can also use the counters to combat unresponsiveness: if a validator has earned close to zero points in payable actions during an era (or any other period of time being measured), we kick him out. See the note on Slashings for more details.
+We remark that we can also use the counters to combat unresponsiveness: if a validator has earned close to zero points in payable actions during an era (or any other period of time being measured), we kick them out. See the note on Slashings for more details.
 
-### Distribution of payment within validator slots
+### Distribution of payment within a validator slot
 
-In any given era, a nominator's stake is typically distributed among several validators, e.g. 80% of her stake is assigned to validator 1, 20% to validator 2, 0% to validator 3, etc. This distribution is decided automatically by the NPoS validator election mechanism that runs at the beginning of each era (see notes on NPoS for details). 
+In any given era, the stake of a nominator $n$ is typically distributed among several validators, e.g. 70% of $n$'s stake is assigned to validator 1, 20% to validator 2, 10% to validator 3, etc. This distribution is decided automatically by the NPoS validator election mechanism that runs at the beginning of each era (see notes on NPoS for details). 
 
-However, in what follows we assume for simplicity that 
-Suppos
-Suppose we have $m$ relay chain validators, elected by the NPoS algorithm. A nominator's stake is typically distributed among several validators; however, when it comes to payment we can think of nominators supporting a single validator each, because a nominator's total reward is just the sum of the rewards relative to each validator. So, we think of "validator slots" as a partitioning of the staking parties into m pools, where each validator slot consists of a validator and the nominators supporting it.
+If there are $m$ validators, then this stake distribution partitions the global stake pool into $m$ slots: one per validator. The stake in each validator slot is comprised of 100% of that validator's stake, and some fraction (possibly zero) of the stake of each nominator that approved of the validator. We sometimes refer to a validator's stake as "self-stake", to distinguish it from the *validator slot's stake*, which is typically much larger. In the previous subsection we explained how the payouts are assigned to each validator slot in a given era. In this subsection, we explain how this payout is distributed within a slot, i.e. among the validator and the nominators in it. Ultimately, a nominator's payout in a given era corresponds to the sum of her payouts with respect to each slot that contains some of her stake.
 
-The total minting-based payout to validators and nominators is decided globally, having considerations such as the desired inflation rate. This means that these parties don't know in advance exactly how much reward they will get (as they don't know the output of the election algorithm). In the future, we might allow nominators to specify their desired interest rates. We block this feature for the time being to simplify the corresponding NPoS optimization problem.
+We remark that, since none of the nominators or validators can individually control the above-mentioned stake partition into validator slots (which is decided automatically by the validator election mechanism) or the exact payouts (which depend on global parameters such as the staking rate), none of the participants knows in advance exactly how much reward they will get during an era. In the future, we might allow nominators to specify their desired interest rates. We block this feature for the time being to simplify the corresponding optimization problem that the validator election mechanism solves.
 
-We take as much of the nominators' available stake as possible; i.e. if a nominator has at least one of its trusted validators elected, all of its available stake will be used. The idea is that the more stake, the more security we have. In contrast, we follow the policy that validator slots are paid equally for equal work, and NOT proportional to their stakes. So if a validator slot A has less stake than another slot B, then the parties in A are paid more per staked token. This should motivate nominators to rapidly adjust their lists of supported validator candidates so that we can achieve a more balanced distribution of stake. It should also help new validator candidates have a better chance to get elected, which is important to ensure decentralization.
+We also remark that our mechanism takes as much of the nominators' available stake as possible; i.e. if a nominator has at least one of her approved validators elected, all of her available stake will be used. The idea is that the more stake, the more security we have. In contrast, we follow the policy that validator slots are paid equally for equal work, and they are NOT paid proportional to their stakes. So if a validator slot A has less stake than another validator slot B, then the parties in A are paid more per staked DOT. This should motivate nominators to rapidly adjust their preferences in future eras, to favor less popular validators, so that we can achieve a more balanced distribution of stake across validator slots (which is one of the main objectives of the validator election mechanism; see notes on NPoS for more details). This should also help new validator candidates have a better chance to get elected, which is important to ensure decentralization.
 
-Within a validator slot, the payment is as follows: First, validator v receives a fixed amount that was chosen and publicly announced in advance by v. Then, the remainder is shared among all parties (the nominators and v) proportional to their stake. In other words, when it comes to payment the validator v is considered as two entities: a non-staked validator charging a fixed amount, and a staked nominator treated as any other nominator. The validator's fixed payment reflects her operational costs, which must be covered. A higher validator's payment means a smaller payment for her nominators, but as this payment is publicly known in advance, there will be a market where nominators prefer to back validators with smaller costs. On the other hand, validators that have built a reputation of being reliable will likely get away with charging more, as they will still be preferred over other validators. So, for a nominator, supporting riskier validators will be correlated with more rewards, which makes sense.
+Within a validator slot, the payment is as follows: First, validator $v$ is paid his "commission fee", which is an amount entirely up to $v$ to decide, and which is publicly announced in advance by him, before nominators reveal their votes for the era. This fee is intended to cover $v$'s operational costs. Then, the remainder is shared among all parties (i.e. $v$ and the nominators) proportional to their stake within the validator slot. In other words, when it comes to payment, validator $v$ is considered as two entities: a non-staked validator that is rewarded a fixed commission fee, and a staked nominator that is treated like any other nominator and rewarded pro rata. Notice that a higher commission fee set by the validator means a higher total payout for him and a lower payout to his nominators, but since this fee is publicly known in advance, nominators will prefer to back validators with low fees (all else being equal). We thus let the market regulate itself. On one hand, a validator candidate with a high commission fee risks not getting enough votes to be elected as validator. On the other hand, validators who have built a strong reputation of being reliable and high performing will likely get away with charging a higher fee (which is fair), as they will still be preferred over other validators. And for a nominator, supporting riskier validators will be correlated with more rewards (which makes sense).
 
 
-## Relay-chain transaction fees
+## Relay-chain transaction fees and per-block transaction limits
 
-We make transaction fees a global parameter to simplify transaction handling logic.
+Some of the properties we want to achieve relative to relay-chain transactions are as follows:
+
+1. Each relay-chain block should be processed efficiently, even on less powerful nodes, to avoid delays in block production.
+2. The growth rate of the relay chain state is bounded. 2'. Better yet if the absolute size of the relay chain state is bounded.
+3. Each block has *guaranteed availability* for a certain amount of operational, high-priority txs such as misconduct reports.
+4. Blocks are typically far from full, so that peaks can be dealt with effectively and long inclusion times are rare.
+5. Fees evolve slowly enough, so that the fee of a particular tx can be predicted accurately within a frame of a few minutes.
+6. For any tx, its fee level is strictly larger than the reward perceived by the block producer for processing it. Otherwise, the block producer is incentivized to stuff blocks with fake txs.
+7. For any tx, the processing reward perceived by the block producer is high enough to incentivize tx inclusion, yet low enough not to incentivize a block producer to create a fork and steal the transactions of the previous block. Effectively, this means that that the marginal reward perceived for including an additional tx is higher than the corresponding marginal cost of processing it, but the total reward for producing a full block is not much larger than the reward for producing an empty block (even when tips are factored in).
+
+For the time being, we focus on satisfying properties 1 through 6 (without 2'), and we leave properties 2' and 7 for a further update. We also need more analysis on property 2.
+
+The amount of transactions that are processed in a relay-chain block can be regulated in two ways: by imposing limits, and by adjusting the level of tx fees. We ensure properties 1 through 3 above by imposing hard limits on resource usage, while properties 4 through 6 are achieved via fee adjustments. These two techniques are presented in the following two subsections respectively.
 
 
-### How a transaction fee is constituted and split
+### Limits on resource usage
 
 There will be several types of transactions, with different fee levels. This fee differentiation is used to reflect the different costs in resources incurred by transactions, and to encourage/discourage certain types of transactions. Thus, we need to analyze the resource usage of each type of transaction, to adjust the fees (to be done).
 
