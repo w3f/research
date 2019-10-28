@@ -2,51 +2,49 @@
 
 **Authors**: Alfonso Cevallos, Fatemeh Shirazi (minor)
 
-**Last updated**: 12.07.2019
+**Last updated**: 28.10.2019
 
 ====================================================================
 
-# Polkadot Token
+# Token Economics
+
+Polkadot will have a native token called DOT. Its main functions are as follows:
+
+1. Economics: Polkadot will mint or burn DOTs in order to reward the nodes that run the consensus protocol, to fund the treasury, to control the inflation rate, etc.
+
+2. Slashing: DOTs also play a role in the slashing protocols designed to desincentivize attacks or adversarial behaviors.
+
+3. Governance: DOTs are also used as voting power, to let DOT holders express their opinion in governance decisions via referenda.
+
+3. Parachain allocation: Finally, DOTs are used to decide which projects are allocated a parachain slot, via auctions and deposits. 
+
+
+In this section we focus on the first use above, while each of the other three uses is analyzed in a separate section. 
 
 ## Introduction
 
-Polkadot will have a native token called dots, which we mint or burn in order to encourage or discourage certain behaviors, respectively. Polkadot is a proof-of-stake chain where a set of validators, who have put down stake, produce blocks and reach consensus.  If a validator steers away from the protocol, some of its dots are slashed, but otherwise it gets paid for participating proportional to the dots it has staked. The set of nodes elected as validators changes constantly, but its number is limited. However, we also encourage general dot holders to participate indirectly in the decision-making processes as nominators, in what we call nominated proof-of-stake. A nominator indicates which validators it trusts, and puts some of its money at stake to support them with, and share any economical rewards or punishments with them. Being a nominator is a way of investing one's tokens, and helping in the security of the system. Indeed, the larger the total amount of dots staked by nominators and validators, the higher the security of the system, because any adversary must first gain enough trust from a large group of users before it can get to be a validator. We therefore aim at having a large percentage of the total token supply be staked by validators and nominators.
+Polkadot is a proof-of-stake based platform where a set of validators, who have staked DOTs, produce blocks and reach consensus.  If a validator steers away from the protocol, some of his DOTs are slashed, but otherwise he gets paid for their contribution (roughly) proportional to his staked DOTs. The set of nodes elected as validators changes constantly (in each era, i.e. around once a day), but the number remains limited. However, any number of DOT holders can also participate indirectly in the decision-making processes as *nominators*, in what we call *nominated proof-of-stake*. A nominator indicates which validator candidates she trusts, and puts some DOTs at stake to support her nomination. If one or more of her nominated candidates are elected as validators in an era, she shares with them any economical rewards or punishments, proportional to her stake. Being a nominator is a way of investing one's DOTs, and of helping in the security of the system. Indeed, the larger the total amount of DOTs staked by nominators and validators, the higher the system security, because an adversary needs that much more stake -- or nominators' trust -- before it gets any nodes elected as validators. 
 
-Another large percentage of the token supply will be frozen as deposits by the commercial blockchains who get a parachain slot. We originally aim to have a 3:2:1 distribution for dots, which corresponds to staking (3), parachain deposits (2), and liquidity (1). (Q: How to decide on the optimal distribution ratios? Is 16.6% a healthy level of liquidity? The percentage staked in other projects is:
+We therefore aim at having a considerable percentage of the total DOT supply be staked by validators and nominators. Another large percentage of the DOT supply will be frozen as deposits by the commercial blockchains who get a parachain slot. We originally aim to have around 50% of DOTs staked in NPoS, and 30% in parachain deposits. As a reference, the percentage staked in other PoS-based projects is as follows.
 - Tezos is 65.73% staked
 - DASH is 58.69% staked
 - Lisk is 58.20% staked
-- EOS is only 35.49% staked, but that is because its DPoS and the yield is low)
+- EOS is only 35.49% staked, but that is because it is DPoS and the yield is low.
 
 
-### Organization
+## Organization
 
-This note contains the following sections.
+This note contains the following subsections.
 
-* **Goverance:** We explain how dot holders express their opinion through referenda and how dots are used to determine voting power.
-* **NPoS payment and inflation:** We describe how we reward well-behaving validators and nominators in our nominated proof-of-stake. Since the dot minting for this end is the main cause of inflation in the system, we also describe our inflation model here.
+* **NPoS payment and inflation:** We describe how we reward well-behaving validators and nominators in our nominated proof-of-stake. Since the DOT minting for this end is the main cause of inflation in the system, we also describe our inflation model here.
 * **Transaction fees:** We analyse the optimal transaction fees on the relay chain to cover for costs, discourage harmful behaviors, and handle eventual peaks of activity and long inclusion times.
-* **Adding/removing parachains:** We explain how dots are used when we add or remove commercial parachain slots, in processes such as auctions and deposits.
 * **Treasury:** We discuss how and when to raise dots to pay for the continued maintenance of the network.
 
-Finally, in the last section of the note we provide links to additional references about the Polkadot protocol.
-
-## Governance
-
-The governance system of Polkadot is founded wholly around the idea of stakeholder voting. A key and unfailing rule is: All changes to the protocol must be agreed upon by stake-weighted referendum; the majority of stake can always command the network.
-
-To vote in the governace scheme, a voter must lock their tokens up for at least the enactment delay period beyond the end of the referendum. This is in order to ensure that some minimal economic buy-in to the result is needed and to dissuade vote selling. The amount of token that is locked up as well as the time period impact the weights of everyones vote in the referendum.
-
-There is no limit to the amount of token that is blocked for voting.
-
-The governance scheme is described in:
-https://github.com/paritytech/polkadot/wiki/Governance
-
-
+Finally, in the last paragraph of the note we provide links to additional relevant references about the Polkadot protocol.
 
 ## NPoS payments and inflation
 
-In this section we consider payments to validators and nominators for block production and for Grandpa. We consider only the payments coming from minting new tokens, in normal circumstances. In other words, we do not consider slashings, rewards to fishermen, nor rewards from transaction fees. These will be considered in other sections.
+We consider here payments to validators and nominators for their participation in the protocols of block production (BABE) and finality (GRANDPA). We consider only the payments coming from minting new tokens, in normal circumstances. In particular we do not consider slashings, rewards to misconduct reporters and fishermen, or rewards from transaction fees. These will be considered in other sections.
 
 As these payments are the main driver of inflation in the system, we first study our inflation model.
 
@@ -54,14 +52,14 @@ As these payments are the main driver of inflation in the system, we first study
 
 Let \(x\) be the *staking rate* in NPoS at a particular point in time, i.e. the total amount of tokens staked by nominators and validators, divided by the total token supply. \(x\) is always a value between 0 and 1.
 
-__Parameter:__ Let \(\chi_{ideal}\) be the staking rate we would like to attain ideally in the long run. This value is probably between 0.3 and 0.6, and notice that our 3:2:1 rule calls for \(\chi_{ideal}=0.5\). If it falls, the security is compromised, so we should give strong incentives to stake more. If it rises, we lose liquidity, which is also undesirable, so we should decrease the incentives sharply.
+__Adjustable parameter:__ Let \(\chi_{ideal}\) be the staking rate we would like to attain ideally in the long run. This value should probably lie between 0.3 and 0.6, and we originally set it at \chi_{ideal}=0.5\. If it falls, the security is compromised, so we should give strong incentives to DOT holders to stake more. If it rises, we lose liquidity, which is also undesirable, so we should decrease the incentives sharply.
 
-Let \(i=i(x)\) be the yearly *interest rate* in NPoS; i.e., the total yearly amount of tokens minted to pay all validators and nominators for block production and Grandpa, divided by the total amount of tokens staked by them. We consider it as a function of \(x\). Intuitively, \(i(x)\) corresponds to the incentive we give people to stake. Hence, \(i(x)\) should be a monotone decreasing function of \(x\), as fewer and fewer incentives are needed when \(x\) increases.
+Let \(i=i(x)\) be the yearly *interest rate* in NPoS; i.e., the total yearly amount of tokens minted to pay all validators and nominators for block production and Grandpa, divided by the total amount of tokens staked by them. We consider it as a function of \(x\). Intuitively, \(i(x)\) corresponds to the incentive we give people to stake. Hence, \(i(x)\) should be a monotone decreasing function of \(x\), as less incentive is needed when \(x\) increases.
 
-* We study the yearly interest rate (instead of the interest rate per block or per epoch) for ease of comprehension. This means that \(i(x)\) is the total payout perceived by somebody that continuously stakes one unit of tokens during a year. The interest rate per block can be easily computed from it **(Q: do we consider compound interest in this computation? In other words, can the staked parties immediately reinvest their payment into stake?)**
-* Not every staked party will be paid proportional to their stake. For instance, a validator will be paid more than a nominator with equal stake, and a validator producing a block will be paid more than other validators. So, \(i(x)\) only works as a guide of the average interest rate.
+* We study the yearly interest rate (instead of the interest rate per block or per epoch) for ease of comprehension. This means that \(i(x)\) is the total payout perceived by somebody that continuously stakes one DOT during a year. The interest rate per block can be easily computed from it. **(Q: do we consider compound interest in this computation? In other words, can the staked parties immediately reinvest their payment into stake?)**
+* Not every staked party will be paid proportional to their stake. For instance, a validator will be paid more than a nominator with equal stake, and a validator producing a block will be temporarily paid more than a validator not producing a block. So, \(i(x)\) only works as a guide of the average interest rate.
 
-__Parameter:__ Let \(i_{ideal}:=i(\chi_{ideal})\) be the interest rate we pay in the ideal scenario where \(x=\chi_{ideal}\). This is the interest rate we should be paying most of the time. We suggest the value \(i_{ideal}=0.2\), i.e. an ideal yearly interest rate of 20%.
+__Adjustable parameter:__ Let \(i_{ideal}:=i(\chi_{ideal})\) be the interest rate we pay in the ideal scenario where \(x=\chi_{ideal}\). This is the interest rate we should be paying most of the time. We suggest the value \(i_{ideal}=0.2\), i.e. an ideal yearly interest rate of 20%.
 
 Let \(I\) be the yearly *inflation rate*; i.e.
 
@@ -69,11 +67,11 @@ $$I=\frac{\text{token supply at end of year} - \text{token supply at begining of
 
 The inflation rate is given by
 
-$$I=I_{NPoS}+I_{treasury}+I_{fishermen}-I_{slashing} - I_{tx-fees},$$
+$$I=I_{NPoS}+I_{treasury}-I_{slashing} - I_{tx-fees},$$
 
-where $I_{NPoS}$ is the inflation caused by token minting to pay nominators and validators, $I_{treasury}$ is the inflation caused by minting for treasury, $I_{fishermen}$ is the inflation caused by minting to pay fishermen who detected a misconduct, $I_{slashing}$ is the deflation caused by burning following a misconduct, and $I_{tx-fees}$ is the deflation caused by burning transaction fees.
+where $I_{NPoS}$ is the inflation caused by token minting to pay nominators and validators, $I_{treasury}$ is the inflation caused by minting for treasury, $I_{slashing}$ is the deflation caused by burning following a misconduct, and $I_{tx-fees}$ is the deflation caused by burning transaction fees.
 
-* The rewards perceived by block producers from transaction fees (and tips) do not come from minting. This is why this term does not appear in the formula above.
+* The rewards perceived by block producers from transaction fees (and tips) do not come from minting, but from tx senders. Similarly, the rewards perceived by reporters and fishermen for detecting a misconduct do not come from minting but from the slashed party. This is why these terms do not appear in the formula above.
 
 $I_{NPoS}$ should be by far the largest of these amounts, and thus the main driver of overall inflation. Notice that by channelling all of the tokens destined to burning -due to both slashing and transaction fees- into treasury, we decrease the other terms in the formula (see the section on treasury). If we consider $I_{NPoS}$ as a function of the staking rate $x$, then clearly the relation between $I_{NPoS}(x)$ and $i(x)$ is given by
 
@@ -81,13 +79,13 @@ $$I_{NPoS}(x)=x\cdot i(x).$$
 
 From our previous analysis, we can see that $I_{NPoS}(\chi_{ideal})=\chi_{ideal}\cdot i_{ideal}$. Since we want to steer the market toward a staking rate of $x=\chi_{ideal}$, it makes sense that the inflation rate **$I_{NPoS}(x)$ should be maximal at this value**.
 
-__Parameter:__ Let $I_0$ be the limit of $I_{NPoS}(x)$ as $x$ goes to zero. On one hand, this value should be as small as possible, because we want to upper-bound the interest rate. On the other hand, it should not be zero, because we need to make sure to always cover at least the operational costs of the validators, even if nominators get paid nothing. Hence, $I_0$ represents a tight upper-bound on our estimate of the operational costs of all validators, expressed as a fraction of the total token supply. We will make sure that $I_{NPoS}(x)$ is always above $I_0$ for all values of $x$, in particular also in the limit when $x$ goes to one.
+__Adjustable parameter:__ Let $I_0$ be the limit of $I_{NPoS}(x)$ as $x$ goes to zero (i.e. when neither validators nor nominators are staking any DOTs). The value of $I_0$ shoud be close to zero but should not be zero, because we need to make sure to always cover at least the operational costs of the validators, even if nominators get paid nothing. Hence, $I_0$ represents an estimate of the operational costs of all validators, expressed as a fraction of the total token supply. We will make sure that $I_{NPoS}(x)$ is always above $I_0$ for all values of $x$, in particular also in the limit when $x$ goes to one.
 
 For simplicity, we propose that the inflation function grow linearly between $x=0$ and $x=\chi_{ideal}$. On the other hand, we propose that it decay exponentially between $x=\chi_{ideal}$ and $x=1$. We choose an exponential decrease for $I_{NPoS}(x)$ because this implies an exponential decrease for $i(x)$ as well, and we want the interest rate to fall sharply beyond $\chi_{ideal}$ to avoid illiquidity, while still being able to control its rate of change, $i(x+\varepsilon)/i(x)$, when $x$ increases by a small amount $\varepsilon$. Bounding how fast the interest rate changes is important for the nominators and validators.
 
-__Parameter:__ Define the *decay rate* $d$ so that the inflation rate decreases by at most 50% when $x$ shifts $d$ units to the right of $\chi_{ideal}$, i.e. $I_{NPoS}(\chi_{ideal} + d) \geq I_{NPoS}/2$. We suggest $d=0.05$.
+__Adjustable parameter:__ Define the *decay rate* $d$ so that the inflation rate decreases by at most 50% when $x$ shifts $d$ units to the right of $\chi_{ideal}$, i.e. $I_{NPoS}(\chi_{ideal} + d) \geq I_{NPoS}/2$. We suggest $d=0.05$.
 
- From the previous observations, we obtain the following interest rate and inflation rate functions, which depend on the parameters $\chi_{ideal}$, $i_{ideal}$, $d$, and $I_0$. Let
+ From the previous discussion, we propose the following interest rate and inflation rate functions, which depend on the parameters $\chi_{ideal}$, $i_{ideal}$, $I_0$ and $d$. Let
 
 \begin{align}
 I_{NPoS}(x) &= \begin{cases}
@@ -97,96 +95,112 @@ I_0 + (i_{ideal}\cdot \chi_{ideal} - I_0)\cdot 2^{(\chi_{ideal}-x)/d}
 &\text{for } \chi_{ideal} < x \leq 1
 \end{cases}, \text{ and}\\
 \\
-i(x)&= I(x)/x.
+i(x)&= I_{NPoS}(x)/x.
 \end{align}
 
 It can be checked that $I_{NPoS}\geq I_0$ for all $0\leq x \leq 1$ with equality for $x=0$, $i(\chi_{ideal})=i_{ideal}$, $I_{NPoS}(x)$ is maximal at $x=\chi_{ideal}$ where it achieves a value of $\chi_{ideal}\cdot i_{ideal}$, and $i(x)$ is monotone decreasing.
 
 These functions can be plotted following this link: https://www.desmos.com/calculator/2om7wkewhr
 
-As an example, when $I_0=0.025$, $\chi_{ideal}=0.5$, $i_{ideal}=0.2$ and $d=0.05$, we obtain the following plots, with $i(x)$ in red and $I_{NPoS}(x)$ in blue.
+As an example, when $I_0=0.025$, $\chi_{ideal}=0.5$, $i_{ideal}=0.2$ and $d=0.05$, we obtain the following plots, with $i(x)$ in green and $I_{NPoS}(x)$ in blue.
 
 ![](https://i.imgur.com/Kk1MLJH.png)
 
 
 ### Payment details
 
-There are several protocols that honest validators are involved in, and we incentivize their involvement by either rewarding them for successful participation or slashing them in case of lack of participation, whichever is easier to detect. From this point of view, we decide to reward validators (and their nominators) only for *validity checking* and for *block production*, because they are easy to detect.
+There are several protocols that honest validators are involved in, and we reward their successful participation or slash their lack thereof (whichever is easier to detect). From this point of view, we decide to reward validators (and their nominators) only for *validity checking* and for *block production*, because they are easy to detect.
 
 In the branch of validity checking, we reward:
+
 * a parachain validator for each validity statement of the parachain block that it issues.
 
 In the branch of block production, we reward:
+
 * the block producer for producing a (non-uncle) block in the relay chain,
 * the block producer for each reference to a previously unreferenced uncle, and
 * the producer of each referenced uncle block.
 
+These are thus considered "payable actions". We define a point system where a validator earns a certain amount of points for each payable action executed, and at the end of each era they are paid proportional to their earned points. (The exact DOT value of each point is not known a priori because it depends on the total number of points earned by all validators in a given era. This is because we want the total payout per era to depend on the inflation model established above, and not on the number of payable actions executed). 
 
-The ratio between the rewards for each of these actions are parameters to be decided and adjusted by governance. We originally propose ratios of 20:20:2:1, meaning that for some constant $C$ we pay $20C$ for each validity statement, $20C$ for producing a block, $2C$ to the block producer for each referenced uncle, and $C$ to the producer of each referenced uncle.
+__Adjustable parameters:__ We propose the following point system: 
 
-Let $P_{NPoS}$ be our target total payout to all validators (and their nominators) per epoch. The value of $P_{NPoS}$ is decided by governance depending on the desired interest rate and inflation rate (see section on inflation model). In order to decide the correct value of constant $C$ that ensures that the total payout is close to target $P_{NPoS}$, we need a mechanism to keep track of the average number of payable actions taking place in an epoch. We propose two mechanisms for it.
+* 20 points for each validity statement,
+* 20 points for each (non-uncle) block produced,
+* 2 points (to the block producer) for each reference to a previously unreferenced uncle, and
+* 1 point to the producer of each referenced uncle.
 
-**Keeping counters:** In each epoch, we can keep counters $n_{statements}$, $n_{blocks}$ and $n_{uncles}$ respectively on the number of issued validity statements, the number of (non-uncle) blocks produced, and the number of referenced uncles. At the end of the epoch, assuming the $20:20:2:1$ rule, we have the formula
+Notice that what is important here is not the absolute points but the point ratios, which establish the reward ratios of the payable actions. These points are parameters to be adjusted by governance. 
 
-$$P_{NPoS}=20C\cdot n_{statements}+
-20C\cdot n_{blocks}+3C\cdot n_{uncles},$$
+In each era $e$, and for each validator $v$, we keep a counter $c_v^e$ on the number of points earned by $v$. Let $c^e = 
+sum_{\text{validators } v} c_v^e$ be the total number of points earned by all validators in era $e$, and let $P^e_{NPoS}$ be our target total payout to all validators -- and their nominators -- in that era (see previous section on inflation model to see how to establish $P^e_{NPoS}$). Then, at the end of era $e$, the payout corresponding to validator $v$ and his nominators is given by 
 
-from which $C$ can be obtained and all the payouts can be computed. That is, assuming we only pay validators at the end of each epoch.
+$$\frac{c_v^e}{c^e} \cdot P^e_{NPoS}.$$
 
-To compute the payouts, we keep counters of all the payable actions that *each* relay chain validator performed in the epoch; the above-mentioned counters are simply the aggregates of all the validators' counters. We also **use these counters to combat unresponsiveness:** If there is a relay chain validator $v$ that has zero payable actions throughout an entire epoch or a certain number of epochs, we kick $v$ out.
+We remark that we can also use the counters to combat unresponsiveness: if a validator has earned close to zero points in payable actions during an era (or any other period of time being measured), we kick them out. See the note on Slashings for more details.
 
-(The method above is the one we suggest. The next method is given just for informational purposes.)
+### Distribution of payment within a validator slot
 
-**Keeping estimates:** Another option is to keep estimates $e_{statements}$, $e_{blocks}$ and $e_{uncles}$ respectively on the number of issued validity statements, the number of (non-uncle) blocks produced, and the number of referenced uncles *per time slot* (NOT per epoch). The advantage of this mechanism is that it allows us to pay validators in each block, using the formula
+In any given era, the stake of a nominator $n$ is typically distributed among several validators, e.g. 70% of $n$'s stake is assigned to validator 1, 20% to validator 2, 10% to validator 3, etc. This distribution is decided automatically by the NPoS validator election mechanism that runs at the beginning of each era (see notes on NPoS for details). 
 
-$$\frac{P_{NPoS}}{\text{# time slots per epoch}}=20C\cdot e_{statements}+
-20C\cdot e_{blocks}+3C\cdot e_{uncles},$$
+If there are $m$ validators, then this stake distribution partitions the global stake pool into $m$ slots: one per validator. The stake in each validator slot is comprised of 100% of that validator's stake, and some fraction (possibly zero) of the stake of each nominator that approved of the validator. We sometimes refer to a validator's stake as "self-stake", to distinguish it from the *validator slot's stake*, which is typically much larger. In the previous subsection we explained how the payouts are assigned to each validator slot in a given era. In this subsection, we explain how this payout is distributed within a slot, i.e. among the validator and the nominators in it. Ultimately, a nominator's payout in a given era corresponds to the sum of her payouts with respect to each slot that contains some of her stake.
 
-and from which $C$ and the payouts can be computed in each block. The estimates can be continuously updated, from one block to the next, using an exponential moving average as follows. Suppose we are producing a block $B$ with slot number $t$, having as parent a block $B'$ with slot number $t'$ ($t'<t$). Suppose moreover that $B'$ has estimates \(e'_{statements}\), \(e'_{blocks}\) and \(e'_{uncles}\), and that in block $B$ we identify $u$ uncle references and $s$ validity statements. We then update the estimates for block $B$ as
+We remark that, since none of the nominators or validators can individually control the above-mentioned stake partition into validator slots (which is decided automatically by the validator election mechanism) or the exact payouts (which depend on global parameters such as the staking rate), none of the participants knows in advance exactly how much reward they will get during an era. In the future, we might allow nominators to specify their desired interest rates. We block this feature for the time being to simplify the corresponding optimization problem that the validator election mechanism solves.
 
-\begin{align}
-e_{statements}&=p\cdot s + (1-p)^{t-t'}\cdot e'_{statements}, \\
-e_{blocks}&=p\cdot 1+(1-p)^{t-t'}\cdot e'_{blocks}, \\
-e_{uncles}&=p\cdot u + (1-p)^{t-t'}\cdot e'_{uncles}.
-\end{align}
+We also remark that our mechanism takes as much of the nominators' available stake as possible; i.e. if a nominator has at least one of her approved validators elected, all of her available stake will be used. The idea is that the more stake, the more security we have. In contrast, we follow the policy that validator slots are paid equally for equal work, and they are NOT paid proportional to their stakes. So if a validator slot A has less stake than another validator slot B, then the parties in A are paid more per staked DOT. This should motivate nominators to rapidly adjust their preferences in future eras, to favor less popular validators, so that we can achieve a more balanced distribution of stake across validator slots (which is one of the main objectives of the validator election mechanism; see notes on NPoS for more details). This should also help new validator candidates have a better chance to get elected, which is important to ensure decentralization.
 
-where $p$ is a small parameter (say $p\approx 10^{-4}$) that determines the update speed of these estimates. The intuition behind these updates is as follows. If $s_t$ is the number of validity statements at time slot $t$ (where $s_t=0$ whenever the time slot has no block), then in the long term the value of estimate $e_{statements}$ at time slot $t$ will be a convex combination of all values $(s_{t'})_{t'\leq t}$ with exponentially decreasing weights. Namely,
-
-$$e_{estimate}=p\cdot[s_t + (1-p)\cdot s_{t-1} + (1-p)^2\cdot s_{t-2}+\cdots],$$
-
-and similarly for $e_{blocks}$ and $e_{uncles}$. We suggest to have a somewhat larger parameter $p$ at genesis, so that our estimates converge quickly to realistic values and do not depend heavily on their initializations. However, in the long term $p$ should be small because we want our estimates to react only to long-term trends, and the payments perceived by validators to evolve slowly. At genesis, we initialize these estimates as follows:
-
-\begin{align}
-e_{statements} &= m\cdot c \\
-e_{blocks} &= c \\
-e_{uncles} &= m\cdot [1-(1-c)^{1/m}]-c,
-\end{align}
-
-where we recall from the BABE block production model that $c$ is the expected fraction of time slots having at least one leader, and $m\cdot [1- (1-c)^{1/m}]$ is the expected number of leaders per time slot.
-
-### Distribution of payment within validator slots
-
-Suppose we have m relay chain validators, elected by the NPoS algorithm. A nominator's stake is typically distributed among several validators; however, when it comes to payment we can think of nominators supporting a single validator each, because a nominator's total reward is just the sum of the rewards relative to each validator. So, we think of "validator slots" as a partitioning of the staking parties into m pools, where each validator slot consists of a validator and the nominators supporting it.
-
-The total minting-based payout to validators and nominators is decided globally, having considerations such as the desired inflation rate. This means that these parties don't know in advance exactly how much reward they will get (as they don't know the output of the election algorithm). In the future, we might allow nominators to specify their desired interest rates. We block this feature for the time being to simplify the corresponding NPoS optimization problem.
-
-We take as much of the nominators' available stake as possible; i.e. if a nominator has at least one of its trusted validators elected, all of its available stake will be used. The idea is that the more stake, the more security we have. In contrast, we follow the policy that validator slots are paid equally for equal work, and NOT proportional to their stakes. So if a validator slot A has less stake than another slot B, then the parties in A are paid more per staked token. This should motivate nominators to rapidly adjust their lists of supported validator candidates so that we can achieve a more balanced distribution of stake. It should also help new validator candidates have a better chance to get elected, which is important to ensure decentralization.
-
-Within a validator slot, the payment is as follows: First, validator v receives a fixed amount that was chosen and publicly announced in advance by v. Then, the remainder is shared among all parties (the nominators and v) proportional to their stake. In other words, when it comes to payment the validator v is considered as two entities: a non-staked validator charging a fixed amount, and a staked nominator treated as any other nominator. The validator's fixed payment reflects her operational costs, which must be covered. A higher validator's payment means a smaller payment for her nominators, but as this payment is publicly known in advance, there will be a market where nominators prefer to back validators with smaller costs. On the other hand, validators that have built a reputation of being reliable will likely get away with charging more, as they will still be preferred over other validators. So, for a nominator, supporting riskier validators will be correlated with more rewards, which makes sense.
+Within a validator slot, the payment is as follows: First, validator $v$ is paid his "commission fee", which is an amount entirely up to $v$ to decide, and which is publicly announced in advance by him, before nominators reveal their votes for the era. This fee is intended to cover $v$'s operational costs. Then, the remainder is shared among all parties (i.e. $v$ and the nominators) proportional to their stake within the validator slot. In other words, when it comes to payment, validator $v$ is considered as two entities: a non-staked validator that is rewarded a fixed commission fee, and a staked nominator that is treated like any other nominator and rewarded pro rata. Notice that a higher commission fee set by the validator means a higher total payout for him and a lower payout to his nominators, but since this fee is publicly known in advance, nominators will prefer to back validators with low fees (all else being equal). We thus let the market regulate itself. On one hand, a validator candidate with a high commission fee risks not getting enough votes to be elected as validator. On the other hand, validators who have built a strong reputation of being reliable and high performing will likely get away with charging a higher fee (which is fair), as they will still be preferred over other validators. And for a nominator, supporting riskier validators will be correlated with more rewards (which makes sense).
 
 
-## Relay-chain transaction fees
+## Relay-chain transaction fees and per-block transaction limits
 
-We make transaction fees a global parameter to simplify transaction handling logic.
+Some of the properties we want to achieve relative to relay-chain transactions are as follows:
+
+1. Each relay-chain block should be processed efficiently, even on less powerful nodes, to avoid delays in block production.
+2. The growth rate of the relay chain state is bounded. 2'. Better yet if the absolute size of the relay chain state is bounded.
+3. Each block has *guaranteed availability* for a certain amount of operational, high-priority txs such as misconduct reports.
+4. Blocks are typically far from full, so that peaks can be dealt with effectively and long inclusion times are rare.
+5. Fees evolve slowly enough, so that the fee of a particular tx can be predicted accurately within a frame of a few minutes.
+6. For any tx, its fee level is strictly larger than the reward perceived by the block producer for processing it. Otherwise, the block producer is incentivized to stuff blocks with fake txs.
+7. For any tx, the processing reward perceived by the block producer is high enough to incentivize tx inclusion, yet low enough not to incentivize a block producer to create a fork and steal the transactions of the previous block. Effectively, this means that that the marginal reward perceived for including an additional tx is considerably higher than the corresponding marginal cost of processing it, but the total reward for producing a full block is not much larger than the reward for producing an empty block (even when tips are factored in).
+
+For the time being, we focus on satisfying properties 1 through 6 (without 2'), and we leave properties 2' and 7 for a further update. We also need more analysis on property 2.
+
+The amount of transactions that are processed in a relay-chain block can be regulated in two ways: by imposing limits, and by adjusting the level of tx fees. We ensure properties 1 through 3 above by imposing hard limits on resource usage, while properties 4 through 6 are achieved via fee adjustments. These two techniques are presented in the following two subsections respectively.
 
 
-### How a transaction fee is constituted and split
+### Limits on resource usage
 
-There will be several types of transactions, with different fee levels. This fee differentiation is used to reflect the different costs in resources incurred by transactions, and to encourage/discourage certain types of transactions. Thus, we need to analyze the resource usage of each type of transaction, to adjust the fees (to be done).
+We identify four resources which can be consumed when processing a tx:
 
-Part of the transaction fee needs to go as a reward to the block producer for transaction inclusion, as otherwise they would have an incentive not to include transactions since smaller blocks are faster to produce, distribute and incorporate in chain. However, the block producer should not be rewarded the full amount of the fee, so they are discouraged from stuffing blocks. How much of the tx fee goes to the block producer is an adjustable parameter via governance; we originally suggest 20%, and suggest that the other 80% go to treasury (instead of burning) to keep better control of inflation/deflation). This percentage might depend on the transaction type, to encourage the block producer to include certain tx types without necessarily increasing the fee.
+* Length: data size of the tx in bytes within the relay-chain block,
+* Time: time it takes to import it (i/o and cpu),
+* Memory: amount of memory it takes when processing,
+* State: amount of state storage increase it induces.
 
-There will be an additional space in each block that is reserved only for crucial or urgent transactions, so that they can be included even if the block is full. Fishermen txs that report misbehaviours would be an example of crucial transaction.
+Notice that unlike the other three resources which are consumed only once, state storage has a permanent cost over the network. Hence for state storage we could have rent or other Runtime mechanisms, to better match fees with the true cost of a tx, and ensure the state size remains bounded. This needs further consideration.
+
+For the time being, we suggest the following limits on resource usage when processing a block. These parameters are to be further adjusted via governance based on real-life data or more sophisticated mechanisms. 
+
+* Length: 5MB
+* Time: 2 seconds
+* Memory: 10 GB
+* State: 1 MB increase 
+
+Each tx consumes some amount of these resources depending on its type, input arguments, and current state. Consequently we will classify transactions based on these parameters, and run tests to examine their typical resource usage. For simplicity, we decided to perform the analysis for the worst-case state, and make resource usage depend only on transaction type and input. We also don't inspect the precise input arguments but only look at their byte length.
+
+To simplify our model further, we define a tx *weight* as a parameter that captures the time, memory and state resources of a tx. Specifically, we define a tx weight as the *max* of its typical time, memory and state usage, each measured as a fraction of the corresponding block limit. Then, given a collection of txs, we will sum up their lengths on one hand, and their weights on the other hand, and we will allow them within the same block only if both limits are respected. This is a hard constraint on resource usage which must be respected in each block.
+
+We add a further constraint on resource usage. We distinguish between "normal" txs and "operational" txs, where the latter type corresponds to high-priority txs such a fisherman reports. A collection of normal txs is allowed within the same block only if both their sum of lengths and their sum of weights are both below 75% of the respective limits. This is to ensure that each block has a guarantee space for operational txs (at least 25% of resources). 
+
+**Details about establishing typical resource usage for txs.** Length is easy to determine by inspection. For time and memory usage, we prepare the chain with the worst case state (the state for which the time and memory requirements to import this tx type should be the largest. We generate 10k transactions for a given transaction type with input which should take the longest to import for that state, and we measure the mean and standard deviation for the resource usage with the Wasm environment. If the standard deviation is greater than 10% of the mean, we increase the sample space above 10k. Finally, state increase is by inspection, based on worst cases for a large sample of txs.
+
+
+### Setting transaction fees
+
+We use the model described above to set the fee level of a tx based on three parameters: the tx type, its length, and its weight. This fee differentiation is used to reflect the different costs in resources incurred per transaction, and also to encourage/discourage certain tx market behaviors.
+
+As mentioned earlier, part of the tx fee needs to go to the block producer, to incentivize inclusion, but not all of it, so the block producer is discouraged from stuffing blocks with bogus txs. For simplicity, we originally suggest that 20% of each tx fee goes to the block producer, with the remaining 80% going to treasury. We remark that a fraction could also be set for burning, but we choose not to do so to keep better control of the inflation rate. In the future this percentage may be adjusted, and could be made dependent on the tx type, to encourage the block producer to include certain tx types without necessarily adjusting the fee.
 
 A transaction fee includes a base fee and a variable fee that is proportional to the number of bytes to be put on chain. That is,
 
