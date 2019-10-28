@@ -197,7 +197,7 @@ And the good news is that not all egress has to be propagated within one block-t
 This is a scheme which results in all participants seeing all messages.
 It almost certainly will not scale beyond a small number of initial chains but will serve functionally as a starting protocol.
 
- ## Interchain Messaging Routing Overview
+## Interchain Messaging Routing Overview
  To send messages from one parachain (sending parachain) to another parachain (receiving parachain) depending on the setup the following steps will be carried out.
 
  1. When full nodes of the sending parachain are also part of the domain of the receiving parachain, gossiping the message suffices
@@ -218,7 +218,7 @@ It almost certainly will not scale beyond a small number of initial chains but w
  3. Extend to support a smarter topology where not everyone sees everything. Perhaps two kinds of topics, those based on $(B, Chain_{from})$ and those based on $(B, Chain_{to})$ would make this more viable.
  4. Use some kind of smart set reconciliation (e.g. https://github.com/sipa/minisketch) to minimize gossip bandwidth.
  5. Incentivize distribution with something like Probabilistic Micropayments.
- 6. The parachain validators hold the egress queues until it is confirmed that the messages have been included. This is a fall back for when the two parachain network do not have full nodes in common and the messages do not arrive by gossiping. The parachain validators at the receiving parachain will notice the missing messages and ask the parachain validator of the sending chain for the messages. Once they receive them the gossip them in the receiving parachain network. 
+ 6. The parachain validators hold the egress queues until it is confirmed that the messages have been included. This is a fall back for when the two parachain network do not have full nodes in common and the messages do not arrive by gossiping. The parachain validators at the receiving parachain will notice the missing messages and ask the parachain validator of the sending chain for the messages. Once they receive them the gossip them in the receiving parachain network.
 
 
 
