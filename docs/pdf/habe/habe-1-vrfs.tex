@@ -1,0 +1,82 @@
+\section{Verifiable random functions}
+
+A {\em verifiable random function} (VRF) is the public-key analog of a cryptographic hash function with a distinguished key, such as many MACs.  Anyone with the input and the public key can verify the correctness of the VRF output, but only the secret key holder could compute this output.  A hash function requires the key be shared for verification. 
+
+We formalize VRFs with three probabilistic algorithms: 
+\begin{itemize}
+\item $\VRF.\KeyGen$ return a public-secret key pair $(\pkvrfr,\skvrfr)$.
+\item $\VRF.\Sign_{\skvrf}$ takes a secret key $\skvrf$ series of inputs $(\alpha_1,\ldots,\alpha_n)$ with $n>0$ and a message $m$, and produces a series of deterministic outputs $(\omega_1,\ldots,\omega_n)$ and a proof $\pi$, not necessarily deterministic.
+\item $\VRF.\Verify_{\pkvrf}$ takes a public key $\pkvrf$, a series of inputs $(\alpha_1,\ldots,\alpha_n)$, a message $m$, a series of outputs $(\omega_1,\ldots,\omega_n)$, and a proof $\pi$, and returns true or false.
+\end{itemize}
+We impose three criteria upon a VRF:
+\begin{enumerate}
+\item[Unforgeability] An adversary with only knowledge of $\pkvrf$, not $\skvrf$, has negligible chances to create fresh $(\alpha_1,\ldots,\alpha_n)$, $(\omega_1,\ldots,\omega_n)$, $m$, and $\pi$ that verifies, meaning for which $\VRF.\Verify$ returns true.
+\item[Randomness] An adversary with only knowledge of $\pkvrf$, not $\skvrf$, has negligible chances to guess the $\omega_i$ corresponding to any $\alpha_i$ for and $i<n$.
+\item[Functionness] An adversary even with knowledge of $\skvrf$ has negligible chances to create one $(\omega_1,\ldots,\omega_n)$ that verifies when combined with two partially distinct $(\alpha_1,\ldots,\alpha_n)$ and $(\alpha'_1,\ldots,\alpha'_n)$ and some $(m,\pi)$ and $(m',\pi)$, respectively.
+\end{enumerate}
+There exist VRFs with $\pi = \emptyset$ like BLS signatures and RSA-FDH signatures that satisfy the above, but we propose another condition that requires $\pi \ne \emptyset$.
+\begin{enumerate}
+\item[Binding Unforgeability] An adversary with only knowledge of $\pkvrf$ and several valid signatures has only negligible chances to produce a distinct valid signature even with its $(\alpha_1,\ldots,\alpha_n)$, $(\omega_1,\ldots,\omega_n)$, and possibly $m$ drawn from the valid signatures.
+\end{enumerate}
+We cannot prevent an adversary from providing a zero knowledge proof of verification with only partial information, but this second condition ensures that adversaries cannot trick honest verifiers by altering the presentation of VRF outputs.  
+
+\subsection{Ring VRFs}
+
+A ring VRF operates like a VRF but only proves its key comes from a specific list without giving any information about which specific key.  Any ring VRF yields sortition:
+
+In a pre-announce phase, all block producers anonymously publish ring VRF outputs, which either requires revealing their identity to another block producer, or else requires a multi-hop anonymity network.  We then sort these ring VRF outputs and block producers claim them when making blocks.
+
+We now formalize ring signatures and VRFs with first a commitment scheme for public keys:
+\begin{itemize}
+\item $\algo{Commit}(\pk_1,\ldots)$ returns a commitment $\pkc$ and its openning $\skc$ for the public keys $\pk_1,\ldots$,
+\end{itemize}
+as well as adopting our normal methods to operate on commitments:
+\begin{itemize}
+\item $\Sign_{\sk,\skc}$ now requires the openning of the commitment to the public key set, as well as the secret key.
+\item $\Verify_{\pkc}$ now takes a commitment to the public key set, instead of a public key.
+\end{itemize}
+
+There are naive ring VRF constructions with signature size linear in the number of signers, which appear unacceptable for our use case.  Indeed, these scale worse than well optimised accountable shuffle operations discussed in the appendix.
+
+% \subsubsecrtion{zkSNARKs}
+
+We instead favour constant-size ring VRFs built using zkSNARKs, which should support 10k signers with only about 10k to 20k constraints.  TODO: Do you agree Sergey?
+% TODO: link https://ethresear.ch/t/cryptographic-sortition-possible-solution-with-zk-snark/5102 anywhere?
+
+TODO:  Discuss https://github.com/w3f/ring-vrf/
+
+TODO:  Groth16 \cite{Groth16}, subversion resistance, Posidon etc.
+
+There are also ring signature constructions that do not require pairings and require only logarithmic size.  As an older example, ring signatures \cite{GK2015} need about 32*7 bytes times the logarithm of the number of validators, so under 3kb for 10,000 validators.  We also note that ring VRFs are linkable ring signatures, so some existing linkable ring signatures implementations may already provide ring VRFs.
+
+% \subsubsecrtion{Inner product proofs}
+
+We shall strongly consider the inner product proofs of Bootle, et al. \cite{bccgp2016}.  In this, the signer/prover commits to a secret vector $\bar{v}$ of positive numbers, proves that $\bar{v}_i = H_1(\mathsf{input})$ for exactly one $i$ and that $\bar{v}_j = 0$ for all $j \ne i$, and that the inner product of $\bar{v}$ with the block producer public keys equals the VRF output.  TODO:  Is this really this simple?  Not likely
+
+In practice, we consider the dalek implementation \cite{dalek_bulletproofs} of \cite{bulletproofs}, which itself consists of \cite{bccgp2016} plus multi-proving and batching techniques.
+% [dalek bulletproofs crate](https://doc-internal.dalek.rs/bulletproofs/notes/index.html)
+
+At our number of block producers, we expect the non-pairing based technique to prove fairly competitive sizes with zkSNARKs, but verification still requires linear computation time.  At 10k validators, zkSNARK would costs the prover like 10k-20k scalar multiplications, but provide faster verification, while the non-pairing based scheme might cost verifiers 10k scalar multiplications per slot.  
+
+There exist better batching techniques for inner product proofs \cite{bccgp2016} in the bulletproofs approach \cite{bulletproofs} than exist for \cite{Groth16}.  We might yet find that zkSNARKs remain more efficient, especially if we cannot apply the multi-proving tools of \cite{bulletproofs}.
+
+\subsection{Group VRFs}
+
+A group signature also hides the specific signer, like a ring signature, but group signatures require initial setup via some issuer or MPC. 
+
+We could build a group VRF similarly to a group signature by using the rerandomizable signature scheme from \cite{PS16} as a blind rerandomizable certificate.  Our issuer would first blind sign each validator's private key, like in \S6.1 of \cite{PS16}, so that later each validator can prove correctness their VRF output, replacing the proof of knowledge from \S6.2 of \cite{PS16}.  We believe this final step resembles the schnorrkel VRF except with the public key replaced by the signature inputs, but run on the pairing based curve.
+
+In this, we must take care with our pairing assumptions because we loose anonymity if $x H$ with $H$ known ever appears on the curve not used for the VRF output.  
+
+It appears group VRFs only require a few curve points, and verification only requires two pairings and a few scalar multiplications, making them far smaller and faster than ring VRFs.  We require a distributed issuer however, which dramatically complicates the protocol:
+
+We'd want at least two thirds, but preferable all, of validators to be aggregate certificate issuers, meaning they have certified the blinded public keys of all validators and we aggregate all certificates and public keys.  We might achieve this with an MPC but doing so requires choosing when we issuers issue certificates.  
+
+In other words, all new prospective validators certify all previously added prospective validators, and all previously added prospective validators must eventually recertify all more recently added prospective validators.  In this way, any spammed slots originate from prospective but not actual validators, probably along with an actual validator who posts them.  
+
+We become therefore tempted to run this MPC after election but before establishing final validator list, but this complicates protocol layering unacceptably.  We could look into group signatures with ``verifier local revocation'' but these get much more complicated if I remember.
+
+% \subsection{...}
+
+
+

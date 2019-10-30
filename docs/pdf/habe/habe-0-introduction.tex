@@ -1,0 +1,40 @@
+
+% \section{Introduction sectrions should never be numbered unless journal style demands}
+
+As a rule, decentralised protocols involve some censorship resistance assumptions, which go under analysed or formalised, and even poorly acknowledged.  In particular, all consensus protocols depend upon outrageously strong assumptions that some supermajority behaves somewhat correctly, but these appear unsupportable without miss-behavior reports, and hence some censorship resistance assumption. 
+
+We believe ``anonymous'' and/or ``unpredictable participation'' represents a crucial defense-in-depth for censorship resistance that protocols should achieve whenever viable.  In other words, we should design protocols so that all participants know as little as practical about what roles all other participants shall play in the near future. 
+
+As an characteristic example, there are numerous leader selection aka block production schemes in which some committee learns the leader or block producer well before their turn, which dramatically simplifies many attacks.  There is an elegant probabilistic algorithm that avoids these pitfalls used by protocols like Ouroboros Praos \cite{Praos}:  All participants identify when they produce blocks, or play other roles, by applying a {\em verifiable random function} (VRF) to weak collaborative randomness and relevant other data, like some time slot index, like a block height. 
+
+Any self-election by VRF scheme hides when participants play which role until they announce their winning VRF, but they incur costs:  We encounter both multiple simultaneous winning VRFs, as well as time slots without any winning VRFs.  At best, the multiple winners weakens the consensus process and wastes resources.  Also, no winners cases degrade performance, similarly waste computational resources by making block times unpredictable, and weakens other security assumptions in \cite{Praos}.
+
+We therefore want a leader selection aka block production protocol that supports a obeys some predictable clock.  Intuitively, it should assign all block production slots before an epoch starts, while also keeping the block production slot winners anonymous.  
+
+...
+
+There are important advantages to schemes in which each slot has an associated public key to which users can encrypt their transactions, because this strengthens privacy schemes like QuisQuis and Grin aka MimbleWimble.
+
+
+\endinput
+
+
+All remaining schemes operate via some anonymous pre-announcement phase after which we determine the block production slot assignment by sorting the pre-announcements.  
+
+We must constrain valid pre-announcements so that malicious validators cannot create almost empty epochs by spamming fake pre-announcements, while preserving anonymity for block producers.  We outline several fixes below, both cryptographic and softer economic ones. 
+
+As a rule, we accept the anonymity lost by revealing our block production slot to one other validator.  Yet, almost all these schemes could achieve stronger anonymity by forwarding messages an extra hop, or perhaps coupling with shuffles.
+
+
+
+
+
+REMOVE: 
+
+We shall outline roughly the solution categories below.
+
+We first quickly address sortition schemes with a bespoke, but often near perfect, anonymity layer built using cryptographic shuffles.  Almost all other schemes require pre-announces that reveal each block slot's owner to one random other block producer.
+
+
+
+
