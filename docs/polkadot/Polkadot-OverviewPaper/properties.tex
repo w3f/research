@@ -16,10 +16,13 @@ Each parachain in Polkadot has its own state transition function that defines ho
  \subsection{Availability}
 The availability of messages in the relay chain is very critical because only available data can be validated. We call this data blob consisting of the parachain state and the proof of validity of that state. In Polkadot, we provide availability via erasure codes of blobs which are distributed to validators. Thus, when a validator needs a blob, he/she can contact with some subset of validators to construct the blob. We guarantee that an unavailable blob cannot be finalized in the relay chain since it cannot be validated.
 
- \subsection{Messaging Reliability} Message reliability refers guaranteeing having a reliable ordering what messages have been sent and received by which parachain or parathread. 
 
- \subsection{Reasonable Size and Bandwidth}
 
- How do we achieve them?
+%TODO IN FUTURE: We may need to add more detail about the following two properties
+\subsection{Messaging Reliability} Polkadot provides message reliability by regulating and ordering what messages have been sent and received by which parachain or parathread. 
+
+\subsection{Reasonable Size and Bandwidth} In Polkadot, the block size is selected carefully with respect to scalability and security.  
+
+% How do we achieve them?
 
  Briefly breaking them down into components.

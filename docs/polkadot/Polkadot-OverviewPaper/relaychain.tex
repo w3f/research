@@ -5,7 +5,7 @@ Formally, Polkadot is a replicated sharded state machine where shards are the pa
 \paragraph{State}
 Polkadot relay chain state is represented similar to of the Ethereum. In the sense that the state is represented using an <i>associative array</i> data structure composed of a collection of $(key, value)$ pairs where each key is a unique. There is no assumption on the format of the key or the value stored under it beside the fact that they are finite byte arrays.
 
-A <i>Markle radix-16 trie</i> keeps the Merkle hashes corresponding to the $(key, value)$ pairs stored in the relay chain state enable identifying current state using its root hash and providing efficient proof of inclusion of a specific pair.
+A <i>Merkle radix-16 trie</i> keeps the Merkle hashes corresponding to the $(key, value)$ pairs stored in the relay chain state enable identifying current state using its root hash and providing efficient proof of inclusion of a specific pair.
 
 To keep state size in control, the relay chain state is solely used to facilitate relay chain operation such as staking and identifying Validators. It is not suppose to store any information regarding the internal operation of the parachains.
 
@@ -18,13 +18,26 @@ Runtime functions are compiled into a Web assembly module and is stored as part 
 
 Extrinsics are the input data supplied to the Polkadot Relay chain state machine to transition to a new states. Extrinsics are needed to be stored into blocks of the relay chain in order to achieve consensus among the state machine replica. Extrinsics are divided into two broad categories namely Transactions and Inherents.
 
-Transactions are signed and are gossiped around on the network between nodes. In contrast Inherents are not signed and are not gossiped individually but rather only when they are included in a block. They inherents in a block are assumed to be valid if super majority of validators assume so. Timestamp is an example of inherent extrinsics which must be included in each Polkadot Relay chain block.
+Transactions are signed and are gossiped around on the network between nodes. In contrast, Inherents are not signed and are not gossiped individually but rather only when they are included in a block. The inherents in a block are assumed to be valid if super majority of validators assume so. Timestamp is an example of inherent extrinsics which must be included in each Polkadot Relay chain block.
 
-\paragraph{Transaction Inclusion}
+Transactions on the relay chain are mainly concerned with the operation of the relay chain and Polkadot protocol as whole, such as \texttt{set\_code}, \texttt{transfer}, \texttt{bond}, \texttt{validate}, \texttt{nominate}, \texttt{vote}.
+
+Relay chain block producers listen to all transactions network messages. Upon receiving a transaction message, the transaction(s) are validated by the Runtime. The valid transactions then are arranged in a queue based on their priority and dependency and are considered for inclusion in future blocks accordingly.
 
 \paragraph{Block format}
+%% Block header Block body 
+A typical relay chain block is consists of header and body. The body is simply consists of list of extrinsics.
+
+The header contains: the {\it hash of parent block}, {\it block number}, the {\it root of the state trie}, the {\it root of the Merkle tree} resulting from arranging the extrinsics in such a tree. and the {\it digest}. The digest stores auxiliary information from the consensus engines which are required for to validate the block and its origin as well as information helping light clients to validate the block without having access to the state storage.
 
 \paragraph{Consensus}
 
+%%Block production, Babe,
+
+%%Block Finality Grandpa.
+
 \paragraph{Block Building}\label{sec:relaychainblockproduction}
- 
+
+%% All happens after babe
+
+
