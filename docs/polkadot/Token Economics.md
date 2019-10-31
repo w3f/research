@@ -38,7 +38,7 @@ This note contains the following subsections.
 
 * **NPoS payment and inflation:** We describe how we reward well-behaving validators and nominators in our nominated proof-of-stake. Since the DOT minting for this end is the main cause of inflation in the system, we also describe our inflation model here.
 * **Transaction fees:** We analyse the optimal transaction fees on the relay chain to cover for costs, discourage harmful behaviors, and handle eventual peaks of activity and long inclusion times.
-* **Treasury:** We discuss how and when to raise dots to pay for the continued maintenance of the network.
+* **Treasury:** We discuss how and when to raise DOTs to pay for the continued maintenance of the network.
 
 Finally, in the last paragraph of the note we provide links to additional relevant references about the Polkadot protocol.
 
@@ -79,7 +79,7 @@ $$I_{NPoS}(x)=x\cdot i(x).$$
 
 From our previous analysis, we can see that $I_{NPoS}(\chi_{ideal})=\chi_{ideal}\cdot i_{ideal}$. Since we want to steer the market toward a staking rate of $x=\chi_{ideal}$, it makes sense that the inflation rate **$I_{NPoS}(x)$ should be maximal at this value**.
 
-__Adjustable parameter:__ Let $I_0$ be the limit of $I_{NPoS}(x)$ as $x$ goes to zero (i.e. when neither validators nor nominators are staking any DOTs). The value of $I_0$ shoud be close to zero but should not be zero, because we need to make sure to always cover at least the operational costs of the validators, even if nominators get paid nothing. Hence, $I_0$ represents an estimate of the operational costs of all validators, expressed as a fraction of the total token supply. We will make sure that $I_{NPoS}(x)$ is always above $I_0$ for all values of $x$, in particular also in the limit when $x$ goes to one.
+__Adjustable parameter:__ Let $I_0$ be the limit of $I_{NPoS}(x)$ as $x$ goes to zero (i.e. when neither validators nor nominators are staking any DOTs). The value of $I_0$ shoud be close to zero but not zero, because we need to make sure to always cover at least the operational costs of the validators, even if nominators get paid nothing. Hence, $I_0$ represents an estimate of the operational costs of all validators, expressed as a fraction of the total token supply. We will make sure that $I_{NPoS}(x)$ is always above $I_0$ for all values of $x$, in particular also in the limit when $x$ goes to one.
 
 For simplicity, we propose that the inflation function grow linearly between $x=0$ and $x=\chi_{ideal}$. On the other hand, we propose that it decay exponentially between $x=\chi_{ideal}$ and $x=1$. We choose an exponential decrease for $I_{NPoS}(x)$ because this implies an exponential decrease for $i(x)$ as well, and we want the interest rate to fall sharply beyond $\chi_{ideal}$ to avoid illiquidity, while still being able to control its rate of change, $i(x+\varepsilon)/i(x)$, when $x$ increases by a small amount $\varepsilon$. Bounding how fast the interest rate changes is important for the nominators and validators.
 
@@ -100,7 +100,7 @@ i(x)&= I_{NPoS}(x)/x.
 
 It can be checked that $I_{NPoS}\geq I_0$ for all $0\leq x \leq 1$ with equality for $x=0$, $i(\chi_{ideal})=i_{ideal}$, $I_{NPoS}(x)$ is maximal at $x=\chi_{ideal}$ where it achieves a value of $\chi_{ideal}\cdot i_{ideal}$, and $i(x)$ is monotone decreasing.
 
-These functions can be plotted following this link: https://www.desmos.com/calculator/2om7wkewhr
+These functions can be plotted for different parameters following this link: https://www.desmos.com/calculator/2om7wkewhr
 
 As an example, when $I_0=0.025$, $\chi_{ideal}=0.5$, $i_{ideal}=0.2$ and $d=0.05$, we obtain the following plots, with $i(x)$ in green and $I_{NPoS}(x)$ in blue.
 
@@ -121,7 +121,7 @@ In the branch of block production, we reward:
 * the block producer for each reference to a previously unreferenced uncle, and
 * the producer of each referenced uncle block.
 
-These are thus considered "payable actions". We define a point system where a validator earns a certain amount of points for each payable action executed, and at the end of each era they are paid proportional to their earned points. (The exact DOT value of each point is not known a priori because it depends on the total number of points earned by all validators in a given era. This is because we want the total payout per era to depend on the inflation model established above, and not on the number of payable actions executed). 
+These are thus considered "payable actions". We define a point system where a validator earns a certain amount of points for each payable action executed, and at the end of each era they are paid proportional to their earned points. (The exact DOT value of each point is not known in advance because it depends on the total number of points earned by all validators in a given era. This is because we want the total payout per era to depend on the inflation model established above, and not on the number of payable actions executed). 
 
 __Adjustable parameters:__ We propose the following point system: 
 
@@ -162,7 +162,7 @@ Some of the properties we want to achieve relative to relay-chain transactions a
 4. Blocks are typically far from full, so that peaks can be dealt with effectively and long inclusion times are rare.
 5. Fees evolve slowly enough, so that the fee of a particular tx can be predicted accurately within a frame of a few minutes.
 6. For any tx, its fee level is strictly larger than the reward perceived by the block producer for processing it. Otherwise, the block producer is incentivized to stuff blocks with fake txs.
-7. For any tx, the processing reward perceived by the block producer is high enough to incentivize tx inclusion, yet low enough not to incentivize a block producer to create a fork and steal the transactions of the previous block. Effectively, this means that that the marginal reward perceived for including an additional tx is considerably higher than the corresponding marginal cost of processing it, but the total reward for producing a full block is not much larger than the reward for producing an empty block (even when tips are factored in).
+7. For any tx, the processing reward perceived by the block producer is high enough to incentivize tx inclusion, yet low enough not to incentivize a block producer to create a fork and steal the transactions of the previous block. Effectively, this means that that the marginal reward perceived for including an additional tx is higher than the corresponding marginal cost of processing it, yet the total reward for producing a full block is not much larger than the reward for producing an empty block (even when tips are factored in).
 
 For the time being, we focus on satisfying properties 1 through 6 (without 2'), and we leave properties 2' and 7 for a further update. We also need more analysis on property 2.
 
@@ -187,32 +187,34 @@ For the time being, we suggest the following limits on resource usage when proce
 * Memory: 10 GB
 * State: 1 MB increase 
 
-Each tx consumes some amount of these resources depending on its type, input arguments, and current state. Consequently we will classify transactions based on these parameters, and run tests to examine their typical resource usage. For simplicity, we decided to perform the analysis for the worst-case state, and make resource usage depend only on transaction type and input. We also don't inspect the precise input arguments but only look at their byte length.
+Each tx consumes some amount of these resources depending on its type, input arguments, and current state. Consequently we will classify transactions based on these parameters, and run tests to examine their typical resource usage. For simplicity, we decided to perform the analysis for the worst-case state for each transaction type, and make resource usage depend only on transaction type and input. We also don't inspect the precise input arguments but only look at their byte length.
 
 To simplify our model further, we define a tx *weight* as a parameter that captures the time, memory and state resources of a tx. Specifically, we define a tx weight as the *max* of its typical time, memory and state usage, each measured as a fraction of the corresponding block limit. Then, given a collection of txs, we will sum up their lengths on one hand, and their weights on the other hand, and we will allow them within the same block only if both limits are respected. This is a hard constraint on resource usage which must be respected in each block.
 
-We add a further constraint on resource usage. We distinguish between "normal" txs and "operational" txs, where the latter type corresponds to high-priority txs such a fisherman reports. A collection of normal txs is allowed within the same block only if both their sum of lengths and their sum of weights are both below 75% of the respective limits. This is to ensure that each block has a guarantee space for operational txs (at least 25% of resources). 
+We add a further constraint on resource usage. We distinguish between "normal" txs and "operational" txs, where the latter type corresponds to high-priority txs such a fisherman reports. A collection of normal txs is allowed within the same block only if both their sum of lengths and their sum of weights are below 75% of the respective limits. This is to ensure that each block has a guarantee space for operational txs (at least 25% of resources). 
 
-**Details about establishing typical resource usage for txs.** Length is easy to determine by inspection. For time and memory usage, we prepare the chain with the worst case state (the state for which the time and memory requirements to import this tx type should be the largest. We generate 10k transactions for a given transaction type with input which should take the longest to import for that state, and we measure the mean and standard deviation for the resource usage with the Wasm environment. If the standard deviation is greater than 10% of the mean, we increase the sample space above 10k. Finally, state increase is by inspection, based on worst cases for a large sample of txs.
+**Details about establishing typical resource usage for txs.** Length is easy to determine by inspection. For time and memory usage, we prepare the chain with the worst case state (the state for which the time and memory requirements to import this tx type should be the largest). We generate 10k transactions for a given transaction type with input which should take the longest to import for that state, and we measure the mean and standard deviation for the resource usage with the Wasm environment. If the standard deviation is greater than 10% of the mean, we increase the sample space above 10k. Finally, state increase is by inspection, based on worst cases for a large sample of txs.
 
 
 ### Setting transaction fees
 
-We use the model described above to set the fee level of a tx based on three parameters: the tx type, its length, and its weight. This fee differentiation is used to reflect the different costs in resources incurred per transaction, and also to encourage/discourage certain tx market behaviors.
+We use the model described above to set the fee level of a tx based on three parameters: the tx type, its length, and its weight (parameters defined in the previous subsection). This fee differentiation is used to reflect the different costs in resources incurred per transaction, and to encourage/discourage certain tx market behaviors.
 
 As mentioned earlier, part of the tx fee needs to go to the block producer, to incentivize inclusion, but not all of it, so the block producer is discouraged from stuffing blocks with bogus txs. For simplicity, we originally suggest that 20% of each tx fee goes to the block producer, with the remaining 80% going to treasury. We remark that a fraction could also be set for burning, but we choose not to do so to keep better control of the inflation rate. In the future this percentage may be adjusted, and could be made dependent on the tx type, to encourage the block producer to include certain tx types without necessarily adjusting the fee.
 
-A transaction fee includes a base fee and a variable fee that is proportional to the number of bytes to be put on chain. That is,
+A transaction fee tx is computed as follows:
 
-$$f(tx):=f_{base}+size(tx)\cdot f_{byte},$$
+$$fee(tx) = c_{traffic} \cdot length(tx) + type(tx)\cdot weight(tx),$$
 
-for some parameters $f_{base}$ and $f_{byte}$ and where $size(tx)$ is the number of bytes of transaction. The base fee will depend on the type of transaction, while the per-byte fee may be the same for all types.
+where $c_{traffic}$ is a parameter independent from the transaction, that evolves over time depending on the network traffic; we explain this parameter in the next subsection. 
+
+Parameter $type(tx)$ depends on the transaction type only, and should be large enough so that, even in the edge case where $c_{traffic}=0$, the fee is large enough to cover the operational costs of the block producer. Further analysis is needed to establish the best value of this parameter practically.
 
 ### Adjustment of fees over time
 
 The demand for transactions is typically quite irregular on blockchains. On one hand, there are peaks of activity at the scale of hours within a day or days within a month. On the other hand, there are long term tendencies. We need a mechanism that automatically updates the transaction fees over time taking these factors into consideration. By the law of supply and demand, raising the fee should decrease the demand, and vice-versa.
 
-To deal with peaks of activity, we face the dilemma of hiking up transaction fees rapidly or having long transaction inclusion times - both undesirable effects. We propose two mechanisms. The first one adjusts the price very quickly, at the same pace as the peaks and valleys of activity. The second one adjusts slowly, at the pace of long term tendencies, and uses tipping to deal with long queues at peak hours. We propose to use the slow adjusting mechanism with tips, but provide details of both mechanisms for completeness.
+To deal with peaks of activity, we face a trade-off between hiking up transaction fees rapidly or potentially having long transaction inclusion times - both undesirable effects. We propose two mechanisms. The first one adjusts the price very quickly, at the same pace as the peaks and valleys of activity. The second one adjusts slowly, at the pace of long term tendencies, and uses tipping to deal with long queues at peak hours. We propose to use the slow adjusting mechanism with tips, but provide details of both mechanisms for completeness.
 
 #### 1. Fast adjusting mechanism
 
