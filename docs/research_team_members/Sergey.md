@@ -2,19 +2,10 @@
 
 <img style="float: right;" src="https://i.imgur.com/SERGEY.jpg" width = '190'>
 
-Surgey is l
+Surgey is research engineer at Web3 Foundation working on zero-knowledge-proofs.
+
 **Research Areas**
 
-* 1
-* 2
-* 3
 
-**Short Bio**. 
+**Short Bio** 
 
-**Selected Publication**
-
-* 1
-
-* 2
-
-* 3
