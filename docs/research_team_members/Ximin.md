@@ -1,20 +1,11 @@
 # Ximin
 
-<img style="float: right;" src="https://i.imgur.com/XIMIN.jpg" width = '190'>
 
-Ximin is l
+Ximin is research engineer at Web3 Foundation working on networking. 
+
 **Research Areas**
 
-* 1
-* 2
-* 3
 
-**Short Bio**. 
+**Short Bio**
 
-**Selected Publication**
 
-* 1
-
-* 2
-
-* 3
