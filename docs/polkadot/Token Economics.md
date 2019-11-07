@@ -2,7 +2,7 @@
 
 **Authors**: Alfonso Cevallos, Fatemeh Shirazi (minor)
 
-**Last updated**: 28.10.2019
+**Last updated**: 05.11.2019
 
 ====================================================================
 
@@ -133,7 +133,7 @@ __Adjustable parameters:__ We propose the following point system:
 Notice that what is important here is not the absolute points but the point ratios, which establish the reward ratios of the payable actions. These points are parameters to be adjusted by governance. 
 
 In each era $e$, and for each validator $v$, we keep a counter $c_v^e$ on the number of points earned by $v$. Let $c^e = 
-sum_{\text{validators } v} c_v^e$ be the total number of points earned by all validators in era $e$, and let $P^e_{NPoS}$ be our target total payout to all validators -- and their nominators -- in that era (see previous section on inflation model to see how to establish $P^e_{NPoS}$). Then, at the end of era $e$, the payout corresponding to validator $v$ and his nominators is given by 
+\sum_{\text{validators } v} c_v^e$ be the total number of points earned by all validators in era $e$, and let $P^e_{NPoS}$ be our target total payout to all validators -- and their nominators -- in that era (see previous section on inflation model to see how to establish $P^e_{NPoS}$). Then, at the end of era $e$, the payout corresponding to validator $v$ and his nominators is given by 
 
 $$\frac{c_v^e}{c^e} \cdot P^e_{NPoS}.$$
 
@@ -159,7 +159,7 @@ Some of the properties we want to achieve relative to relay-chain transactions a
 1. Each relay-chain block should be processed efficiently, even on less powerful nodes, to avoid delays in block production.
 2. The growth rate of the relay chain state is bounded. 2'. Better yet if the absolute size of the relay chain state is bounded.
 3. Each block has *guaranteed availability* for a certain amount of operational, high-priority txs such as misconduct reports.
-4. Blocks are typically far from full, so that peaks can be dealt with effectively and long inclusion times are rare.
+4. Blocks are typically far from full, so that peaks of activity can be dealt with effectively and long inclusion times are rare.
 5. Fees evolve slowly enough, so that the fee of a particular tx can be predicted accurately within a frame of a few minutes.
 6. For any tx, its fee level is strictly larger than the reward perceived by the block producer for processing it. Otherwise, the block producer is incentivized to stuff blocks with fake txs.
 7. For any tx, the processing reward perceived by the block producer is high enough to incentivize tx inclusion, yet low enough not to incentivize a block producer to create a fork and steal the transactions of the previous block. Effectively, this means that that the marginal reward perceived for including an additional tx is higher than the corresponding marginal cost of processing it, yet the total reward for producing a full block is not much larger than the reward for producing an empty block (even when tips are factored in).
@@ -180,7 +180,7 @@ We identify four resources which can be consumed when processing a tx:
 
 Notice that unlike the other three resources which are consumed only once, state storage has a permanent cost over the network. Hence for state storage we could have rent or other Runtime mechanisms, to better match fees with the true cost of a tx, and ensure the state size remains bounded. This needs further consideration.
 
-For the time being, we suggest the following limits on resource usage when processing a block. These parameters are to be further adjusted via governance based on real-life data or more sophisticated mechanisms. 
+**Adjustable parameters.** For the time being, we suggest the following limits on resource usage when processing a block. These parameters are to be further adjusted via governance based on real-life data or more sophisticated mechanisms. 
 
 * Length: 5MB
 * Time: 2 seconds
@@ -191,7 +191,7 @@ Each tx consumes some amount of these resources depending on its type, input arg
 
 To simplify our model further, we define a tx *weight* as a parameter that captures the time, memory and state resources of a tx. Specifically, we define a tx weight as the *max* of its typical time, memory and state usage, each measured as a fraction of the corresponding block limit. Then, given a collection of txs, we will sum up their lengths on one hand, and their weights on the other hand, and we will allow them within the same block only if both limits are respected. This is a hard constraint on resource usage which must be respected in each block.
 
-We add a further constraint on resource usage. We distinguish between "normal" txs and "operational" txs, where the latter type corresponds to high-priority txs such a fisherman reports. A collection of normal txs is allowed within the same block only if both their sum of lengths and their sum of weights are below 75% of the respective limits. This is to ensure that each block has a guarantee space for operational txs (at least 25% of resources). 
+We add a further constraint on resource usage. We distinguish between "normal" txs and "operational" txs, where the latter type corresponds to high-priority txs such a fisherman reports. A collection of normal txs is allowed within the same block only if both their sum of lengths and their sum of weights are below 75% of the respective limits. This is to ensure that each block has a guaranteed space for operational txs (at least 25% of resources). 
 
 **Details about establishing typical resource usage for txs.** Length is easy to determine by inspection. For time and memory usage, we prepare the chain with the worst case state (the state for which the time and memory requirements to import this tx type should be the largest). We generate 10k transactions for a given transaction type with input which should take the longest to import for that state, and we measure the mean and standard deviation for the resource usage with the Wasm environment. If the standard deviation is greater than 10% of the mean, we increase the sample space above 10k. Finally, state increase is by inspection, based on worst cases for a large sample of txs.
 
@@ -206,59 +206,61 @@ A transaction fee tx is computed as follows:
 
 $$fee(tx) = c_{traffic} \cdot length(tx) + type(tx)\cdot weight(tx),$$
 
-where $c_{traffic}$ is a parameter independent from the transaction, that evolves over time depending on the network traffic; we explain this parameter in the next subsection. 
+where $c_{traffic}$ is a parameter independent from the transaction, that evolves over time depending on the network traffic; we explain this parameter in the next subsection. Parameter $type(tx)$ depends on the transaction type only, and should be large enough so that, even in the edge case where $c_{traffic}=0$, the fee is large enough to cover the operational costs of the block producer. Further analysis is needed to establish the best value of this parameter practically.
 
-Parameter $type(tx)$ depends on the transaction type only, and should be large enough so that, even in the edge case where $c_{traffic}=0$, the fee is large enough to cover the operational costs of the block producer. Further analysis is needed to establish the best value of this parameter practically.
+Intuitively, the second term $type(tx)\cdot weight(tx)$ covers the processing cost of the block producer, while the first term $c_{traffic} \cdot length(tx)$ covers the opportunity cost of processing one transaction instead of another one. When there is little traffic, the first term will be negligible, but as the traffic increases the first term will increase as well.
 
 ### Adjustment of fees over time
 
 The demand for transactions is typically quite irregular on blockchains. On one hand, there are peaks of activity at the scale of hours within a day or days within a month. On the other hand, there are long term tendencies. We need a mechanism that automatically updates the transaction fees over time taking these factors into consideration. By the law of supply and demand, raising the fee should decrease the demand, and vice-versa.
 
-To deal with peaks of activity, we face a trade-off between hiking up transaction fees rapidly or potentially having long transaction inclusion times - both undesirable effects. We propose two mechanisms. The first one adjusts the price very quickly, at the same pace as the peaks and valleys of activity. The second one adjusts slowly, at the pace of long term tendencies, and uses tipping to deal with long queues at peak hours. We propose to use the slow adjusting mechanism with tips, but provide details of both mechanisms for completeness.
+To deal with peaks of activity, we face a trade-off between hiking up transaction fees rapidly or potentially having long transaction inclusion times - both undesirable effects. We propose two mechanisms. The first one adjusts the price very quickly, at the same pace as the peaks and valleys of activity. The second one adjusts slowly, at the pace of long term tendencies, and uses tipping to give users the possibility of controlling waiting times at peak hours. We propose to use the slow adjusting mechanism with tips, but provide details of both mechanisms for completeness.
 
 #### 1. Fast adjusting mechanism
 
 In this mechanism the transaction fees vary greatly through time, but are fixed for all users at each block (no tipping).
 
-Recall that a transaction fee is computed as $f(tx)=f_{base}+size(tx)\cdot f_{byte}$, for some parameters $f_{base}$ and $f_{byte}$, and where $size(tx)$ is the number of bytes in transaction. For simplicity, we fix the ratio between $f_{base}$ and $f_{byte}$ and scale both parameters by the same factor when adjusting over time. So it is enough to describe how we adjust $f_{byte}$.
+Recall that we set a hard limit on the sum of lengths and weights of all transactions allowed on a block. We also set a second hard limit, this time on the sum of lengths and weights of "normal" txs (non-operational txs), which is equal to 75% of the first limit. 
 
-__Parameter:__ Let \(s^*\) be our target block saturation level. This is a value between 0 and 1 that we select to be the desired long-term average of the saturation level of blocks. We originally suggest \(s^*=0.25\), so that blocks are 25% full on average and the system can handle sudden spikes of up to 4x the average volume of transactions. This parameter can be adjusted depending on the observed volumes during spikes compared to average volumes, and in general it provides a trade-off between higher average fees and longer transaction inclusion times during spikes.
+**Definition.** We define a block's saturation level (relative to normal txs) as a fraction $s$ between 0 and 1 which describes how close the limit on normal txs is from being full. Explicitly, the saturation level of a block $B$ is
 
-Let \(s\) be the saturation level of the current block. If \(s>s^*\) we slightly increase the transaction fees, and if \(s<s^*\) we slightly decrease them.
+$$s(B):=\max\{\frac{\sum_{\text{normal } tx \in B} length(tx)}{\text{normal length limit}}, \frac{\sum_{\text{normal } tx \in B} weight(tx)}{\text{normal weight limit}}\},$$
 
-**Parameter:** Let $v$ be a fee variability factor, which controls how quickly the transaction fees adjust. We update the per-byte transaction fee $f_{byte}$ from one block to the next as follows:
+where the normal length limit (the block length limit on normal transactions) is 75% of the global length limit, and the normal weight limit is 75% of the global weight limit. 
 
-$$f_{byte} \leftarrow f_{byte}\cdot (1+ v(s-s^*) + v^2(s-s^*)^2/2).$$
+**Adjustable parameter** Let \(s^*\) be our target block saturation level. This is our desired long-term average of the block saturation level (relative to normal txs). We originally suggest \(s^*=0.25\), so that blocks are 25% full on average and the system can handle sudden spikes of up to 4x the average volume of normal transactions. This parameter can be adjusted depending on the observed volumes during spikes compared to average volumes, and in general it provides a trade-off between higher average fees and longer transaction inclusion times during spikes.
 
-This is thus a feedback loop with multiplicative weight updates. It is a very good approximation to using the more involved update \(f_{byte} \leftarrow f_{byte}\cdot e^{v(s-s^*)}\), which in turn has the following properties:
+Recall that a transaction fee is computed as $fee(tx) = c_{traffic} \cdot length(tx) + type(tx)\cdot weight(tx)$, for a parameter $c_{traffic}$ that is independent of the transaction. Let \(s\) be the saturation level of the current block. If \(s>s^*\) we slightly increase $c_{traffic}$, and if \(s<s^*\) we slightly decrease it.
 
-* Assuming that $v$ is small, the relative change in fees is approximately proportional to the difference $(s-s^*)$, i.e.
+**Adjustable parameter:** Let $v$ be a fee variability factor, which controls how quickly the transaction fees adjust. We update $c_{traffic}$ from one block to the next as follows:
 
-$$\frac{f_{byte}^{new} - f_{byte}^{old}}{f_{byte}^{old}}\approx v(s-s^*).$$
+$$c_{traffic} \leftarrow c_{traffic}\cdot (1+ v(s-s^*) + v^2(s-s^*)^2/2).$$
 
-* If there is a period of time during which \(k\) blocks are produced and the average saturation level is \(s_{average}\), the relative change in fees during this period is approximately proportional to $k$ times the difference $(s_{average} - s^*)$, i.e.
+This is thus a feedback loop with multiplicative weight updates. It is a very good approximation to using the more involved update \(c_{traffic} \leftarrow c_{traffic}\cdot e^{v(s-s^*)}\), which in turn has the following properties:
 
-$$\frac{f_{byte}^{final} - f_{byte}^{initial}}{f_{byte}^{initial}}\approx vk(s_{average}-s^*).$$
+* Assuming that $v$ is small, the relative change of parameter $c_{traffic}$ is approximately proportional to the difference $(s-s^*)$, i.e.
+
+$$\frac{c_{traffic}^{new} - c_{traffic}^{old}}{c_{traffic}^{old}}\approx v(s-s^*).$$
+
+* If there is a period of time during which \(k\) blocks are produced and the average saturation level is \(s_{average}\), the relative change of parameter $c_{traffic}$ during this period is approximately proportional to $k$ times the difference $(s_{average} - s^*)$, i.e.
+
+$$\frac{c_{traffic}^{final} - c_{traffic}^{initial}}{c_{traffic}^{initial}}\approx vk(s_{average}-s^*).$$
 
 How to choose the variability factor $v$? Suppose that we decide that the fees should not change by more than a fraction $p$ during a period of $k$ blocks, even if there is 100% saturation in that period. We obtain the formula
 
-$$\frac{f_{byte}^{final} - f_{byte}^{initial}}{f_{byte}^{initial}}\approx vk(s_{average}-s^*) \leq vk(1-s^*)\leq p,$$
+$$ \text{fees relative change} \leq \frac{c_{traffic}^{final} - c_{traffic}^{initial}}{c_{traffic}^{initial}}\approx vk(s_{average}-s^*) \leq vk(1-s^*)\leq p,$$
 
 which gives us the bound $v\leq \frac{p}{k(1-s^*)}$.
 
-For instance, suppose that we detect that during peak times some transactions have to wait for up to $k=20$ blocks to be included, and we consider it unfair for the user if the fees increase by more than 5% $(p=0.05)$ during that period. If \(s^*=0.25\) then the formula above gives $v\leq 0.05/[20(1-0.25)]\approx 0.0033$.
+For instance, suppose that we detect that during peak times some transactions have to wait for up to $k=20$ blocks to be included, and we consider it unfair to the user if the fees increase by more than 5% $(p=0.05)$ during that period. If \(s^*=0.25\) then the formula above gives $v\leq 0.05/[20(1-0.25)]\approx 0.0033$.
 
 #### 2. Slow adjusting mechanism
 
 In this mechanism, fees stay almost constant during short periods, adjusting only to long-term tendencies. We accept the fact that during spikes there will be long inclusion times, and allow the transactions to include tips to create a market for preferential inclusion.
 
-We use the same formula as above to update the transaction fees in each block, i.e. \(f_{byte} \leftarrow f_{byte}\cdot (1 + v(s-s^*) + v^2(s-s^*)^2/2\), except that we select a much smaller variability factor $v$. For instance, suppose that we want the fees to change by at most 30% during a day, and there are around \(k=10000\) blocks produced in a day. If \(s^*=0.25\) then we obtain \(v\leq 0.3/[10000(1-0.25)] = 0.00004\).
+We use the same formula as above to update the transaction fees in each block, i.e. \(c_{traffic} \leftarrow c_{traffic}\cdot (1 + v(s-s^*) + v^2(s-s^*)^2/2\), except that we select a much smaller variability factor $v$. For instance, suppose that we want the fees to change by at most 30% per day, and there are around \(k=14000\) blocks produced in a day. If \(s^*=0.25\) then we obtain \(v\leq 0.3/[14000(1-0.25)] = 0.00003\).
 
-The transaction fee is considered a base price. There will be a different field in the transaction called tip, and a user is free to put any amount of tokens in it or leave it at zero. Block producers can charge both the fee and tip, so they have an incentive to include transactions with large tips. There should be a piece of software that gives live suggestions to users for tips values, that depend on the market conditions and the size of the transaction; it should suggest no tip most of the time.
-
-## Adding and removing parachains
-
-The tentative plan for parachain allocation is described [here](Parachain-Allocation.md)
+The transaction fee is considered a base price. There will be a different field in the transaction called tip, and a user is free to put any amount of tokens in it or leave it at zero. Block producers receive 100% of the tip on top of the standard 20% of the fee, so they have an incentive to include transactions with large tips. There should be a piece of software that gives live suggestions to users for tip values, that depend on the market conditions and the size of the transaction; it should suggest no tip most of the time.
 
 ## Treasury
 
@@ -267,7 +269,7 @@ The system needs to continually raise funds, which we call the treasury. These f
 Funds for treasury are raised in two ways:
 
 1.   by minting new tokens, leading to inflation, and
-2.   by channelling the tokens set for burning from transaction fees and slashing.
+2.   by channelling the tokens from transaction fees and slashings, which would otherwise be set for burning.
 
 Notice that these methods to raise funds mimic the traditional ways that governements raise funds: by minting coins which leads to controlled inflation, and by collecting taxes and fines.
 
@@ -275,7 +277,7 @@ We could raise funds solely from minting new tokens, but we argue that it makes 
 
 - By doing so we reduce the amount of actual stake burning, and this gives us better control over the inflation rate (notice that stake burning leads to deflation, and we can’t control or predict the events that lead to burning).
 
-- Following an event that produced heavy stake slashing, we might often have to reimburse the slashed stake, if there is evidence of no wrongdoing. Thus it makes sense to have the dots availabe in treasury, instead of burning and then minting.
+- Following an event that produced heavy stake slashing, goverance might often want to reimburse the slashed stake partially, if there is a bug in the code or there are extenuating circumstances. Thus it makes sense to have the DOTs availabe in treasury, instead of burning and then minting.
 
 - Suppose that there is a period in which there is an unusually high amount of stake burning, due to either misconducts or transaction fees. This fact is a symptom that there is something wrong with the system, that needs fixing. Hence, this will be precisely a period when we need to have more funds available in treasury to afford the development costs to fix the problem.
 
