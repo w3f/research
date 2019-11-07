@@ -2,7 +2,7 @@
 
 Author: Handan Kilinc Alper
 
-Last updated: 20.09.2019
+Last updated: 07.11.2019
 
 Email: handan@web3.foundation
 
@@ -157,64 +157,37 @@ We do not use the chain selection rule as in Ouroboros Genesis [3] because this 
 It is important for parties to know the current slot  for the security and completeness of BABE. Therefore, we show how a party realizes the notion of slots. Here, we assume partial synchronous channel meaning that any message sent by a party arrives at most \(\D\)-slots later. \(\D\) is not an unknown parameter.
 
 
-Each party has a local clock and this clock does not have to be synchronized with the network. When a party receives the genesis block, it stores the arrival time as \(t_0\) as a reference point of the beginning of the first slot. We are aware of the beginning of the first slot is not same for everyone. We assume that this difference is negligible comparing to \(T\) since there will not be too many validators in the beginning. Then each party divides their timeline in slots. 
+Each party has a local clock and this clock does not have to be synchronized with the network. When a party receives the genesis block, it stores the arrival time as \(t_0\) as a reference point of the beginning of the first slot. We are aware of the beginning of the first slot is not same for everyone. We assume that the maximum difference between start of the first slot is at most $\delta$. Then each party divides their timeline in slots. 
 
 
-**Obtaining Slot Number:** Parties who join BABE after the genesis block released or who lose notion of slot run the following protocol to obtain the current slot number with the Median Algorithm and then updates with the consistency algorithm if it sees a inconsistency with the output of median algorithm after running the consistency algorithm. 
+**Median Algorithm:** Parties who join BABE after the genesis block released or who lose notion of slot run the following protocol to obtain the current slot number with the Median Algorithm. 
 
+The median algorithm is run by all validators in the end of sync-epochs (we note that epoch and sync-epoch are not related). The first sync-epoch starts just after the genesis block is released. The other sync-epochs start when the slot number of the last (probabilistically) finalized block is $sl_{e} $ which is the smallest slot number such that  $sl_{e} - sl_{e-1} \geq s_{cd}$ where $sl_{e_1}$ is the slot number of the last finalized block in epoch $e-1$. Here, $s_{cd}$ is the parameter of the chain density (CD) property which will be defined according the chain growth. If the previous epoch is the first epoch then $sl_{e-1} = 0$. We define the last finalized block as follows: Retrieve the best blockchain according to the best chain selection rule, trim the last $k$ blocks of the best chain, the last block of the trimmed best chain is the last finalized block. Here, $k$ is defined according to the common prefix property. 
 
-If a party \(P_j\) is a newly joining party, he downloads chains and receives blocks at the same time. After chains' download completed, he adds the valid blocks to the corresponding chains. Assuming that a slot number $sl$ is executed in a (local) time interval $[t_{start}, t_{end}]$ of party $P_j$, we have the following protocols for $P_j$ to output $sl$ and $t \in [t_{start}, t_{time}]$.
+Each validator stores the arrival time $t_i$ of valid blocks constantly. At the end of a sync-epoch $e$,  validators retrieve the arrival time $t_i$ of only finalized blocks that belong to the sync-epoch $e$. At the end of a sync-epoch, each validator retrieves the arrival times of valid and finalized blocks which has a slot number $sl_x$ where $sl_{e-1} < sl_x \leq sl_{e}$. Let's assume that there are $n$  such blocks that belong to the current sync-epoch. Then, a validator selects a slot number $ sl > sl_e $ and runs the median algorithm which works as follows:
 
+Let us denote the stored arrival times of blocks in the current sync-epoch by \(t_1,t_2,...,t_n\) whose slot numbers are \(sl_1,sl_2,...,sl_n\), respectively. Remark that these slot numbers do not have to be consecutive since some slots may be empty, with multiple slot leaders or the slot leader is offline, late or early. After storing $n$ arrival times, $P_j$ sorts the following list \(\{t_1+a_1T, t_2+a_2T,..., t_n+a_nT_\}\) where $a_i = sl - sl_i$. Here, $sl$ is a slot number that $P_j$ wants to learn at what time it corresponds in his local time. At the end. $P_j$  outputs the median of the ordered list as ($t$) and $sl$. 
 
-**- Median Algorithm:**
-Each validaor stores the arrival time $t_i$ of blocks that belongs to an epoch $e$. At the end of the epoch,  validators retrieve the arrival time $t_i$ of only finalized blocks that belong to the epoch $e$. We note that if epoch length is too short than validators may consider the arrival time of blocks in more than one epoch. This should be decided according to epoch lenght and slot length later. In the next epoch, all validators updates their clock according to the result of the median algorithm given below. We note that it is very crtitical for validators to update their clocks at the same time with using the same blocks for the synchronization.
-
-Let us denote the stored arrival times of blocks by \(t_1,t_2,...,t_n\) whose slot numbers are \(sl_1,sl_2,...,sl_n\), respectively. Remark that these slot numbers do not have to be consecutive since some slots may be empty, with multiple slot leaders or the slot leader is offline, late or early. After storing $n$ arrival times, $P_j$ sorts the following list \(\{t_1+a_1T, t_2+a_2T,..., t_n+a_nT_\}\) where $a_i = sl - sl_i$. Here, $sl$ is a slot number that $P_j$ wants to learn at what time it corresponds in his local time. At the end. $P_j$  outputs the median of the ordered list as ($t$) and $sl$. 
+```
+for i = 0 to n:
+    a_i = sl - sl_i
+    store t_i + a_i * T to lst
+lst = sort (lst)
+return median(lst)
+```
 
 ![](https://i.imgur.com/yGYw9CL.png)
 
 
+**Lemma 1:** Asuming that $\delta$ is the maximum network delay, the maximum difference between start time of a slot  \(sl' - sl \leq \delta\) with the median algorithm where $sl'$ the correct slot number of time $t$ with the probability $p_{cp}$. 
 
-**Lemma 1:** Asuming that $\D$ is the maximum network delay in terms of slot number and \(\alpha\gamma(1-c)^\D \geq (1+\epsilon)/2\)  where \(\alpha\) is the honest stake and $\gamma\alpha$ is the honest and synchronized parties' stake and $\epsilon \in (0,1)$,  \(sl' - sl \leq \D\) with the median algorithm where $sl'$ the correct slot number of time $t$ with probability 1 - \exp(\frac{\delta^2\mu}{2} where $0 < \delta \leq \frac{\epsilon}{1+\epsilon}$ and $\mu = n(1+\epsilon)/2$.
+**Proof Sketch:** Since all validators run the median algorithm with the arrival time of the same blocks, the difference between the output of the median algorithm of each validator differs at most $\delta$. 
 
-**Proof:** Let us first assume that more than half of the blocks among $n$ blocks are sent by the honest and synchronized parties and  $t = t_i + a_iT$. Then, it means that more than half of the blocks sent on time. If the block of $sl_i$ is sent by an honest and synchronized party, we can conclude it is sent at earliest at $t_i' \leq t_i - \D T$. In this case, the correct slot number $sl'$ at time $t$ is $sl_i + \lceil\frac{t-t_i'}{T}\rfloor = sl_i + \lceil\frac{t_i + a_iT - t_i'}{T}\rfloor$. If $\D T = 0$, sl' = sl, otherwise $sl' \geq sl_i + \lceil\frac{a_iT + \D T}{T}\rfloor = sl+\D$.
+**Lemma 1:** Assuming that the maximum total drift on clocks between sync-epochs is at most $\Sigma$ and $2\delta + 2|\Sigma| \leq \theta$, the maximum difference between the new start time of a slot $sl$ and the old start time of $sl$ is at most $\theta$.
 
-If the median does not corresponds to time derived from an honest and synchronized parties' block, we can say that there is at least one honest and synchronized time after the median because more than half of the times are honest and synchronized.  Let's denote this time by $t_u + a_uT$.  Let's assume that the latest honest one in the ordered list is delayed $\D' \leq \D$ slots. It means that if the median was this one, $sl_u' - sl \leq \D'$ as shown above where $sl_u'$ is the correct slot number of time $t_u + a_uT$. Clearly, $sl \leq sl_u'$. Then, we can conclude that $sl' - sl \leq sl_u' - sl \leq \D' \leq \D$.
+**Proof Sketch:** It comes from the fact the property that with $s_{sd}$ slot we can guarantee that majority of finalized blocks produced by honest parties. Becuase of this the selected block by the median algorithm should have been sent in a time compatiple with honest clocks. 
 
-Now, we show the probability of having more than half honest and synchronized blocks in $n$ blocks. If \(\alpha\gamma(1-c)^\D \geq (1+\epsilon)/2\), then the blocks of honest and synchronized parties are added to the best chain even if there are $\D$ slots delay (it is discussed in the proof of Theorem 2) with the probability more than $(1+\epsilon)/2$. We define a random variable $X_v \in \{0,1\}$ which is 1 if $t_v$ is the arrival time of an honest and synchronized block. Then the expected number of honest and synchronized blocks among $n$ blocks is $\mu = n(1+\epsilon)/2$. We bound this with the Chernoff bound:
-
-$$\mathsf{Pr}[ \sum_{v = 1}^n X_v \leq \mu(1-\delta)] \leq \exp(\frac{\delta^2\mu}{2}) $$
-
-Given that $0 < \delta \leq \frac{\epsilon}{1+\epsilon}$, $\mu(1-\delta) \geq n/2$, this probability should be negligibly small with a $\delta \approx 1$ in order to have more than half honest and synchronized blocks in $n$ slots.
-$$\tag*{\(\blacksquare\)}$$
-
-If $\epsilon \geq 0.1$ and $\delta = 0.09$, the probability of having less than half is less than $0.06$ if $n \geq 1200$.
-
-
-We give another algorithm called consistency algorithm below. This can be run after the median algorithm to verify or update $t$ later on.
-
-**- Consistency Algorithm:** Let us first define *lower consistent blocks*. Given consecutive blocks \(\{B'_1, B'_2,...,B'_n \in C\) if for each block pair \(B'_u\) and \(B'_v\) which belong to the slots \(sl_u\) and \(sl_v\) (\(sl_u < sl_v\)), respectively are lower consistent for a party \(P_j\), if they arrive on \(t_u\) and \(t_v\) such that \(sl_v - sl_u = \lfloor\frac{t_v - t_u}{T}\rfloor\). We call *upper consistent* if for all blocks \(sl_v - sl_u = \lceil\frac{t_v - t_u}{T}\rceil\). Whenever \(P_j\) receives at least \(k\) either upper or lower consistent blocks, it outputs $t$ and \(sl = sl_u + \lfloor\frac{t-t_u}{T}\rfloor\) where \(sl_u\) is the slot of one of the blocks in the block set.
-
-
-**Lemma 2:** Assuming that the network delay is at most \(\D\) and the honest parties' stake satisfies the condion in Theorem 2, \(P_j\)'s current slot is at most \(\D\)-behind or $2\D$ -behind of the correct slot $sl'$ at time $t$ (i.e., \(sl' - sl \leq \D\)).
-
-**Proof:** According to Theorem 2, there is at least one block honestly generated by an honest party in \(k\) slot with probability \(1 - e^{-\Omega(k)}\). Therefore, one of the blocks in the lower oe upper consistent blocks belong to an honest party. We do our proof with lower consistent block. The upper consistent one is similar. Let's denote $\hat{\D} = \D$ or $\hat{\D} = 2\D$ 
-
-If \(k\) blocks are lower consistent, then it means that all blocks are lower consistent with the honest block. 
-
-If \(P_j\) chooses the arrival time and slot number of this honest block, then \(sl \leq sl' - \hat{\D}\) because the honest parties' block must arrive to \(P_j\) at most \(\hat{\D}\)-slots later. Now, we need to show that if \(P_j\) chooses the arrival time of a different block which does not have to be produced by an honest and synchronized party, then he is still at most \(\D\)-behind.
-
-Assume that \(P_j\) picks \(sl_v > sl_u\) to compute $sl$ for $t$. We show that this computation is equal to \(sl = sl_u +\lfloor\frac{t - t_u}{T}\rfloor\). We know because of the lower consistency \(sl_v- sl_u = \lfloor\frac{t_v - t_u}{T}\rfloor\). $$sl = sl_v - \lfloor\frac{t_v - t_u}{T}\rfloor + \lfloor\frac{t - t_u}{T}\rfloor = sl_v + \lfloor\frac{t-t_v}{T}\rfloor$$
-
-So \(P_i\) is going to obtain the same \(sl\) and $t$ with all blocks. Similarly, if \(P_i\) picks \(sl_v < sl_u\), he obtains \(sl\)
-
-$$\tag*{\(\blacksquare\)}$$
-
-
-There are two drawbacks of this protocol. One of drawbacks is that a party may never have \(k\) consistent blocks if an adversary randomly delays some blocks. In this case, \(P_i\) may never has consistent blocks. The other drawback is that if the honest block in $k$-consistent block is not a synchronized party then consistency algorithm performs worse than the median. However, this protocol can be used after the median protocol to update or verify the slot number with the consistency algorithm.  If this party sees $k$-consistent blocks and the slot number $sl'$ obtained with the 
-the consistency algorithm is less than slot number obtained from the median protocol, he updates it with $sl'$.
-
-
+Having $\theta$ small enough is important not to slow down the block production mechanism a while after a sync-epoch. For example, (a very extreme example)  we do not want to end up with a new clock that says that we are in the year 2001 even if we are in 2019. In this case, validators may wait 18 years to execute an action that is supposed to be done in 2019. 
 
 ## 5. Security Analysis
 
