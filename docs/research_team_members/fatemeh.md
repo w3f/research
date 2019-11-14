@@ -3,12 +3,12 @@
 
 <img  align="right" src="https://i.imgur.com/nM6R0Pu.jpg" width="160" />
 
-
-At Web3 Foundation I work on a number of tasks:
+I am a researcher and team lead at Web3 Foundation, where I work on a number of tasks:
 
 * help design and coordinate W3F's research agenda
+* drive our outreach activites such as publications, presentations, and tutorials 
+* iniate and coordinate external academic collaborations
 * work on research challenges of Polkadot such as interoperability, networking, and auctions
-* coordinating our external academic collaborations
 * help with a research project aiming at designing a privacy-enhancing messaging service for decentralized applications
 
 **Research Areas**
