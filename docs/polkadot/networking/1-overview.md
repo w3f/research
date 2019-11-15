@@ -75,6 +75,16 @@ of message is sent, according to the subprotocol designs as of 2019 October:
 TODO: convert the below into a nicer-looking table, needs conversion away from
 markdown into something more powerful like reStructuredText.
 
+Key for notation:
+
+| symbol | meaning |
+| ------ | ------- |
+| --> | send, to specific recipient(s) |
+| ->> | send, to non-specific recipients |
+| >>> | gossip, to everyone eventually |
+| S:  | sender is the source of the message (this includes new messages derived from other data) |
+| F:  | sender is forwarding the message, received from someone else |
+
 - From users / light clients (subprotocol 1):
     - Users ->> Collator:
         - S  : P-transactions
@@ -92,6 +102,8 @@ markdown into something more powerful like reStructuredText.
 - Relay chain <-> parachain (subprotocol 3)
     - PValidators ->> Collator:
         - F  : R-blocks
+    - PValidators --> Validators:
+        - S  : PoV block, erasure coded pieces
     - Collator ->> PValidators:
         - SF : P-blocks
         - SF : P-block-PoV
@@ -100,8 +112,6 @@ markdown into something more powerful like reStructuredText.
     - Validators >>> Validators:
         - F  : R-transactions
         - SF : P-block-PoV-attestation-and-other-metadata ("candidate receipt")
-    - PValidators --> Validators:
-        - S  : PoV block, erasure coded pieces
 
 - Within the relay chain (subprotocol 4)
     - Validators >>> Validators:
@@ -113,16 +123,6 @@ markdown into something more powerful like reStructuredText.
         - F  : ICMP messages
     - Collator-1 ->> Collator-2:
         - S  : ICMP messages
-
-Key for notation:
-
-| symbol | meaning |
-| ------ | ------- |
-| --> | send, to specific recipient(s) |
-| ->> | send, to non-specific recipients |
-| >>> | gossip, to everyone eventually |
-| S:  | sender is the source of the message (this includes new messages derived from other data) |
-| F:  | sender is forwarding the message, received from someone else |
 
 ## Message keys and sizes
 
