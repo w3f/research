@@ -1,6 +1,6 @@
 ====================================================================
 
-**Authors**: Fatemeh Shirazi, Rob Habermeier
+**Authors**: Fatemeh Shirazi, Rob Habermeier, Ximin Luo
 
 **Last updated**: 24.09.2019
 
