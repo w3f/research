@@ -22,9 +22,10 @@ First let's recap the different entity types:
   (relating to validity) are part of Polkadot's rules, but how collation is
   done is chosen autonomously by the parachain.
 
-- Validator - these belong to the relay chain and follow Polkadot's rules. Distinct subsets of validators are also assigned to specific parachains in order to validate
-  those chains, and then we refer to them as a "parachain validator". They also
-  collate transactions submitted to the relay chain.
+- Validator - these belong to the relay chain and follow Polkadot's rules.
+  Distinct subsets of validators are also assigned to specific parachains in
+  order to validate those chains, and then we refer to them as a "parachain
+  validator". They also collate transactions submitted to the relay chain.
 
 Next, we have several subprotocols between these entities, each serving one
 abstract part of the process of executing transactions:
@@ -36,17 +37,17 @@ abstract part of the process of executing transactions:
    the internals of which are outside the scope of Polkadot, chosen by each
    parachain for themselves.
 
-3. Parachain block attestation: collators also generate additional data (called PoV) and
-   pass this to the parachain validators. The ultimate aim of the PoV is for
+3. Parachain block attestation: collators also generate additional proof-data
+   and pass this to the parachain validators. The ultimate aim of this is for
    the parachain validators to efficiently check that every parachain block
-   satisfies the parachain validation function. To generate the PoV, the
+   satisfies the parachain validation function. To generate the proof-data, the
    collators also need data from the relay chain, sent back by the parachain
    validators in an earlier stage of this process.
 
 4. Relay-chain protocols: parachain validators attest to the validity of any
    parachain blocks they have been sent, and distribute these attestations to
-   the other validators. Then validators (that might have been assigned to any parachain) collate attested blocks plus relay chain
-   transactions into a relay chain block, and finalise the block.
+   the other validators. Then all the validators collate attested blocks plus
+   relay chain transactions into a relay chain block, and finalise the block.
 
 5. Inter-chain messaging: after a relay chain block is finalised and this fact
    is communicated back to the parachains, they check if these blocks contain
