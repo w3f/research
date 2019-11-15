@@ -1,0 +1,8 @@
+========
+Slashing
+========
+
+.. toctree::
+   :glob:
+
+   slashing/*
