@@ -1,6 +1,6 @@
 ====================================================================
 
-**Authors**: Fatemeh Shirazi, Rob Habermeier
+**Authors**: Fatemeh Shirazi, Rob Habermeier, Ximin Luo
 
 **Last updated**: 24.09.2019
 
@@ -11,68 +11,154 @@
 
 ## Overview
 
-In Polkadot we need to send a number of messages to a number of entities. Below we give an overview of where and how each type of message is sent. The column *Nets* refers to the networks where a type of message is traversing and the column *Mode* refers to the type of  routing. The column *Static DHT Prefixes* refers to the DHT prefixes of the receivers if we use a one DHT for all and use prefixes to separate sub-networks.
+In Polkadot we need to send a number of messages to a number of entities.
+First let's recap the different entity types:
 
-We use gossiping mainly when the message type is small. For example, GRANDPA votes and attestation are very small. For bigger data structures we need to either use bloom filters or use direct routing.
+- User - create and submit transactions to parachains or the relay chain.
 
-**Nets**:
+- Collator - these belong to a specific parachain. They collate parachain
+  transactions into blocks, generate proofs-of-validity and propose them to
+  parachain validators as candidates for the next block. The latter two tasks
+  (relating to validity) are part of Polkadot's rules, but how collation is
+  done is chosen autonomously by the parachain.
 
-$PC$ = Parachain Collator and parachain full nodes
+- Validator - these belong to the relay chain and follow Polkadot's rules.
+  Distinct subsets of validators are also assigned to specific parachains in
+  order to validate those chains, and then we refer to them as a "parachain
+  validator". They also collate transactions submitted to the relay chain.
 
-$PV$= Parachain Validators
+Next, we have several subprotocols between these entities, each serving one
+abstract part of the process of executing transactions:
 
-$V$ = Validator and relay chain full nodes (->Validator Network ID on chain)
+1. Transaction submission - users find the relevant entities to contact for
+   submitting a transaction, and submit them if they are reachable.
 
-**Mode**:
+2. Parachain collation - parachain collators collect transactions into blocks,
+   the internals of which are outside the scope of Polkadot, chosen by each
+   parachain for themselves.
 
-$D$ = Direct transfer
+3. Parachain block attestation: collators also generate additional proof-data
+   and pass this to the parachain validators. The ultimate aim of this is for
+   the parachain validators to efficiently check that every parachain block
+   satisfies the parachain validation function. To generate the proof-data, the
+   collators also need data from the relay chain, sent back by the parachain
+   validators in an earlier stage of this process.
 
-$G$ = Gossip
+4. Relay-chain protocols: parachain validators attest to the validity of any
+   parachain blocks they have been sent, and distribute these attestations to
+   the other validators. Then all the validators collate attested blocks plus
+   relay chain transactions into a relay chain block, and finalise the block.
 
-$B$ = Big / Bloomfiltered
+5. Inter-chain messaging: after a relay chain block is finalised and this fact
+   is communicated back to the parachains, they check if these blocks contain
+   new messages from other parachains, and retrieve and react them if so.
 
-$R$ = Receving e.g., $PC_{R}$ refers to the receiving parachain's collators and full nodes
+6. Parachain synchronisation: when a collator becomes connected for the first
+   time or after being disconnected for a long time, it must retrieve and
+   validate the latest state of the parachain, including transactions submitted
+   in the interim and information about the latest state of the relay chain.
 
-$S$ = Sending e.g., $PC_{S}$ refers to the sending parachain's collators and full nodes
+7. Relay-chain synchronisation: when validator becomes connected for the first
+   time or after being disconnected for a long time, it must retrieve and
+   validate the latest state of the relay chain, including transactions
+   submitted in the interim.
 
-\* should soon change gossiping into direct routing
+Details have been abstracted away in the descriptions above, in an effort to
+remain valid even if those details change. At the time of writing, subprotocols
+(3-5) and 7 are, and are expected to remain, the largest and most complex
+components that the Polkadot networking layer needs to be able to serve.
 
-| Message type              | Nets        | Mode      | Static DHT Prefixes|
-| ----------------- | ----------- | --------- |-----|
-| Parachain TXs     | $PC$          | $G$        |Depends on Parachain|
-| PoV block         | $PC$ + $PV$    | $D$         |-|
-| Parachain Block   | $PC$ + $PV$     | $G$:$PC$, $D$:$PV$  |$P_0$,...,$P_n$|
-| Attestations      | $V$           | $G$        |$V$|
-| Relay chain TXs   | $V$           | $G$         |$V$|
-| Relay chain block | $PC$ + $V$       | $G^B$        |General|
-| Messages         | $PC_{R + S}$ | $G$ (fallback->D:$PV_{R}$ request $PV_{S}$ and then uses G at $PC_{R}$ to spread them, second fallback->D: $PV_{R}$ recover messages from erasure codes obtained from V and use G at $PC_{R}$ to spread them)         |V|
-| Erasure coded    | $V$           | $G^*$         |$V$|
-| GRANDPA Votes     | $V$           | $G$        |$V$|
+## Message types
 
+Below we give a more precise and detailed overview of where and how each type
+of message is sent, according to the subprotocol designs as of 2019 October:
 
-## Critical Paths for Networking
+TODO: convert the below into a nicer-looking table, needs conversion away from
+markdown into something more powerful like reStructuredText.
 
-We have two important goals: a) inclusion of parachain blocks (PBlocks) in Relay chain, and b) Relay chain blocks (RBlocks) get finalized.
+Key for notation:
 
-The critical networking for reaching these goals are in order as follows.
+| symbol | meaning |
+| ------ | ------- |
+| --> | send, to specific recipient(s) |
+| ->> | send, to non-specific recipients |
+| >>> | gossip, to everyone eventually |
+| S:  | sender is the source of the message (this includes new messages derived from other data) |
+| F:  | sender is forwarding the message, received from someone else |
 
-### a) PBlock gets included on Relay chain
+- From users / light clients (subprotocol 1):
+    - Users ->> Collator:
+        - S  : P-transactions
+    - Users ->> Validators:
+        - S  : R-transactions
 
-1. Validators $\xrightarrow[]{\text{latest RBlock}}$ Collator: G and Syncing
-2. Collator $\xrightarrow[]{\text{included PBlock}}$ Collator: G and Syncing
-3. Collator/PV $\xrightarrow[]{\text{Messages}}$ Collators(of receving parachain): G and Direct requesting (see below for more details on Interchain Messaging)
-4. Collator $\xrightarrow[]{\text{PoV Block}}$ PValidator(of receving parachain): Advertise and Direct sending
-5. PValidator $\xrightarrow[]{\text{Attestations+PBlock Header}}$ Validators: G
+- Within a parachain (subprotocol 2):
+    - Collators >>> Collators:
+        - F  : R-blocks
+        - F  : P-transactions
+        - SF : P-blocks
+        - SF : P-block-PoV
+    - note: gossip protocol details chosen by the parachain, not polkadot
 
+- Relay chain <-> parachain (subprotocol 3)
+    - PValidators ->> Collator:
+        - F  : R-blocks
+    - PValidators --> Validators:
+        - S  : PoV block, erasure coded pieces
+    - Collator ->> PValidators:
+        - SF : P-blocks
+        - SF : P-block-PoV
 
-### b) RBlocks get Finalized
+- Within the relay chain (subprotocol 3)
+    - Validators >>> Validators:
+        - F  : R-transactions
+        - SF : P-block-PoV-attestation-and-other-metadata ("candidate receipt")
 
-1. Validator $\xrightarrow[]{\text{PoV Block erasure-coded pieces}}$ Validators: Direct sending
-2. Collators/Fishermen/Validators $\xrightarrow[\text{Post-inclusion claims}]{\text{TXs}}$ Validators: G
+- Within the relay chain (subprotocol 4)
+    - Validators >>> Validators:
+        - SF : R-blocks
+        - SF : GRANDPA votes
 
-3. PValidators or Validators $\xrightarrow[]{\text{PoV Blocks}}$ Validators: G, Direct sending
-4. Validators$\xrightarrow[]{\text{GRANDPA Votes}}$ Validators: G
+- Between different parachains (subprotocol 5)
+    - PValidator-1 ->> Collator-2:
+        - F  : ICMP messages
+    - Collator-1 ->> Collator-2:
+        - S  : ICMP messages
 
+## Message keys and sizes
+
+The following message types are expected to be arbitrarily-large in size and
+not suitable to be sent directly in a single transmission:
+
+- P-block? (~1 MB)
+- P-block-PoV (~10 MB)
+- R-block (~1 MB)
+
+All other message types are expected to be fairly small (<10 KB) and are
+suitable to be sent in a single transmission (even if the physical network
+performs fragmentation).
+
+It may be beneficial to break these messages types up into chunks, or at the
+very least they must be sent down a different stream so that they do not block
+smaller message types, which tend to be more urgent.
+
+The following message types are expected to contain an arbitrary number of
+members and not be keyable to an indexable structure (e.g. blocks in a chain
+can be keyed by height, pieces of an erasure coding can be keyed by x-coord):
+
+- P-transactions
+- R-transactions
+- ICMP messages
+
+In order to deduplicate them while gossiping, a more formal or rigorous
+set-reconciliation protocol will be needed, perhaps involving bloom filters.
+
+TODO: consider the above issues and propose something concrete
+
+## Peer Discovery
+
+TODO: entities from different sources/groups (e.g. parachain vs relay chain)
+might need their own prefixes in the DHT.
 
 ## Bounded Gossip Protocols
 
@@ -86,7 +172,6 @@ We have the following requirements for nodes:
 
   1. Nodes never have to consider an unbounded number of gossip messages. The gossip messages they are willing to consider should be determined by some state sent to peers.
   2. The work a node has to do to figure out if one of its peers will accept a message should be relatively small
-
 
 A bounded gossip system is one where nodes have a filtration mechanism for incoming packets that can be communicated to peers.
 
