@@ -21,4 +21,4 @@ Contact with: handan@web3.foundation, alistair@web3.foundation
     margin-right: 0em;
 }
 </style>
-<iframe src="../../web/viewer.html?file=../pdf/availability_validity/main.pdf" width="100%" height="650em"></iframe>
+<iframe src="../_static/pdfview/viewer.html?file=../pdf/availability_validity/main.pdf" width="100%" height="650em"></iframe>
