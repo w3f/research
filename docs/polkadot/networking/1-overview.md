@@ -127,12 +127,16 @@ Key for notation:
 
 ## Message keys and sizes
 
-The following message types are expected to be arbitrary in size and not
-suitable to be sent directly in a single transmission:
+The following message types are expected to be arbitrarily-large in size and
+not suitable to be sent directly in a single transmission:
 
-- P-block?
-- P-block-PoV
-- R-block
+- P-block? (~1 MB)
+- P-block-PoV (~10 MB)
+- R-block (~1 MB)
+
+All other message types are expected to be fairly small (<10 KB) and are
+suitable to be sent in a single transmission (even if the physical network
+performs fragmentation).
 
 It may be beneficial to break these messages types up into chunks, or at the
 very least they must be sent down a different stream so that they do not block
