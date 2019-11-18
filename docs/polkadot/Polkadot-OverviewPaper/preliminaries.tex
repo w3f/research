@@ -1,4 +1,6 @@
-\section{Adversarial Model of Polkadot}
+\section{Preliminaries}
+
+\subsection{Adversarial Model of Polkadot}
 
 \paragraph{Rationality:} In Polkadot, we assume that adversaries have a rational economic incentive. Informally, it means that they attack to Polkadot if and only if their attack gain is greater or equal than/to the attack loss. 
 
@@ -10,3 +12,6 @@ The adversarial assumption on collators depends on the parachain type. If the pa
 
 \paragraph{Network and Communication:} All validators have their local clock. We do not rely on any central clock in Polkadot. We assume that the network of validators and collators is partially synchronous. It means that a message sent by a validator or collator arrives at all parties in the network at most $\D$ times later where $\D$ is an unknown parameter. So, we assume an eventual delivery in Polkadot.
 We also assume that collators and fishermen can connect to the relay chain network to submit their reports.
+
+\subsection{Roles}
+
