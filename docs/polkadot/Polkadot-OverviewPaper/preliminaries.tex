@@ -2,10 +2,10 @@
 
 \subsection{Adversarial Model of Polkadot}
 
-\paragraph{Rationality:} In Polkadot, we assume that adversaries have a rational economic incentive. Informally, it means that they attack to Polkadot if and only if their attack gain is greater or equal than/to the attack loss. 
+\paragraph{Rationality:} In Polkadot, we assume that adversaries have a rational economic incentive. Informally, it means that they attack to Polkadot if and only if their attack gain is greater or equal than/to the attack loss.
 
-\paragraph{Adversarial Power:} The computational power of adversaries in Polkadot is polynomially bounded.  We do not have any limitation on adversarial collaborations between parties in Polkadot which are validators, nominators, collators, and fishermen. However, we assume at most $\frac{1}{3}$ of the total stake by nominators and validators can belong to malicious validators and nominators. 
-We similarly assume that at most quarter of selected validators for an era can be malicious while we do not have a limitation on parachain validators of a parachain e.g., all can be malicious.  
+\paragraph{Adversarial Power:} The computational power of adversaries in Polkadot is polynomially bounded.  We do not have any limitation on adversarial collaborations between parties in Polkadot which are validators, nominators, collators, and fishermen. However, we assume at most $\frac{1}{3}$ of the total stake by nominators and validators can belong to malicious validators and nominators.
+We similarly assume that at most quarter of selected validators for an era can be malicious while we do not have a limitation on parachain validators of a parachain e.g., all can be malicious.
 The adversarial assumption on collators depends on the parachain type. If the parachain is private, we assume that there is at least one honest collator. Otherwise, we assume that at least the majority of collators are honest.
 
 \paragraph{Keys:} We assume that malicious parties generate their keys with an arbitrary algorithm while honest ones always generate their keys securely.
@@ -14,4 +14,10 @@ The adversarial assumption on collators depends on the parachain type. If the pa
 We also assume that collators and fishermen can connect to the relay chain network to submit their reports.
 
 \subsection{Roles}
-
+A fixed set of actors called \emph{Validators} are responsible to maintain the relay chain.
+These validators need to vote on the consensus over all the parachains.
+The security goal of Polkadot is to be Byzantine fault tolerant.
+In addition, the validators are assigned to parachain by dividing the validators set into
+random disjoint subsets that are each assigned to a particular parachain.
+For the parachain, there are additional actors called collators and fishermen that are
+responsible for parachain block production and reporting invalid parachain blocks respectively.
