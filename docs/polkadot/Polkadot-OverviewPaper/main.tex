@@ -1,7 +1,7 @@
 \documentclass{article}
 %=================Begin:Packages===================
 \usepackage{graphicx}
-
+\usepackage{enumitem}
 %Please add your packages here
 %=================End:Packages===================
 
@@ -37,14 +37,27 @@
 
 \title{Overview of Polkadot Design}
 
-\author{}
+\author{
+  Jeff Brudges, Alfonso Cevallos, Rob Habermeier\\
+  \and
+  Syed Hosseini, Handan Kilinc Alper, Ximin Luo\\
+  \and
+  Fatemeh Shirazi, Alistair Stewart, Sergey Vasilyev\\
+  \and
+  Gavin Wood\\
+  \and \\
+  \texttt{firstname@web3.foundation},
+  \texttt{firstname@parity.io}
+}
+
+
 
 \begin{document}
 
 \maketitle
 
 \begin{abstract}
-In this paper we descr ibe the design components of the heterogenous multi-chain Polkadot.
+In this paper we describe the design components of the heterogenous multi-chain Polkadot.
 We review the properties that Polkadot aims to achieve and go over all the components that are designed to achieve those properties.
 
 \end{abstract}
@@ -57,6 +70,9 @@ We review the properties that Polkadot aims to achieve and go over all the compo
  \input{adv_model}
 \input{components}
 \input{summary}
+
+\section*{Acknowledgement}
+We would like to acknowledge Parity Technology developers for their useful input and good discussions.
 
 \begin{appendix}
 \input{background}
