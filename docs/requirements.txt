@@ -1,0 +1,3 @@
+sphinxcontrib-fulltoc
+sphinx-math-dollar
+sphinx-markdown-tables
