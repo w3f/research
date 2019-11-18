@@ -14,7 +14,9 @@ Blockchains are one of technologies who address this problem.
 In order to make the decentralized web usable for end users these separate blockchains need to interact, otherwise each will become isolated and not adopted by as many users, and the sum functionality of the system will be insufficient to compete with the centralized web.
 However, to interact different chains need to build in interoperability mechanisms, which introduces challenges.
 
-Many of these challenges arise from the ways that different blockchains have different technical characteristics. For example, Bitcoin and Ethereum are proof-of-work (PoW) blockchains where preventing the control of the whole system by one entity is carried out by introducing challenges that need a large amount of processing power to solve. Their security relies on whether this amount of processing power exceeds the amount of processing power any single entity would possibly have. An alternative to PoW are proof-of-stake (PoS) systems, where the entities who control the system have to lock a large amount of funds and would be punished if they misbehave in any way. The security relies on the fact that the total amount of locked funds exceeds the budget any adversary is able to invest in the attack. These technical differences present difficulties for one blockchain to be able to trust another.
+Many of these challenges arise from the ways that different blockchains have different technical characteristics. For example, Bitcoin and Ethereum are proof-of-work (PoW) blockchains where preventing the control of the whole system by one entity is carried out by introducing challenges that need a large amount of processing power to solve. Their security relies on whether this amount of processing power exceeds the amount of processing power any single entity would possibly have. An alternative to PoW are proof-of-stake (PoS) systems, where the entities who control the system have to lock a large amount of funds and would be punished if they misbehave in any way.
+The security relies on the fact that the total amount of locked funds exceeds the budget any adversary is able to invest in the attack.
+These technical differences present difficulties for one blockchain to be able to trust another.
 
 Currently there have been hundreds chains implemented in the wild for various functions.
 For example, ....
@@ -22,8 +24,12 @@ Most one of these systems have different properties they aim to achieve and cert
 Moreover, having multiple security set ups causes a split in the security these systems can provide.
 Gathering all this security power and have a shared security system increases security substantially.
 
-SUMMARY POLKADOT
-
-\subsection{Background: System Overview}
-- state machine
-- data structures
+In this paper we introduce Polkadot, a multi-chain system with shared security guarantees.
+Polkadot consists of a main chain called the \emph{Relay Chain} and multiple parallel chains called \emph{Parachains}.
+A fixed set of actors called \emph{Validators} are responsible to maintain the relay chain.
+These validators need to vote on the consensus over all the parachains.
+The security goal of Polkadot is to be Byzantine fault tolerant.
+In addition, the validators are assigned to parachain by dividing the validators set into
+random disjoint subsets that are each assigned to a particular parachain.
+For the parachain, there are additional actors called collators and fishermen that are
+responsible for parachain block production and reporting invalid parachain blocks respectively.
