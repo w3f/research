@@ -39,8 +39,13 @@ jobs:
 
             pylinkvalidate.py --parser=html5lib -P http://localhost:8000
 
+      - run:
+          name: compress build dir
+          command: |
+            tar -zcvf site.tar.gz ~/project/_build/html
+
       - store_artifacts:
-          path: ~/project/_build
+          path: ~/project/site.tar.gz
 
 workflows:
   version: 2
