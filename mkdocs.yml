@@ -39,6 +39,9 @@ extra:
     - type: 'medium'
       link: 'https://medium.com/web3foundation'
   news:
+    - "20.11.19: Some members of the research and HR teams will present a recruitment talk for masters and PhD students at EPFL, Switzerland."
+    - "12.11.19: Alistair presented a poster session about the Grandpa finality gadget at the  Conference on Computer and Communications Security (CSS) in London."
+    - "08.11.19: Alfonso and Syed hosted a 3 hour Thinktank session about Polkadot in Paris, organized by LaBChain and hosted by Caisse des Dépôts."
     - "30.10.19: Fatemeh gave a talk titled 'Decentralization and privacy' and Alfonso gave a talk introducing Polkadot's at a Web3 meetup." 
     - "12.10.19: Alistair will be participating in panel at an event on cross-app communication organized by Near protocol right after Devcon 5."
     - "09.10.19: At Devcon day 1, Fatemeh will give a short presentation about Polkadot's needs for p2p. On day 4, Alistair will give a devcon talk on our availabiltiy and validity scheme. Also on day 4, Alfonso will give a short presentation about governenace."
