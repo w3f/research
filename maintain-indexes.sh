@@ -3,7 +3,7 @@
 
 for dir in $(find docs -mindepth 1 -type d); do
   case $dir in
-    */_templates|*/images|*/images/*|*/pdf|*/pdf/*|*/stylesheets) continue;;
+    */_static|*/_static/*|*/_templates|*/_templates/*|*/images|*/images/*) continue;;
     *)
       if [ -f "$dir/main.tex" ]; then
         continue
@@ -13,7 +13,13 @@ for dir in $(find docs -mindepth 1 -type d); do
         if [ "$x" = "y" -o "$x" = "Y" ]; then
           if [ -f "$dir/index.md" ]; then
             nameindex="$(printf "%s/index\n   " "$name")"
+            namerefresh='.. raw:: html
+
+   <meta http-equiv="refresh" content="0; url=./'"${name}"'/index.html">
+
+'
           else
+            namerefresh=""
             nameindex=""
           fi
           titlebar="$(echo "$name" | sed s/./=/g)"
@@ -22,7 +28,7 @@ $titlebar
 $name
 $titlebar
 
-.. toctree::
+${namerefresh}.. toctree::
    :glob:
 
    ${nameindex}$name/*
