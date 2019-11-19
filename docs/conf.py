@@ -34,8 +34,6 @@ extensions = [
 
 templates_path = ['_templates']
 
-source_suffix = ['.rst', '.md']
-
 master_doc = 'index'
 
 
@@ -72,7 +70,6 @@ intersphinx_mapping = {'https://docs.python.org/': None}
 todo_include_todos = True
 
 from sphinx_markdown_parser.parser import MarkdownParser
-
 
 def setup(app):
     app.add_source_suffix('.md', 'markdown')
