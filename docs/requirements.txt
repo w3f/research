@@ -1,4 +1,3 @@
 sphinxcontrib-fulltoc
-sphinx-math-dollar
 sphinx-markdown-parser
 pymdown-extensions

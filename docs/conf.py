@@ -29,7 +29,6 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.githubpages',
     'sphinxcontrib.fulltoc',
-    'sphinx_math_dollar',
 ]
 
 templates_path = ['_templates']
@@ -75,5 +74,8 @@ def setup(app):
     app.add_source_suffix('.md', 'markdown')
     app.add_source_parser(MarkdownParser)
     app.add_config_value('markdown_parser_config', {
-        'extensions': ['pymdownx.arithmatex'],
+        'extensions': [
+            'extra',
+            'pymdownx.arithmatex'
+        ],
     }, True)
