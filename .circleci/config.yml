@@ -15,7 +15,8 @@ jobs:
 
             source bin/activate
 
-            pip install sphinx sphinxcontrib-fulltoc sphinx-math-dollar sphinx-markdown-tables recommonmark sphinx-serve
+            pip install sphinx sphinx-serve
+            pip install -r docs/requirements.txt
 
             sphinx-build -b html docs _build/html
       - run:

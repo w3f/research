@@ -29,17 +29,12 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.githubpages',
     'sphinxcontrib.fulltoc',
-    'sphinx_markdown_tables',
     'sphinx_math_dollar',
 ]
 
 templates_path = ['_templates']
 
 source_suffix = ['.rst', '.md']
-
-source_parsers = {
-   '.md': 'recommonmark.parser.CommonMarkParser',
-}
 
 master_doc = 'index'
 
@@ -75,3 +70,13 @@ intersphinx_mapping = {'https://docs.python.org/': None}
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
+
+from sphinx_markdown_parser.parser import MarkdownParser
+
+
+def setup(app):
+    app.add_source_suffix('.md', 'markdown')
+    app.add_source_parser(MarkdownParser)
+    app.add_config_value('markdown_parser_config', {
+        'extensions': ['pymdownx.arithmatex'],
+    }, True)
