@@ -178,7 +178,7 @@ We identify four resources which can be consumed when processing a tx:
 * Memory: amount of memory it takes when processing,
 * State: amount of state storage increase it induces.
 
-Notice that unlike the other three resources which are consumed only once, state storage has a permanent cost over the network. Hence for state storage we could have rent or other Runtime mechanisms, to better match fees with the true cost of a tx, and ensure the state size remains bounded. This needs further consideration.
+Notice that unlike the other three resources which are consumed only once, state storage has a permanent cost over the network. Hence for state storage we could have rent or other Runtime mechanisms, to better match fees with the true cost of a tx, and ensure the state size remains bounded. This needs further consideration. We could also consider a mechanism that doesn't impose a hard limit on state increase but rather controls it via fees; however we prefer to add a limit for soundness, in order to avoid edge cases where the state grows out of control.
 
 **Adjustable parameters.** For the time being, we suggest the following limits on resource usage when processing a block. These parameters are to be further adjusted via governance based on real-life data or more sophisticated mechanisms. 
 
@@ -187,13 +187,15 @@ Notice that unlike the other three resources which are consumed only once, state
 * Memory: 10 GB
 * State: 1 MB increase 
 
-Each tx consumes some amount of these resources depending on its type, input arguments, and current state. Consequently we will classify transactions based on these parameters, and run tests to examine their typical resource usage. For simplicity, we decided to perform the analysis for the worst-case state for each transaction type, and make resource usage depend only on transaction type and input. We also don't inspect the precise input arguments but only look at their byte length.
+In principle, a tx consumes some amount of the last three resources depending on its length, type, input arguments, and current state. However, for simplicity we decided to consider, for each transaction type, only the worst-case state, and only the byte length of its input arguments. Consequently, we classify transactions based on length, type and argument length, and run tests (based on worst-case state) to examine their typical resource usage. 
 
-To simplify our model further, we define a tx *weight* as a parameter that captures the time, memory and state resources of a tx. Specifically, we define a tx weight as the *max* of its typical time, memory and state usage, each measured as a fraction of the corresponding block limit. Then, given a collection of txs, we will sum up their lengths on one hand, and their weights on the other hand, and we will allow them within the same block only if both limits are respected. This is a hard constraint on resource usage which must be respected in each block.
+For the time being, we are considering a model where every transaction within a block is processed in sequence. So, in order to ensure the block memory bound above, it is sufficient to ensure that each tx observes the memory bound. We make sure this is the case. However, in the future we may consider parallelism. 
+
+To simplify our model further, we define a tx *weight* as a parameter that captures the time usage and state increase of a tx. Specifically, we define a tx weight as the *max* of its typical time and state usage, each measured as a fraction of the corresponding block limit. Then, given a collection of txs, we will sum up their lengths on one hand, and their weights on the other hand, and we will allow them within the same block only if both limits are respected. This is a hard constraint on resource usage which must be respected in each block.
 
 We add a further constraint on resource usage. We distinguish between "normal" txs and "operational" txs, where the latter type corresponds to high-priority txs such a fisherman reports. A collection of normal txs is allowed within the same block only if both their sum of lengths and their sum of weights are below 75% of the respective limits. This is to ensure that each block has a guaranteed space for operational txs (at least 25% of resources). 
 
-**Details about establishing typical resource usage for txs.** Length is easy to determine by inspection. For time and memory usage, we prepare the chain with the worst case state (the state for which the time and memory requirements to import this tx type should be the largest). We generate 10k transactions for a given transaction type with input which should take the longest to import for that state, and we measure the mean and standard deviation for the resource usage with the Wasm environment. If the standard deviation is greater than 10% of the mean, we increase the sample space above 10k. Finally, state increase is by inspection, based on worst cases for a large sample of txs.
+**Details about establishing typical resource usage for txs.** Length is easy to determine by inspection. For time and memory usage, we prepare the chain with the worst-case state (the state for which the time and memory requirements to import this tx type should be the largest). We generate 10k transactions for a given transaction type with input which should take the longest to import for that state, and we measure the mean and standard deviation for the resource usage with the Wasm environment. If the standard deviation is greater than 10% of the mean, we increase the sample space above 10k. Finally, state increase is by inspection, based on worst cases for a large sample of txs.
 
 
 ### Setting transaction fees
@@ -204,11 +206,11 @@ As mentioned earlier, part of the tx fee needs to go to the block producer, to i
 
 A transaction fee tx is computed as follows:
 
-$$fee(tx) = c_{traffic} \cdot length(tx) + type(tx)\cdot weight(tx),$$
+$$fee(tx) = c_{traffic} \cdot \Big[ base_fee + type(tx)\cdot length(tx) + weight(tx)\Big],$$
 
-where $c_{traffic}$ is a parameter independent from the transaction, that evolves over time depending on the network traffic; we explain this parameter in the next subsection. Parameter $type(tx)$ depends on the transaction type only, and should be large enough so that, even in the edge case where $c_{traffic}=0$, the fee is large enough to cover the operational costs of the block producer. Further analysis is needed to establish the best value of this parameter practically.
+where $c_{traffic}$ is a parameter independent from the transaction, that evolves over time depending on the network traffic; we explain this parameter in the next subsection. Parameter $type(tx)$ depends on the transaction type only; in particular for operational transactions, we currently set $type(tx)$ to zero.
 
-Intuitively, the second term $type(tx)\cdot weight(tx)$ covers the processing cost of the block producer, while the first term $c_{traffic} \cdot length(tx)$ covers the opportunity cost of processing one transaction instead of another one. When there is little traffic, the first term will be negligible, but as the traffic increases the first term will increase as well.
+Intuitively, the term $weight(tx)$ covers the processing cost of the block producer, while the term $type(tx) \cdot length(tx)$ covers the opportunity cost of processing one transaction instead of another one in a block. 
 
 ### Adjustment of fees over time
 
@@ -226,7 +228,7 @@ Recall that we set a hard limit on the sum of lengths and weights of all transac
 
 $$s(B):=\max\{\frac{\sum_{\text{normal } tx \in B} length(tx)}{\text{normal length limit}}, \frac{\sum_{\text{normal } tx \in B} weight(tx)}{\text{normal weight limit}}\},$$
 
-where the normal length limit (the block length limit on normal transactions) is 75% of the global length limit, and the normal weight limit is 75% of the global weight limit. 
+where the normal length limit (the block length limit on normal transactions) is 75% of the overall length limit, and the normal weight limit is 75% of the overall weight limit. 
 
 **Adjustable parameter** Let \(s^*\) be our target block saturation level. This is our desired long-term average of the block saturation level (relative to normal txs). We originally suggest \(s^*=0.25\), so that blocks are 25% full on average and the system can handle sudden spikes of up to 4x the average volume of normal transactions. This parameter can be adjusted depending on the observed volumes during spikes compared to average volumes, and in general it provides a trade-off between higher average fees and longer transaction inclusion times during spikes.
 
