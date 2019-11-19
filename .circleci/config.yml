@@ -3,7 +3,7 @@ version: 2
 jobs:
   tests:
     docker:
-      - image: python:3.8-slim-buster
+      - image: python:3.8-buster
     steps:
       - checkout
       - run:
@@ -17,6 +17,9 @@ jobs:
 
             pip install sphinx sphinx-serve
             pip install -r docs/requirements.txt
+            apt install git
+            git clone https://github.com/infinity0/sphinx-markdown-parser -b no_pandoc
+            ( cd sphinx-markdown-parser && pip install . )
 
             sphinx-build -b html docs _build/html
       - run:
