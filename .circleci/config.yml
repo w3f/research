@@ -39,6 +39,8 @@ jobs:
 
             pylinkvalidate.py --parser=html5lib -P http://localhost:8000
 
+      - store_artifacts:
+          path: ~/project/_build
 
 workflows:
   version: 2
