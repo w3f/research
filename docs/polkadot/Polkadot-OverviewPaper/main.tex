@@ -1,8 +1,8 @@
 \documentclass{article}
 %=================Begin:Packages===================
 \usepackage{graphicx}
-
-%Please add your packages here
+\usepackage{enumitem}
+\usepackage{url}
 %=================End:Packages===================
 
 %=================Begin:Macros===================
@@ -37,7 +37,22 @@
 
 \title{Overview of Polkadot Design}
 
-\author{}
+\author{
+  Jeff Brudges$^*$, Alfonso Cevallos$^*$, Peter Czaban$^*$\\
+  \and
+  Rob Habermeier, Syed Hosseini$^*$, Handan Kilinc Alper$^*$\\
+  \and
+  Ximin Luo$^*$, Fatemeh Shirazi$^*$, Alistair Stewart$^*$, Sergey Vasilyev$^*$\\
+  \and
+  Gavin Wood\\
+  \\
+  \texttt{$^*$ Web3 Foundation},\\
+  \texttt{Parity Technologies}
+%  \texttt{firstname@web3.foundation},
+%\texttt{firstname@parity.io}
+}
+
+
 
 \begin{document}
 
@@ -45,20 +60,25 @@
 
 \begin{abstract}
 In this paper we describe the design components of the heterogenous multi-chain Polkadot.
-
 We review the properties that Polkadot aims to achieve and go over all the components that are designed to achieve those properties.
 
 \end{abstract}
 
-\newpage
+%\newpage
 \tableofcontents
 \newpage
 \input{introduction}
-\input{background}
 \input{properties}
- \input{adv_model}
+ \input{preliminaries}
 \input{components}
-\input{summary}
+%\input{PolkadotInPractice}
+
+\section*{Acknowledgement}
+We would like to acknowledge Parity Technology developers for their useful input and good discussions.
+
+\begin{appendix}
+\input{background}
+\end{appendix}
 \bibliographystyle{plain}
-%\bibliography{references,crypto}
+\bibliography{references,crypto}
 \end{document}

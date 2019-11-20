@@ -1,16 +1,29 @@
 \section{Introduction}
-Say something in line with: blockchain are valuable technologies because...
+Until recently most of the applications on the web were controlled in a centralized fashion.
+We refer not to the centralization of physical infrastructure, which is often economically efficient, but rather to the logical centralization of the ability to deploy, take down, alter, and change the rules of the application.
+Two good examples are Google and Facebook: while they do have servers all around the world, they are each ultimately controlled by a single legal entity.
+
+Giving a central entity control over a system comes with risks for users and application developers.
+The central entity can stop the service at any moment, can sell users' data depending on the jurisdictions they provide service to, and manipulate how the service is working without user consent.
+With the need for security and the urge for more freedom and fairness, the era of decentralized web applications, where no single entity can control the system, is emerging.
+This decentralized web is comprised of many types of applications such as games, storage, decentralized exchanges, auctions, financial systems, etc.
+
+One of the fundamental challenges of the decentralized web is keeping state. There is no central entity who follows the current state or can decide what the current valid state is if there is doubt.
+Blockchains are one of technologies who address this problem.
+
+In order to make the decentralized web usable for end users these separate blockchains need to interact, otherwise each will become isolated and not adopted by as many users, and the sum functionality of the system will be insufficient to compete with the centralized web.
+However, to interact different chains need to build in interoperability mechanisms, which introduces challenges.
+
+Many of these challenges arise from the ways that different blockchains have different technical characteristics. For example, Bitcoin and Ethereum are proof-of-work (PoW) blockchains where preventing the control of the whole system by one entity is carried out by introducing challenges that need a large amount of processing power to solve. Their security relies on whether this amount of processing power exceeds the amount of processing power any single entity would possibly have. An alternative to PoW are proof-of-stake (PoS) systems, where the entities who control the system have to lock a large amount of funds and would be punished if they misbehave in any way.
+The security relies on the fact that the total amount of locked funds exceeds the budget any adversary is able to invest in the attack.
+These technical differences present difficulties for one blockchain to be able to trust another.
 
 Currently there have been hundreds chains implemented in the wild for various functions.
-(maybe a table with 10 famous but very different chains?)
-Each one has different characteristics and their own security set up.
-
-There is a need for a system that can connect this heterogenous chains.
-
+For example, ....
+Most one of these systems have different properties they aim to achieve and certain security threshold that they set up. Hence, there is a need for a system that can connect this heterogenous chains.
 Moreover, having multiple security set ups causes a split in the security these systems can provide.
 Gathering all this security power and have a shared security system increases security substantially.
 
-
-\subsection{System Overview}
-- state machine
-- data structures
+In this paper we introduce Polkadot, a multi-chain system with shared security guarantees.
+Polkadot consists of a main chain called the \emph{Relay Chain} and multiple parallel chains called \emph{Parachains}.
+The security goal of Polkadot is to be Byzantine fault tolerant.
