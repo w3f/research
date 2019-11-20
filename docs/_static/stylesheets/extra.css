@@ -1,20 +1,17 @@
-.md-header-nav {
-    background-color: black;
+/* hide breadcrumbs, saves vertical space */
+.md-tabs {
+    display: none;
 }
 
-[data-md-color-primary=deep-orange] .md-header {
-    background-color: black;
+/* override color here, material doesn't seem to allow us via theme options.
+ * !important is needed because there are more-specific rules that define the
+ * background */
+.md-header {
+    background-color: black !important;
 }
 
-.md-footer {
-    margin-top: 10%;
-}
-
-.md-nav--secondary__title {
-    margin-bottom: 10%;
-    font-size: 2em;
-}
-
-.md-nav--secondary__item {
-    margin-top: 10%;
+/* hide the current page's TOC in the left sidebar, since it is already in the
+ * right sidebar */
+.md-nav--secondary + ul {
+    display: none;
 }

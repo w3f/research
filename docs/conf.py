@@ -22,13 +22,15 @@ release = ''
 
 # For markdown support see https://gist.github.com/johncrossland/9f6f54d559e9136773172aa0a429b46f
 
+import sphinx_material
+
 extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
     'sphinx.ext.githubpages',
-    'sphinxcontrib.fulltoc',
+    'sphinx_material',
 ]
 
 templates_path = ['_templates']
@@ -38,12 +40,24 @@ master_doc = 'index'
 
 # -- Options for HTML output -------------------------------------------------
 
-html_theme = 'alabaster'
 html_static_path = ['_static']
-
+html_sidebars = {
+    "**": ["logo-text.html", "globaltoc.html", "localtoc.html", "searchbox.html"]
+}
+html_title = "Research at W3F"
+html_logo = '_static/images/w3f_logo.svg'
 html_css_files = [
     'stylesheets/extra.css',
 ]
+
+html_theme = 'sphinx_material'
+html_theme_path = sphinx_material.html_theme_path()
+html_context = sphinx_material.get_html_context()
+html_theme_options = {
+    'color_primary': 'deep-orange',
+    'color_accent': 'deep-orange',
+    'globaltoc_depth': -1,
+}
 
 mathjax_config = {
     'extensions': ["tex2jax.js"],
@@ -76,6 +90,8 @@ def setup(app):
     app.add_config_value('markdown_parser_config', {
         'extensions': [
             'extra',
-            'pymdownx.arithmatex'
+            'admonition',
+            'codehilite',
+            'pymdownx.arithmatex',
         ],
     }, True)

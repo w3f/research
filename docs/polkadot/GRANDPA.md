@@ -1,17 +1,6 @@
 # GRANDPA
 
 ## GRANDPA Full paper
-<style>
-.md-grid {
-    max-width: inherit;
-}
-.md-sidebar--secondary {
-    display: none;
-}
-.md-content {
-    margin-right: 0em;
-}
-</style>
 <iframe src="../_static/pdfview/viewer.html?file=../pdf/grandpa.pdf" width="100%" height="650em"></iframe>
 ## GRANDPA Abstract paper
 <iframe src="../_static/pdfview/viewer.html?file=../pdf/GRANDPAabstract.pdf" width="100%" height="650em"></iframe>
