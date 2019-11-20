@@ -1,2 +1,0 @@
-python-markdown-math
-mkdocs>=1.0.4
