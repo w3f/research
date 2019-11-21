@@ -24,6 +24,7 @@ Talk to us on Riot at #w3f:matrix.org or on our `forum <https://forum.web3.found
 
    polkadot
    research_team_members
+   news
 
 .. The below hack is needed to force sphinx to include MathJax on md pages.
 

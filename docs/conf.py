@@ -46,6 +46,7 @@ html_sidebars = {
 }
 html_title = "Research at W3F"
 html_logo = '_static/images/w3f_logo.svg'
+html_show_copyright = False
 html_css_files = [
     'stylesheets/extra.css',
 ]
