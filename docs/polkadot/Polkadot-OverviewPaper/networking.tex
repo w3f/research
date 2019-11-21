@@ -45,25 +45,37 @@ Generally speaking, the communication data flow follows these patterns:
 
 \subsubsection{Authentication and discovery}
 
-For node discovery we use a similar networking scheme as many other blockchains do, that is using the widely used distributed hash table (DHT), Kademlia \cite{Maymounkov:2002:Kademila}. Kademlia is a DHT that uses XOR distance metric for finding a node and is often used for networks with high churn. We use Protocols Labs' libp2p libraries \cite{} Kademlia implementation with some changes for this purpose.
+In secure protocols in general, and likewise with Polkadot, entities refer to each other by their cryptographic public keys. There is no strong security association with weak references such as IP addresses since those are typically controlled not by the entities themselves but by their communications provider.
+
+Nevertheless in order to communicate we need some sort of association between entities and their addresses. In Polkadot we use a similar scheme as many other blockchains do, that is using the widely used distributed hash table (DHT), Kademlia \cite{Maymounkov:2002:Kademila}. Kademlia is a DHT that uses XOR distance metric for finding a node and is often used for networks with high churn. We use Protocols Labs' libp2p libraries \cite{} Kademlia implementation with some changes for this purpose. To prevent Eclipse attacks \cite{} we allow for routing tables that are large enough to contain at least some honest nodes.
+
+Currently, this "address book" service is also used as the primary discovery mechanism - nodes perform random lookups on the space of keys when they join the network, and connect to whichever set of addresses are returned. Likewise, nodes accept any incoming connections. This makes it easy to suport light clients and other unprivileged users, but also makes it easy to perform DoS attacks.
+
+It is planned to develop a stronger authentication mechanism, where nodes authenticate themselves - their cryptographic identities and their roles as part of Polkadot - and verify other nodes both when (a) connections are mode, and when (b) looking up new nodes in the address book. Furthermore it should be possible to discover nodes that match a particular role, e.g. "collator for parachain C" and so on. Nevertheless it is also important to retain the ability to accept incoming connections from unauthenticated entities, e.g. users submitting transactions, or previously-privileged nodes that have been offline for a while that now want to synchronise, and this needs to be restricted on a resource basis, without starving the authenticated entities.
 
 \subsubsection{Gossiping}
-The main idea of gossiping is to broadcast every newly received message in the nodes local network (peers that the node is aware of). Moreover, we apply some restriction to the gossiping protocol to prevent bandwidth problems, e.g., denial-of-service (DoS-ed) as follows.
+The main idea of gossiping is to broadcast every newly received message in the nodes local network (peers that the node is aware of). Moreover, we apply some restriction to the gossiping protocol to prevent bandwidth problems, e.g., denial-of-service (DoS-ed) as follows. Currently a naive flooding approach is implemented, with various plans to make this more secure and efficient later on, which can be done independently of other components.
 
 For GRANDPA we only allow two votes being received for each type of vote, round number, and voter. Any further votes will be ignored. For block production only valid block producers are allowed to produce one block per round and further blocks will be ignored.
 
 We use \emph{Sentry nodes} that are proxy servers who receive all the traffic that would go to a certain validator and forward the traffic as soon as the validator is able to receive it.
 
-To prevent Eclipse attacks \cite{} we allow for routing tables that are large enough to contain at least some honest nodes.
+We also plan to implement some sort of set reconciliation protocol to reduce redundancy when many senders attempt to send the same object to the same recipient at once.
 
-\subsubsection{Direct Routing}
-The aim of direct routing is only to send messages to the intended receiver.
-This is saving lots of traffic and is useful when messages only have one receiver and do not need to reach more than one validator such as in the case of erasure coded pieces.
+\subsubsection{Specific and non-specific direct sending}
 
-\subsubsection{Interchain Messaging}
-If the sending parachain and the receiving parachain have common honest full nodes then the message will be gossiped from without issue.
-However, if parachain validators of the receiving parachain realize that the message has not arrived they request the message from the parachain validator of the sending parachain.
-Once, they receive it they gossip it in the receiving parachain.
+In the naive initial version this simply involves looking up a particular key in the address book and connecting to that address.
+
+For specific-target direct sending, the only higher-layer protocol in Polkadot that requires this primitive is the erasure coded availability protocol, which is designed to handle the case where some of the nodes are actually unreachable.
+
+For non-specific target direct sending, we have a few issues to consider:
+
+\begin{itemize}
+\item How to store and lookup non-specific targets in the address book in a secure and balanced way, and what the representation of the query term(s) should be.
+\item Load-balancing actual transport-layer connection attempts over the whole target set, and ensuring availability.
+\end{itemize}
+
+As a special case, the source may already be a member of the target set, e.g. in an ICMP message the source parachain may share members with the target parachain. In this case, these members may bypass the above process entirely, and gossip between the two sets. However it may not be obvious to other members of the source set that the intersection member(s) are all online, and so they likely will want to attempt the process anyways.
 
 \subsubsection{Message types}
 Below we give an overview of where and how each type of message is sent. The column \emph{Nets} refers to the networks where a type of message is traversing and the column \emph{Mode} refers to the type of  routing. The column \emph{Static DHT Prefixes} refers to the DHT prefixes of the receivers if we use a one DHT for all and use prefixes to separate sub-networks.
