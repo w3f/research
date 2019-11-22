@@ -1,22 +1,51 @@
 \section{Preliminaries}
 
-\subsection{Adversarial Model of Polkadot}
+\subsection{Structural elements of Polkadot}
 
-\paragraph{Rationality:} In Polkadot, we assume that adversaries have a rational economic incentive. Informally, it means that they attack to Polkadot if and only if their attack gain is greater or equal than/to the attack loss.
+\paragraph{Parachains:} Multiple heterogeneous blockchains run in parallel in Polkadot. 
 
-\paragraph{Adversarial Power:} The computational power of adversaries in Polkadot is polynomially bounded.  We do not have any limitation on adversarial collaborations between parties in Polkadot which are validators, nominators, collators, and fishermen. However, we assume at most $\frac{1}{3}$ of the total stake by nominators and validators can belong to malicious validators and nominators.
-We similarly assume that at most quarter of selected validators for an era can be malicious while we do not have a limitation on parachain validators of a parachain e.g., all can be malicious.
-The adversarial assumption on collators depends on the parachain type. If the parachain is private, we assume that there is at least one honest collator. Otherwise, we assume that at least the majority of collators are honest.
-
-\paragraph{Keys:} We assume that malicious parties generate their keys with an arbitrary algorithm while honest ones always generate their keys securely.
-
-\paragraph{Network and Communication:} All validators have their local clock. We do not rely on any central clock in Polkadot. We assume that the network of validators and collators is partially synchronous. It means that a message sent by a validator or collator arrives at all parties in the network at most $\D$ times later where $\D$ is an unknown parameter. So, we assume an eventual delivery in Polkadot.
-We also assume that collators and fishermen can connect to the relay chain network to submit their reports.
+\paragraph{Relay Chain:} This is a central chain in Polkadot. It keeps references 
+to all canonical parachain blocks, and thus works as a single source of truth across parachains. 
+It also keeps references of all cross-parachain messages.
 
 \subsection{Roles}
-A fixed set of actors called \emph{Validators} are responsible to maintain the relay chain.
-These validators need to vote on the consensus over all the parachains.
-In addition, the validators are assigned to parachain by dividing the validators set into
-random disjoint subsets that are each assigned to a particular parachain.
-For the parachain, there are additional actors called collators and fishermen that are
-responsible for parachain block production and reporting invalid parachain blocks respectively.
+
+\paragraph{Validators:} A fixed set of actors called validators are responsible to maintain the relay chain 
+and keep its consensus, and by extension, maintain the consensus of all the parachains. 
+In addition, at regular intervals validators are divided into random disjoint subsets 
+that are each assigned to a particular parachain. 
+Each of these validator subsets ensures the validity and availability of its parachain's blocks. 
+Validators receive regular remunerations in DOTs, 
+and are likewise heavily staked and prone to slashing in case of offenses.
+
+\paragraph{Nominators:} The role of validator is permissionless (like all roles in Polkadot), 
+but the number of slots for validators is limited. Hence, validators must be elected by the community. 
+In particular, any DOT holder may assume the role of a \emph{nominator}, lock some stake, and publish a list 
+of trusted validator candidates. Candidates with the most nominators' support get elected, 
+and nominators share the economic rewards, or slashes, of their supported validators. 
+Having nominators allows for an unlimited amount of actors and DOTs to participate in the security of Polkadot.
+
+\paragraph{Collators: } Every parachain has its own set of full nodes called collators. 
+A collator produces new blocks and sends it to the parachain-assigned validators. 
+It may only build on top of the parachain blocks that are referenced in the relay chain. 
+Collators also process outgoing and incoming cross-chain messages.
+
+\paragraph{Fishermen:} Fishermen are staked actors that run background checks on the performance of validators. 
+In particular, they raise reports in case that a validator-approved parachain block is unavailable or invalid. 
+They are rewarded for correct reports, and slashed for bogus ones (which helps avoid report spamming).
+
+\subsection{Adversarial Model of Polkadot}
+
+The adversarial assumption on collators depends on the parachain type. If the parachain is private, 
+we assume that there is at least one honest collator. 
+Otherwise, we assume that at least the majority of collators are honest.
+
+\paragraph{Keys:} We assume that malicious parties generate their keys with an arbitrary algorithm 
+while honest ones always generate their keys securely. (What does securely mean?)
+
+\paragraph{Network and Communication:} All validators have a local clock. 
+We do not rely on any central clock in Polkadot. 
+We assume that the network of validators and collators is partially synchronous. 
+It means that a message sent by a validator or collator arrives at all parties in the network 
+at most $\D$ units of time later where $\D$ is an unknown parameter. So, we assume an eventual delivery in Polkadot.
+We also assume that collators and fishermen can connect to the relay chain network to submit their reports.
