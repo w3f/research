@@ -32,12 +32,22 @@ The header contains: the {\it hash of parent block}, {\it block number}, the {\i
 
 \paragraph{Consensus}
 
-%%Block production, Babe,
+Polkadot Consensus protocol, similar to other replicated state machines, is responsible to guarantee liveness and safety . Liveness is the property that ensures that the state machine continues to collate and execute transactions. Safety on the other hand is the canonicalisation mechanism, or the means by which parties agree upon one of a number of possible, valid, histories and that ensures honest nodes do not agree on two conflicting states. This also known as finality in the context of blockchains. These two properties ensure that valid transactions will eventually be included in the state transition history and finalized.
 
-%%Block Finality Grandpa.
+Unlike many former blockchains architecture which has built a scalability bottleneck by tying the liveness and safety logic together, Polkadot decouple the safety from the state-transition mechanism, a hybrid consesnus model that separates block production from finality on those blocks.
+
+The block production layer of the consensus is to be fast and probabilistically safe. Block production randomly and secretly assign the production of each block to a certain block producer to mitigate denial of service and eclipse attacks. The detail of Polkadot block production consensus sub-protocol is described in Section \ref{sec:babe}.
+
+Simultaneously, the Polkadot execute a BFT-based consensus finality protocol which is tasked to observe (possibly) several incompatible (but likely valid) state transitions produced by the first layer and democratically finalize a canonical version as the valid history of the relay chain. Beside scalability, the choice of relay chain consensus protocol provides efficient absolute (in contrast to probablistic) finality. That is, once a block is finalized, the canonical chain will always contain that block in the future. The finality sub protocol of Polkadot consensus is explain in Section \ref{sec:grandpa}
 
 \paragraph{Block Building}\label{sec:relaychainblockproduction}
 
-%% All happens after babe
+In this section we present a summary of various steps of relay chain operation. Validators of the relay-chain are nominated and get selected to produce and finalize a certain number of blocks known as epoch. At the beginning of each epoch each validator secretly knows the slot of the time which it is permitted and is supposed to produce a block.
+
+Meanwhile Transactions ranging from validated parachain block hash, transfer, staking, nomination or slashing for protocol violation are submitted to relay chain validators. Validators examine the validity of the transactions and store them in their transaction pool. Once the time slot during which the validator is expected to produce the block is arrived, the validator estimates the block which is mostly like represents the state which is going to be finalized by the finality protocol and set it as the current state of the relaychain. Then it selects valid transactions with fulfilled pre-requisite, executes them and update the state accordingly. It execute and collate as much as the block capacity allows, includes the final state of the chain, signs and publish the the block.
+
+Upon receiving the new block, other validators examine that the producer adherence to the protocol as well as the validity of included transactions and store the block in a tree which represents all possible candidates for a final state transition of the relay chain.
+
+Simultaneously, the set of validators votes on various branches of the transition tree and prunes branches which conflict with version agreed upon by super majority of the validators
 
 
