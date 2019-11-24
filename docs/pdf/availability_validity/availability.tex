@@ -74,7 +74,7 @@ There are a three-factor validity check during the availability protocol:
     \end{equation}
      Here, $ID_{PC} \in \mathbb{N}$ is the identifier of a parachain $PC$ and $r_{t}$ is the VRF randomness of the block producer of slot $t$ in the relay chain (See \href{http://research.web3.foundation/en/latest/polkadot/BABE/Babe/}{BABE} for the details of $r_t$). For the current time $T$ where $T > \Delta T$, if  less than $\vcheck$ amount of checks are completed with condition (\ref{cond:mod}) or $\mu + \lceil r_a + r_f \rceil < n/m$ , each validator $V_j$ checks the following condition:
      \begin{equation}\label{cond:time}
-        H(ID_{PC} || \mathtt{VRF}_{\sk^v_j}(V)) < \frac{\mu + \lceil r_a + r_f \rceil - \theta}{|\V|-|\pv|}+\tau  
+        H(ID_{PC} || \mathtt{VRF}_{\sk^v_j}(r_t)) < \frac{\mu + \lceil r_a + r_f \rceil - \theta}{|\V|-|\pv|}+\tau  
     \end{equation}
     
       where $\tau = T- \Delta T$ and $H$ is a hash function that maps a value between 0 and 1. Here, if $\mu + \lceil r_a + r_f \rceil \geq n/m$, $\theta$ is the number of validators in condition (\ref{cond:mod}) for $ID_{PC}$. Otherwise, $\theta = 0$.
