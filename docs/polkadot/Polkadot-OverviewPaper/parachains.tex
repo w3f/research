@@ -10,14 +10,14 @@ Because the parachain validators switch parachains frequently, they are stateles
 Thus we distinguish between the parachain block $B$, which is enough for full nodes of the parachain such as collators to update the parachain state,
 and the {\em Proof of Validity(PoV) block} $B_{PoV}$, which a validator who does not have the parachain state can verify.
 
-Any validator should be able to verify $B_{PoV}$ given the relay chain state using the parachain's {\em state transition validation function}(STVF),
+Any validator should be able to verify $B_{PoV}$ given the relay chain state using the parachain's {\em state transition validation function} (STVF),
 the wasm code for which is also on the relay chain.
 The STVF takes as input the PoV block, the header of the last parachain block from this parachain,
 and the message roots of all parachain blocks that have sent messages to this parachain since the last parachain block
-(see \ref{sec:ICMP} for details such as the range needed) and should output the validity of the block and its outgoing messages.
+(See Section \ref{sec:ICMP} for details such as the range needed) and should output the validity of the block and its outgoing messages.
 The PoV block should contain any outgoing messages and for most parachains, it will also contain the parachain block.
-If it does contain the parachain block, the parachain validators should gossip the block to the parachain network,as a back up to the collator itself doing so.
-If it does not, then the parachain will need its own scheme to make sure that the parachain block data is available.
+If it does contain the parachain block, the parachain validators should gossip the block to the parachain network, as a back up to the collator itself doing so.
+If it does not, then the parachain will need its own scheme to make sure that the parachain block data is available (See Section \ref{sec:validity-and-availability}).
 
 The PoV block will frequently be the parachain block, its outgoing messages, its header and a light client proof,
 i.e. Merkle proofs that give all elements of the input and output state that are used or modified by the state transition from the input and output state roots.
@@ -35,22 +35,24 @@ This may be the golden ticked scheme of \cite{2016:Wood:Polkadot}.
 
 
 \subsubsection{Validity and Availability} \label{sec:validity-and-availability}
-Once a block is created it is important that the parachain blob is available for a while.
+Once a block is created it is important that the parachain blob consisting of the parachain block, the PoV block and set of outgoing messages from the parachain is available for a while.
 The naive solution for this would be broadcasting/gossip the parachain blobs to all relay chain nodes, which is not a feasible option because the are are many parachains and the PoV blocks may be big.
 We want to find an efficient solution to ensure PoV blocks from any recently created parachain block are available.
 
-For a single chain, such as bitcoin, as long as 51\% of hashpower is honest, not making block data available ensures that np honest miner builds on it so it will not be in the final chain. However parachain consensus for us is determined by relay chain consenus.
+For a single chain, such as bitcoin, as long as 51\% of hash power is honest, not making block data available ensures that an honest miner builds on it so it will not be in the final chain. However, parachain consensus for us is determined by relay chain consensus.
 A parachain block is canonical when it's header is in the relay chain.
 We have no guarantees that anyone other than the collator and parachain validators have seen the PoV block.
 If these collude then the rest of the parachain network need not have it and then most collators cannot build a new block and its invalidity may not be discovered.
-We would like the consensus particpants, here the validators, to collectively guarantee the availability rather than relying on a few nodes.
+We would like the consensus participants, here the validators, to collectively guarantee the availability rather than relying on a few nodes.
 
 To this end we designed an availability scheme that uses erasure coding \cite{} to distribute the parachain PoV to all validators.
 When any misbehaviour, unavailability particularly in relation to invalidity, is detected the PoV can be reconstructed from the distributed erasure coded pieces.
 
-If a block is available, then full nodes of the parachain, and any light client that has the PoV block can check its validity.
-We rely on nodes actin as {\em fishermen} to report invalidity in this case. They would need to back any claim with their own stake in DOTs.
-We would assume that most collators would be fishermen, as they have a stake in continued validity of the chain and are already running full nodes, so all they need is stake in DOTs.
+If a block is available, then full nodes of the parachain, and any light client that has the PoV block can check its validity. We have three-level of validity check in Polkadot. The first validity check of a blob is executed by the corresponding parachain validators. If they verify the blob then they sign and distribute the erasure codes of the blob to each validator. 
+We rely on nodes acting as {\em fishermen} to report invalidity as second level of validity check. They would need to back any claim with their own stake in DOTs. We would assume that most collators would be fishermen, as they have a stake in continued validity of the chain and are already running full nodes, so all they need is stake in DOTs. The third level of validity check is executed by a few randomly and privately assigned validators just after a block containing the header of the block is created. We determine the number of validator in the third check considering the number of fishermen reports and unavailability reports by collators. In case of existence of any invalid block in the relay chain, the validators who signed for its validity are slashed.
+
+The security of our availability and validity scheme based on the security of GRANDPA finality gadget (See Section \ref{sec:grandpa}) and the good randomness generated by BABE (See Section \ref{sec:babe}). Please see \cite{availandvalid} for more details about the availability and validity scheme.
+
 
 \subsubsection{Inter Chain Messaging Protocol (ICMP)} \label{sec:ICMP}
 
