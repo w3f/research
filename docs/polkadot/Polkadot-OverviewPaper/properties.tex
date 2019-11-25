@@ -9,8 +9,17 @@ Each parachain in Polkadot has its own state transition function that defines ho
 
  \subsection{Finality}
 
-
  It is important to provide finality on a state of a parachain to preserve reliable communication in Polkadot so that parachains act by relying on the fact that the data provided by Polkadot related to other parachains will never change.  Polkadot provides the finality property via relay chain which is based on a heterogeneous consensus mechanism: provable consensus and probable consensus. The relay chain provides provable consensus with GRANDPA (GHOST-based Recursive ANcestor Deriving Prefix Agreement)  finality gadget. Validators are supposed to vote for a chain in GRANDPA  which has valid blocks (e.g., having valid states of parachains). The probable consensus is based on the block production mechanism of the relay chain that is called BABE (Blind Assignment for Blockchain Extension). BABE is a proof-of-stake based block production mechanism that privately and evenly assigns validators to produce blocks.
+
+\subsection{Decentralization}
+
+In some of the most popular blockchain projects, there are concerns of centralization of power. 
+This centralization can be caused by several factors, such as 
+a) a block-producer selection method where some minorities are over-represented or receive disproportionate power, or
+b) an incentive mechanism that concentrates wealth or encourages cartel formation.
+As we explain in the corresponding sections, our block-producer method (based on nominated proof-of-stake) 
+as well as our incentive layer are particularly designed to fight centralization, 
+and provide formally defined decentralization properties.
 
 
  \subsection{Availability}
@@ -25,4 +34,4 @@ The availability of messages in the relay chain is very critical because only av
 
 % How do we achieve them?
 
- Briefly breaking them down into components.
+% Briefly breaking them down into components.

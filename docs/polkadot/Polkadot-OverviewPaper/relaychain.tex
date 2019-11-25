@@ -1,43 +1,52 @@
 \subsection{Relay Chain State Machine}\label{sec:relaychain}
 
-Formally, Polkadot is a replicated sharded state machine where shards are the parachains and Polkadot relay chain is part of the protocol ensuring global consensus among all the parachains. Therefore the Polkadot relay chain protocol, can itself be considered as a replicated state machine on its own. In this sense, this section describes the relay chain protocol by specifying the state machine governing the relay chain. To that end, we describe the relay chain state and the detail of state transition govern by transactions grouped the relay chain blocks.
+Formally, Polkadot is a replicated sharded state machine where shards are the parachains and the Polkadot relay chain is part of the protocol ensuring global consensus among all the parachains. Therefore the Polkadot relay chain protocol, can itself be considered as a replicated state machine on its own. In this sense, this section describes the relay chain protocol by specifying the state machine governing the relay chain. To that end, we describe the relay chain state and the detail of state transition governed by transactions grouped in the relay chain blocks.
 
-\paragraph{State}
-Polkadot relay chain state is represented similar to of the Ethereum. In the sense that the state is represented using an <i>associative array</i> data structure composed of a collection of $(key, value)$ pairs where each key is a unique. There is no assumption on the format of the key or the value stored under it beside the fact that they are finite byte arrays.
+\paragraph{State} Polkadot relay chain state is represented similarly to the one of the Ethereum. In this sense, the state is represented through the use of an \emph{associative array} data structure composed by a collection of $(key, value)$ pairs where each key is unique. There is no assumption on the format of the key or the value stored under it besides the fact that they both the key and the value need to be finite byte arrays.
 
-A <i>Merkle radix-16 trie</i> keeps the Merkle hashes corresponding to the $(key, value)$ pairs stored in the relay chain state enable identifying current state using its root hash and providing efficient proof of inclusion of a specific pair.
+A \emph{Merkle radix-16 tree} keeps the Merkle hashes corresponding to the $(key, value)$ pairs stored in the relay chain state. They enable the identification of the current state using its root hash and provide efficient
+proof of inclusion of a specific pair.
 
-To keep state size in control, the relay chain state is solely used to facilitate relay chain operation such as staking and identifying Validators. It is not suppose to store any information regarding the internal operation of the parachains.
+To keep the state size in control, the relay chain state is solely used to facilitate the relay chain operations such as staking and identifying Validators. The Merkle Radix tree is not supposed to store any information regarding the internal operation of the parachains.
 
-\paragraph{State transition}
-Like any transaction-based transition system, Polkadot state changes via an executing ordered set of instructions. These instructions (traditionally known as transactions), are refereed to as extrinsics in Polkadot Jargon covering any data is provided from ``outside'' of the machine's state which can affect state transition. Polkadot relay chain is divided into two major components. The execution logic of the state-transition function is mainly encapsulated in the ``Runtime'' while all other generic operations which are commonly shared among modern block chain based replicated state machines are embedded into the runtime environment, In particular the latter is in charge of network communication, block production and consensus engines.
+\paragraph{State transition} Like any transaction-based transition system, Polkadot state changes via an executing ordered set of instructions. These instructions, traditionally known as transactions, are referred to as extrinsics in Polkadot Jargon. They cover any data provided from ``outside'' of the machine's state which can affect state transition. Polkadot relay chain is divided into two major components, namely the ``Runtime'' and the ``Runtime environment''. The execution logic of the state-transition function is mainly encapsulated in the Runtime while all other generic operations, commonly shared among modern blockchain-based replicated state machines, are embedded into the Runtime environment. In particular, the latter is in charge of network communication, block production and consensus engines.
 
-Runtime functions are compiled into a Web assembly module and is stored as part of the state. The runtime environment communicates the extrinsics with the Runtime and interact with it to execute enable the state transition. In this way, the state transition logic itself can be upgraded as a part of state transition.
+Runtime functions are compiled into a Web assembly module and are stored as part of the state. The Runtime environment communicates the extrinsics with the Runtime and interacts with it to execute the state transition. In this way, the state transition logic itself can be upgraded as a part of the state transition.
 
 \paragraph{Extrinsics}
 
-Extrinsics are the input data supplied to the Polkadot Relay chain state machine to transition to a new states. Extrinsics are needed to be stored into blocks of the relay chain in order to achieve consensus among the state machine replica. Extrinsics are divided into two broad categories namely Transactions and Inherents.
+Extrinsics are the input data supplied to the Polkadot Relay chain state machine to transition to new states. Extrinsics are needed to be stored into blocks of the relay chain in order to achieve consensus among the state machine replica. Extrinsics are divided into two broad categories namely Transactions and Inherents.
 
-Transactions are signed and are gossiped around on the network between nodes. In contrast, Inherents are not signed and are not gossiped individually but rather only when they are included in a block. The inherents in a block are assumed to be valid if super majority of validators assume so. Timestamp is an example of inherent extrinsics which must be included in each Polkadot Relay chain block.
+Transactions are signed and are gossiped around on the network between nodes. In contrast, Inherents are not signed and are not gossiped individually but rather only when they are included in a block. The Inherents in a block are assumed to be valid if a supermajority of validators assumes so. The Timestamp is an example of inherent extrinsics which must be included in each Polkadot Relay chain block.
 
-Transactions on the relay chain are mainly concerned with the operation of the relay chain and Polkadot protocol as whole, such as \texttt{set\_code}, \texttt{transfer}, \texttt{bond}, \texttt{validate}, \texttt{nominate}, \texttt{vote}.
+Transactions on the relay chain are mainly concerned with the operation of the relay chain and Polkadot protocol as a whole, such as \texttt{set\_code}, \texttt{transfer}, \texttt{bond}, \texttt{validate}, \texttt{nominate}, \texttt{vote}.
 
-Relay chain block producers listen to all transactions network messages. Upon receiving a transaction message, the transaction(s) are validated by the Runtime. The valid transactions then are arranged in a queue based on their priority and dependency and are considered for inclusion in future blocks accordingly.
+Relay chain block producers listen to all transaction network messages. Upon receiving a transaction message, the transaction(s) are validated by the Runtime. The valid transactions then are arranged in a queue based on their priority and dependency and are considered for inclusion in future blocks accordingly.
 
 \paragraph{Block format}
-%% Block header Block body 
-A typical relay chain block is consists of header and body. The body is simply consists of list of extrinsics.
+A typical relay chain block consists of a header and a body. The body simply consists of a list of extrinsics.
 
-The header contains: the {\it hash of parent block}, {\it block number}, the {\it root of the state trie}, the {\it root of the Merkle tree} resulting from arranging the extrinsics in such a tree. and the {\it digest}. The digest stores auxiliary information from the consensus engines which are required for to validate the block and its origin as well as information helping light clients to validate the block without having access to the state storage.
+The header contains the \textit{hash of parent block}, \textit{block number}, the \textit{root of the state tree}, the \textit{root of the Merkle tree} resulting from arranging the extrinsics in such a tree and the \textit{digest}. The digest stores auxiliary information from the consensus engines which are required to validate the block and its origin as well as information helping light clients to validate the block without having access to the state storage.
 
 \paragraph{Consensus}
 
-%%Block production, Babe,
+Polkadot Consensus protocol, similar to other replicated state machines, is responsible to guarantee liveness and safety. Liveness is the property that ensures that the state machine continues to collate and execute transactions. Safety, on the other hand, is the canonicalization mechanism, or the means by which parties agree upon one of a number of possible, valid, histories and that ensures honest nodes do not agree on two conflicting states. This is also known as finality in the context of blockchains. These two properties ensure that valid transactions will eventually be included in the state transition
+history and finalized.
 
-%%Block Finality Grandpa.
+Unlike the consensus architecture of many former blockchains, which builds a scalability bottleneck by tying the liveness and safety logic together, Polkadot architecture decouples the safety from the state-transition mechanism, a hybrid consensus model that separates block production from finality on those blocks.
+
+The block production layer of the consensus is to be fast and probabilistically safe. Block production randomly and secretly assigns the production of each block to a certain block producer to mitigate denial of service and eclipse attacks. The detail of Polkadot block production consensus sub-protocol is described in Section \ref{sec:babe}.
+
+Simultaneously, the Polkadot execute a BFT-based consensus finality protocol which is tasked to observe (possibly) several incompatible (but likely valid) state transitions produced by the first layer and democratically finalize a canonical version as the valid history of the relay chain. Besides scalability, the choice of relay chain consensus protocol provides efficient absolute (in contrast to probabilistic) finality. That is, once a block is finalized, the canonical chain will always contain that block in the future. The finality subprotocol of Polkadot consensus is explained in Section
+\ref{sec:grandpa}
 
 \paragraph{Block Building}\label{sec:relaychainblockproduction}
 
-%% All happens after babe
+In this section, we present a summary of various steps of relay chain operation. Validators of the relay-chain are nominated and get selected to produce and finalize a certain number of blocks known as an epoch. At the beginning of each epoch, each validator secretly knows the slot of the time which it is permitted and is supposed to produce a block.
 
+Meanwhile, Transactions ranging from validated parachain block hash, transfer, staking, nomination or slashing for protocol violation are submitted to the relay chain validators. The Validators examine the validity of the transactions and store them in their transaction pool. Once the time slot during which the validator is expected to produce the block has arrived, the validator estimates the block which most likely represents the state which is going to be finalized by the finality protocol and set it as the current state of the relay chain. Then it selects valid transactions with fulfilled pre-requisite, executes them and updates the state accordingly. It executes and collates as much as the block capacity allows, includes the final stage of
+the chain, signs and publishes the block.
 
+Upon receiving the new block, other validators examine that the producer's adherence to the protocol as well as the validity of included transactions and store the block in a tree which represents all possible candidates for a final state transition of the relay chain. 
+
+Simultaneously, the set of validators votes on various branches of the transition tree and prunes branches which conflict with the version agreed upon by the supermajority of the validators.
