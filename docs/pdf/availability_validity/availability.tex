@@ -1,3 +1,4 @@
+
 \section{Availability and Validity Protocol}
 \label{sec:protocol}
 
@@ -24,15 +25,48 @@ The protocol consists of two phases ``Parachain phase'' and ``Relay Chain Phase'
 
     \item If $V_j$ receives at least $\kappa$ signatures for $B$, it adds it to the block list which keeps the data to be included to the relay chain. Later on, if this validator is the designated validator in BABE to produce the block, it creates block headers $\bh$ (Definition \ref{def:header}) for the blocks in the block list. $\bh$ including $\{\sigma_j^k\}_{PV_k \in \pv'} $.  These signatures are necessary to show which parachain validators approve for $B$. Then, he produces the relay chain block which includes the header. See \href{http://research.web3.foundation/en/latest/polkadot/BABE/Babe/}{BABE} for details.
 
-    \item At the same time, each validator $V_j$ examines  each block in the relay chain if it includes unavailable block headers. If $V_j$ sees a block header $\bh$ in a block of the best relay chain whose erasure code piece $d_j$ is not received by $V_j$ (unavailable code piece), then he asks for it first from parachain validators. If a parachain validator sends valid $d_j, r, \mprf_j $, then the protocol ends. Otherwise, it asks for it from collators of the corresponding parachain. If $V_j$ receives a valid $d_j, r, \mprf_j $, the protocol ends. If $V_j$ does not receive any response in $\Delta T$ time after seeing $\bh$, he runs the unavailability protocol in Section \ref{sec:unavail}.
+    \item At the same time, each validator $V_j$ examines  each block in the relay chain if it includes unavailable block headers. If $V_j$ sees a block header $\bh$ in a block of the best relay chain whose erasure code piece $d_j$ is not received by $V_j$ (unavailable code piece), then he asks for it first from parachain validators. If a parachain validator sends valid $d_j, r, \mprf_j $, then the protocol ends. Otherwise, it asks for it from collators of the corresponding parachain. If $V_j$ receives a valid $d_j, r, \mprf_j $, the protocol ends. If $V_j$ does not receive any response in $\grace$ time after seeing $\bh$, he runs the unavailability protocol in Section \ref{sec:unavail}.
 
 \end{itemize}
 
 \subsection{Unavailability Protocol}
 \label{sec:unavail}
-If a validator could not obtain the missing piece in $\Delta T$ time (availability grace period) after seeing a block header $B_{head}$ in a block of the relay chain, then he announces the unavailability of this piece. As soon as receiving an unavailability announcement, the assigned validator sends the erasure code piece with the proof, if he has it. The details of how the assigned validator is selected and how he obtains the erasure codes are given in Section \ref{sec:validitycheck}. If any validator sees at least $f+1$ unavailability announcements from different validators, then he does not vote to finalize the block which includes a block header whose pieces are missing  because it is a sign that the parachain validators have not properly completed availability protocol. If $2/3$ of the validators announce unavailability of a piece, the parachain validators who signed for that block are slashed. 
 
-%TODO slashing process
+We integrate our availability and secondary validity check protocols directly with GRANDPA, in that an honest node $V \in \vals$ cannot vote for relay chain blocks $B$ unless
+\begin{itemize}
+\item $V$ possesses their own piece for all the blobs referenced by $B$, and also
+\item $V$ witnessed ... 
+%TODO: discuss GRANDPA vs secondary checks
+\end{itemize}
+
+We run the availability and secondary validity check protocols only for parachain blocks included in relay chain blocks, not for all parachain blocks proposed by parachain validators.  In this way, we reduce the damage done by spammy parachains, at least beyond their own assigned parachain validators.
+
+At the same time, we avoid complex anti-spam or prioritisation logic since only GRANDPA require this prior voting restriction.  In fact, if we later require prioritisation logic then this trick isolates it inside relay chain block production.
+
+We cannot entirely escape the availability question within BABE however:  We have several forks $C_1,\ldtos,C_k$ for which at most $f$ validators possess all their chunks, but no fork for which $f+1$ validators possess all their chunks.  Yet, each block producers $V$ possess all their chunks for at least one fork $C_i$.  If BABE were oblivious to availability, then $V$ extends $C_i$, and GRANDA stalls under this configuration. 
+% TODO:  Anything about secondary validity check here ???
+
+Instead, we define an availability grace period $\grace$ after which an unavailability subprotocol alters BABE's chain selection rule:  
+
+If a validator $V \in \vals$ cannot obtain some piece $x$ within $\grace$ time after seeing $x$ referenced by some relay chain block header $B_{head}$, then $V$ announces via gossip the unavailability of the piece $x$.  
+If any validator $V' \in \vals$ observes unavailability announcements from at least $f+1$ different validators for possibly distinct pieces in any fork $C$, then
+\begin{itemize}
+\item in BABE $V'$ shall not propose relay chain blocks on $C$, and
+\item in GRANDPA $V'$ shall not vote to finalize blocks in $C$ either.
+\end{itemize}
+% TODO: We could remove the possibly distinct here but only be doing reconstruction, which actually should happen eventually, but we cannot realistically build upon $C$ in the mean time.
+Of course $V$ could continue building upon and voting for some prefix $C' < C$ of $C$ touched by unavailability announcements at most $f$ different validators.
+% TODO:  Is second condition redundant?
+
+Any validator should revoke their past unavailability announcements for some missing piece $x$ whenever they eventually obtain $x$, again by gossiping the revocation.  We also define some super availability grace period, longer than $|\pv| \grace$, after which time, if $2 f + 1$ of the validators announced unavailability of some specific piece, then the parachain validators who signed for that block are slashed.
+We revert this slash whenever revocations later reduce the unavailability announcements below $f+1$.
+% TODO: Any interactions with slashing computation?
+
+...
+As soon as receiving an unavailability announcement, the assigned validator sends the erasure code piece with the proof, if he has it. 
+...
+The details of how the assigned validator is selected and how he obtains the erasure codes are given in Section \ref{sec:validitycheck}. 
+...
 
 
 
@@ -72,12 +106,12 @@ There are a three-factor validity check during the availability protocol:
     \begin{equation}\label{cond:mod}
         ID_{PC} = \mathtt{VRF}_{\sk^v_{j}}(r_{t}) \mod m    
     \end{equation}
-     Here, $ID_{PC} \in \mathbb{N}$ is the identifier of a parachain $PC$ and $r_{t}$ is the VRF randomness of the block producer of slot $t$ in the relay chain (See \href{http://research.web3.foundation/en/latest/polkadot/BABE/Babe/}{BABE} for the details of $r_t$). For the current time $T$ where $T > \Delta T$, if  less than $\vcheck$ amount of checks are completed with condition (\ref{cond:mod}) or $\mu + \lceil r_a + r_f \rceil < n/m$ , each validator $V_j$ checks the following condition:
+     Here, $ID_{PC} \in \mathbb{N}$ is the identifier of a parachain $PC$ and $r_{t}$ is the VRF randomness of the block producer of slot $t$ in the relay chain (See \href{http://research.web3.foundation/en/latest/polkadot/BABE/Babe/}{BABE} for the details of $r_t$). For the current time $T$ where $T > \grace$, if  less than $\vcheck$ amount of checks are completed with condition (\ref{cond:mod}) or $\mu + \lceil r_a + r_f \rceil < n/m$ , each validator $V_j$ checks the following condition:
      \begin{equation}\label{cond:time}
-        H(ID_{PC} || \mathtt{VRF}_{\sk^v_j}(V)) < \frac{\mu + \lceil r_a + r_f \rceil - \theta}{|\V|-|\pv|}+\tau  
+        H(ID_{PC} || \mathtt{VRF}_{\sk^v_j}(r_t)) < \frac{\mu + \lceil r_a + r_f \rceil - \theta}{|\V|-|\pv|}+\tau  
     \end{equation}
     
-      where $\tau = T- \Delta T$ and $H$ is a hash function that maps a value between 0 and 1. Here, if $\mu + \lceil r_a + r_f \rceil \geq n/m$, $\theta$ is the number of validators in condition (\ref{cond:mod}) for $ID_{PC}$. Otherwise, $\theta = 0$.
+      where $\tau = T- \grace$ and $H$ is a hash function that maps a value between 0 and 1. Here, if $\mu + \lceil r_a + r_f \rceil \geq n/m$, $\theta$ is the number of validators in condition (\ref{cond:mod}) for $ID_{PC}$. Otherwise, $\theta = 0$.
     
     However, if a block producer produces multiple blocks with the same VRF randomness $r_t$ (equivocation), then a validator $V_j$ is selected for the extra check if one of the  below two conditions together with (\ref{cond:mod}) and (\ref{cond:time}) are satisfied:
     
