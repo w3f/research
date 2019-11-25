@@ -37,7 +37,8 @@ The protocol consists of two phases ``Parachain phase'' and ``Relay Chain Phase'
 We integrate our availability and secondary validity check protocols directly with GRANDPA, in that an honest node $V \in \vals$ cannot vote for relay chain blocks $B$ unless
 \begin{itemize}
 \item $V$ possesses their own piece for all the blobs referenced by $B$, and also
-\item $V$ witnessed ...
+\item $V$ witnessed ... 
+%TODO: discuss GRANDPA vs secondary checks
 \end{itemize}
 
 We run the availability and secondary validity check protocols only for parachain blocks included in relay chain blocks, not for all parachain blocks proposed by parachain validators.  In this way, we reduce the damage done by spammy parachains, at least beyond their own assigned parachain validators.
