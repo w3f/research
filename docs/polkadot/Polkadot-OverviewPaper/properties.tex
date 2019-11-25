@@ -2,7 +2,9 @@
 
  \subsection{Utility}
 
- Polkadot provides a reliable network for multiple independent parachains to communicate with each other by keeping the key principles scalability, governance, and interoperability.  The main component of this network is the main chain of Polkadot called ``relay chain'' which holds the states of parachains and makes sure their validity. Indeed, the scalability of Polkadot comes from the fact that each parachain is conducted in parallel by the relay chain.
+ The state machine of each parachain in Polkadot provides a utility to the system participants. It is ensured by state machines that interprets the willingness of a participant to pay for a transaction to be included.  Polkadot governance mechanism enables participants to decide what state machines should be included based on needs of participants.
+ 
+
 
  \subsection{Validity}
 Each parachain in Polkadot has its own state transition function that defines how a parachain can move from the current state to a new state.   Validators in relay chain  know these functions and these functions let them  check whether a given state is valid or not.  In Polkadot, we have three levels of validity checks for each state of each parachain. The first-level check of a parachain state is executed by validators who are responsible for this parachain. These validators are called parachain validators and they shift from one parachain to another parachain periodically. The second level of check is executed by staked parties called fishermen which report to validators if they see any invalid state to receive some reward. And the last level of check is executed by randomly chosen validators after seeing no invalidity reports by parachain validators. These checks guarantee that it is almost impossible to have a finalized invalid state in the relay chain.
