@@ -1,4 +1,5 @@
-\section{Components}
+\section{Components}\label{sec:components}
+\begin{samepage}
 Next we summarise Polkadot functionality shortly and then continue to describe the individual components to achieve that functionality.
 
 Polkadot is a multi-chain system with shared security guarantees. Polkadot consists of a main chain called the Relay Chain and multiple parallel chains
@@ -10,9 +11,7 @@ responsible for parachain block production and reporting invalid parachain block
 responsible to keep it available. For this purpose, they create erasure coded pieces from the parachain blocks and distribute
 them to all the remaining validators. Moreover, another feature of Polkadot is enabling interchain messaging among parachains.
 Furthermore, Polkadot has a decentralised governance scheme that can change any Polkadot design decisions and parameterisation.
-
 %What do they achieve (refer to properties)?
-
 \include{validators}
 \include{parachains}
 \include{relaychain}
@@ -21,3 +20,4 @@ Furthermore, Polkadot has a decentralised governance scheme that can change any 
 \include{governance}
 \include{crypto}
 \include{networking}
+\end{samepage}
