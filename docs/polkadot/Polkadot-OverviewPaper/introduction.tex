@@ -1,4 +1,4 @@
-\section{Introduction}
+\section{Introduction}\label{sec:intro}
 Until recently most of the applications on the web were controlled in a centralized fashion.
 We refer not to the centralization of physical infrastructure, which is often economically efficient, but rather to the logical centralization of the ability to deploy, take down, alter, and change the rules of the application.
 Two good examples are Google and Facebook: while they do have servers all around the world, they are each ultimately controlled by a single legal entity.
@@ -12,18 +12,22 @@ One of the fundamental challenges of the decentralized web is keeping state. The
 Blockchains are one of technologies who address this problem.
 
 In order to make the decentralized web usable for end users these separate blockchains need to interact, otherwise each will become isolated and not adopted by as many users, and the sum functionality of the system will be insufficient to compete with the centralized web.
-However, to interact different chains need to build in interoperability mechanisms, which introduces challenges.
-
-Many of these challenges arise from the ways that different blockchains have different technical characteristics. For example, Bitcoin and Ethereum are proof-of-work (PoW) blockchains where preventing the control of the whole system by one entity is carried out by introducing challenges that need a large amount of processing power to solve. Their security relies on whether this amount of processing power exceeds the amount of processing power any single entity would possibly have. An alternative to PoW are proof-of-stake (PoS) systems, where the entities who control the system have to lock a large amount of funds and would be punished if they misbehave in any way.
+However, to interact different chains need to build in interoperability mechanisms, which introduces challenges. Many of these challenges arise from the ways that different blockchains have different technical characteristics. For example, Bitcoin and Ethereum are proof-of-work (PoW) blockchains where preventing the control of the whole system by one entity is carried out by introducing challenges that need a large amount of processing power to solve. Their security relies on whether this amount of processing power exceeds the amount of processing power any single entity would possibly have. An alternative to PoW are proof-of-stake (PoS) systems, where the entities who control the system have to lock a large amount of funds and would be punished if they misbehave in any way.
 The security relies on the fact that the total amount of locked funds exceeds the budget any adversary is able to invest in the attack.
 These technical differences present difficulties for one blockchain to be able to trust another.
 
-Currently there have been hundreds chains implemented in the wild for various functions.
-For example, ....
-Most one of these systems have different properties they aim to achieve and certain security threshold that they set up. Hence, there is a need for a system that can connect this heterogenous chains.
+Currently there have been hundreds chains implemented in the wild for with various functions and non-similar technology.
+Most one of these systems have different properties they aim to achieve and certain security threshold that they set up.
+Hence, there is a need for a system that can connect this heterogenous chains.
 Moreover, having multiple security set ups causes a split in the security these systems can provide.
 Gathering all this security power and have a shared security system increases security substantially.
 
 In this paper we introduce Polkadot, a multi-chain system with shared security guarantees.
 Polkadot consists of a main chain called the \emph{Relay Chain} and multiple parallel chains called \emph{Parachains}.
 The security goal of Polkadot is to be Byzantine fault tolerant.
+
+Furthermore, scalability is another challenge for blockchains to make them comparable with centralised services in functionality .
+Polkadot's hierarchical structure addresses this challenge.
+
+The paper is organised as follows. In Section~\ref{sec:properties} we review the properties that Polkadot is aiming for and Section~\ref{sec:preliminiary} examines the structural components and roles that we defined for Polkadot.
+Section~\ref{sec:components} presents all the underlying components including protocols and primitives that have been designed for Polkadot as well as a note about incentives and economics.
