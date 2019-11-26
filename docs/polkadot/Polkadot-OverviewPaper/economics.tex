@@ -6,7 +6,7 @@ Polkadot will have a native token called DOT. Its various functions are describe
 
 \subsubsection{NPoS rewards and inflation}
 
-In this section we consider NPoS rewards, i.e.~payments to validators and nominators, coming from the minting of new tokens, 
+In this section we consider NPoS rewards, i.e.~payments to validators and nominators coming from the minting of new tokens, 
 in normal circumstances. In particular we do not consider rewards from transaction fees, slashings, nor rewards to fishermen 
 and other reporters of offenses; these will be analyzed in further sections. 
 NPoS rewards are the main driver of inflation in the system. 
@@ -24,19 +24,18 @@ to keep them liable to slashing in case an offense is detected late.
 \paragraph{Staking rate, interest rate, inflation rate.} Let the "staking rate" be the total amount of DOTs 
 currently staked by validators and nominators, divided by the current total DOT supply. 
 Their average interest rate will be a function of the staking rate:%
-\footnote{As we explain further below, validators and nominators are not all paid exactly the same 
-interest rate at a given time; in particular, validators are generally paid more than nominators, 
-and a validator with periods of unresponsiveness will be paid less than other validators. 
+\footnote{As we explain below, validators and nominators are not all paid exactly the same 
+interest rate at a given time; in particular, validators are generally paid more than nominators.  
 The average interest rate is simply the total payout divided by the total amount staked.}
 if the staking rate dips below a certain target value (be to selected by governance), 
 the average interest rate will increase, thus incentivizing more participation in NPoS, and vice versa. 
 For instance, a target value of $50\%$ could be selected for the staking rate as a middle ground between security 
 and liquidity. If the average interest rate is set to $20\%$ p.a.~at that staking rate value, 
 then we can expect to maintain an inflation rate (due to NPoS rewards) of $50\%\times 20\% = 10\%$ on average. 
-Hence, by controlling the staking rate we can also control the inflation rate. 
+Hence, by controlling the staking rate we also control the inflation rate. 
 
 
-\paragraph{Rewards across validator slots.} Once the total payout for the current era is computed, 
+\paragraph{Rewards across validator slots.} Once the total payout for the current era is computed 
 as a function of the staking rate according to the paragraph above, we need to establish how it is distributed.
 Recall that the NPoS validator selection protocol (see Section~\ref{sec:validators}) 
 partitions all validators' and nominators' stake into the different validator slots 
@@ -46,7 +45,7 @@ A further incentive mechanism we set, to ensure decentralization over time,
 is \emph{paying validator slots equally for equal work, NOT proportional to their backings}. 
 As a consequence, nominators inside a validator slot with more backing will be paid less per staked DOT 
 than nominators backing a less popular validator. Hence, they will be incentivized to change 
-their preferences over time, converging to a point where all slot backings are equal.
+their preferences over time, converging to the ideal case where all slot backings are equal.
 
 In particular, we devise a point system where validators accumulate points for payable actions performed, 
 and at the end of each era validator slots are rewarded proportional to their points. 
@@ -57,7 +56,7 @@ Examples of payable actions are: producing a block in BABE, validating a paracha
 that nominator's payout in an era corresponds to the sum of her payouts relative to each of these slots. 
 Within a validator slot, the payment is as follows: 
 First, the validator is paid his commission fee, which is an amount entirely up to him to decide and 
-publicly announced in advance by him, before nominators reveal their preferences for the era. 
+publicly announced before nominators select their preferences for the era. 
 This fee is intended to cover the validator's operational costs. 
 Then, the remainder is shared among all parties (both validator and nominators) proportional to their stake within the slot. 
 In other words, the validator is paid twice: once as a non-stake validator with a fixed commission fee, and once as staked nominator. 
@@ -66,46 +65,29 @@ but since this fee is published in advance, nominators will generally prefer to 
 We thus let the market regulate itself. Validators who have built a strong reputation of reliability and performance 
 may be able to charge a higher commission fee, which is fair.
 
-\paragraph{Remark.} As our decision to reward validator slots independently of their stake is likely to raise eyebrows, 
-we provide further arguments for it. 
-First, notice that since validators and paid well, and the selection protocol picks a limited number of validators 
-with the most backing, the latter have an incentive to ensure a high enough backing to get elected, 
+\paragraph{Remark.} As our decision to reward validator slots equally for equal actions independently of their stake 
+is likely to raise eyebrows, we provide further arguments for it. 
+First, notice that since validators are paid well and the number of slots is limited, 
+ candidates have an incentive to ensure a high enough backing to get elected, 
 and we expect to have enough competition so that the minimum required backing is very high. 
 Furthermore, even if the payouts are roughly the same across slots, within a slot each nominator and validator 
 gets paid proportional to their stake, hence there is always an individual incentive to increase one's own stake. 
 Finally, if a validator considers that his slot has more backing than necessary, he can either increase his 
-commission fee (which has the effect of increasing his own reward at the expense of scaring away some nominators),
-or he can create a new validator candidate and split his stake and nominators' support between these nodes
-(we welcome individuals and companies with multiple validator nodes, so long as they disclose such correlations to nominators).
+commission fee (which has the effect of increasing his own reward at the risk of pushing some nominators away),
+or he can create a new candidate node and split his stake and nominators' support between all his nodes. 
+On this last point, we welcome individuals and companies with multiple validator nodes (and even aim to make their 
+logistics simpler), so long as they disclose such correlations to nominators.
 
-\subsubsection{Slashing}
 
 \subsubsection{Relay-chain transaction fees and block limits}
 
-\paragraph{Limits on resource usage.} 
-
-We design transaction fees with the following goals in mind:
-
-\begin{enumerate}
-\item Each relay-chain block can be processed efficiently, even on less powerful nodes, to avoid delays in block production.
-\item The growth rate of the relay chain state is bounded.
-\item Each block has guaranteed availability for a certain number of operational, high-priority tran
-\end{enumerate}
-
-Some of the properties we want to achieve relative to relay-chain transactions are as follows:
-
-Each relay-chain block should be processed efficiently, even on less powerful nodes, to avoid delays in block production.
-The growth rate of the relay chain state is bounded. 2'. Better yet if the absolute size of the relay chain state is bounded.
-Each block has guaranteed availability for a certain amount of operational, high-priority txs such as misconduct reports.
-Blocks are typically far from full, so that peaks of activity can be dealt with effectively and long inclusion times are rare.
-Fees evolve slowly enough, so that the fee of a particular tx can be predicted accurately within a frame of a few minutes.
-For any tx, its fee level is strictly larger than the reward perceived by the block producer for processing it. Otherwise, the block producer is incentivized to stuff blocks with fake txs.
-For any tx, the processing reward perceived by the block producer is high enough to incentivize tx inclusion, yet low enough not to incentivize a block producer to create a fork and steal the transactions of the previous block. Effectively, this means that that the marginal reward perceived for including an additional tx is higher than the corresponding marginal cost of processing it, yet the total reward for producing a full block is not much larger than the reward for producing an empty block (even when tips are factored in).
-For the time being, we focus on satisfying properties 1 through 6 (without 2'), and we leave properties 2' and 7 for a further update. We also need more analysis on property 2.
-
-The amount of transactions that are processed in a relay-chain block can be regulated in two ways: by imposing limits, and by adjusting the level of tx fees. We ensure properties 1 through 3 above by imposing hard limits on resource usage, while properties 4 through 6 are achieved via fee adjustments. These two techniques are presented in the following two subsections respectively.
+\paragraph{Limits on resource usage.} Every relay-chain block can process a limited number of transactions, in order to ensure it can be processed efficiently even on less powerful nodes, 
+and avoid delays in block production. 
 
 
-\subsubsection{Inflation and Deflation}
 
-\subsubsection{Auction economics}
+%\subsubsection{Slashing}
+
+
+
+%\subsubsection{Auction economics}
