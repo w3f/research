@@ -1,7 +1,12 @@
 # Jeff Burdges
 
-![](Jeff.jpg)
+<img style="float: right;" src="../Jeff.jpg" alt="Jeff Burdges" width="135"/>
 
-Jeff is a cryptography researcher at the Web 3 Foundation, where he works on diverse topics around as collaborative randomness and block production. Jeff has found vulnerabilities in cryptographic systems, most recently the BIP32-Ed25519 proposal. He is also researching a new peer-to-peer private messaging service that will use mix networks.
+Jeff Burdges is an applied cryptography researcher working with the [Web3 foundation](https://research.web3.foundation/en/latest/), where he works on cryptography for decentralized and/or privacy preserving protocols.
 
-**Short Bio**. Previously, he worked at Inria Rennes. His work includes anonymity protocols, diverse topics around signature schemes, verifiable random functions, distributed authentication, forward-secure ratchets, and pairing-based protocol. Jeff holds a PhD degree in Mathematics from Rutgers University.
+Jeff's work often involves collaborative randomness, specialized signature schemes like verifiable random functions (VRFs) or anonymous credentials, and increasingly both zero-knowledge proofs and incentives or mechanism design using VRFs.  He is also researching a peer-to-peer private messaging service that will use mix networks.
+
+Jeff has ocasionally finds vulnerabilities, most recently the BIP32-Ed25519 proposal, but previously in blind signature deployments, and mix network designs, including broad limitations on the post-quantum kety exchanges suitable for mix networks.
+
+**Short Bio**.  Jeff previously worked on [Taler](https://taler.net/en/) and [GNUNet](https://gnunet.org/en/) as a postdoc for Christian Grothoff at Inria, Rennes, where he worked on anonymity protocols primarily mix networks, blind signatures, security proofs, distributed authentication, forward-secure ratchets, and pairing-based protocols.  Jeff holds a PhD degree in Mathematics from Rutgers University in New Jersey.
+

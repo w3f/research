@@ -1,8 +1,15 @@
 \documentclass{article}
 %=================Begin:Packages===================
 \usepackage{graphicx}
+\usepackage{bmpsize}
+
 \usepackage{enumitem}
 \usepackage{url}
+
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{hyperref}
+
 %=================End:Packages===================
 
 %=================Begin:Macros===================
@@ -10,10 +17,10 @@
 \newcommand{\Val}{\ensuremath{\mathcal{V}}} % Set of elected validators
 \newcommand{\nval}{\ensuremath{n_{val}}} % Number of validators to elect
 \newcommand{\Can}{\ensuremath{\mathcal{C}}} %Set of candidate validators
-\newcommand{\nom}{\ensuremath{}} % A nominator
-\newcommand{\val}{\ensuremath{}} %A validator
-\newcommand{\col}{\ensuremath{}} %A collator
-\newcommand{\Par}{\ensuremath{P}} %A particilar parachain
+\newcommand{\nom}{\ensuremath{n}} % A nominator
+\newcommand{\val}{\ensuremath{v}} %A validator
+\newcommand{\col}{\ensuremath{c}} %A collator
+\newcommand{\Par}{\ensuremath{P}} %A particular parachain
 \newcommand{\Col}{\ensuremath{\mathcal{C}}} %Set of collators
 \newcommand{\slot}{\ensuremath{sl}} %slot number
 \newcommand{\ep}{\ensuremath{e}} %epoch number
@@ -38,16 +45,16 @@
 \title{Overview of Polkadot Design}
 
 \author{
-  Jeff Brudges$^*$, Alfonso Cevallos$^*$, Peter Czaban$^*$\\
+  Jeff Brudges$^1$, Alfonso Cevallos$^1$, Peter Czaban$^1$\\
   \and
-  Rob Habermeier, Syed Hosseini$^*$, Handan Kilinc Alper$^*$\\
+  Rob Habermeier$^2$, Syed Hosseini$^1$, Handan Kilinc Alper$^1$\\
   \and
-  Ximin Luo$^*$, Fatemeh Shirazi$^*$, Alistair Stewart$^*$, Sergey Vasilyev$^*$\\
+  Ximin Luo$^1$, Fatemeh Shirazi$^1$, Alistair Stewart$^1$\\
   \and
-  Gavin Wood\\
+  Gavin Wood$^{1,2}$\\
   \\
-  \texttt{$^*$ Web3 Foundation},\\
-  \texttt{Parity Technologies}
+  \texttt{$^1$ Web3 Foundation},\\
+  \texttt{$^2$ Parity Technologies}
 %  \texttt{firstname@web3.foundation},
 %\texttt{firstname@parity.io}
 }
@@ -69,16 +76,16 @@ We review the properties that Polkadot aims to achieve and go over all the compo
 \newpage
 \input{introduction}
 \input{properties}
- \input{preliminaries}
+\input{preliminaries}
 \input{components}
 %\input{PolkadotInPractice}
 
 \section*{Acknowledgement}
 We would like to acknowledge Parity Technology developers for their useful input and good discussions.
-
+\bibliographystyle{plain}
+\bibliography{references,crypto}
 \begin{appendix}
 \input{background}
 \end{appendix}
-\bibliographystyle{plain}
-\bibliography{references,crypto}
+
 \end{document}

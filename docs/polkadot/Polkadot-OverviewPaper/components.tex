@@ -1,7 +1,17 @@
-\section{Components}
-How do they work?
-What do they achieve (refer to properties)?
+\section{Components}\label{sec:components}
+%\begin{samepage}
+Next we summarise Polkadot functionality shortly and then continue to describe the individual components to achieve that functionality.
 
+Polkadot is a multi-chain system with shared security guarantees. Polkadot consists of a main chain called the Relay Chain and multiple parallel chains
+ called Parachains. The relay chain, maintained by validators, is responsible for keeping the state of all the parachains.
+ These validators need to vote on the consensus over all the parachains.
+The security goal of Polkadot is to be Byzantine fault tolerant. In addition, the validators are assigned to parachains by dividing the validators set into
+random disjoint subsets that are each assigned to a particular parachain. For the parachain, there are additional actors called collators and fishermen that are
+responsible for parachain block production and reporting invalid parachain blocks respectively. The parachain validators assigned to each parachain validate each parachain block and are
+responsible to keep it available. For this purpose, they create erasure coded pieces from the parachain blocks and distribute
+them to all the remaining validators. Moreover, another feature of Polkadot is enabling interchain messaging among parachains.
+Furthermore, Polkadot has a decentralised governance scheme that can change any Polkadot design decisions and parameterisation.
+%What do they achieve (refer to properties)?
 \include{validators}
 \include{parachains}
 \include{relaychain}
@@ -10,3 +20,4 @@ What do they achieve (refer to properties)?
 \include{governance}
 \include{crypto}
 \include{networking}
+%\end{samepage}
