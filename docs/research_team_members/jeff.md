@@ -1,6 +1,6 @@
 # Jeff Burdges
 
-<img style="float: right;" src="../Jeff.jpg" alt="Jeff Burdges" width="135"/>
+![](Jeff.jpg){: width="150px" align="right" alt="Jeff Burdges"}
 
 Jeff Burdges is an applied cryptography researcher working with the [Web3 foundation](https://research.web3.foundation/en/latest/), where he works on cryptography for decentralized and/or privacy preserving protocols.
 
