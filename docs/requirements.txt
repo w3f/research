@@ -1,0 +1,3 @@
+sphinx-markdown-parser>=0.2.1
+pymdown-extensions
+sphinx-material

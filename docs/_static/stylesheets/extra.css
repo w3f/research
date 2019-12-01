@@ -1,0 +1,17 @@
+/* hide breadcrumbs, saves vertical space */
+.md-tabs {
+    display: none;
+}
+
+/* override color here, material doesn't seem to allow us via theme options.
+ * !important is needed because there are more-specific rules that define the
+ * background */
+.md-header {
+    background-color: black !important;
+}
+
+/* hide the current page's TOC in the left sidebar, since it is already in the
+ * right sidebar */
+.md-nav--secondary + ul {
+    display: none;
+}
