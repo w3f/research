@@ -1,14 +1,15 @@
 \documentclass{article}
 %=================Begin:Packages===================
 \usepackage{graphicx}
+\usepackage{bmpsize}
+
 \usepackage{enumitem}
 \usepackage{url}
-%<<<<<<< HEAD
+
 \usepackage{amsfonts}
 \usepackage{amsmath}
-%=======
 \usepackage{hyperref}
-%>>>>>>> 51e2d8511e21185a91fd7191f596e2d5c7b83a47
+
 %=================End:Packages===================
 
 %=================Begin:Macros===================
@@ -48,9 +49,9 @@
   \and
   Rob Habermeier$^2$, Syed Hosseini$^1$, Handan Kilinc Alper$^1$\\
   \and
-  Ximin Luo$^1$, Fatemeh Shirazi$^1$, Alistair Stewart$^1$, Sergey Vasilyev$^1$\\
+  Ximin Luo$^1$, Fatemeh Shirazi$^1$, Alistair Stewart$^1$\\
   \and
-  Gavin Wood$^2$\\
+  Gavin Wood$^{1,2}$\\
   \\
   \texttt{$^1$ Web3 Foundation},\\
   \texttt{$^2$ Parity Technologies}
@@ -75,16 +76,16 @@ We review the properties that Polkadot aims to achieve and go over all the compo
 \newpage
 \input{introduction}
 \input{properties}
- \input{preliminaries}
+\input{preliminaries}
 \input{components}
 %\input{PolkadotInPractice}
 
 \section*{Acknowledgement}
 We would like to acknowledge Parity Technology developers for their useful input and good discussions.
-
+\bibliographystyle{plain}
+\bibliography{references,crypto}
 \begin{appendix}
 \input{background}
 \end{appendix}
-\bibliographystyle{plain}
-\bibliography{references,crypto}
+
 \end{document}
