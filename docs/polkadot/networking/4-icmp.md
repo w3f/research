@@ -197,7 +197,7 @@ And the good news is that not all egress has to be propagated within one block-t
 This is a scheme which results in all participants seeing all messages.
 It almost certainly will not scale beyond a small number of initial chains but will serve functionally as a starting protocol.
 
-## Interchain Messaging Routing Overview
+### Interchain Messaging Routing Overview
  To send messages from one parachain (sending parachain) to another parachain (receiving parachain) depending on the setup the following steps will be carried out.
 
  1. When full nodes of the sending parachain are also part of the domain of the receiving parachain, gossiping the message suffices
@@ -209,7 +209,7 @@ It almost certainly will not scale beyond a small number of initial chains but w
 
 
 
-**Future Improvements (roughly, from sooner to later)**:
+### Future Improvements (roughly, from sooner to later)
 
  1. A section above describes why propagating egress to peers who are _arbitrarily_ far back is a bad idea, but we can reasonably keep track of the last $a$ ancestors of all of our leaves once we're synced and just following normal block production.
  The first reasonable choice for $a$ is 1 (keep parents). This probably gets us 90% of the gains we need, simply because there is a "stutter" when requiring leaf-sets to intersect and two peers need to update each other about the new child before sending any more messages.
