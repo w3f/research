@@ -15,3 +15,8 @@
 .md-nav--secondary + ul {
     display: none;
 }
+
+/* material themes missing this definition, it's an obscure docutils thing */
+.align-right {
+    float: right;
+}

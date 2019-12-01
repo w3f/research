@@ -36,3 +36,11 @@ edits you could do, if appropriate, are:
 - Remove the autoredirect (the `<meta http-equiv="refresh">`) and instead add
   some meaningful context to the page, as a "landing page" before you go onto
   the main page.
+
+
+## Markdown syntax
+
+If you have any problems with the markdown sphinx integration, e.g. if you
+can't get something to work that you expect to work in Markdown, ping infinity0
+about it - he wrote the core of the current sphinx markdown parser and can
+probably figure out a solution to your problem.
