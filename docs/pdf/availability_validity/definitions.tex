@@ -1,4 +1,20 @@
-\section{Definitions}
+\section{Heterogeneous sharding}
+
+We shall describe a blockchain sharding scheme through which a single {\em relay chain} can validate numerous heterogeneous shard chains, with true shared security, minimal latency, good liveness, and relative efficiency in terms of computation, network, and storage.  We refer to our shard chains by the term {\em parachains} because shards connotes a non-heterogeneous approach.  There exist terms for heterogeneous approachs too, but they all conote bridged designes without shared security.  
+
+We let $\vals$ denote the full validator list for the relay chain, and set $\nvals := |\vals|$.  We expect here that relay chain validators act as bock producers for the relay chain.  We assume that $\nvals \ge 3 f + 1$ where $f$ bounds the number of validators controlled by any adversary.
+
+% \begin{assumption}
+An adversary who controls $f$ of the $n$ relay chain validators knows the upcoming block producer for its own upcoming block production slots of course, but we assume Bernoulli trials with probability ${f (n-f) \over n^n}$ describe whether they know the honest block producer assigned to individual upcoming block production slots.  In particular if ${f \over n} < {1\over3}$ then they know less than ${5 \over 9}$ths of the upcoming honest block producers.
+% \end{assumption}
+We choose this assumption because it supports overall stronger block production mechanisms than proof-of-work or \cite{Praos}, although those would admit a better bound here.
+
+Each parachain $\rho$ has its own block production protocol run within its own infrastructure, and refer to its block producers as {\em collators}.  We let $\vals_{\para,t} \subset \vals$ denote the sublist of validators assigned to parachain $\para$ at time $t$.  We need a bound $\npvals$ such that $|\vals_{\para,t}| \ge \npvals$.
+
+
+
+
+
 
 \paragraph{Notations} $\V= \{V_1,V_2,...,V_n\}$ is the validator set consisting of validators $V_i$. $\pv$ is a set of parachain validators and $\pv \subset \V$. For the sake of distinction, we denote parachain validators by $PV_i \equiv V_i$.
 

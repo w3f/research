@@ -8,14 +8,14 @@
 
 The protocol consists of two phases ``Parachain phase'' and ``Relay Chain Phase''. The parachain phase is executed between collators and parachain validators. In the end of this phase, the parachain validators validate the block and provide its erasure code pieces to the validators. Then, the relay chain phase begins. If the parachain phase is executed correctly, then the relay chain phase includes extra validation of a parachain block, adding the block header to the relay chain and finalizing that relay chain block. Otherwise, unavailability protocol is run between validators. The details are as follows: 
 
-\paragraph{Parachain Phase:} This phase is between parachain validators and collators of the corresponding parachain.
+\paragraph{Parachain Phase:} We first describe the protocol by which collators of a parachain $\rho$ submit a candidate block to the parachain validators assigned to $\vals_{\rho,t}$, at some time $t$.
 
 \begin{itemize}
     \item For each parachain block $B$, a collator runs the $\prove(B,PC,M)$ and obtains the proof $\pi$ for the validity of  block $B$. Then, he sends the blob $\bb = (B,\pi,M)$ to the corresponding parachain validators to show that the block is valid and can be added to the relay chain. 
     
-    \item Each parachain validator $V \in \pv$ checks the validity of the block by running the $\verify$ algorithm for the blob $\bb$. If it outputs 0, they ignore the block and store the block as invalid. Otherwise, $V$ runs the $\divi(\bb)$ to obtain the erasure code pieces $\mathcal{D} = \{d_1,d_2,...,d_n\}$ of $\bb$.
+    \item Each parachain validator $V \in \vals_\rho$ checks the validity of the block by running the $\verify$ algorithm for the blob $\bb$. If it outputs 0, they ignore the block and store the block as invalid. Otherwise, $V$ runs the $\divi(\bb)$ to obtain the erasure code pieces $\mathcal{D} = \{d_1,d_2,...,d_n\}$ of $\bb$.
     % TODO Breaks V defimition badly
-    \item $V$ constructs a Merkle tree  with  leaves $d_1,d_2,...,d_n$. Let us denote the root of the Merkle tree by $r$. At the end, $V$ signs for each validator $V_j$ the message $(d_j, r, \mprf_i, B_{info})$ and gives each signature $\sigma_i^j$ to the distributor parachain validator. Here, $\mprf_i$ is the proof that shows that $d_i$ is one of the leaves of the Merkle tree with the root $r$ and $B_{info}$ is identifying information of $B$. We note that the distributor can be selected randomly or in order. Each parachain validator also gives the erasure code piece to at least one (trusted) collator in order to backup the piece.
+    \item $V$ constructs a Merkle tree with leaves $d_1,d_2,...,d_n$. Let us denote the root of the Merkle tree by $r$. At the end, $V$ signs for each validator $V_j$ the message $(d_j, r, \mprf_i, B_{info})$ and gives each signature $\sigma_i^j$ to the distributor parachain validator. Here, $\mprf_i$ is the proof that shows that $d_i$ is one of the leaves of the Merkle tree with the root $r$ and $B_{info}$ is identifying information of $B$. We note that the distributor can be selected randomly or in order. Each parachain validator also gives the erasure code piece to at least one (trusted) collator in order to backup the piece.
 \end{itemize}
 
 
