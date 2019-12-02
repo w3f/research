@@ -2,7 +2,7 @@
 News
 ====
 **02.12.19**
-    Two posters from Jeff and Handan have been accepted at Financial Crypto 2020.
+    A from Jeff on incentivized mixing and a poster from Handan consensus on clocks have been accepted at Financial Crypto 2020.
     
 **20.11.19**
     Some members of the research and HR teams will present a recruitment talk for masters and PhD students at EPFL, Switzerland.
