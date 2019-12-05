@@ -1,6 +1,9 @@
 ====
 News
 ====
+**05.12.19**
+    Handan has finished a paper titled: "Consensus on Clocks" (https://eprint.iacr.org/2019/1348.pdf). It is an updated version of Ouroboros Clepsydra that doesn’t rely on existence of some syncronized parties anymore.
+    
 **02.12.19**
     A poster from Jeff on incentivized mixing and a poster from Handan on consensus on clocks have been accepted at Financial Crypto 2020.
 
