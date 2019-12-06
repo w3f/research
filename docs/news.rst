@@ -2,10 +2,10 @@
 News
 ====
 **05.12.19**
-    Handan has finished a paper titled: "Consensus on Clock in Universally Composable Timing Model" (https://eprint.iacr.org/2019/1348.pdf). It is an updated version of Ouroboros Clepsydra that doesn’t rely on existence of some syncronized parties anymore.
+    Handan has finished a paper titled: `Consensus on Clock in Universally Composable Timing Model <https://eprint.iacr.org/2019/1348.pdf>`_. It is an updated version of Ouroboros Clepsydra that doesn’t rely on existence of some syncronized parties anymore.
     
 **03.12.19**
-    Syed attended the ECC workshop (https://eccworkshop.org/2019/) in Bochum, Germany.
+    Syed attended the `ECC workshop <https://eccworkshop.org/2019/>`_ in Bochum, Germany.
 
 **02.12.19**
     A poster from Jeff on incentivized mixing and a poster from Handan on consensus on clocks have been accepted at Financial Crypto 2020.
@@ -32,7 +32,7 @@ News
     At Devcon day 1, Fatemeh will give a short presentation about Polkadot's needs for p2p. On day 4, Alistair will give a devcon talk on our availabiltiy and validity scheme. Also on day 4, Alfonso will give a short presentation about governenace.
 
 **05.10.19**
-    Alistair gave a talk at the NodeTokyo 2019 (https://nodetokyo.jp/) about our NPoS solution.
+    Alistair gave a talk at the `NodeTokyo 2019 <https://nodetokyo.jp/>`_ about our NPoS solution.
 
 **17.09.19**
     Alistair's poster on GRANDPA has been accepted as an ACM CCS poster and will be pesented in CCS'19 in London.
