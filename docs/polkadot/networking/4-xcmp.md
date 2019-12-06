@@ -5,7 +5,7 @@
 **Last updated**: 24.09.2019
 
 ====================================================================
-## ICMP
+## XCMP
 
 ### Inter-chain Message Passing: Egress Queue Data Fetching
 
@@ -197,7 +197,7 @@ And the good news is that not all egress has to be propagated within one block-t
 This is a scheme which results in all participants seeing all messages.
 It almost certainly will not scale beyond a small number of initial chains but will serve functionally as a starting protocol.
 
-### Interchain Messaging Routing Overview
+### XCMP Routing Overview
  To send messages from one parachain (sending parachain) to another parachain (receiving parachain) depending on the setup the following steps will be carried out.
 
  1. When full nodes of the sending parachain are also part of the domain of the receiving parachain, gossiping the message suffices
