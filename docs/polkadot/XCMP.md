@@ -4,11 +4,11 @@
 
 **Last updated**: 12.12.2018
 
-**Note**: This write-up contains only notes from a ICMP workshop 15.11.18-16.11.18 in Berlin.
+**Note**: This write-up contains only notes from a XCMP workshop 15.11.18-16.11.18 in Berlin.
 
 ====================================================================
 
-# ICMP Scheme
+# XCMP Scheme
 
 ## Motivation
 We want to enable inter-chain messaging among parachains. We want a guarantee that when we send a block we are sure that we have received all the previous messages. Moreover, we want to put a limit on the size of incoming messages to avoid overflowing.
