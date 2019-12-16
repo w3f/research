@@ -94,7 +94,7 @@ In order for the critical data from all chains to remain reachable by users and 
 
 ![Messaging](images/messaging.png)
 
-Besides ensuring all the above properties for all parachain, a crucial element of Polkadot is that these state machines are able to affect each others state transitions. This is done via the [Inter-Chain Message Passing (ICMP) scheme](ICMP.md).
+Besides ensuring all the above properties for all parachain, a crucial element of Polkadot is that these state machines are able to affect each others state transitions. This is done via the [Cross-Chain Message Passing (XCMP) scheme](XCMP.md).
 
 ### 3.6. Size
 
