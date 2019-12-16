@@ -26,7 +26,7 @@ Polkadot needs networking for a number of its components as follows.
 \item collation of blocks within a parachain
 \item validation of parachain blocks, via proofs and attestation, and making these efficiently available \ref{sec:validity-and-availability}
 \item distributing relay chain blocks \ref{sec:relaychainblockproduction} and votes \ref{sec:grandpa}
-\item sending messages between different parachains \ref{sec:ICMP}
+\item sending messages between different parachains \ref{sec:XCMP}
 \item synchronising new state for (a) parachains and (b) the relay chain
 \end{enumerate}
 
@@ -75,7 +75,7 @@ For non-specific target direct sending, we have a few issues to consider:
 \item Load-balancing actual transport-layer connection attempts over the whole target set, and ensuring availability.
 \end{itemize}
 
-As a special case, the source may already be a member of the target set, e.g. in an ICMP message the source parachain may share members with the target parachain. In this case, these members may bypass the above process entirely, and gossip between the two sets. However it may not be obvious to other members of the source set that the intersection member(s) are all online, and so they likely will want to attempt the process anyways.
+As a special case, the source may already be a member of the target set, e.g. in an XCMP message the source parachain may share members with the target parachain. In this case, these members may bypass the above process entirely, and gossip between the two sets. However it may not be obvious to other members of the source set that the intersection member(s) are all online, and so they likely will want to attempt the process anyways.
 
 \subsubsection{Message types}
 Below we give an overview of where and how each type of message is sent. The column \emph{Nets} refers to the networks where a type of message is traversing and the column \emph{Mode} refers to the type of  routing. The column \emph{Static DHT Prefixes} refers to the DHT prefixes of the receivers if we use a one DHT for all and use prefixes to separate sub-networks.
