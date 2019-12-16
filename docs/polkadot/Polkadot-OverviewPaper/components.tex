@@ -9,7 +9,7 @@ The security goal of Polkadot is to be Byzantine fault tolerant when the particp
 In addition, the validators are assigned to parachains by dividing the validators set into random disjoint subsets that are each assigned to a particular parachain.
 For the parachain, there are additional actors called collators and fishermen that are responsible for parachain block production \ref{sec:parachainblockproduction} and reporting invalid parachain blocks respectively.
 The parachain validators assigned to each parachain validate each parachain block and are responsible to keep it available. For this purpose, they create erasure coded pieces from the parachain blocks and distribute
-them to all the remaining validators, see \ref{sec:validity-and-availability}. Moreover, another feature of Polkadot is enabling interchain messaging among parachains, see \ref{sec:ICMP} for more details.
+them to all the remaining validators, see \ref{sec:validity-and-availability}. Moreover, another feature of Polkadot is enabling interchain messaging among parachains, see \ref{sec:XCMP} for more details.
 Furthermore, Polkadot has a decentralised governance scheme \ref{sec:governance} that can change any Polkadot design decisions and parameterisation.
 %What do they achieve (refer to properties)?
 \include{validators}

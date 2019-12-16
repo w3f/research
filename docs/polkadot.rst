@@ -12,7 +12,7 @@ Polkadot
    polkadot/index
    polkadot/Availability_and_Validity
    polkadot/GRANDPA
-   polkadot/ICMP
+   polkadot/XCMP
    polkadot/Parachain-Allocation
    polkadot/Polkadot-Runtime-Environment
    polkadot/Token Economics
