@@ -23,7 +23,7 @@ Initially a {\bf collator} $C$ of a parachain $\para$ must proposes some candida
 
 Next each {\bf parachain validator} $V \in \vals_\para$ checks the validity of the block by evaluating the block with $\verify_\para(\blobB)$.  We also refer to these at the {\em preliminary} validity checks} as well.  We continue below if verification succeeds, but if verification fails, they reject the candidate $\blobB$ and reports it as invalid, ending its consideration.  We expect $V$ gossips $\blobB$ among the parachain validators $\vals_\para$, presumably after checking $\blobB$ itself.
 
-\subsection{Relay chain phase} % {Relay chain block production} 
+\subsection{Relay chain phase} % Relay chain phase I: Block production 
 
 % \smallskip
 % \paragraph{Parachain validator:}
