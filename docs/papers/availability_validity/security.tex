@@ -165,7 +165,7 @@ We can assume that $\mathsf{Gain}$ at most equals to all stake of validators (I 
 According to  \href{http://research.web3.foundation/en/latest/polkadot/BABE/Babe/#6-practical-results}{BABE practical results} (e.g., $c = 0.034, T = 3$ and $k = 54$ ), the epoch length should be around 20000 slots and expected number of malicious slots are around 215. With this constraint, we need to have the parameter $\mu$ as shown in Figure \ref{fig:muval} with respect to $m$.  
 
 \begin{figure}[h]\centering
-	  \includegraphics[width=16cm]{muval.png}
+	  \includegraphics[width=16cm]{images/muval.png}
 	  \caption{The parameter $\mu$ according to number of parachains}
 	  \label{fig:muval}
 \end{figure}
@@ -192,7 +192,7 @@ In the analysis of attack1, we fix this probability to almost $1/m$. Similar to 
 The claim that any rational adversary doe not execute attack 2 or attack 3 can be clearly seen in the  Figure \ref{fig:attack123}.
 
 \begin{figure}[h]\centering
-	  \includegraphics[width=16cm]{attack123.png}
+	  \includegraphics[width=16cm]{images/attack123.png}
 	  \caption{The success probabilities of attack 1, 2 and 3}
 	  \label{fig:attack123}
 \end{figure}
@@ -201,7 +201,7 @@ The claim that any rational adversary doe not execute attack 2 or attack 3 can b
 We give the total attack probabilities (i.e., $p'_X\pr[\mathsf{attack X}]$)is given in the Figure \ref{fig:total}. As it can be seen the success of the attacks are very low. Remember that all these attacks can be happen when all parachain validators are malicious. So, in this case, they have this probability. Otherwise their success probabilities are 0.
 
 \begin{figure}[h]\centering
-	  \includegraphics[width=16cm]{totalattack.png}
+	  \includegraphics[width=16cm]{images/totalattack.png}
 	  \caption{The total attack probabilities. Red is for attack 1, blue is for attack 2 and green is for attack 3.}
 	  \label{fig:total}
 \end{figure}

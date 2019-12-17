@@ -47,7 +47,7 @@ We run the availability and secondary validity check protocols only for parachai
 
 At the same time, we avoid complex anti-spam or prioritisation logic since only GRANDPA require this prior voting restriction.  In fact, if we later require prioritisation logic then this trick isolates it inside relay chain block production.
 
-We cannot entirely escape the availability question within BABE however:  We have several forks $C_1,\ldtos,C_k$ for which at most $f$ validators possess all their chunks, but no fork for which $f+1$ validators possess all their chunks.  Yet, each block producers $V$ possess all their chunks for at least one fork $C_i$.  If BABE were oblivious to availability, then $V$ extends $C_i$, and GRANDA stalls under this configuration. 
+We cannot entirely escape the availability question within BABE however:  We have several forks $C_1,...,C_k$ for which at most $f$ validators possess all their chunks, but no fork for which $f+1$ validators possess all their chunks.  Yet, each block producers $V$ possess all their chunks for at least one fork $C_i$.  If BABE were oblivious to availability, then $V$ extends $C_i$, and GRANDA stalls under this configuration. 
 % TODO:  Anything about secondary validity check here ???
 
 Instead, we define an availability grace period $\grace$ after which an unavailability subprotocol alters BABE's chain selection rule:  
