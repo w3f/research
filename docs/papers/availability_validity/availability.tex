@@ -1,12 +1,17 @@
 
-\section{Protocol}
+\section{Protocol} % Availability and Validity
 \label{sec:protocol}
 
-We now outline the {\em availability and validity protocol}
+We now describe and instantiate our {\em availability and validity protocol} that provides efficient sharding.  It consists of 
+\begin{itemize}
+\item a parachain phase that prepares the candidate block and performs preliminary validity checks,
+\item a relay chain submission phase that distribute candidate parachain blocks, and produces relay chain blocks,
+\item availability and unavailability subprotocols that enforce availability in GRANDPA and BABE receptively,
+\item fuller secondary validity checks for GRANDPA, and
+\item finally objection procedures for fishermen.
+\end{itemize}
 
-% Availability and Validity
-
-The protocol consists of two phases ``Parachain phase'' and ``Relay Chain Phase''. The parachain phase is executed between collators and parachain validators. In the end of this phase, the parachain validators validate the block and provide its erasure code pieces to the validators. Then, the relay chain phase begins. If the parachain phase is executed correctly, then the relay chain phase includes extra validation of a parachain block, adding the block header to the relay chain and finalizing that relay chain block. Otherwise, unavailability protocol is run between validators. The details are as follows: 
+% TODO: Anything more worth saying here?  Maybe extract from:  The parachain phase is executed between collators and parachain validators. In the end of this phase, the parachain validators validate the block and provide its erasure code pieces to the validators. Then, the relay chain phase begins. If the parachain phase is executed correctly, then the relay chain phase includes extra validation of a parachain block, adding the block header to the relay chain and finalizing that relay chain block. Otherwise, unavailability protocol is run between validators. The details are as follows: 
 
 
 \subsection{Parachain phase} 
