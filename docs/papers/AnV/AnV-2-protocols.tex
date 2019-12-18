@@ -26,7 +26,7 @@ Initially a {\bf collator} $C$ of a parachain $\para$ must proposes some candida
 \smallskip
 % \paragraph{Parachain validator:}
 
-Next each {\bf parachain validator} $V \in \vals_\para$ checks the validity of the block by evaluating the block with $\verify_\para(\blobB)$.  We also refer to these at the {\em preliminary} validity checks} as well.  We continue below if verification succeeds, but if verification fails, they reject the candidate $\blobB$ and reports it as invalid, ending its consideration.  We expect $V$ gossips $\blobB$ among the parachain validators $\vals_\para$, presumably after checking $\blobB$ itself.
+Next each {\bf parachain validator} $V \in \vals_\para$ checks the validity of the block by evaluating the block with $\verify_\para(\blobB)$.  We also refer to these at the {\em preliminary validity checks} as well.  We continue below if verification succeeds, but if verification fails, they reject the candidate $\blobB$ and reports it as invalid, ending its consideration.  We expect $V$ gossips $\blobB$ among the parachain validators $\vals_\para$, presumably after checking $\blobB$ itself.
 
 \subsection{Relay chain phase} % Relay chain phase I: Block production 
 
@@ -35,7 +35,7 @@ Next each {\bf parachain validator} $V \in \vals_\para$ checks the validity of t
 
 Now any {\bf parachain validator} $V \in \vals_\para$ runs $\encode_{f+1,\nvals}(\blobB)$ to obtain the list $\pieces'_B$ of $\nvals$ erasure code symbols aka pieces of $\blobB$.  Next $V$ computes a Merkle root $r_B$ for the Merkle tree with leaves $\pieces'_B$.  $V$ constructs the signed candidate receipt $\bar{r}_{B,\{V\}}$ for $B$ by signing an inner candidate receipt $\bar{r}_B = (\para.\mathsf{id},H(\bar{r}_{B'}),r_B,H(B),???)$ where $B'$ denotes the parent of $B$, and attaching its signature.  
 
-We gossip these candidate receipts $\bar{r}_{B,S}$ among the parachain validators $\vals_\para$.  In doing so, we improve them by further aggregating the signature set $S$.\footnote{We envision $\vals_\para$ being small enough that BLS signatures do not improve verification time over Schnorr signatures, although BLS might reduce the candidate receipt's signature from 640 bytes down to 50 bytes.}  We publish $\bar{r}_{B,S}$ for relay chain block producers using relay chain gossip (memepool) whenever $S > \kappa_\para \npval$, assuming this happens eventually.  We abandon $B$ however if another conflicting blocks gets finalised by GRANDPA.  We think $\kappa_\para = {1\over2}$ gives a reasonable choice.
+We gossip these candidate receipts $\bar{r}_{B,S}$ among the parachain validators $\vals_\para$.  In doing so, we improve them by further aggregating the signature set $S$.\footnote{We envision $\vals_\para$ being small enough that BLS signatures do not improve verification time over Schnorr signatures, although BLS might reduce the candidate receipt's signature from 640 bytes down to 50 bytes.}  We publish $\bar{r}_{B,S}$ for relay chain block producers using relay chain gossip (memepool) whenever $S > \kappa_\para \npvals$, assuming this happens eventually.  We abandon $B$ however if another conflicting blocks gets finalised by GRANDPA.  We think $\kappa_\para = {1\over2}$ gives a reasonable choice.
 
 \smallskip
 % \paragraph{Relay chain block producer:}
@@ -58,7 +58,7 @@ We need our network topology induced on one parachain $\para$ to distribute the 
 % \paragraph{Candidate pieces:}
 
 We define the candidate pieces $(d,r_B,\vect{r_B d})$ by attaching the Merkle root and an inclusion proof $\vect{rd}$ to each $d \in \pieces'_B$.  This makes each $d \in \pieces_B$ self authenticating, even if $S$ gets expanded later.
-$$ \pieces_B = Listst{ (d,$\bar{r}_{B,S}$,\vect{r_B d}) }{ d \in \pieces'_B } $$
+$$ \pieces_B = Listst{ (d,\bar{r}_{B,S},\vect{r_B d}) }{ d \in \pieces'_B } $$
 
 We henceforth assume a relay chain block $R$ containing $\bar{r}_{B,S}$ exists.  We must distribute all the candidate pieces in $\pieces_B$ among the full relay chain validator set $\vals$ with $\pieces_B[i]$ going to $\vals[i]$ for $i = 1,\ldots,\nvals$, but only once $R$ exists.  All parachain validators in $\vals_\para$ must compute all of $\pieces'_B$ to compute $r_B$, from which computing $\pieces_B$ too costs nothing.  
 

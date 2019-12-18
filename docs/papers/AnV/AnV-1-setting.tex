@@ -47,8 +47,8 @@ As a convenient Merkle tree notation, we let the notation $\vect{xy}$ denote the
 We shall not restrict this proof $\pi_B$ here, but often $\pi_B$ consists of the union of all copath witnesses $\vect{rx}$ in the associated state tree that arise from read and write operations when executing $B$.  If $B$ changes the state tree's Merkle root from $r_{\mathsf{in}}$ to $r_{\mathsf{in}}$ then 
 $$
 \pi_B = 
-  \bigcup \Setst{ \vect{r_{\mathsf{in}}x} }{ \mathrm{$B$ reads $x$} }
-  \cup \Setst{ \vect{r_{\mathsf{out}}x} }{ \mathrm{$B$ writes $x$} } \mathperiod
+  \bigcup \Setst{ \vect{r_{\mathsf{in}}x} }{ \textrm{$B$ reads $x$} }
+  \cup \Setst{ \vect{r_{\mathsf{out}}x} }{ \textrm{$B$ writes $x$} } \mathperiod
 $$
 There are however other instantiations for $\pi_B$, like some zkSNARKs that takes the read or written leaves $x$ as public inputs.  We define the {\em blob} $\blobB = (B, \pi_B, M)$ for our block $B$ and perhaps its additional associated data $M$, although some plausible instantiations for $\pi_B$ with zkSNARKs allow using only $B_{\mathsf{head}}$ in $\blobB$.
 
