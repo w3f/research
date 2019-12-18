@@ -1,0 +1,113 @@
+\section{Heterogeneous sharding}
+
+We shall describe a blockchain sharding scheme through which a single beacon or {\em relay chain} can validate numerous heterogeneous shard chains, with true shared security, minimal latency, good liveness, and relative efficiency in terms of computation, network, and storage.  We refer to our shard chains by the term {\em parachains} because shard alone connotes a non-heterogeneous approach.  There exist terms for heterogeneous approachs too, but they all conote bridged designes without shared security.  
+
+\subsection{Chains}
+% \paragraph{Relay chain:}
+
+We expect our sharded blockchain employs a Byzantine fault tolerant ``finality gadget'' for the relay chain that establishes finality for all shards or parachains too, like in the Polkadot and Ethereum 2.0 designs.  We let $\vals$ denote the full validator list for the relay chain, and set $\nvals := |\vals|$.  We expect here that relay chain validators act as bock producers for the relay chain.  
+
+As part of our security model, we assume that $\nvals \ge 3 f + 1$ where $f$ bounds the number of validators controlled by any adversary.
+
+% \begin{assumption}
+An adversary who controls $f$ of the $n$ relay chain validators knows the upcoming block producer for its own upcoming block production slots of course, but we assume Bernoulli trials with probability ${f (n-f) \over n^n}$ describe whether they know the honest block producer assigned to individual upcoming block production slots.  In particular if ${f \over n} < {1\over3}$ then they know less than ${5 \over 9}$ths of the upcoming honest block producers.
+% \end{assumption}
+We choose this assumption because it supports overall stronger block production mechanisms than proof-of-work or \cite{Praos}, although those would admit a better bound here.
+
+As in other finality gadget designs, the relay chain and each parachain $\para$ has its own block production protocol run within its own infrastructure.  We employ the simplifying assumption that the block producer list equals the validator list $\vals$.  
+
+% \paragraph{Parachains:}
+
+A parachain $\para$ refers to its block producers as {\em collators}, which could come from $\vals$ or elsewhere.  We let $\vals_\para \subset \vals$ denote the sublist of validators assigned to parachain $\para$.  We also need a bound $\npvals$ such that $|\vals_\para| \ge \npvals$.
+
+In fact, we always have an epoch paramater $t$ associated to $\para$, but we subsume $t$ into $\para$ here for convenience.  Aside from time, we similarly assume the relay chain provides some randomness $r$ associated to each epoch $t$, which we similarly subsume into our $\para$ notation for convenience.
+
+We prefer if subscripts always denote higher level properties, like identifying parachains, cryptographic keys, etc.  We favor indexing bracket notation like $\vals[i] = \vals_\para[j]$ when identifying individual list elements, as index notation simplifies definitions and avoids mixed role subscripts. 
+
+\subsection{Blocks}
+
+We normally prevent blocks from referencing data in other blocks directly, aka UTXOs, because doing so incurs unacceptable storage overhead.  Instead, all blockchains have some associated state for which blocks describe a state transition, normally stored as a Merkle tree.  As a brutal convenience, we further subsuming the current commitments into our $\para$ notation.
+% TODO: Expand \para into immutabel \para mutable \hat{para} with the commitments 
+
+Consider a block $B$.  We distinguish a header $B_{\mathsf{head}}$ and body $B_{\mathsf{body}}$ of a block $B = (B_{\mathsf{head}},B_{\mathsf{body}})$.  We ask that $B_{\mathsf{head}}$ contain $H(B_{\mathsf{body}})$ and commitments to the associated state before and after running $B$, normally Merkle roots.  
+
+In principle, any block might incorporate additional associated data $M$ also referenced by $B_{\mathsf{head}}$.  We shall not belabour the associated data $M$ here, so anyone who requires it should read thoughtfully.
+
+\begin{definition}\label{def:pob}
+We consider a {\em state witness} procesure consists of  
+\begin{itemize}
+\item a randomize algorithm $\prove_\para$ that executes a block $B$, and maybe $M$, and returns a witness proof $\pi_B$ of any transitions of the associated state, as well as 
+\item a deterministic algorithm $\verify_\para$ that takes the blob $\blobB = (B,\pi_B,M)$ executes $B$ applying the state transition in $\para$, and returns $\mathsf{true}$ and mutates $\para$ if and only if $B$ executes correctly with the state transition given by the witness $\pi_B$.  
+\end{itemize}
+\end{definition}
+We disallow $\prove_\para$ from modifying the associated state commitments in $\para$ and only permit $\verify_\para$ to do so when returning $\mathsf{true}$.
+
+As a convenient Merkle tree notation, we let the notation $\vect{xy}$ denote the copath witness proving that $z$ is a leaf of a Merkle tree with root $x$.  We support internal nodes in this notation too, so $\vect{xz} = \vect{xy} \vect{yz}$ if $y$ lies on the path from $x$ to $z$.  We write $B[\vect{xy}]$ to specify $B$ as the underlying Merklee tree, when not clear from context, especially when $B$ itself is a block.  We shall always write just $\vect{xy}$ when $x$ and $y$ lie in the state tree associated to some blockchain.  
+
+We shall not restrict this proof $\pi_B$ here, but often $\pi_B$ consists of the union of all copath witnesses $\vect{rx}$ in the associated state tree that arise from read and write operations when executing $B$.  If $B$ changes the state tree's Merkle root from $r_{\mathsf{in}}$ to $r_{\mathsf{in}}$ then 
+$$
+\pi_B = 
+  \bigcup \Setst{ \vect{r_{\mathsf{in}}x} }{ \textrm{$B$ reads $x$} }
+  \cup \Setst{ \vect{r_{\mathsf{out}}x} }{ \textrm{$B$ writes $x$} } \mathperiod
+$$
+There are however other instantiations for $\pi_B$, like some zkSNARKs that takes the read or written leaves $x$ as public inputs.  We define the {\em blob} $\blobB = (B, \pi_B, M)$ for our block $B$ and perhaps its additional associated data $M$, although some plausible instantiations for $\pi_B$ with zkSNARKs allow using only $B_{\mathsf{head}}$ in $\blobB$.
+
+We observe this defintion satisfies:
+\begin{itemize}
+\item {\em witness correctness} in that $\verify_\para(B,\prove_\para(B,M),M) = \mathsf{true}$ holds, and
+\item {\em witness security} in that an adversarial $(B,\pi,M)$ satisfies $\verify_\para(B,\pi_B,M) = \mathsf{true}$ and $\pi_B \ne \prove_\para(B,M)$ with a only negligible probability.
+\end{itemize}
+
+\subsection{Availability}
+
+An {\em rigid/cryptographic $k$-of-$n$} erasure code consists of two algorithms:
+\begin{itemize}
+\item $\encode_{k,n}$ creates $n$ encoded strings from one source string $B$, while
+\item $\decode_{k,n}$ recreates the original source string $B$ from {\em any} $k$ of the $n$ encoded strings.
+\end{itemize}
+We call the encoded strings {\em pieces}, although the literature sometimes calls them symbols.  We caution that many modern erasure codes are not rigid/cryptographic, especially rateless codes, because there exist encoded string sets $S$ with $|S| > k$ but for which $\decode_{k,n}$ fails.  Reed-Solomon codes satisfy this rigid/cryptographic property.
+
+% \begin{definition}[Unavailable Block]\label{def:unavail}
+There exist {\em availability sharding protocols} that preserve some string $B$ by distributing its encoded string pieces among distinct locations, like our validators $\vals$.  In this context, we say $B$ is {\em available from $\vals$} or {\em unavailable from $\vals$} if at least $k$ pieces or less than $k$ can be obtained by an honest connected party, respectively.  We write only  {\em available} or {\em unavailable} whenever the locations $\vals$ seems clear from context.
+% \end{definition}
+
+
+
+\subsection{Security Model}
+
+{\bf REFACTOR SUBSECTION INTO NEXT SECTION BECAUSE NOTHING IN THIS SECTION MAKES SENSE HERE}
+
+
+%Think it again
+%\begin{definition}[Risk Value]
+%Given a total stake $S$ and slashing value $x$, the risk value is defined as $p\frac{x}{S}$ where $p$ is the probability of getting caught.
+%\end{definition}
+
+The active parties in the availability and validity scheme are validators, parachain validators, fishermen and collators. 
+
+
+\begin{itemize}
+\item Parachain validators are responsible to validate a blob. They can be malicious.
+\item Collators are the full nodes of parachain and provide a PoV blob to the responsible parachain validators. They can be malicious and collude with parachain validators.
+\item Validators are responsible for maintaining the relay chain and finalizing the blocks in the relay chain. A validator can also be a parachain validator. 
+\item Fishermen inspects any malicious activity. If any exists they announce and prove it.  
+\end{itemize}
+
+
+We note that $B\in PC$ (resp. $B \notin PC$) means that the block $B$ is a valid (resp. invalid) block for a parachain $PC$.
+
+
+\begin{definition}[Security of Availability]
+Assume that at most number of $f$ validators are corrupted. If the probability of having a finalized block in the relay chain which includes an unavailable block is negligible, then the availability protocol is secure against malicious validators.
+\end{definition}
+
+%More formal definition
+\begin{definition}[Security of Validity]
+Assume that  at most number of $f$ validators are corrupted. If the probability of having a finalized block in the relay chain which includes the header of an invalid block is less than a risk value, then the validity protocol is secure against malicious validators.
+\end{definition}
+
+
+
+
+
+

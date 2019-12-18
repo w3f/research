@@ -45,12 +45,12 @@ Given that $\vcheck$ malicious validators are eligible to check the validity of 
 
 Below, we give the probability of any validator being in conditions (\ref{cond:mod}), (\ref{cond:time}), (\ref{cond:modequiv}), (\ref{cond:equiv}):
 
-$$\pr[\text{Cond. (\ref{cond:mod})}] =\pr[\text{Cond. (\ref{cond:modequiv})}] = p_{vrf} = \frac{1}{m}$$
-$$\pr[\text{Cond. (\ref{cond:time}) at time } \tau] = p_\tau =  \frac{\mu'}{n - nc} + \tau $$
-$$\pr[\text{Cond. (\ref{cond:equiv}) }] = \frac{\mu'}{n - nc} $$
+$$\Pr[\text{Cond. (\ref{cond:mod})}] = \Pr[\text{Cond. (\ref{cond:modequiv})}] = p_{vrf} = \frac{1}{m}$$
+$$\Pr[\text{Cond. (\ref{cond:time}) at time } \tau] = p_\tau =  \frac{\mu'}{n - nc} + \tau $$
+$$\Pr[\text{Cond. (\ref{cond:equiv}) }] = \frac{\mu'}{n - nc} $$
 
 
-We assume that $|\pv| = \frac{n}{m}$.  The number of $\vcheck-|\pv| = \mu + r$ malicious validators can be selected for the extra check with the following cases:
+We assume that $\npvals = \frac{n}{m}$.  The number of $\vcheck-\npvals = \mu + r$ malicious validators can be selected for the extra check with the following cases:
 
 \begin{enumerate}
     
@@ -59,35 +59,35 @@ We assume that $|\pv| = \frac{n}{m}$.  The number of $\vcheck-|\pv| = \mu + r$ m
     
     
     \begin{align}\label{eq:attack2}
-        \pr[\mathsf{attack1}] &= (1-\frac{1}{m})^{2n/3} <  e^{-2n/3m} \nonumber
+        \Pr[\mathsf{attack1}] &= (1-\frac{1}{m})^{2n/3} <  e^{-2n/3m} \nonumber
     \end{align}
     
     
     \item $\mu+r < \frac{n}{m}$ and at least $\mu' = \mu+r$ malicious validators are in condition (\ref{cond:time}) until the time $\tau_k$. For simplicity, we divide time in discrete values $[\tau_0 = 0, \tau_1 =u, \tau_2 = 2u, ..., \tau_k = ku]$. $\tau_k$ can be computed by malicious validators before the validation process begins. The probability of this attack is the following
     
     \begin{align}
-        \pr[\mathsf{attack2}] &= \prod_{i = 0}^k(1-p_{\tau_i})^{\frac{2n}{3}} \nonumber\\
+        \Pr[\mathsf{attack2}] &= \prod_{i = 0}^k(1-p_{\tau_i})^{\frac{2n}{3}} \nonumber\\
         &\leq  \prod_{i = 0}^k (1 - \frac{\mu'+\tau_in(1-c)}{n(1-c)})^{\frac{2n}{3}} \nonumber\\
         &=  \exp(\sum_{i = 0}^k -\frac{2}{3}\frac{\mu' + \tau_in(1-c)}{1-c}) \nonumber\\
         & = \exp(-2/3(\frac{(k+1)\mu'}{1-m/n}+ nu\frac{k(k+1)}{2})\nonumber
     \end{align}
-    Remark that $\pr[\mathsf{attack3}]$ is maximum when $k = 0$. When $k = 0$, $\pr[\mathsf{attack3}] \leq \exp(-\frac{2\mu' n}{3(n-m)}) \leq \exp(-\frac{2}{3}(\mu + r))$.
+    Remark that $\Pr[\mathsf{attack3}]$ is maximum when $k = 0$. When $k = 0$, $\Pr[\mathsf{attack3}] \leq \exp(-\frac{2\mu' n}{3(n-m)}) \leq \exp(-\frac{2}{3}(\mu + r))$.
     
     
     \item This case considers equivocation: Here, we can assume that the adversary knows who satisfies the condition (\ref{cond:mod}) and (\ref{cond:time}) since if the malicious validator is the block producer, he first produces the block and sees who validates this block. If no honest validator checks it with condition (\ref{cond:mod}), he equivocates it. When this happens, the attack succeeds if no honest party satisfies the condition (\ref{cond:modequiv}) or (\ref{cond:equiv}). Hence,
     the probability of attack 4 is
     
     \begin{align}
-    \pr[\mathsf{attack} 4] &=\pr[\text{no honest check in  cond. (\ref{cond:equiv}) and (\ref{cond:modequiv})}]\nonumber \\ 
-							&\leq \pr[\mathsf{attack1}](1-\frac{\mu'}{n-nc)}) ^{\frac{2}{3}n} \nonumber\\
-				            & \leq \exp({-2/3(\frac{n}{m}+\mu + r)}) \nonumber
+    \Pr[\mathsf{attack} 4] &= \Pr[\text{no honest check in  cond. (\ref{cond:equiv}) and (\ref{cond:modequiv})}]\nonumber \\ 
+							&\leq \Pr[\mathsf{attack1}](1-\frac{\mu'}{n-nc)}) ^{\frac{2}{3}n} \nonumber\\
+				            &\leq \exp({-2/3(\frac{n}{m}+\mu + r)}) \nonumber
     \end{align}
 \end{enumerate}	
     % \item  In this attack, the adversary equivocates and it does it when $\mu'> n/m$ and there are $n/m$ malicious adversaries satisfying the condition (\ref{cond:mod}). we can assume that the adversary knows who satisfies the condition (\ref{cond:mod}) since if the malicious validator is the block producer, he first produces the block and sees who validates this block. If no honest validator checks it, he equivocates it with a block where at least $n/m$ malicious validators satisfies the condition (\ref{cond:modequiv}). Then, the attack succeeds if no honest party satisfies the condition (\ref{cond:equiv}). 
     % The probability of attack 3 is
     
     % \begin{align}
-    % \pr[\mathsf{attack}3] &=\pr[\text{no honest check in  cond. (\ref{cond:equiv})}]\nonumber \\ 
+    % \Pr[\mathsf{attack}3] &= \Pr[\text{no honest check in  cond. (\ref{cond:equiv})}]\nonumber \\ 
 				% 					   &\leq (1-\frac{\mu'}{n-nc)}) ^{\frac{2}{3}n} \nonumber\\
 				% 					   &\leq e^{-2/3(\frac{\mu'}{1-c})} \nonumber
     % \end{align}
@@ -99,7 +99,7 @@ We assume that $|\pv| = \frac{n}{m}$.  The number of $\vcheck-|\pv| = \mu + r$ m
 
 
 %
-%Therefore, the attack probability is $\pr[\mathsf{attack1}]+\pr[\mathsf{attack2}]+\pr[\mathsf{attack}3]$.
+%Therefore, the attack probability is $\Pr[\mathsf{attack1}]+\Pr[\mathsf{attack2}]+\Pr[\mathsf{attack}3]$.
 
 
 
@@ -108,14 +108,14 @@ We assume that $|\pv| = \frac{n}{m}$.  The number of $\vcheck-|\pv| = \mu + r$ m
 
 %a parachain validator does not know who are the extra-check validators except the malicious validators if they are assigned to extra check. This comes from the VRF security. So , since $H$ is a random oracle, $B$ is derived from a uniform distribution between $[0,1]$. Therefore, the probability of a validator is assigned to be an investigator at time $\tau$ given that not enough validity check (i.e., $|\mathcal{I}| < \vcheck$) is done before $\tau$ is:
 
-%$$p_{\tau} = \frac{\vcheck - |\pv|}{|\V|-|\pv|}+\tau  = \frac{1+\lceil \runav + \rinv \rceil}{n-nc}+ \tau$$
+%$$p_{\tau} = \frac{\vcheck - \npvals}{|\V|-\npvals}+\tau  = \frac{1+\lceil \runav + \rinv \rceil}{n-nc}+ \tau$$
 
 %assuming that $|PV| = nc$ where $c \in (0,1)$.
 
 %Remark that when $\tau$ increases meaning that when the time increases without having sufficient validity check, $p_{\tau}$ increases and reaches 1 at some time. For simplicity, we divide time in discrete values $[\tau_0 = 0, \tau_1 =\mu', \tau_2 = 2\mu', ..., \tau_k = k\mu']$ where $k\mu'$ is the time when the number of malicious parties in $\mathcal{I}$ is $\vcheck$. This time can be computed by malicious validators before the validation process begins. In any case, the only way not to be caught is not to have any honest extra-check validator until $k\mu'$. The probability of this is the following given that  the number of malicious parties in $\mathcal{I}$ is $\vcheck$:
 
 %\begin{align}
-% \pr[\mathsf{attack} = 1] = \prod_{i = 0}^k(1-p_{\tau_i})^{2f+1} \leq (1-p_{\tau_0})^{2f+1} &\leq (1-\frac{1+c'_f}{n(1-c)}) ^{\frac{2}{3}n} \nonumber \\
+% \Pr[\mathsf{attack} = 1] = \prod_{i = 0}^k(1-p_{\tau_i})^{2f+1} \leq (1-p_{\tau_0})^{2f+1} &\leq (1-\frac{1+c'_f}{n(1-c)}) ^{\frac{2}{3}n} \nonumber \\
 %& \leq e^{-2/3\frac{1+c_f}{1-c}} \nonumber
 %\end{align}
 %Here, we consider $r_a = 0$ to compute the maximum attack probability and $c_f' = \lceil r_f \rceil$. We do not take $r_f = 0$, because we assume that there is always at least one fisherman.
@@ -127,7 +127,7 @@ We assume that $|\pv| = \frac{n}{m}$.  The number of $\vcheck-|\pv| = \mu + r$ m
 
 \section{Practical Results}
 
-As it can be seen from the proof of theorem \ref{thm:valid}, malicious validators can attack the validity protocol with probability $(\frac{1}{3})^{\vcheck}$. Remember that $\vcheck = |\pv| + \mu + r$ where $r = \lceil r_a + r_f \rceil$. If we assume that parachain validators change in every $x$ minutes, the malicious parties needs to wait $x3^{\vcheck}$ minutes in order to succeed the attack. For example, if $x = 5$ minutes, then the total time for an attack for each $\vcheck$ is given in Figure \ref{fig:totaltime}:
+As it can be seen from the proof of theorem \ref{thm:valid}, malicious validators can attack the validity protocol with probability $(\frac{1}{3})^{\vcheck}$. Remember that $\vcheck = \npvals + \mu + r$ where $r = \lceil r_a + r_f \rceil$. If we assume that parachain validators change in every $x$ minutes, the malicious parties needs to wait $x3^{\vcheck}$ minutes in order to succeed the attack. For example, if $x = 5$ minutes, then the total time for an attack for each $\vcheck$ is given in Figure \ref{fig:totaltime}:
 
 
 \begin{figure}[h]\centering

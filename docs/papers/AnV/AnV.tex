@@ -1,0 +1,85 @@
+\documentclass[letterpaper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{a4wide}
+\usepackage[english]{babel}
+\usepackage{scalerel}
+\usepackage{hyperref}
+\usepackage{amsmath,amsfonts,amsthm} % amssymb
+\usepackage{enumitem}
+
+
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\newcommand{\floor}[1]{\left\lfloor #1 \right\rfloor}
+\newcommand{\ceil}[1]{\left\lceil #1 \right\rceil}
+
+\newcommand{\vect}[1]{\overset{\rightharpoonup}{#1}}
+
+\newcommand\mathperiod{.}
+\newcommand\mathcomma{,}
+
+\newcommand*\set[1]{\{ #1 \}} % in text, we don't want {} to grow
+\newcommand*\Set[1]{\left\{ #1 \right\}}
+\newcommand*\setst[2]{\{ #1 | #2 \}}
+\newcommand*\Setst[2]%
+        {\left\{\,#1\vphantom{#2} \;\right|\left. #2 \vphantom{#1}\,\right\}}
+
+\newcommand*\List[1]{\left[ #1 \right]}  % cute abbreviations
+\newcommand*\listst[2]{[ #1 | #2 ]}
+\newcommand*\Listst[2]%
+        {\left[\,#1\vphantom{#2} \;\right|\left. #2 \vphantom{#1}\,\right]}
+
+
+% \newcommand{\Pr}{\ensuremath{\mathsf{Pr}}} %probability
+
+\newcommand{\sk}{\ensuremath{\mathsf{sk}}} %secret key
+\newcommand{\pk}{\ensuremath{\mathsf{pk}}} %public key
+\newcommand{\verify}{\ensuremath{\mathsf{Verify}}}
+\newcommand{\prove}{\ensuremath{\mathsf{Prove}}}
+
+\newcommand{\vals}{\ensuremath{\mathcal{V}}}
+\newcommand{\nvals}{\ensuremath{n}}
+\newcommand{\para}{\ensuremath{\rho}}
+\newcommand{\npvals}{\ensuremath{n'}}
+
+\newcommand{\pieces}{\ensuremath{\mathcal{D}}}
+
+\newcommand{\val}{\ensuremath{v}}
+
+% \newcommand{\pv}{\ensuremath{\mathcal{P}V}}
+
+\newcommand\grace{\ensuremath{\mathsf{agp}}}
+
+\newcommand{\encode}{\ensuremath{\mathsf{Encode}}}
+\newcommand{\decode}{\ensuremath{\mathsf{Decode}}}
+% \newcommand{\divi}{\ensuremath{\mathsf{Divide}}}
+% \newcommand{\recons}{\ensuremath{\mathsf{Reconstruct}}}
+
+\newcommand{\blobB}{\ensuremath{\bar{B}}} %blob
+% \newcommand{\bh}{\ensuremath{B_{head}}} %block header
+% \newcommand{\mprf}{\ensuremath{\pi^{mt}}} %merkle proof
+
+\newcommand{\vcheck}{\ensuremath{\#V\mathsf{check}}} %number of validity check
+\newcommand{\runav}{\ensuremath{r_{a}}}
+\newcommand{\rinv}{\ensuremath{r_{f}}}
+
+
+
+\title{Availability and Validity}
+
+
+\begin{document}
+\date{}
+\maketitle
+
+\input{AnV-0-introduction.tex}
+\input{AnV-1-setting.tex}
+\input{AnV-2-protocols.tex}
+\input{AnV-3-security}
+
+\appendix
+\input{AnV-A1-proof.tex}
+
+\end{document}
