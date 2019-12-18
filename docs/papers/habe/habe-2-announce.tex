@@ -37,29 +37,34 @@ We suggest the initial block producers first announce their VRF keys and then ch
 
 
 \subsection{Sortition phase}\label{subsec:sortirion_phase}
-\newcommand{\vrfaattemptsbound}{A} % A attempts
-\newcommand{\vrfarepeatbound}{L} % L gossip
-\newcommand{\vrfawinnerbound}{S} % S slots
+\newcommand{\vrfaattemptsbound}{\mathtt{max_attempts}} % A attempts
+\newcommand{\vrfawinnersbound}{\mathtt{max_winners}} % L gossip
+\newcommand{\vrfarepeatbound}{\mathtt{max_repeats}} % L gossip
+\newcommand{\vrfaslotsbound}{\mathtt{num_slots}} % S slots
 
-We first let $\vrfaattemptsbound$, $\vrfarepeatbound$, and $\vrfawinnerbound$ denote three positive integer paramaters used to bound participation in the sortition phase.  We also let $l>0$ denote the number of epochs over which sortition runs, with a single epoch $l=1$ being possible.  We divide a sortition phase running over epochs $e+0,\ldots,e+l-1$ into three sub-phases:  
+We first let $\vrfaattemptsbound$ and $\vrfaslots$ denote positive integer paramaters used to bound participation in the sortition phase, and $\vrfawinnersbound$ and $\vrfarepeatbound$ denote optional integer bounds.  We also let $l>0$ denote the number of epochs over which sortition runs, with a single epoch $l=1$ being possible.  We divide a sortition phase running over epochs $e+0,\ldots,e+l-1$ into three sub-phases:  
 
 In the first sub-phase, any block producer $V$ with $\VRFa$ key pair $(\pkvrfa,\skvrfa)$ creates a limited number of VRF outputs 
 $$ (\omega_{V,e,i},\pi_{V,e,i}) := \VRFa.\Sign_{\skvrfa,\skcvrfa}(r_e || i) \quad \textrm{for $i < \vrfaattemptsbound$.} $$
 
-We let $c < {1\over2}$ denote a fixed proportion of $V$'s $\vrfaattemptsbound$ blocks.  If $H(\omega_{V,e,i} || "IF") < c$ (\dag) then $V$ sends $(\omega_{V,e,i},\pi_{V,e,i})$ to some repeater $U$ identified by $H(\omega_{V,e,i} || "WHO")$ taken modulo the number of candidate repeaters.  We do not require all block producers act as repeaters, but expect this in practice.  As we throw away most $\omega_{V,e,i}$ here, we always optimize performance by testing (\dag) before producing $\pi_{V,e,i}$.
+We let $c < {1\over2}$ denote a fixed proportion of $V$'s $\vrfaattemptsbound$ blocks.  If $H(\omega_{V,e,i} || "IF") < c$ (\dag) then $V$ sends $(\omega_{V,e,i},\pi_{V,e,i})$ to some repeater $U$ identified by $H(\omega_{V,e,i} || "WHO")$ taken modulo the number of candidate repeaters.  As we throw away most $\omega_{V,e,i}$ here, we always optimize performance by testing (\dag) before producing $\pi_{V,e,i}$.  We do not require all block producers act as repeaters, but expect this in practice, meaning
+$$ U = \vals[H(\omega_{V,e,i} || "WHO") \mod |\vals|] $$
+% TODO: Add \vals notation
 
-As an aside, we could avoid the ring VRF if we replace the VRF output $\omega_{V,e,i}$ and $\pi_{V,e,i}$ with $\omega'_{V,e,i} = H(\omega_{V,e,i})$ and $\pi'_{V,e,i} = \emptyset$, but provide a second proof $\pi''_{V,e,i} = (\omega_{V,e,i},\pi_{V,e,i})$ only to $U$.  We shall omit several details required for securing this scheme however, so an interested reader must delve somewhat deeply.
+We should send $(\omega_{V,e,i},\pi_{V,e,i})$ to $U$ as directly as possible, but always over an encrypted and authenticated channel.  At worst, $V$ could gossip a cyphertext $C$ that encrypts $(\omega_{V,e,i},\pi_{V,e,i})$ to a public key $U.\pk$ of $U$, and sign $(j,C)$ with $V.\pk$ where $j < \vrfawinnersbound$ is unique among such ciphertexts originating from $V$.  In other words, $\vrfawinnersbound$ acts as another de facto bound on the number of $(\omega_{V,e,i},\pi_{V,e,i})$ published.
 
-In the second sub-phase, each repeater $U$ publishes on-chain at most $\vrfarepeatbound$ such anonymised VRF outputs $(\omega'_{W,e,i},\pi'_{W,e,i})$ for various block producers $W$.  We verify these to the extent possible, but verify nothing if $\pi_{V,e,i} = \emptyset$.
+In the second sub-phase, each repeater $U$ publishes on-chain at most $\vrfarepeatbound$ such anonymised VRF outputs $(\omega_{W,e,i},\pi_{W,e,i})$ for various block producers $W$.  These transactions record $(\omega_{W,e,i},\pi_{W,e,i})$ in the chain's associated state, so they should check the proof $\pi_{W,e,i}$, forbid duplicates, and enforce the above conditions.
 
-In the third sub-phase, each block producer $V$ checks if each of its repeaters $U$ published correctly and reacts:  If $U$ did not publish $\omega'_{V,e,i}$ and did not publish $\vrfarepeatbound$ lower anonymised VRF outputs, then we likely permit $V$ to publish $(\omega_{V,e,i},\pi_{V,e,i})$ on-chain itself, but this represents another paramater.  We might permit $V$ to select another backup $U$ here, but increasing $\vrfaattemptsbound$ avoids that code complexity.
+In the third sub-phase, each block producer $V$ checks if each of its repeaters $U$ published correctly and reacts:  If $U$ did not publish $\omega_{V,e,i}$ then we permit $V$ to publish $(\omega_{V,e,i},\pi_{V,e,i})$ on-chain itself.  We again enforce the above bounds like $\vrfarepeatbound$, etc.  We could permit $V$ to instead select another backup repeater when $U$ fails, but increasing $\vrfaattemptsbound$ avoids that code complexity.
 
-At the end of epoch $e+l-1$, we sort the $H(r'_{e+l} || \omega'_{V,e,i})$ to declare first $\vrfawinnerbound$ of these the block production slot allocations announced beginning epoch $e+l$.  
+At the end of epoch $e+l-1$, we sort the $H(r'_{e+l} || \omega'_{V,e,i})$ to declare first $\vrfaslots$ of these the block production slot allocations announced beginning epoch $e+l$.  
 $$ \mathcal{S} := \mathtt{sort} \Listst{ 
   (H(r'_{e+l} || \omega'_{V,e,i}),W,i) 
 }{ 
   \omega'_{V,e,i} \mathrm{ correctly made it on-chain}
 } $$
+
+As an aside, we could avoid the ring VRF if we replace the VRF output $\omega_{V,e,i}$ and $\pi_{V,e,i}$ with $\omega'_{V,e,i} = H(\omega_{V,e,i})$ and $\pi'_{V,e,i} = \emptyset$, but provide a second proof $\pi''_{V,e,i} = (\omega_{V,e,i},\pi_{V,e,i})$ only to $U$, and omitted the verification in the second sub-phase.  We shall omit several details required for securing this scheme however, so an interested reader must delve somewhat deeply.
 
 
 \subsection{Submission phase}\label{subsec:submission_phase}
@@ -141,7 +146,7 @@ We cannot force repeater nodes to publish pre-announces $(\omega_{V,e,i},\pi_{V,
 
 There are new slashable offenses in the protocol described here, only our older offenses of equivocation and invalid blocks, thanks largely to our ring or group VRF.  
 
-% We caution however that we risk many $\omega_{V,e,i}$ being spam if $\VRFa$ does not anonymize its signer $V$, i.e. not a ring or group VRF.  We could limit spam messages by capping $\vrfarepeatbound$ and $\vrfawinnerbound$ more tightly, and introducing a new bound that caps how many VRF outputs each repeater may post.  
+% We caution however that we risk many $\omega_{V,e,i}$ being spam if $\VRFa$ does not anonymize its signer $V$, i.e. not a ring or group VRF.  We could limit spam messages by capping $\vrfarepeatbound$ and $\vrfaslots$ more tightly, and introducing a new bound that caps how many VRF outputs each repeater may post.  
 
 % After all these measures, an adversary who controls a proportion $f$ of the repeaters could still make the same proportion $f$ of our slots unusable, in expectation.  We therefore consider asking repeaters $U$ to post in epoch $e+l+k+1$ the original $\VRFa$ output and proof $(\omega_{V,e,i},\pi_{V,e,i})$ that they received but for which the block producer $V$ missed their slot.  
 
