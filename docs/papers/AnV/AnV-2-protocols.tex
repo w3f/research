@@ -142,7 +142,7 @@ With the unavailability protocol, we can detect the block headers whose pieces a
 We first give some parameters before giving the details of the protocol.
 The first parameter $\vcheck$ defines the total number of validator checks needed for a block header.
 
-$$\vcheck = |\pv| + \mu +\lceil \runav + \rinv \rceil$$
+$$\vcheck = \npvals + \mu +\lceil \runav + \rinv \rceil$$
 
 Here, $\mu$ specifies the minimum number of checks, $\runav$ is the unavailability report factor from collators and $\rinv$ is the invalidity report factor from fishermen who claim invalidity for the relevant block. 
 
@@ -172,7 +172,7 @@ There are a three-factor validity check during the availability protocol:
     \end{equation}
      Here, $ID_{PC} \in \mathbb{N}$ is the identifier of a parachain $PC$ and $r_{t}$ is the VRF randomness of the block producer of slot $t$ in the relay chain (See \href{http://research.web3.foundation/en/latest/polkadot/BABE/Babe/}{BABE} for the details of $r_t$). For the current time $T$ where $T > \grace$, if  less than $\vcheck$ amount of checks are completed with condition (\ref{cond:mod}) or $\mu + \lceil r_a + r_f \rceil < n/m$ , each validator $V_j$ checks the following condition:
      \begin{equation}\label{cond:time}
-        H(ID_{PC} || \mathtt{VRF}_{\sk^v_j}(r_t)) < \frac{\mu + \lceil r_a + r_f \rceil - \theta}{|\V|-|\pv|}+\tau  
+        H(ID_{PC} || \mathtt{VRF}_{\sk^v_j}(r_t)) < \frac{\mu + \lceil r_a + r_f \rceil - \theta}{\nvals-\npvals}+\tau  
     \end{equation}
     
       where $\tau = T- \grace$ and $H$ is a hash function that maps a value between 0 and 1. Here, if $\mu + \lceil r_a + r_f \rceil \geq n/m$, $\theta$ is the number of validators in condition (\ref{cond:mod}) for $ID_{PC}$. Otherwise, $\theta = 0$.
@@ -185,7 +185,7 @@ There are a three-factor validity check during the availability protocol:
     \end{equation}
     
     \begin{equation}\label{cond:equiv}
-         H(ID_{PC} || \mathtt{VRF}_{\sk^v_j}(H_{B})) < \frac{\vcheck - |\pv|}{|\V|-|\pv|}   
+         H(ID_{PC} || \mathtt{VRF}_{\sk^v_j}(H_{B})) < \frac{\vcheck - \npvals}{\nvals-\npvals}   
     \end{equation}
     
      where $H_B$ is the hash of the relay chain block whose VRF randomness is $r_t$. Remark that we have greater number of checks for equivocation because it is a sign of malicious activity. Malicious validators can see who is in condition (\ref{cond:mod}) or (\ref{cond:time}) and if there is  no honest validator with the conditions (\ref{cond:mod}) or (\ref{cond:time}), they can equivocate which includes an invalid block. Therefore, we need different conditions than the condition (\ref{cond:mod}) and the condition (\ref{cond:time}).

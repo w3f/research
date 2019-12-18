@@ -50,7 +50,7 @@ $$\Pr[\text{Cond. (\ref{cond:time}) at time } \tau] = p_\tau =  \frac{\mu'}{n - 
 $$\Pr[\text{Cond. (\ref{cond:equiv}) }] = \frac{\mu'}{n - nc} $$
 
 
-We assume that $|\pv| = \frac{n}{m}$.  The number of $\vcheck-|\pv| = \mu + r$ malicious validators can be selected for the extra check with the following cases:
+We assume that $\npvals = \frac{n}{m}$.  The number of $\vcheck-\npvals = \mu + r$ malicious validators can be selected for the extra check with the following cases:
 
 \begin{enumerate}
     
@@ -108,7 +108,7 @@ We assume that $|\pv| = \frac{n}{m}$.  The number of $\vcheck-|\pv| = \mu + r$ m
 
 %a parachain validator does not know who are the extra-check validators except the malicious validators if they are assigned to extra check. This comes from the VRF security. So , since $H$ is a random oracle, $B$ is derived from a uniform distribution between $[0,1]$. Therefore, the probability of a validator is assigned to be an investigator at time $\tau$ given that not enough validity check (i.e., $|\mathcal{I}| < \vcheck$) is done before $\tau$ is:
 
-%$$p_{\tau} = \frac{\vcheck - |\pv|}{|\V|-|\pv|}+\tau  = \frac{1+\lceil \runav + \rinv \rceil}{n-nc}+ \tau$$
+%$$p_{\tau} = \frac{\vcheck - \npvals}{|\V|-\npvals}+\tau  = \frac{1+\lceil \runav + \rinv \rceil}{n-nc}+ \tau$$
 
 %assuming that $|PV| = nc$ where $c \in (0,1)$.
 
@@ -127,7 +127,7 @@ We assume that $|\pv| = \frac{n}{m}$.  The number of $\vcheck-|\pv| = \mu + r$ m
 
 \section{Practical Results}
 
-As it can be seen from the proof of theorem \ref{thm:valid}, malicious validators can attack the validity protocol with probability $(\frac{1}{3})^{\vcheck}$. Remember that $\vcheck = |\pv| + \mu + r$ where $r = \lceil r_a + r_f \rceil$. If we assume that parachain validators change in every $x$ minutes, the malicious parties needs to wait $x3^{\vcheck}$ minutes in order to succeed the attack. For example, if $x = 5$ minutes, then the total time for an attack for each $\vcheck$ is given in Figure \ref{fig:totaltime}:
+As it can be seen from the proof of theorem \ref{thm:valid}, malicious validators can attack the validity protocol with probability $(\frac{1}{3})^{\vcheck}$. Remember that $\vcheck = \npvals + \mu + r$ where $r = \lceil r_a + r_f \rceil$. If we assume that parachain validators change in every $x$ minutes, the malicious parties needs to wait $x3^{\vcheck}$ minutes in order to succeed the attack. For example, if $x = 5$ minutes, then the total time for an attack for each $\vcheck$ is given in Figure \ref{fig:totaltime}:
 
 
 \begin{figure}[h]\centering
