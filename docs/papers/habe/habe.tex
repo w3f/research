@@ -1,6 +1,20 @@
 \documentclass{article}
 %=================Begin:Packages===================
 \usepackage{graphicx}
+\usepackage{graphicx}
+\usepackage{bmpsize}
+
+\usepackage{enumitem}
+\usepackage{url}
+
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{xargs}                      % Use more than one optional parameter in a new commands
+\usepackage[pdftex,dvipsnames]{xcolor}  % Coloured text etc.
+% 
+\usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
+
 
 %=================End:Packages===================
 
@@ -8,7 +22,7 @@
 
 \newcommand\mathperiod{.}
 \newcommand\mathcomma{,}
-
+\newcommandx{\fatemeh}[2][1=]{\todo[linecolor=pink,backgroundcolor=pink!25,bordercolor=pink,#1]{#2}}
 \newcommand*\set[1]{\{ #1 \}} % in text, we don't want {} to grow
 \newcommand*\Set[1]{\left\{ #1 \right\}}
 \newcommand*\setst[2]{\{ #1 | #2 \}}
