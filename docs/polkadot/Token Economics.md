@@ -232,7 +232,7 @@ where the normal length limit (the block length limit on normal transactions) is
 
 **Adjustable parameter** Let \(s^*\) be our target block saturation level. This is our desired long-term average of the block saturation level (relative to normal txs). We originally suggest \(s^*=0.25\), so that blocks are 25% full on average and the system can handle sudden spikes of up to 4x the average volume of normal transactions. This parameter can be adjusted depending on the observed volumes during spikes compared to average volumes, and in general it provides a trade-off between higher average fees and longer transaction inclusion times during spikes.
 
-Recall that a transaction fee is computed as $fee(tx) = c_{traffic} \cdot length(tx) + type(tx)\cdot weight(tx)$, for a parameter $c_{traffic}$ that is independent of the transaction. Let \(s\) be the saturation level of the current block. If \(s>s^*\) we slightly increase $c_{traffic}$, and if \(s<s^*\) we slightly decrease it.
+Recall that a transaction fee is computed as $fee(tx) = c_{traffic} \cdot \Big[ base\_fee + type(tx)\cdot length(tx) + weight(tx)\Big]$, for a parameter $c_{traffic}$ that is independent of the transaction. Let \(s\) be the saturation level of the current block. If \(s>s^*\) we slightly increase $c_{traffic}$, and if \(s<s^*\) we slightly decrease it.
 
 **Adjustable parameter:** Let $v$ be a fee variability factor, which controls how quickly the transaction fees adjust. We update $c_{traffic}$ from one block to the next as follows:
 
