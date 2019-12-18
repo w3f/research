@@ -28,13 +28,14 @@ In a pre-announce phase, all block producers anonymously publish ring VRF output
 
 We now formalize ring signatures and VRFs with first a commitment scheme for public keys:
 \begin{itemize}
-\item $\algo{Commit}(\pk_1,\ldots)$ returns a commitment $\pkc$ and its openning $\skc$ for the public keys $\pk_1,\ldots$,
+\item $\algo{Commit}(\pk_1,\ldots)$ returns a commitment $\pkc$ and its openning $\skc_i$ for the public keys $\pk_i$,
 \end{itemize}
 as well as adopting our normal methods to operate on commitments:
 \begin{itemize}
 \item $\Sign_{\sk,\skc}$ now requires the openning of the commitment to the public key set, as well as the secret key.
 \item $\Verify_{\pkc}$ now takes a commitment to the public key set, instead of a public key.
 \end{itemize}
+In practice, ring VRFs always possess the original non-ring VRF $\Sign_{\skvrf}$ and $\Verify_{\pkvrf}$ methods too.  All $\Sign$ methods compute their outputs $\omega_i$ well before computing their proofs $\pi$, with $\omega$ along being roughly twice as fast for normal VRFs, and many thousands of times faster for ring VRFs.  Almost all VRF protocols throw away many VRF outputs, so VRFs always include methods that test the outputs with some closure before computing the proofs.
 
 There are naive ring VRF constructions with signature size linear in the number of signers, which appear unacceptable for our use case.  Indeed, these scale worse than well optimised accountable shuffle operations discussed in the appendix.
 
