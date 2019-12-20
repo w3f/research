@@ -79,11 +79,11 @@ where $(\frac{1}{\alpha}-1)$ is the probability that is $P$ is not winning. Note
 ### Utility for any winning bidder
 
 Now, let us assume $P$ is winning. How much does it have to pay? And what is its utility? Once $P$ wins the item in the auction, its utility refers to the amount it has saved compared to its real valuation for the item, defined as follows. 
-$U_P=\begin{cases}
+$$U_P=\begin{cases}
     0       & \quad \text{if } P \text{ is not winning}  \\
     V-b  & \quad \text{if } P \text{ is winning}
   \end{cases}
-$
+$$
 where $b$ is the winning bid in the block that is the closing block of the auction. The most $P$ has to pay is $V_{max}+\alpha V$. The expected utility of $P$ is at least equal to the probability that P is winning times the cost P is paying most. 
 
 EX[$U_P$]=$(1-\frac{1}{\alpha n}+\frac{1}{n})$ $\times$ $(V-(V_{max}+\alpha V))$
