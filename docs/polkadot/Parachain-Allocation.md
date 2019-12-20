@@ -80,7 +80,7 @@ where $(\frac{1}{\alpha}-1)$ is the probability that is $P$ is not winning. Note
 
 Now, let us assume $P$ is winning. How much does it have to pay? And what is its utility? Once $P$ wins the item in the auction, its utility refers to the amount it has saved compared to its real valuation for the item, defined as follows. 
 $U_P=\begin{cases}
-    0       & \quad \text{if } P \text{ is not winning}  \\
+    0       & \quad \text{if } P \text{ is not winning}  
     V-b  & \quad \text{if } P \text{ is winning}
   \end{cases}
 $
