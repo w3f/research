@@ -2,7 +2,7 @@
 
 **Authors**: Fatemeh Shirazi (design also from Gavin Wood and Alistair Stewart)
 
-**Last updated**: 12.09.2019
+**Last updated**: 20.12.2019
 
 **Note**: In progress
 
@@ -11,7 +11,7 @@
 # Parachain Allocation
 
 ## Introduction
-To run a parachain in Polkadot a parachain slot needs to be obtained. Parachain slots are locked on a deposit basis. We define two types of parachains, namely, community beta slots and commercial slots. We want to reserve 20% slots for community beta parachain slots (“fair”, non- or limited-premine) chains that W3F will deploy or support. The remaining 80% of the slots can be more “publicly” or “commercially” opened. Commercial slot are auctioned as follows.
+To run a parachain in Polkadot a parachain slot needs to be obtained. Parachain slots are locked on a deposit basis. We define two types of parachains, namely, community beta slots and commercial slots. We want to reserve 20\% slots for community beta parachain slots (“fair”, non- or limited-premine) chains that W3F will deploy or support. The remaining 80\% of the slots can be more “publicly” or “commercially” opened. Commercial slot are auctioned as follows.
 
 ## Auctioning Parachain Slots
 We use auctions to have a fair and transparent parachain allocation procedure. Since implementing seal-bid auctions are difficult and to avoid bid sniping we adopt an Candle auction with a retroactively determined close as follows.
@@ -88,4 +88,4 @@ where $b$ is the winnig bid in the block that is the closing block of the auctio
 
 EX[$U_P$]=$(1-\frac{1}{\alpha n}+\frac{1}{n})$ $\times$ $(V-(V_{max}+\alpha V))$.
 
-We want to compare the expected utility to $V-V_{max}$, which is the most utility $P$ is guaranateed getting against any strategy. We need differentiate these two to find the value of $\alpha=\frac{1}{\sqrt[2]{n-1}}$
+We want to compare the expected utility to $V-V_{max}$, which is the most utility $P$ is guaranateed getting against any strategy. We need differentiate these two to find the value of $\alpha=\frac{1}{\sqrt[2]{n-1}}$.
