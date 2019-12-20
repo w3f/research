@@ -26,19 +26,66 @@ Once a fixed number of blocks have been produced for the auction a random number
 
 For example, let us assume we have three bidders that want to submit bids for a parachain slot. Bidder $B_1$ submits the bid (1-4,75 DOT), bidder $B_2$ submits (3-4, 90 DOTs), and bidder $B_3$ submits (1-2, 30). In this example bidder $B_1$ wins because if bidder $B_2$ and bidder $B_3$ win each unit would only be locked for an average of 60 DOTs or something else equivalent to 240 DOT-intervals, while of bidder $B_1$ wins each unit is locked for 75 DOTs.
 
-## Analysis
-Our auction design has two fundamental design differences with English auctions; 1) A retroactive random close 2) a non uniformity on having private or public valuation for the item on auction.
+# Candle Auctions Analysis
+English auctions can be used when bidders have private/public valuations and vickery auctions can be used when the bidders have private valuations. Both these auctions have weakly dominant strategies, where the best a bidder can do is be truthful about their valuation. 
 
-TODO: Summarize existing results fo analyzing English auctions.
+Our auction design has two fundamental design differences with English auctions; 1) A retroactive  close 2) valuations of bidders is partly private and partly public. 
 
-For our analysis, we are interested in a number of goals such as *fairness*, *having a dominant strategy*, and *maximizing revenue*. Finally we discuss how we could keep the auction results relatively similar accross a number of auctions. We might need this to have a stable valuation for our token DOT.
+For our analysis, we are interested in a number of goals such as *fairness*, *having a dominant strategy*, and *maximizing revenue*. 
 
-One of the main objectives of our action scheme is to make it *fair*. By being fair we mean that a bidder with a higher valuation than another bidder will have a higher chance of winning the auction that is relative to the difference in their valuation.
 
-Having a random retroactive close does not reduce fairness for bidders with private valuation. Hence, we want to show that the Candle auction is fair for users (bidders with private strategy profiles) and smarts contracts (bidders with public strategy profiles).
+## Fairness
+By being *fair* we mean that a bidder with a higher valuation than another bidder will have a higher chance of winning the auction that is relative to the difference in their valuation. 
 
-We want to show that we are fair towards smart contracts such that they cannot be grieved with no costs by users who will bid above their valuation for this purpose.
+Having a random close means that bidders need to submit serious bids early on the in the bidding stage and cannot wait until just before the end. Otherwise, having a random retroactive close does not reduce fairness for bidders with private valuation. 
+We want to show that the Candle auction is fair for smarts contracts that are bidders with public strategy profiles such that they can only be griefed by users who accept a significant risk of incurring cost for them. By griefing we refer to bidding above ones valuation for the purpose of force the winner to pay more.
 
-We want to present a strategy for smart contracts that is nearly dominant when everyone does not bid above their valuation. By nearly dominant we refer to Epsilon-equilibrium \cite{}. A strategy profile that is nearly dominant, satisfies the condition of Nash equilibrium within a factor of some well defined epsilon.
+We want to present a strategy for smart contracts that is nearly dominant when everyone does not bid above their valuation. By a strategy profile being nearly dominant we refer to Epsilon-equilibrium [[1](http://www.cs.cmu.edu/~sandholm/cs15-892F13/algorithmic-game-theory.pdf)]. A strategy profile that is nearly dominant, satisfies the condition of Nash equilibrium [] within a factor of some well-defined epsilon. We follow up by showing that bidding above ones valuation, i.e. with the intention of griefing, introduces risks for those bidders. 
 
-We follow up by showing that bidding above ones valuation (with the intention of grieving for example) introduces risks for those bidders.
+
+## Bidding Strategy for Smart Contracts
+The aim is to find a strategy profile that minimizes the disadvantage a smart contract has compared to a bidder with a private strategy profile. 
+
+Let us assume we have a bidder $P$ who has a valuation $V$ for an auctioned item, i.e., parachain slot. We want to find an $\alpha \in (0,1]$ for a defined strategy $S_P$ for bidder $P$ as follows. 
+
+If the following two conditions hold:
+
+1. in the last block $P$ was not winnning, 
+2. for the winning bid, $b$, of the last block $b<V-\alpha V$ holds
+ 
+then in next block, $P$ bids $b+\alpha V$.
+
+Choosing $\alpha$ is a trade-off between avoiding overpaying and increasing the chance of winning. Intuitively, for big $n$, $\alpha$ can be small and for small $n$, $\alpha$ needs to be large. A bigger $\alpha$ increases the chance of winning but might incur unnecessary overpaying for the winner. Next, we first characterize both the chance of winning and utility for a smart contract and then calculate $\alpha$ using the number of total blocks, the valuation of $P$, and maximum valuation of all other bidders.
+
+### Chance of Winning
+
+
+**Claim**: There are at most $\frac{1}{\alpha}-1$ blocks when 
+
+* P is not winning and
+* $b < V-\alpha V$.
+
+Suppose we have $n$ blocks in total, we want to calculate the probability that $P$ wins when we have the following conditions holding: 
+
+* If no one is bidding over their own valuation
+* The maximum valuation of others $V_{max}$ and $V_{max}<V-\alpha V$
+
+The probability that $P$ wins is at least as follows.
+
+$Pr$[$P$ is winning]=$1-\frac{1}{\alpha n}+\frac{1}{n}=\frac{n-(\frac{1}{\alpha}-1)}{n}$
+
+where $(\frac{1}{\alpha}-1)$ is the probability that is $P$ is not winning. Note that $P$ only wins with high probability if $V(1 - \alpha) > V_{max}$.
+
+### Utility for any winning bidder
+
+Now, let us assume $P$ is winning. How much does it have to pay? And what is its utility? Once $P$ wins the item in the auction, its utility refers to the amount it has saved compared to its real valuation for the item, defined as follows. 
+$$U_P=\begin{cases}
+    0       & \quad \text{if } P \text{ is not winning}\\
+    V-b  & \quad \text{if } P \text{ is winning}
+  \end{cases}
+$$
+where $b$ is the winnig bid in the block that is the closing block of the auction. The most $P$ has to pay is $V_{max}+\alpha V$. The expected utility of $P$ is at least equal to the probability that P is winning times the cost P is paying most. 
+
+EX[$U_P$]=$(1-\frac{1}{\alpha n}+\frac{1}{n})$ $\times$ $(V-(V_{max}+\alpha V))$.
+
+We want to compare the expected utility to $V-V_{max}$, which is the most utility $P$ is guaranateed getting against any strategy. We need differentiate these two to find the value of $\alpha=\frac{1}{\sqrt[2]{n-1}}$
