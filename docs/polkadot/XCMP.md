@@ -4,8 +4,6 @@
 
 **Last update**: 20.12.2019
 
-**Note**: This write-up contains only notes from a XCMP workshop 15.11.18-16.11.18 in Berlin.
-
 ====================================================================
 # XCMP - Relay chain light client design
 
