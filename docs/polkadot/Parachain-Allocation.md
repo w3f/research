@@ -11,12 +11,12 @@
 # Parachain Allocation
 
 ## Introduction
-To run a parachain in Polkadot a parachain slot needs to be obtained. Parachain slots are locked on a deposit basis. We define two types of parachains, namely, community beta slots and commercial slots. We want to reserve 20\% slots for community beta parachain slots (“fair”, non- or limited-premine) chains that W3F will deploy or support. The remaining 80\% of the slots can be more “publicly” or “commercially” opened. Commercial slot are auctioned as follows.
+To run a parachain in Polkadot a parachain slot needs to be obtained. Parachain slots are locked on a deposit basis. We define two types of parachains, namely, community beta slots and commercial slots. We want to reserve 20% slots for community beta parachain slots (“fair”, non- or limited-premine) chains that W3F will deploy or support. The remaining 80% of the slots can be more “publicly” or “commercially” opened. Commercial slot are auctioned as follows.
 
 ## Auctioning Parachain Slots
-We use auctions to have a fair and transparent parachain allocation procedure. Since implementing seal-bid auctions are difficult and to avoid bid sniping we adopt an Candle auction with a retroactively determined close as follows.
+Since some of the bidders are smart contracts sealed-bid auctions are difficult to realise in our context. We use auctions to have a fair and transparent parachain allocation procedure. Since implementing seal-bid auctions are difficult and to avoid bid sniping we adopt a Candle auction with a retroactively determined close as follows.
 
-Once the auction has started within a fixed window bidders can post bids for the auction. Bids go into the block as transactions. Bidders are allowed to submit multiple bids. Bids that a bidder is submitting either should intersect with all winning bids by same bidder or be contiguous with winning bids by the same bidder. If an incoming bid is not changing the winners it is ignored.
+Once the auction has started within a fixed window bidders can post bids for 1-4 lease periods, where each lease period is 6 months. Bids go into the block as transactions. Bidders are allowed to submit multiple bids. Bids that a bidder is submitting either should intersect with all winning bids by same bidder or be contiguous with winning bids by the same bidder. If an incoming bid is not changing the winners it is ignored.
 
 For 4 lease periods we have 10 possible ranges. We store the winner for each one of the 10 ranges in a designated data structure. We need to make sure that a new bid does not have a gap with a winning bid on another interval from the same bidder. This means that once a bidder has won a bid for a given range, say for example lease periods 1-2, then he cannot bid on 4 unless someone overbids him for 1-2.
 
@@ -26,7 +26,7 @@ Once a fixed number of blocks have been produced for the auction a random number
 
 For example, let us assume we have three bidders that want to submit bids for a parachain slot. Bidder $B_1$ submits the bid (1-4,75 DOT), bidder $B_2$ submits (3-4, 90 DOTs), and bidder $B_3$ submits (1-2, 30). In this example bidder $B_1$ wins because if bidder $B_2$ and bidder $B_3$ win each unit would only be locked for an average of 60 DOTs or something else equivalent to 240 DOT-intervals, while of bidder $B_1$ wins each unit is locked for 75 DOTs.
 
-# Candle Auctions Analysis
+# Analysis
 English auctions can be used when bidders have private/public valuations and vickery auctions can be used when the bidders have private valuations. Both these auctions have weakly dominant strategies, where the best a bidder can do is be truthful about their valuation. 
 
 Our auction design has two fundamental design differences with English auctions; 1) A retroactive  close 2) valuations of bidders is partly private and partly public. 
@@ -50,7 +50,7 @@ Let us assume we have a bidder $P$ who has a valuation $V$ for an auctioned item
 
 If the following two conditions hold:
 
-1. in the last block $P$ was not winnning, 
+1. in the last block $P$ was not winning, 
 2. for the winning bid, $b$, of the last block $b<V-\alpha V$ holds
  
 then in next block, $P$ bids $b+\alpha V$.
@@ -84,8 +84,8 @@ $$U_P=\begin{cases}
     V-b  & \quad \text{if } P \text{ is winning}
   \end{cases}
 $$
-where $b$ is the winnig bid in the block that is the closing block of the auction. The most $P$ has to pay is $V_{max}+\alpha V$. The expected utility of $P$ is at least equal to the probability that P is winning times the cost P is paying most. 
+where $b$ is the winning bid in the block that is the closing block of the auction. The most $P$ has to pay is $V_{max}+\alpha V$. The expected utility of $P$ is at least equal to the probability that P is winning times the cost P is paying most. 
 
 EX[$U_P$]=$(1-\frac{1}{\alpha n}+\frac{1}{n})$ $\times$ $(V-(V_{max}+\alpha V))$.
 
-We want to compare the expected utility to $V-V_{max}$, which is the most utility $P$ is guaranateed getting against any strategy. We need differentiate these two to find the value of $\alpha=\frac{1}{\sqrt[2]{n-1}}$.
+We want to compare the expected utility to $V-V_{max}$, which is the most utility $P$ is guaranteed getting against any strategy. We need differentiate these two to find the value of $\alpha=\frac{1}{\sqrt[2]{n-1}}$.
