@@ -86,6 +86,6 @@ $$U_P=\begin{cases}
 $$
 where $b$ is the winning bid in the block that is the closing block of the auction. The most $P$ has to pay is $V_{max}+\alpha V$. The expected utility of $P$ is at least equal to the probability that P is winning times the cost P is paying most. 
 
-EX[$U_P$]=$(1-\frac{1}{\alpha n}+\frac{1}{n})$ $\times$ $(V-(V_{max}+\alpha V))$.
+EX[$U_P$]=$(1-\frac{1}{\alpha n}+\frac{1}{n})$ $\times$ $(V-(V_{max}+\alpha V))$
 
 We want to compare the expected utility to $V-V_{max}$, which is the most utility $P$ is guaranteed getting against any strategy. We need differentiate these two to find the value of $\alpha=\frac{1}{\sqrt[2]{n-1}}$.
