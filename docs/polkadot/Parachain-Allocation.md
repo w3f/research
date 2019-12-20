@@ -1,6 +1,6 @@
 ====================================================================
 
-**Authors**: Fatemeh Shirazi (design also from Gavin Wood and Alistair Stewart)
+**Authors**: Fatemeh Shirazi and Alistair Stewart (design also from Gavin Wood)
 
 **Last updated**: 20.12.2019
 
@@ -88,4 +88,6 @@ where $b$ is the winning bid in the block that is the closing block of the aucti
 
 EX[$U_P$]=$(1-\frac{1}{\alpha n}+\frac{1}{n})$ $\times$ $(V-(V_{max}+\alpha V))$
 
-We want to compare the expected utility to $V-V_{max}$, which is the most utility $P$ is guaranteed getting against any strategy. We need differentiate these two to find the value of $\alpha=\frac{1}{\sqrt[2]{n-1}}$.
+We want to compare the expected utility to $V-V_{max}$, which is the most utility $P$ is guaranteed getting against any strategy. We need differentiate these two to find the value of $\alpha=\frac{1}{\sqrt[2]{n-1}}$ to assure that the winning bidder has at least he utility....
+
+Next we want to find the Nash equilibrium. 
