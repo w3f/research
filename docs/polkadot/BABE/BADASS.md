@@ -1,4 +1,4 @@
-# BADASS BABE 
+# SASSY/BADASS BABE 
 BADASS BABE is a constant-time block production protocol. It intends to ensure that there is exactly one block produced with constant-time intervals rather than multiple or none. It extends on BABE to address this shortcoming of BABE. While [Jeff's Write-up](https://github.com/w3f/research/tree/master/docs/papers/habe) describes the whole design space of constant-time block production, here we describe a practical instantiation of the protocol using zk-SNARKs to construct a ring-VRF.
 
 ## Layman overview
