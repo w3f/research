@@ -150,7 +150,7 @@ In other words, $\hat{\omega}_{\ell}$ is a VRF output for $r''_{e+l+k} \| i$ und
 \newcommand{\epochsdelayforblockhash}{l_{\mathsf{BH}}}
 \newcommand{\epochsdelayforVDF}{l_{\mathsf{VDF}}}
 
-We should now close our VRF cycle by defining our randomnesses $r_e$, $r'_{e+l}$, and $r''_{e+l+k}$ from the \VRFr outputs, and additional information, like some past block hash.  We let $\epochsdelayforblockhash \ge 1$ denote some number of epochs such that our security analysis predicts one honest block within $\epochsdelayforblockhash$ with high probability.  We define $\Omega^{\labelVRFr}_{e+l+k}$ to be the hash of all $H(\hat{\omega}_{\ell} \| r''_{e+l+k} \| i)$ and the last block header hash in epoch $e - \epochsdelayforblockhash$.
+We should now close our VRF cycle by defining our randomnesses $r_e$, $r'_{e+l}$, and $r''_{e+l+k}$ from the \VRFr outputs, and additional information, like some past block hash.  We let $\epochsdelayforblockhash \ge 1$ denote some number of epochs such that our security analysis predicts, with high probability, one honest block exists within $\epochsdelayforblockhash$.  We define $\Omega^{\labelVRFr}_{e+l+k}$ to be the hash of all $H(\hat{\omega}_{\ell} \| r''_{e+l+k} \| i)$ (2Hash-DH) and the last block header hash in epoch $e - \epochsdelayforblockhash$.
 
 If we lack any VDF then we should simply define all $r_{e+l+k+1}$, $r'_{e+l+k+1}$, and $r''_{e+l+k+1}$ to be $\Omega^{\labelVRFr}_{e+l+k}$ in epoch $e+l+k$.
 $$
@@ -158,15 +158,15 @@ r_{e+l+k+1} = r'_{e+l+k+1} = r''_{e+l+k+1} = H(\Omega^{\labelVRFr}_{e+l+k})
 % = H\left( \Listst{ H(\hat{\omega_}{\ell} \| r_{e+l+k} \| i) ) }{ \mathrm{$\ell$ in epoch $e$} } \| \mathrm{block chash} \right)
 $$
 
-Any VDF has an expected running time $\Trun$ that depends upon some typical fast evaluation model, and a safe waiting time $\Twait > \Trun$ that depends upon the peer-to-peer protocol that allocated resources to VDF evaluation.  We should achieve $\Twait \le 2 \Trun$ with partial evaluation schemes though.  Any VDF also has a securing time $\Tsec$ that gives the time period after a VDF run starts during which the adversary does not know the VDF output.  We say $\Trun/\Tsec$ is the adversarial advantage, although $\Twait/\Tsec$ gives the adversary's practical advantage.  
+Any VDF has an expected running time $\Trun$ that depends upon some typical fast evaluation model, and a safe waiting time $\Twait > \Trun$ that depends upon the peer-to-peer protocol that allocates resources to VDF evaluation.  We should achieve $\Twait \le 2 \Trun$ with partial evaluation schemes though.  Any VDF also has a securing time $\Tsec$ that gives the time period after a VDF run starts during which the adversary does not know the VDF output.  We say $\Trun/\Tsec$ is the adversarial advantage, although $\Twait/\Tsec$ gives the adversary's practical advantage.  
 
-We could naively adapt Praos to a VDF by defining its $r_e$ to be the VDF output when given $\Omega^{\labelVRFr}_{e-\epochsdelayforVDF}$ where $\epochsdelayforVDF$ epochs is longer than $\Twait$.  Yet, we cannot similarly take $r_e = r'_e = r''_e$ to be the VDF output because doing so exposes our sorting randomness $r'_{e+l}$ too early: 
+We could naively adapt Praos \cite{Praos} to a VDF by defining its $r_e$ to be the VDF output when given $\Omega^{\labelVRFr}_{e-\epochsdelayforVDF}$ where $\epochsdelayforVDF$ epochs is longer than $\Twait$.  Yet, we cannot similarly take $r_e = r'_e = r''_e$ to be the VDF output because doing so exposes our sorting randomness $r'_{e+l}$ too early: 
 
-An adversary could learn $r'_{e+l}$ only $\Tsec$ after its VDF started.  As $\Tsec$ would always be much less than an epoch, our VDF for $r'_{e+l}$ must start after epoch $e$ ends.  It follows that $\epochsdelayforVDF$ aka $\Twait$ must be less than $k+l+1$ epochs, provided $r_e = r'_e = r''_e$.  
+An adversary could learn $r'_{e+l}$ only $\Tsec$ after its VDF started.  We recall that $r'_{e+l}$ gets used in finalising the sortition phase that start in epoch $e$.  As $\Tsec$ would always be much less than an epoch, our VDF for $r'_{e+l}$ must start after the end of the first three sub-phases of sortition, and must be available to end sortition.  It follows that $\epochsdelayforVDF$ aka $\Twait$ must be less than $l$, which limits our VDF security dramatically.  At first blush, we now ask that one VDF end for each epoch, which then requires running almost $l$ VDFs in parallel.
 
-We could however define only $r_e$ to be the VDF output and take simply $r'_e = \Omega^{\labelVRFr}_{e-1}$, so $r_e \ne r'_e$, if we want to keep $k+l$ short relatively.  
+We could however define only $r_e$ to be the VDF output and take simply $r'_e = \Omega^{\labelVRFr}_{e-1}$, so $r_e \ne r'_e$, if we want to keep $l$ relatively short.  We must analyse if $r'_e$ really improves our security much in this case.
 
-TODO: More complete VDF design
+TODO: More complete half VDF design
 
 
 \subsection{Mitigations}\label{subsec:slashing}
