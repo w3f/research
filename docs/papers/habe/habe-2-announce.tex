@@ -44,31 +44,55 @@ We suggest the initial block producers first announce their VRF keys and then ch
 
 We first let $\vrfaattemptsbound$ and $\vrfaslots$ denote positive integer paramaters used to bound participation in the sortition phase.  We let $\vrfawinnersbound$ and $\vrfarepeatbound$ by optional positive integer bounds, at least one of which must be present.  We also let $l>0$ denote the number of epochs over which sortition runs, with a single epoch $l=1$ being possible.  We divide a sortition phase running over epochs $e+0,\ldots,e+l-1$ into three sub-phases:  
 
-In the first sub-phase, any block producer $V$ with $\VRFa$ key pair $(\pkvrfa,\skvrfa)$ creates a limited number of VRF outputs 
-$$ (\omega_{V,e,i},\pi_{V,e,i}) := \VRFa.\Sign_{\skvrfa,\skcvrfa}(r_e || i) \quad \textrm{for $i < \vrfaattemptsbound$.} $$
+In the {\bf first sub-phase}, any block producer $V$ with $\VRFa$ key pair $(\pkvrfa,\skvrfa)$ creates a limited number of VRF outputs 
+$$ (\omega_{V,e,i},\pi_{V,e,i}) := \VRFa.\Sign_{\skvrfa,\skcvrfa}(r_e \| i) \quad \textrm{for $i < \vrfaattemptsbound$.} $$
 
-We let $c < {1\over2}$ denote a fixed proportion of $V$'s $\vrfaattemptsbound$ blocks.  If $H(\omega_{V,e,i} || "IF") < c$ (\dag) then $V$ sends $(\omega_{V,e,i},\pi_{V,e,i})$ to some repeater $U$ identified by $H(\omega_{V,e,i} || "WHO")$ taken modulo the number of candidate repeaters.  As we throw away most $\omega_{V,e,i}$ here, we always optimize performance by testing (\dag) before producing $\pi_{V,e,i}$.  We do not require all block producers act as repeaters, but expect this in practice, meaning
-$$ U = \vals[H(\omega_{V,e,i} || "WHO") \mod |\vals|] $$
-% TODO: Add \vals notation
+We set $\omega'_{V,e,i} := H(\omega_{V,e,i} \| H_1(r_e \| i))$ to give the 2Hash-DH construction from Theorem 2 on page 32 in appendex C of \cite{Praos}.  As a rule, we hide 2Hash-DH inside the $\omega$ output notation elsewhere in Polkadot papers, but we raise this to the surface here because it also hides $\omega_{V,e,i}$, which helps in some variant constructions.
 
-We should send $(i,\omega_{V,e,i},\pi_{V,e,i})$ to $U$ as directly as possible, but always over an encrypted and authenticated channel.  At worst, $V$ could gossip a cyphertext $C$ that encrypts $(i,\omega_{V,e,i},\pi_{V,e,i})$ to a public key $U.\pk$ of $U$, and sign $(j,C)$ with $V.\pk$ where $j < \vrfawinnersbound$ is unique among such ciphertexts originating from $V$.  In other words, $\vrfawinnersbound$ acts as another de facto bound on the number of $(i,\omega_{V,e,i},\pi_{V,e,i})$ published.
+We let $c < {1\over2}$ denote a fixed proportion of $V$'s $\vrfaattemptsbound$ blocks.  If $\omega'_{V,e,i} < c$ (\dag) then $V$ sends $(i,\omega_{V,e,i},\pi_{V,e,i})$ to some repeater $U$.  We should select $U$ deterministically under some designs as $H(\omega'_{V,e,i} \| "WHO")$ taken modulo the number of candidate repeaters.  We do not require all block producers act as repeaters, but expect this in practice, meaning
+$$ U = \vals[H(\omega'_{V,e,i} \| "WHO") \mod |\vals|] $$
+% TODO: Add \vals notation earlier
+As we throw away most $\omega_{V,e,i}$ here, we always optimize performance by testing (\dag) before producing $\pi_{V,e,i}$.  
 
-In the second sub-phase, each repeater $U$ publishes on-chain at most $\vrfarepeatbound$ such anonymised VRF outputs $(\omega_{V,e,i},\pi_{V,e,i})$ for various block producers $W$.  These transactions record $(i,\omega_{V,e,i},\pi_{V,e,i})$ in the chain's associated state, so they should check the proof $\pi_{V,e,i}$, forbid duplicates, and enforce the above conditions.
+We should send $(i,\omega_{V,e,i},\pi_{V,e,i})$ to $U$ as directly as possible, but always over an encrypted and authenticated channel.  At worst, if gossip must be used then $V$ could gossip a cyphertext $C$ that encrypts $(i,\omega_{V,e,i},\pi_{V,e,i})$ to a public key $U.\pk$ of $U$, and sign $(j,C)$ with $V.\pk$ where $j < \vrfawinnersbound$ is unique among such ciphertexts originating from $V$.  In other words, $\vrfawinnersbound$ acts as another de facto bound on the number of $(i,\omega_{V,e,i},\pi_{V,e,i})$ published.  
 
-In the third sub-phase, each block producer $V$ checks if each of its repeaters $U$ published correctly and reacts:  If $U$ did not publish $\omega_{V,e,i}$ then we permit $V$ to publish $(i,\omega_{V,e,i},\pi_{V,e,i})$ on-chain itself.  We again enforce the above bounds like $\vrfarepeatbound$, etc.  We could permit $V$ to instead select another backup repeater when $U$ fails, but increasing $\vrfaattemptsbound$ avoids that code complexity.
+In the {\bf second sub-phase}, each repeater $U$ publishes on-chain at most $\vrfarepeatbound$ such anonymised VRF outputs $(\omega_{V,e,i},\pi_{V,e,i})$ for various block producers $W$.  These transactions record $(i,\omega_{V,e,i},\pi_{V,e,i})$ in the chain's associated state, so they should check the proof $\pi_{V,e,i}$, forbid duplicates, and enforce the above conditions.
 
-Around the end of epoch $e+l-1$, we sort the $H(\omega'_{V,e,i} || "IF")$ so that values most likely to survive previous epoch appear earliest.  We then trim this list to only $\vrfaslots$ final winners, and reverse the order, so the smallest $H(\omega'_{V,e,i} || "IF")$ values appear towards the end.  We declare the result to be the slot allocations for epoch $e+l$.
-\begin{align*}
-\mathcal{S}_0 &:= \mathtt{sort} \Listst{ 
-  (\omega'_{V,e,i}  || "IF"),W,i) 
-}{ 
-  \omega'_{V,e,i} \mathrm{ correctly made it on-chain}
-} \\
-\mathcal{S} &:= \mathtt{reverse}( \mathtt{trim}_\vrfaslots(\mathcal{S}_0 ) )
-\end{align*}
-We do this trim and reverse trick so that the $\omega'_{V,e,i}$ in the most powerful positions towards the end of epoch $e+l$ were always the most likely to be included.  If one does not reverse then an adversary can sacrifice some of their own blocks to position a long streak of their own blocks towards the end of the epoch.  In principle, one could replace $"IF"$ here with $r'_{e+l}$ provided $l>1$, so that only $r'_{e+l}$ controls the ordering and positioning of runs, but the reverse and trim trick appears sufficient. 
+As an aside, we could avoid the ring VRF entirely if $U$ published only $\omega'_{V,e,i}$ here, instead of $(i,\omega_{V,e,i},\pi_{V,e,i})$, and omit the verification of course.  We shall omit several details required for securing this scheme however, so an interested reader must delve somewhat deeply.
 
-As an aside, we could avoid the ring VRF if we replace the VRF output $\omega_{V,e,i}$ and $\pi_{V,e,i}$ with $\omega'_{V,e,i} = H(\omega_{V,e,i})$ and $\pi'_{V,e,i} = \emptyset$, but provide a second proof $\pi''_{V,e,i} = (\omega_{V,e,i},\pi_{V,e,i})$ only to $U$, and omitted the verification in the second sub-phase.  We shall omit several details required for securing this scheme however, so an interested reader must delve somewhat deeply.
+In the {\bf third sub-phase}, each block producer $V$ checks if each of its repeaters $U$ published correctly and reacts:  If $U$ did not publish $\omega_{V,e,i}$ then we permit $V$ to publish $(i,\omega_{V,e,i},\pi_{V,e,i})$ on-chain itself.  We again enforce the above bounds like $\vrfarepeatbound$, etc.  We could permit $V$ to instead select another backup repeater when $U$ fails, but increasing $\vrfaattemptsbound$ avoids that code complexity.
+
+After this in the {\bf final sub-phase} around the end of epoch $e+l-1$, we ``sort'' the $\omega'_{V,e,i}$ in a manor that minimizes adversaries' ability to position runs of their own blocks in the end of an epoch, which influences future $r_e$s, or in the beginning of an epoch, which influences finalising the end of an epoch.  We shall discuss two mechanisms for doing this: 
+
+We need $r'_{e+l}$ to emerges by the end of epoch $e+l-1$ anyways.  We could therefore simply sort based on $H(\omega'_{V,e,i} \| r'_{e+l})$, so that creating and positioning runs depends entirely upon manipulating $r'_{e+l}$.  
+$$ \mathcal{S} &:= \mathtt{trim}_\vrfaslots\left( \mathtt{sort} \Listst{
+  H(\omega'_{V,e,i} \| r'_{e+l}); W,i,\omega_{V,e,i}) 
+}{
+  \omega_{V,e,i} \mathrm{ correctly made it on-chain}
+} \right) $$
+We believe this approach meshes best with both the analysis from \cite{Praos} and the stronger Markov chain analysis from \cite{Kiffer18}.  Yet, several difficult interactions with recycle phase below arise:  We need $r'_{e+l}$ to be finalised by GRANDPA to avoid permissable equivocations in the block production, which basically requires waiting an extra epoch, meaning third sub-phase finishes in $e+l-2$, and $l>1$ of course.  Worse, if $r'_{e+l}$ comes from a VDF then it emerges long before the end of $e+l-1$, so really the third sub-phase must finish before the VDF start, which we discuss further below.
+
+Instead we suggest to sort $\omega'_{V,e,i}$ so the smallest $\omega'_{V,e,i}$ values most likely to survive all sub-phases play the most important roles, ignoring $r'_{e+l}$, and then trim the resulting sorted list to only the smallest $\vrfaslots$ final winners. 
+$$ 
+\mathcal{S} &:= \mathtt{trim}_\vrfaslots\left( 
+\mathtt{sort} \Listst{
+  \omega'_{V,e,i}; W,i,\omega_{V,e,i}) 
+}{
+  \omega_{V,e,i} \mathrm{ correctly made it on-chain}
+} \right) 
+$$
+We fear bias from omitted $\omega'_{V,e,i}$ towards the end of the epoch, so we could simply declare the slot allocations for epoch $e+l$ to be the reverse of this list.
+$$ \mathcal{S} &:= \mathtt{reverse}( \mathcal{S}_0 )$$
+Instead we think an ``outside-in'' sorting order that places the smallest $\omega'_{V,e,i}$ towards both the end and the beginning of the epoch handles this most cleanly.
+$$ 
+\mathcal{S} := 
+  \mathcal{S}_0[ 1,2,\ldots, 2 \floor{{\vrfaslots-1 \over 2}} + 1 ]
+\|
+  \mathtt{reverse}( \mathcal{S}_0[ 0,2,\ldots, 2 \floor{\vrfaslots/2}] )
+$$
+An outside-in sort still permits an adversary to trade beginning runs for ending runs, but this sounds mostly harmless.
+
+Any of the above tree approaches should prevent an adversary from sacrificing some of their own blocks to position a long streak of their own blocks towards the end of the epoch.  
 
 
 \subsection{Submission phase}\label{subsec:submission_phase}
@@ -79,7 +103,7 @@ We propose two algorithms for this, either we bind a new ephemeral public key in
 
 \subsubsection{Binded}
 
-Along with each $(\omega_{V,e,i},\pi_{V,e,i})$, our prospective block producer $V$ publishes the public key $\pk_{V,e,i}$ for some new semi-ephemeral secret key $\sk_{V,e,i}$ created by $V$ only for this block attempt $(e,i)$.  We then ensure $U$ or others cannot tamper with $\pk_{V,e,i}$ by signing it with the message part of $\VRFa.\Sign$.  In other words, $\VRFa.\Sign_{\skvrfa,\pkc}(r_e || i, \pk_{V,e,i})$ acts like a certificate for $\pk_{V,e,i}$.
+Along with each $(\omega_{V,e,i},\pi_{V,e,i})$, our prospective block producer $V$ publishes the public key $\pk_{V,e,i}$ for some new semi-ephemeral secret key $\sk_{V,e,i}$ created by $V$ only for this block attempt $(e,i)$.  We then ensure $U$ or others cannot tamper with $\pk_{V,e,i}$ by signing it with the message part of $\VRFa.\Sign$.  In other words, $\VRFa.\Sign_{\skvrfa,\pkc}(r_e \| i, \pk_{V,e,i})$ acts like a certificate for $\pk_{V,e,i}$.
 
 At this point, users can encrypt to $V$ by sending $U$ some cyphertext encrypted to $\pk_{V,e,i}$ that identifies $\pk_{V,e,i}$ as the desired recipient.  We require no relationship between the VRF and the encryption protocol for $(\pk_{V,e,i},\sk_{V,e,i})$, so even post-quantum protocols work fine, but $\pk_{V,e,i}$ increases message sizes.
 
@@ -87,12 +111,13 @@ We need the proof $\pi_{V,e,i}$ to bind this extra key to the VRF outputs $\omeg
 
 \subsubsection{Fujisaki–Okamoto}
 
-We took $\omega_{V,e,i} = \skvrfa H_1(r_e || i)$ above for some $i < \vrfaattemptsbound$.  As a result, any user Alice could treat $\omega_{V,e,i}$ as a public key for the anonymous $V$ by using $H_1(r_e || i)$ as a base point.  If done naively, then we encounter an interesting malleablity concern with this public key, which we suggest addressing with an Fujisaki–Okamoto (FO) transform \cite{FO_transform}.  
+We took $\omega_{V,e,i} = \skvrfa H_1(r_e \| i)$ above for some $i < \vrfaattemptsbound$.  As a result, any user Alice could treat $\omega_{V,e,i}$ as a public key for the anonymous $V$ by using $H_1(r_e \| i)$ as a base point.  If done naively, then we encounter an interesting malleablity concern with this public key, which we suggest addressing with an Fujisaki–Okamoto (FO) transform \cite{FO_transform}.  
 % Find FO ref in ~/Articles/postquantum/isogenies/CSIDH/383.pdf 
 
-In concrete terms, Alice creates an ephemeral secret $s$, encrypts both her transaction and $s$ using an AEAD with symmetric key $s \omega_{V,e,i}$, and sends it to $U$ along with the curve points $s H_1(r_e || i)$ and $\omega_{V,e,i}$.  Alice should encrypt her connection to $U$ and ideally run it through a mixnet or Tor.  At this point, $U$ recognises $V$ from $\omega_{V,e,i}$ and forwards $s H_1(r_e || i)$ and AEAD ciphertext, so that $V$ can find the symmetric key aka shared secret $\skvrfa s H_1(r_e || i) = s \omega_{V,e,i}$ and decrypt the AEAD ciphertext.
+In concrete terms, Alice creates an ephemeral secret $s$, encrypts both her transaction and $s$ using an AEAD with symmetric key $s \omega_{V,e,i}$, and sends it to $U$ along with the curve points $s H_1(r_e \| i)$ and $\omega_{V,e,i}$.  Alice should encrypt her connection to $U$ and ideally run it through a mixnet or Tor.  At this point, $U$ recognises $V$ from $\omega_{V,e,i}$ and forwards $s H_1(r_e \| i)$ and AEAD ciphertext, so that $V$ can find the symmetric key aka shared secret $\skvrfa s H_1(r_e \| i) = s \omega_{V,e,i}$ and decrypt the AEAD ciphertext.
 
-We believe the AEAD alone prevents the worst weaknesses, but one interesting issue remains:  If $V$ has two blocks in epoch $e+l+k$, then $V$ decrypts both identically, so how does $V$ know in which block they should publish Alice's transaction?  We propose that $V$ should extract $s$ from the cipher text and compute $s^{-1} (s H_1(r_e || i))$ to recognise $i$, and check that $i$ was the slot about which $U$ knows.  If $V$ does not verify the construction of $s H_1(r_e || i)$ via this Fujisaki–Okamoto transform, and instead trusted $i$, then attackers could submit test transactions to learn $V$'s identity early. 
+We believe the AEAD alone prevents the worst weaknesses, but one interesting issue remains:  If $V$ has two blocks in epoch $e+l+k$, then $V$ decrypts both identically, so how does $V$ know in which block they should publish Alice's transaction?  We propose that $V$ should extract $s$ from the cipher text and compute $s^{-1} (s H_1(r_e \| i))$ to recognise $i$, and check that $i$ was the slot about which $U$ knows.  If $V$ does not verify the construction of $s H_1(r_e \| i)$ via this Fujisaki–Okamoto transform, and instead trusted $i$, then attackers could submit test transactions to learn $V$'s identity early. 
+
 
 \subsubsection{Anonymity}
 
@@ -116,8 +141,8 @@ We therefore require a non-ring non-group proof $\pi^0_{V,e,i} \ne \pi_{V,e,i}$ 
 In any case, our block producers $V$ claims their slot $\ell$ by publishing a block along with a header that includes the full block hash and the appropriate $\omega_{V,e,i}$ and the proof $\pi^0_{V,e,i})$ of correctness for $\omega_{V,e,i}$ that now proves their identity $V$.  
 
 At this point, $V$ seals the block header with the signature
-$$ (\hat{\omega}_{\ell},\hat{\pi}_{\ell}) := \VRFr.\Sign_{\skvrfr}(r''_{e+l+k} || i, \mathsf{block_header_hash}) \mathperiod $$
-In other words, $\hat{\omega}_{\ell}$ is a VRF output for $r''_{e+l+k} || i$ under the key pair $(\pkvrfr,\skvrfr)$, which $\hat{\pi}_{\ell}$ proves correct, and $\hat{\pi}_{\ell}$ also acts as a signature that seals the block header.  We actually do not require this binding between $\VRFa$ and the block seal, so another separate signature works fine here too.
+$$ (\hat{\omega}_{\ell},\hat{\pi}_{\ell}) := \VRFr.\Sign_{\skvrfr}(r''_{e+l+k} \| i, \mathsf{block_header_hash}) \mathperiod $$
+In other words, $\hat{\omega}_{\ell}$ is a VRF output for $r''_{e+l+k} \| i$ under the key pair $(\pkvrfr,\skvrfr)$, which $\hat{\pi}_{\ell}$ proves correct, and $\hat{\pi}_{\ell}$ also acts as a signature that seals the block header.  We actually do not require this binding between $\VRFa$ and the block seal, so another separate signature works fine here too.
 
 
 \subsection{Recycle phase}\label{subsec:recycle_phase}
@@ -125,12 +150,12 @@ In other words, $\hat{\omega}_{\ell}$ is a VRF output for $r''_{e+l+k} || i$ und
 \newcommand{\epochsdelayforblockhash}{l_{\mathsf{BH}}}
 \newcommand{\epochsdelayforVDF}{l_{\mathsf{VDF}}}
 
-We should now close our VRF cycle by defining our randomnesses $r_e$, $r'_{e+l}$, and $r''_{e+l+k}$ from the \VRFr outputs, and additional information, like some past block hash.  We let $\epochsdelayforblockhash \ge 1$ denote some number of epochs such that our security analysis predicts one honest block within $\epochsdelayforblockhash$ with high probability.  We define $\Omega^{\labelVRFr}_{e+l+k}$ to be the hash of all $H(\hat{\omega}_{\ell} || r''_{e+l+k} || i)$ and the last block header hash in epoch $e - \epochsdelayforblockhash$.
+We should now close our VRF cycle by defining our randomnesses $r_e$, $r'_{e+l}$, and $r''_{e+l+k}$ from the \VRFr outputs, and additional information, like some past block hash.  We let $\epochsdelayforblockhash \ge 1$ denote some number of epochs such that our security analysis predicts one honest block within $\epochsdelayforblockhash$ with high probability.  We define $\Omega^{\labelVRFr}_{e+l+k}$ to be the hash of all $H(\hat{\omega}_{\ell} \| r''_{e+l+k} \| i)$ and the last block header hash in epoch $e - \epochsdelayforblockhash$.
 
 If we lack any VDF then we should simply define all $r_{e+l+k+1}$, $r'_{e+l+k+1}$, and $r''_{e+l+k+1}$ to be $\Omega^{\labelVRFr}_{e+l+k}$ in epoch $e+l+k$.
 $$
 r_{e+l+k+1} = r'_{e+l+k+1} = r''_{e+l+k+1} = H(\Omega^{\labelVRFr}_{e+l+k})
-% = H\left( \Listst{ H(\hat{\omega_}{\ell} || r_{e+l+k} || i) ) }{ \mathrm{$\ell$ in epoch $e$} } || \mathrm{block chash} \right)
+% = H\left( \Listst{ H(\hat{\omega_}{\ell} \| r_{e+l+k} \| i) ) }{ \mathrm{$\ell$ in epoch $e$} } \| \mathrm{block chash} \right)
 $$
 
 Any VDF has an expected running time $\Trun$ that depends upon some typical fast evaluation model, and a safe waiting time $\Twait > \Trun$ that depends upon the peer-to-peer protocol that allocated resources to VDF evaluation.  We should achieve $\Twait \le 2 \Trun$ with partial evaluation schemes though.  Any VDF also has a securing time $\Tsec$ that gives the time period after a VDF run starts during which the adversary does not know the VDF output.  We say $\Trun/\Tsec$ is the adversarial advantage, although $\Twait/\Tsec$ gives the adversary's practical advantage.  
