@@ -42,7 +42,7 @@ We suggest the initial block producers first announce their VRF keys and then ch
 \newcommand{\vrfarepeatbound}{\mathtt{max_repeats}} % L gossip
 \newcommand{\vrfaslotsbound}{\mathtt{num_slots}} % S slots
 
-We first let $\vrfaattemptsbound$ and $\vrfaslots$ denote positive integer paramaters used to bound participation in the sortition phase.  We let $\vrfawinnersbound$ and $\vrfarepeatbound$ by optional positive integer bounds, at least one of which must be present.  We also let $l>0$ denote the number of epochs over which sortition runs, with a single epoch $l=1$ being possible.  We divide a sortition phase running over epochs $e+0,\ldots,e+l-1$ into three sub-phases:  
+We first let $\vrfaattemptsbound$ and $\vrfaslotsbound$ denote positive integer paramaters used to bound participation in the sortition phase.  We let $\vrfawinnersbound$ and $\vrfarepeatbound$ by optional positive integer bounds, at least one of which must be present.  We also let $l>0$ denote the number of epochs over which sortition runs, with a single epoch $l=1$ being possible.  We divide a sortition phase running over epochs $e+0,\ldots,e+l-1$ into three sub-phases:  
 
 In the {\bf first sub-phase}, any block producer $V$ with $\VRFa$ key pair $(\pkvrfa,\skvrfa)$ creates a limited number of VRF outputs 
 $$ (\omega_{V,e,i},\pi_{V,e,i}) := \VRFa.\Sign_{\skvrfa,\skcvrfa}(r_e \| i) \quad \textrm{for $i < \vrfaattemptsbound$.} $$
@@ -66,7 +66,7 @@ After this in the {\bf final sub-phase} around the end of epoch $e+l-1$, we ``so
 
 \paragraph{High-latency:} 
 We need $r'_{e+l}$ to emerges by the end of epoch $e+l-1$ anyways.  We could therefore simply sort based on $H(\omega'_{V,e,i} \| r'_{e+l})$, so that creating and positioning runs depends entirely upon manipulating $r'_{e+l}$. 
-$$ \mathcal{S} &:= \mathtt{trim}_\vrfaslots\left( \mathtt{sort} \Listst{
+$$ \mathcal{S} &:= \mathtt{trim}_\vrfaslotsbound\left( \mathtt{sort} \Listst{
   H(\omega'_{V,e,i} \| r'_{e+l}); W,i,\omega_{V,e,i}) 
 }{
   \omega_{V,e,i} \mathrm{ correctly made it on-chain}
@@ -74,9 +74,9 @@ $$ \mathcal{S} &:= \mathtt{trim}_\vrfaslots\left( \mathtt{sort} \Listst{
 We believe this approach meshes best with both the analysis from \cite{Praos} and the stronger Markov chain analysis from \cite{Kiffer18}.  Yet, several difficult interactions with recycle phase below arise:  We need $r'_{e+l}$ to be finalised by GRANDPA to avoid permissable equivocations in the block production, which basically requires waiting an extra epoch, meaning third sub-phase finishes in $e+l-2$, and $l>1$ of course.  Worse, if $r'_{e+l}$ comes from a VDF then it emerges long before the end of $e+l-1$, so really the third sub-phase must finish before the VDF start, which we discuss further below.
 
 \paragraph{Low-latency:} 
-As an easier option, we instead suggest to sort $\omega'_{V,e,i}$ so the smallest $\omega'_{V,e,i}$ values most likely to survive all sub-phases play the most important roles, ignoring $r'_{e+l}$, and then trim the resulting sorted list to only the smallest $\vrfaslots$ final winners. 
+As an easier option, we instead suggest to sort $\omega'_{V,e,i}$ so the smallest $\omega'_{V,e,i}$ values most likely to survive all sub-phases play the most important roles, ignoring $r'_{e+l}$, and then trim the resulting sorted list to only the smallest $\vrfaslotsbound$ final winners. 
 $$ 
-\mathcal{S} &:= \mathtt{trim}_\vrfaslots\left( 
+\mathcal{S} &:= \mathtt{trim}_\vrfaslotsbound \left( 
 \mathtt{sort} \Listst{
   \omega'_{V,e,i}; W,i,\omega_{V,e,i}) 
 }{
@@ -88,9 +88,9 @@ $$ \mathcal{S} &:= \mathtt{reverse}( \mathcal{S}_0 )$$
 Instead we think an ``outside-in'' sorting order that places the smallest $\omega'_{V,e,i}$ towards both the end and the beginning of the epoch handles this most cleanly.
 $$ 
 \mathcal{S} := 
-  \mathcal{S}_0[ 1,2,\ldots, 2 \floor{{\vrfaslots-1 \over 2}} + 1 ]
+  \mathcal{S}_0[ 1,2,\ldots, 2 \floor{{\vrfaslotsbound-1 \over 2}} + 1 ]
 \|
-  \mathtt{reverse}( \mathcal{S}_0[ 0,2,\ldots, 2 \floor{\vrfaslots/2}] )
+  \mathtt{reverse}( \mathcal{S}_0[ 0,2,\ldots, 2 \floor{\vrfaslotsbound/2}] )
 $$
 An outside-in sort still permits an adversary to trade beginning runs for ending runs, but this sounds mostly harmless.
 
@@ -183,7 +183,7 @@ We cannot force repeater nodes to publish pre-announces $(\omega_{V,e,i},\pi_{V,
 
 There are new slashable offenses in the protocol described here, only our older offenses of equivocation and invalid blocks, thanks largely to our ring or group VRF.  
 
-% We caution however that we risk many $\omega_{V,e,i}$ being spam if $\VRFa$ does not anonymize its signer $V$, i.e. not a ring or group VRF.  We could limit spam messages by capping $\vrfarepeatbound$ and $\vrfaslots$ more tightly, and introducing a new bound that caps how many VRF outputs each repeater may post.  
+% We caution however that we risk many $\omega_{V,e,i}$ being spam if $\VRFa$ does not anonymize its signer $V$, i.e. not a ring or group VRF.  We could limit spam messages by capping $\vrfarepeatbound$ and $\vrfaslotsbound$ more tightly, and introducing a new bound that caps how many VRF outputs each repeater may post.  
 
 % After all these measures, an adversary who controls a proportion $f$ of the repeaters could still make the same proportion $f$ of our slots unusable, in expectation.  We therefore consider asking repeaters $U$ to post in epoch $e+l+k+1$ the original $\VRFa$ output and proof $(\omega_{V,e,i},\pi_{V,e,i})$ that they received but for which the block producer $V$ missed their slot.  
 
