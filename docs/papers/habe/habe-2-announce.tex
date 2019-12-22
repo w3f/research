@@ -36,7 +36,7 @@ We want this initial $\mathsf{rinit}$ to be defined after the initial block prod
 We suggest the initial block producers first announce their VRF keys and then choose $\mathsf{rinit}$ to be the hash of several established random beacons at some preselected points in the future.
 
 
-\subsection{Sortition phase}\label{subsec:sortirion_phase}
+\subsection{Sortition phase}\label{subsec:sortition_phase}
 \newcommand{\vrfaattemptsbound}{\mathtt{max_attempts}} % A attempts
 \newcommand{\vrfawinnersbound}{\mathtt{max_winners}} % L gossip
 \newcommand{\vrfarepeatbound}{\mathtt{max_repeats}} % L gossip
@@ -64,7 +64,8 @@ In the {\bf third sub-phase}, each block producer $V$ checks if each of its repe
 
 After this in the {\bf final sub-phase} around the end of epoch $e+l-1$, we ``sort'' the $\omega'_{V,e,i}$ in a manor that minimizes adversaries' ability to position runs of their own blocks in the end of an epoch, which influences future $r_e$s, or in the beginning of an epoch, which influences finalising the end of an epoch.  We shall discuss two mechanisms for doing this: 
 
-We need $r'_{e+l}$ to emerges by the end of epoch $e+l-1$ anyways.  We could therefore simply sort based on $H(\omega'_{V,e,i} \| r'_{e+l})$, so that creating and positioning runs depends entirely upon manipulating $r'_{e+l}$.  
+\paragraph{High-latency:} 
+We need $r'_{e+l}$ to emerges by the end of epoch $e+l-1$ anyways.  We could therefore simply sort based on $H(\omega'_{V,e,i} \| r'_{e+l})$, so that creating and positioning runs depends entirely upon manipulating $r'_{e+l}$. 
 $$ \mathcal{S} &:= \mathtt{trim}_\vrfaslots\left( \mathtt{sort} \Listst{
   H(\omega'_{V,e,i} \| r'_{e+l}); W,i,\omega_{V,e,i}) 
 }{
@@ -72,7 +73,8 @@ $$ \mathcal{S} &:= \mathtt{trim}_\vrfaslots\left( \mathtt{sort} \Listst{
 } \right) $$
 We believe this approach meshes best with both the analysis from \cite{Praos} and the stronger Markov chain analysis from \cite{Kiffer18}.  Yet, several difficult interactions with recycle phase below arise:  We need $r'_{e+l}$ to be finalised by GRANDPA to avoid permissable equivocations in the block production, which basically requires waiting an extra epoch, meaning third sub-phase finishes in $e+l-2$, and $l>1$ of course.  Worse, if $r'_{e+l}$ comes from a VDF then it emerges long before the end of $e+l-1$, so really the third sub-phase must finish before the VDF start, which we discuss further below.
 
-Instead we suggest to sort $\omega'_{V,e,i}$ so the smallest $\omega'_{V,e,i}$ values most likely to survive all sub-phases play the most important roles, ignoring $r'_{e+l}$, and then trim the resulting sorted list to only the smallest $\vrfaslots$ final winners. 
+\paragraph{Low-latency:} 
+As an easier option, we instead suggest to sort $\omega'_{V,e,i}$ so the smallest $\omega'_{V,e,i}$ values most likely to survive all sub-phases play the most important roles, ignoring $r'_{e+l}$, and then trim the resulting sorted list to only the smallest $\vrfaslots$ final winners. 
 $$ 
 \mathcal{S} &:= \mathtt{trim}_\vrfaslots\left( 
 \mathtt{sort} \Listst{
@@ -92,7 +94,7 @@ $$
 $$
 An outside-in sort still permits an adversary to trade beginning runs for ending runs, but this sounds mostly harmless.
 
-Any of the above tree approaches should prevent an adversary from sacrificing some of their own blocks to position a long streak of their own blocks towards the end of the epoch.  
+We favor the low-latency outside-in sort approach because if an adversary can influence $r'_e$ separately from $r_e$ or $\mathcal{S}_0$ then they actually gain more control over the upcoming epoch.  Any of the above approaches however should prevent an adversary from sacrificing some of their own blocks to position a long streak of their own blocks towards the end of the epoch.  
 
 
 \subsection{Submission phase}\label{subsec:submission_phase}
@@ -160,13 +162,19 @@ $$
 
 Any VDF has an expected running time $\Trun$ that depends upon some typical fast evaluation model, and a safe waiting time $\Twait > \Trun$ that depends upon the peer-to-peer protocol that allocates resources to VDF evaluation.  We should achieve $\Twait \le 2 \Trun$ with partial evaluation schemes though.  Any VDF also has a securing time $\Tsec$ that gives the time period after a VDF run starts during which the adversary does not know the VDF output.  We say $\Trun/\Tsec$ is the adversarial advantage, although $\Twait/\Tsec$ gives the adversary's practical advantage.  
 
-We could naively adapt Praos \cite{Praos} to a VDF by defining its $r_e$ to be the VDF output when given $\Omega^{\labelVRFr}_{e-\epochsdelayforVDF}$ where $\epochsdelayforVDF$ epochs is longer than $\Twait$.  Yet, we cannot similarly take $r_e = r'_e = r''_e$ to be the VDF output because doing so exposes our sorting randomness $r'_{e+l}$ too early: 
+We also ask that $\Twait$ be long enough to ensure the VDF input gets finalised, but this sounds unproblematic.  
 
-An adversary could learn $r'_{e+l}$ only $\Tsec$ after its VDF started.  We recall that $r'_{e+l}$ gets used in finalising the sortition phase that start in epoch $e$.  As $\Tsec$ would always be much less than an epoch, our VDF for $r'_{e+l}$ must start after the end of the first three sub-phases of sortition, and must be available to end sortition.  It follows that $\epochsdelayforVDF$ aka $\Twait$ must be less than $l$, which limits our VDF security dramatically.  At first blush, we now ask that one VDF end for each epoch, which then requires running almost $l$ VDFs in parallel.
+At first blush, we integrate a VDF by defining $r_e$ to be the VDF output when given input $\Omega^{\labelVRFr}_{e-\epochsdelayforVDF}$ where $\epochsdelayforVDF$ epochs is longer than $\Twait$.  We could adapt Ouroboros Praos \cite{Praos} to a VDF similarly.  In this, any new block producer should wait $\epochsdelayforVDF$ epochs before joining sortition. 
 
-We could however define only $r_e$ to be the VDF output and take simply $r'_e = \Omega^{\labelVRFr}_{e-1}$, so $r_e \ne r'_e$, if we want to keep $l$ relatively short.  We must analyse if $r'_e$ really improves our security much in this case.
+Yet, we must take care when we take $r'_e = r''_e$ to be the VDF output $r_e$ because doing so could expose our sorting randomness $r'_{e+l}$ too early.  We again foresee two solutions:
 
-TODO: More complete half VDF design
+\paragraph{High-latency:} 
+We recall that $r'_{e+l}$ gets used in finalising the sortition phase that start in epoch $e$.  An adversary could learn $r'_{e+l}$ only $\Tsec$ after its VDF started.  As $\Tsec$ would always be much less than an epoch, our VDF for $r'_{e+l}$ must start after the end of the first three sub-phases of sortition, and must be available to end sortition.  It follows that $l > \epochsdelayforVDF > \Twait/T_{\mathsf{epoch}}$, or really $l = \epochsdelayforVDF + 1$, which limits our VDF security dramatically.  At first blush, we now ask that one VDF end for each epoch, which then requires running $l$ VDFs in parallel, but $r_e = r'_e = r''_e$ still holds.
+
+\paragraph{Low-latency:} 
+If we however prefer $l$ shorter, like $l=1$, then we could define only $r_e$ to be the VDF output.  In this case, we should similarly adopt the low-latency outside-in sort approach from the sortition phase \S\ref{subsec:sortition_phase}, which ignores $r'_e$ entirely.  We shall elaborate upon our note above that an adversary having influence over $r'_e$ separate from $r_e$ or $\mathcal{S}_0$ appears problematic.
+
+If we use $r'_e$ then we set $r'_e := f(\Omega^{\labelVRFr}_{e'})$ for some $f$ and $e' < e$, but doing so allows adversaries to influence $r'_e$ separately from $r_e$.  In concrete terms, adversaries cannot bias their selection of VRF outputs $\omega_{V,e,i}$ under the VDF assumption, only those they reveal and claim, but they could bias $r'_e$ to create runs towards the end or beginning.  If however we adopt the low-latency outside-in sort approach then an adversary gains no special influence over the epoch end or beginning. 
 
 
 \subsection{Mitigations}\label{subsec:slashing}
