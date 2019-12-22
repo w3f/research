@@ -66,7 +66,7 @@ After this in the {\bf final sub-phase} around the end of epoch $e+l-1$, we ``so
 
 \paragraph{High-latency:} 
 We need $r'_{e+l}$ to emerges by the end of epoch $e+l-1$ anyways.  We could therefore simply sort based on $H(\omega'_{V,e,i} \| r'_{e+l})$, so that creating and positioning runs depends entirely upon manipulating $r'_{e+l}$. 
-$$ \mathcal{S} &:= \mathtt{trim}_\vrfaslotsbound\left( \mathtt{sort} \Listst{
+$$ \mathcal{S} := \mathtt{trim}_\vrfaslotsbound\left( \mathtt{sort} \Listst{
   H(\omega'_{V,e,i} \| r'_{e+l}); W,i,\omega_{V,e,i}) 
 }{
   \omega_{V,e,i} \mathrm{ correctly made it on-chain}
@@ -76,7 +76,7 @@ We believe this approach meshes best with both the analysis from \cite{Praos} an
 \paragraph{Low-latency:} 
 As an easier option, we instead suggest to sort $\omega'_{V,e,i}$ so the smallest $\omega'_{V,e,i}$ values most likely to survive all sub-phases play the most important roles, ignoring $r'_{e+l}$, and then trim the resulting sorted list to only the smallest $\vrfaslotsbound$ final winners. 
 $$ 
-\mathcal{S} &:= \mathtt{trim}_\vrfaslotsbound \left( 
+\mathcal{S} := \mathtt{trim}_\vrfaslotsbound \left( 
 \mathtt{sort} \Listst{
   \omega'_{V,e,i}; W,i,\omega_{V,e,i}) 
 }{
@@ -84,7 +84,7 @@ $$
 } \right) 
 $$
 We fear bias from omitted $\omega'_{V,e,i}$ towards the end of the epoch, so we could simply declare the slot allocations for epoch $e+l$ to be the reverse of this list.
-$$ \mathcal{S} &:= \mathtt{reverse}( \mathcal{S}_0 )$$
+$$ \mathcal{S} := \mathtt{reverse}( \mathcal{S}_0 )$$
 Instead we think an ``outside-in'' sorting order that places the smallest $\omega'_{V,e,i}$ towards both the end and the beginning of the epoch handles this most cleanly.
 $$ 
 \mathcal{S} := 

@@ -18,11 +18,26 @@
 
 %=================End:Packages===================
 
-%=================Begin:Macros===================
+%==================Begin:Style===================
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
 
 \newcommand\mathperiod{.}
 \newcommand\mathcomma{,}
+
 \newcommandx{\fatemeh}[2][1=]{\todo[linecolor=pink,backgroundcolor=pink!25,bordercolor=pink,#1]{#2}}
+%===================End:Style====================
+
+%==================Begin:Macros==================
+
+\newcommand{\floor}[1]{\left\lfloor #1 \right\rfloor}
+\newcommand{\ceil}[1]{\left\lceil #1 \right\rceil}
+
+\newcommand{\vect}[1]{\overset{\rightharpoonup}{#1}}
+
+% \newcommand{\Pr}{\ensuremath{\mathsf{Pr}}} %probability
+
 \newcommand*\set[1]{\{ #1 \}} % in text, we don't want {} to grow
 \newcommand*\Set[1]{\left\{ #1 \right\}}
 \newcommand*\setst[2]{\{ #1 | #2 \}}
@@ -33,7 +48,6 @@
 \newcommand*\listst[2]{[ #1 | #2 ]}
 \newcommand*\Listst[2]%
         {\left[\,#1\vphantom{#2} \;\right|\left. #2 \vphantom{#1}\,\right]}
-
 
 % uniform random selection from set
 \newcommand{\randsel}[0]{\ensuremath{\xleftarrow{\text{\$}}}}
@@ -47,28 +61,14 @@
 % party
 \newcommand{\prt}[1]{\ensuremath{\mathcal{#1}}}
 % long-form variable
-\newcommand{\V}[1]{\ensuremath{\mathit{#1}}}
+\newcommand{\var}[1]{\ensuremath{\mathit{#1}}}
 
 % probability with square brackets of the right size
 \newcommand{\Prb}[1]{\ensuremath{\Pr\left [#1 \right ]}}
 
+%=================End:Macros=====================
 
-\newcommand{\Nom}{\ensuremath{\mathcal{N}}} % Set of nominators
-\newcommand{\Val}{\ensuremath{\mathcal{V}}} % Set of elected validators
-\newcommand{\nval}{\ensuremath{n_{val}}} % Number of validators to elect
-\newcommand{\Can}{\ensuremath{\mathcal{C}}} %Set of candidate validators
-% \newcommand{\nom}{\ensuremath{}} % A nominator
-% \newcommand{\val}{\ensuremath{}} %A validator
-% \newcommand{\col}{\ensuremath{}} %A collator
-% \newcommand{\Par}{\ensuremath{P}} %A particilar parachain
-\newcommand{\Col}{\ensuremath{\mathcal{C}}} %Set of collators
-\newcommand{\slot}{\ensuremath{sl}} %slot number
-\newcommand{\ep}{\ensuremath{e}} %epoch number
-\newcommand{\lclock}{\ensuremath{\mathsf{clock}}} %local clock
-\newcommand{\block}{\ensuremath{B}} % a block
-\newcommand{\bchain}{\ensuremath{\bar{B}}} %blockchain
-\newcommand{\D}{\ensuremath{\Delta}}
-
+%=================Begin:Definitions===================
 
 \newcommand{\VRF}{\algo{VRF}} 
 \newcommand{\RingVRF}{\algo{RingVRF}} 
@@ -100,9 +100,13 @@
 \newcommand{\Tsec}{\ensuremath{T_{\mathsf{sec}}}}
 
 
-%=================End:Macros=====================
+\newcommand{\vals}{\ensuremath{\mathcal{V}}}
+\newcommand{\nvals}{\ensuremath{n}}
+% \newcommand{\para}{\ensuremath{\rho}}
+% \newcommand{\npvals}{\ensuremath{n'}}
 
-%=================Begin:Definitions===================
+\newcommand{\val}{\ensuremath{v}}
+
 %=================End:Definitions===================
 
 
