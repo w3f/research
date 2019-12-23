@@ -73,7 +73,7 @@ $$ \mathcal{S} := \mathtt{trim}_\vrfaslotsbound\left( \mathtt{sort} \Listst{
 } \right) $$
 We believe this approach meshes best with both the analysis from \cite{Praos} and the stronger Markov chain analysis from \cite{Kiffer18}.  Yet, several difficult interactions with recycle phase below arise:  We need $r'_{e+l}$ to be finalised by GRANDPA to avoid permissable equivocations in the block production, which basically requires waiting an extra epoch, meaning third sub-phase finishes in $e+l-2$, and $l>1$ of course.  Worse, if $r'_{e+l}$ comes from a VDF then it emerges long before the end of $e+l-1$, so really the third sub-phase must finish before the VDF start, which we discuss further below.
 
-\paragraph{Low-latency:} 
+\paragraph{Low or mid-latency:} 
 As an easier option, we instead suggest to sort $\omega'_{V,e,i}$ so the smallest $\omega'_{V,e,i}$ values most likely to survive all sub-phases play the most important roles, ignoring $r'_{e+l}$, and then trim the resulting sorted list to only the smallest $\vrfaslotsbound$ final winners. 
 $$ 
 \mathcal{S} := \mathtt{trim}_\vrfaslotsbound \left( 
@@ -154,6 +154,7 @@ In other words, $\hat{\omega}_{\ell}$ is a VRF output for $r''_{e+l+k} \| i$ und
 
 We should now close our VRF cycle by defining our randomnesses $r_e$, $r'_{e+l}$, and $r''_{e+l+k}$ from the \VRFr outputs, and additional information, like some past block hash.  We let $\epochsdelayforblockhash \ge 1$ denote some number of epochs such that our security analysis predicts, with high probability, one honest block exists within $\epochsdelayforblockhash$.  We define $\Omega^{\labelVRFr}_{e+l+k}$ to be the hash of all $H(\hat{\omega}_{\ell} \| r''_{e+l+k} \| i)$ (2Hash-DH) and the last block header hash in epoch $e - \epochsdelayforblockhash$.
 
+\paragraph{Low-latency:} 
 If we lack any VDF then we should simply define all $r_{e+l+k+1}$, $r'_{e+l+k+1}$, and $r''_{e+l+k+1}$ to be $\Omega^{\labelVRFr}_{e+l+k}$ in epoch $e+l+k$.
 $$
 r_{e+l+k+1} = r'_{e+l+k+1} = r''_{e+l+k+1} = H(\Omega^{\labelVRFr}_{e+l+k})
@@ -171,7 +172,7 @@ Yet, we must take care when we take $r'_e = r''_e$ to be the VDF output $r_e$ be
 \paragraph{High-latency:} 
 We recall that $r'_{e+l}$ gets used in finalising the sortition phase that start in epoch $e$.  An adversary could learn $r'_{e+l}$ only $\Tsec$ after its VDF started.  As $\Tsec$ would always be much less than an epoch, our VDF for $r'_{e+l}$ must start after the end of the first three sub-phases of sortition, and must be available to end sortition.  It follows that $l > \epochsdelayforVDF > \Twait/T_{\mathsf{epoch}}$, or really $l = \epochsdelayforVDF + 1$, which limits our VDF security dramatically.  At first blush, we now ask that one VDF end for each epoch, which then requires running $l$ VDFs in parallel, but $r_e = r'_e = r''_e$ still holds.
 
-\paragraph{Low-latency:} 
+\paragraph{Mid-latency:} 
 If we however prefer $l$ shorter, like $l=1$, then we could define only $r_e$ to be the VDF output.  In this case, we should similarly adopt the low-latency outside-in sort approach from the sortition phase \S\ref{subsec:sortition_phase}, which ignores $r'_e$ entirely.  We shall elaborate upon our note above that an adversary having influence over $r'_e$ separate from $r_e$ or $\mathcal{S}_0$ appears problematic.
 
 If we use $r'_e$ then we set $r'_e := f(\Omega^{\labelVRFr}_{e'})$ for some $f$ and $e' < e$, but doing so allows adversaries to influence $r'_e$ separately from $r_e$.  In concrete terms, adversaries cannot bias their selection of VRF outputs $\omega_{V,e,i}$ under the VDF assumption, only those they reveal and claim, but they could bias $r'_e$ to create runs towards the end or beginning.  If however we adopt the low-latency outside-in sort approach then an adversary gains no special influence over the epoch end or beginning. 
