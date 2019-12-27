@@ -3,7 +3,7 @@
 
 <img  align="right" src="https://i.imgur.com/nM6R0Pu.jpg" width="160" />
 
-I am a researcher and team lead at Web3 Foundation, where I work on a number of tasks:
+I am the research team lead of Web3 Foundation, where I work on a number of tasks:
 
 * help design and coordinate W3F's research agenda
 * drive our outreach activites such as publications, presentations, and tutorials 
