@@ -5,10 +5,10 @@
 We now describe and instantiate our {\em availability and validity protocol} that provides efficient sharding.  It consists of 
 \begin{itemize}
 \item a parachain phase that prepares the candidate block and performs preliminary validity checks,
-\item a relay chain submission phase that distribute candidate parachain blocks, and produces relay chain blocks,
-\item availability and unavailability subprotocols that enforce availability in GRANDPA and BABE receptively,
+\item a relay chain submission phase that distributes candidate parachain blocks and produces relay chain blocks,
+\item availability and unavailability subprotocols that enforce availability in GRANDPA and BABE respectively,
 \item fuller secondary validity checks for GRANDPA, and
-\item finally objection procedures for fishermen.
+\item finally, objection procedures for fishermen.
 \end{itemize}
 
 % TODO: Anything more worth saying here?  Maybe extract from:  The parachain phase is executed between collators and parachain validators. In the end of this phase, the parachain validators validate the block and provide its erasure code pieces to the validators. Then, the relay chain phase begins. If the parachain phase is executed correctly, then the relay chain phase includes extra validation of a parachain block, adding the block header to the relay chain and finalizing that relay chain block. Otherwise, unavailability protocol is run between validators. The details are as follows: 
@@ -30,7 +30,7 @@ As $\prove$ is a randomized algorithm, $C$ must next reevaluate the block with $
 \smallskip
 % \paragraph{Parachain validator:}
 
-Next each {\bf parachain validator} $V \in \vals_\para$ checks the validity of the block by evaluating the block with $\verify_\para(\blobB)$.  We also refer to these at the {\em preliminary validity checks} as well.  We continue below if verification succeeds, but if verification fails, they reject the candidate $\blobB$ and reports it as invalid, ending its consideration.  We expect $V$ gossips $\blobB$ among the parachain validators $\vals_\para$, presumably after checking $\blobB$ itself.
+Next each {\bf parachain validator} $V \in \vals_\para$ checks the validity of the block by evaluating the block with $\verify_\para(\blobB)$.  We refer to these as the {\em preliminary validity checks} as well.  We continue below if verification succeeds, but if verification fails, they reject the candidate $\blobB$ and reports it as invalid, ending its consideration.  We expect $V$ gossips $\blobB$ among the parachain validators $\vals_\para$, presumably after checking $\blobB$ itself.
 
 \subsection{Relay chain phase} % Relay chain phase I: Block production 
 
@@ -42,7 +42,7 @@ Now any {\bf parachain validator} $V \in \vals_\para$ runs $\encode_{f+1,\nvals}
 % Also Joe asks if we should talk about parachain block headers
 % Anything else?
 
-We gossip these candidate receipts $\bar{r}_{B,S}$ among the parachain validators $\vals_\para$.  In doing so, we improve them by further aggregating the signature set $S$.\footnote{We envision $\vals_\para$ being small enough that BLS signatures do not improve verification time over Schnorr signatures, although BLS might reduce the candidate receipt's signature from 640 bytes down to 50 bytes.}  We publish $\bar{r}_{B,S}$ for relay chain block producers using relay chain gossip (memepool) whenever $S > \kappa_\para \npvals$, assuming this happens eventually.  We abandon $B$ however if another conflicting blocks gets finalised by GRANDPA.  We think $\kappa_\para = {1\over2}$ gives a reasonable choice.
+We gossip these candidate receipts $\bar{r}_{B,S}$ among the parachain validators $\vals_\para$.  In doing so, we improve them by further aggregating the signature set $S$.\footnote{We envision $\vals_\para$ being small enough that BLS signatures do not improve verification time over Schnorr signatures, although BLS might reduce the candidate receipt's signature from 640 bytes down to 50 bytes.}  We publish $\bar{r}_{B,S}$ for relay chain block producers using relay chain gossip (mempool) whenever $S > \kappa_\para \npvals$, assuming this happens eventually.  We abandon $B$ however if another conflicting blocks gets finalised by GRANDPA.  We think $\kappa_\para = {1\over2}$ gives a reasonable choice.
 
 \smallskip
 % \paragraph{Relay chain block producer:}
@@ -59,7 +59,7 @@ We find that scalability actually depends heavily upon the topology and routing 
 \smallskip
 % \paragraph{Candidate blocks:}
 
-We need our network topology induced on one parachain $\para$ to distribute the $\blobB$s relatively quickly, which amounts to a graph expansion property.  We want a reasonable connectivity property too because too many parachain validators going down requires expensive reconstructions by any unreachable oarachain validators (see \S\ref{sec:reconstructions} below).  We might also ask good collators to send the same block to several well chosen parachain validators as well.  As an example, if our parachain validators $\vals_\para$ form a cycle then $B$ reaches all parachain validators in two hops if the collators send $B$ to one third of $\vals_\para$, but adding well chosen chords reduces our connections with collators and improves our connectivity.  
+We need our network topology induced on one parachain $\para$ to distribute the $\blobB$s relatively quickly, which amounts to a graph expansion property.  We want a reasonable connectivity property too because too many parachain validators going down requires expensive reconstructions by any unreachable parachain validators (see \S\ref{sec:reconstructions} below).  We might also ask good collators to send the same block to several well chosen parachain validators as well.  As an example, if our parachain validators $\vals_\para$ form a cycle then $B$ reaches all parachain validators in two hops if the collators send $B$ to one third of $\vals_\para$, but adding well chosen chords reduces our connections with collators and improves our connectivity.  
 
 \smallskip
 % \paragraph{Candidate pieces:}
@@ -79,11 +79,11 @@ We can adapt this scheme to $|\vals_{\para_i}|$ quite easily if $\npvals$ turns 
 
 In more concrete terms, after our parachain validator $V$ of $\para$ observes some relay chain block $R$ containing $\bar{r}_{B,S}$ then, for all other parachains $\para' \ne \para$, $V$ computes $i_{\para'}$ such that $V = \mathsf{parashuffle}(\para,\para')[j]$ and $\vals[i_{\para'}] = \mathsf{parashuffle}(\para',\para)[j]$ for some $j \leq \npvals$, and $V$ send $\pieces_B[i_{\para'}]$ to $\vals[i_{\para'}]$ directly using QUIC.  We expect $\vals[i_{\para'}]$ might have some piece from $\para'$ for $V$ too, thanks to the symmetry of our $\mathsf{parashuffle}$ criteria.  We expect this symmetry to reduce the required connections by almost a factor of two.
 
-We have describe this as $V$ initiating the connection, but a similar procedure works for $V$ requesting a its piece for some $\para'$ block, or symmetrically $\vals[i_{\para'}]$ requesting $\pieces_B[i_{\para'}]$.  In fact, an initial implementation should focus upon requests because as noted above we shall request from other validators when our first choice fails. 
+We have described this as $V$ initiating the connection, but a similar procedure works for $V$ requesting its piece for some $\para'$ block, or symmetrically $\vals[i_{\para'}]$ requesting $\pieces_B[i_{\para'}]$.  In fact, an initial implementation should focus upon requests because as noted above we shall request from other validators when our first choice fails. 
 
-If $\vals[i_{\para'}]$ cannot reach $V$ then $\vals[i_{\para'}]$ must select some backup node to replace $V$.  We should distribute these evenly among $\vals_\para \setminus \{V\}$, so as one option $\vals[i_{\para'}]$ could perform a Fisher-Yates shuffle of $\vals_\para \setminus \{V\}$, seeded by its own identity $\vals[i_{\para'}].\mathsf{pk}$ and $\para.\mathsf{seed}$, and then contact those remaining parachain validators in the resulting order.  We caution this option breaks the topology's symmetry, so as noted above nodes might exploit whatever links work first, and only take guidance from the this shuffle when creating new links.  
+If $\vals[i_{\para'}]$ cannot reach $V$ then $\vals[i_{\para'}]$ must select some backup node to replace $V$.  We should distribute these evenly among $\vals_\para \setminus \{V\}$, so as one option $\vals[i_{\para'}]$ could perform a Fisher-Yates shuffle of $\vals_\para \setminus \{V\}$, seeded by its own identity $\vals[i_{\para'}].\mathsf{pk}$ and $\para.\mathsf{seed}$, and then contact those remaining parachain validators in the resulting order.  We caution this option breaks the topology's symmetry, so as noted above nodes might exploit whatever links work first, and only take guidance from this shuffle when creating new links.  
 
-We admited adversarial manipulation of our network topology here, but sounds acceptable for our availability scheme.  We shall consider whether this impacts gossip protocols in future work. 
+We admitted adversarial manipulation of our network topology here, but it sounds acceptable for our availability scheme.  We shall consider whether this impacts gossip protocols in future work. 
 % TODO:  Future work?  Here below?
 
 
@@ -99,14 +99,14 @@ We integrate our availability and secondary validity check protocols directly wi
 
 We run these availability and secondary validity check protocols only for parachain blocks included in relay chain blocks, not for all parachain blocks proposed by parachain validators.  In this way, we reduce the damage done by spammy parachains, at least beyond their own assigned parachain validators.
 
-At the same time, we avoid complex anti-spam or prioritisation logic since only GRANDPA require this prior voting restriction.  In fact, if we later require prioritisation logic then this trick isolates it inside relay chain block production.
+At the same time, we avoid complex anti-spam or prioritisation logic since only GRANDPA requires this prior voting restriction.  In fact, if we later require prioritisation logic then this trick isolates it inside relay chain block production.
 % TODO:  Any more details on GRANDPA integration?
 
 
 \subsection{Unavailability} % BABE
 \label{sec:unavailability}
 
-We cannot entirely escape the availability question within BABE however:  We have several forks $C_1,\ldots,C_k$ for which at most $f$ validators possess all their chunks, but no fork for which $f+1$ validators possess all their chunks.  Yet, each block producers $U$ possess all their chunks for at least one fork $C_i$.  If BABE were oblivious to availability, then $U$ extends $C_i$, and GRANDA stalls under this configuration. 
+We cannot entirely escape the availability question within BABE however:  We have several forks $C_1,\ldots,C_k$ for which at most $f$ validators possess all their chunks, but no fork for which $f+1$ validators possess all their chunks.  Yet, each block producers $U$ possess all their chunks for at least one fork $C_i$.  If BABE were oblivious to availability, then $U$ extends $C_i$, and GRANDPA stalls under this configuration. 
 % TODO:  Anything about secondary validity check here ???
 
 Instead, we define an availability grace period $\grace$ after which an unavailability subprotocol alters BABE's chain selection rule:  
@@ -118,7 +118,7 @@ We now explain validators' responses to these unavailability announcements:
 
 First, suppose some validator $V \in \vals$ observes an unavailability announcement for some candidate receipt $\bar{r}_{B,S}$ from some validator $\vals[i]$.  If $V$ possesses the block $\blobB$ then $U$ has computed $\pieces_B$ to check $\bar{r}_{B,S}$, so $V$ already possesses $\pieces_B[i]$ and should offer it to $\vals[i]$.  Any $V \in S$ satisfies this, but so do any validators who signed off on the secondary checks discussed below in \S\ref{sec:validity}. 
 
-Second, if any validator $U \in \vals$ observes unavailability announcements for pieces of some candidate receipt $\bar{r}_{B,\cdot}$ from at least $f+1$ different validators. then $U$ shall not propose relay chain containing $\bar{r}_{B,\cdot}$ in BABE.
+Second, if any validator $U \in \vals$ observes unavailability announcements for pieces of some candidate receipt $\bar{r}_{B,\cdot}$ from at least $f+1$ different validators, then $U$ shall not propose relay chain containing $\bar{r}_{B,\cdot}$ in BABE.
 In this situation, there might be prevotes but never any precommits in GRANDPA for chains containing  $\bar{r}_{B,\cdot}$, so $\bar{r}_{B,\cdot}$ cannot possibly be finalised by GRANDPA.  We should consider if the GHOST chain weighting rule used by BABE and by GRANDPA for prevotes should weigh unavailability announcements, but doing so should only impact performance.
 
 As an aside, we also considered $U$ abandoning any fork $C$ for which at least $f+1$ different validators gossiped unavailability announcements for possibly distinct blobs in $C$, instead of for the same blob.  Any truly unavailable pieces eventually trigger both conditions but they trigger this variant with possibly distinct blobs first, and with more false positives.  We optimise for the honest case here and caution that more false positives results in more chains, so spammy parachains create could more load on the availability system.
@@ -139,7 +139,7 @@ We revert this slash whenever revocations later reduce the unavailability announ
 \subsection{Validity}
 \label{sec:validity}
 
-We have now excluded the block headers whose pieces are missing, thanks to the availability and unavailability protocols, at least under the ambiant assumptions for BABE an GRANDPA.
+We have now excluded the block headers whose pieces are missing, thanks to the availability and unavailability protocols, at least under the ambiant assumptions for BABE and GRANDPA.
 
 
 
@@ -160,13 +160,13 @@ Here, $\mu$ specifies the minimum number of checks, $\runav$ is the unavailabili
 
 
 
-There are a three-factor validity check during the availability protocol:
+There is a three-factor validity check during the availability protocol:
 
 
 \begin{enumerate}
 
       
-    \item \textbf{Fisherman Check:} All fishermen collect blobs from collators in order to check the validity all the time. Whenever they discover an invalid block, they announce it to the validators by signing their claim. These claims are added to the block list by the validators. So, these claims are going to be in the relay chain. They do not provide any proof. If their claims are wrong then they are slashed. Otherwise, they are rewarded. The correctness of the fishermen claims are determined with the validity check protocol.
+    \item \textbf{Fisherman Check:} All fishermen collect blobs from collators in order to check the validity all the time. Whenever they discover an invalid block, they announce it to the validators by signing their claim. These claims are added to the block list by the validators. So, these claims are going to be in the relay chain. They do not provide any proof. If their claims are wrong then they are slashed. Otherwise, they are rewarded. The correctness of the fishermen claims is determined with the validity check protocol.
     
     \item \textbf{Parachain Validator Check:} All parachain validators check the validity of the block as described in the parachain phase of the availability protocol. If one parachain validator $PV_i$ sees that an invalid block header is in a block of the best relay chain, then he announces the invalidity. If a parachain validator has never seen the blob of the block header in the relay chain or he does not sign for that block, he runs the extra validity check protocol given below.
     
