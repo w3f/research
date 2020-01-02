@@ -26,7 +26,7 @@ We prefer if subscripts always denote higher level properties, like identifying 
 
 \subsection{Blocks}
 
-We normally prevent blocks from referencing data in other blocks directly, aka UTXOs, because doing so incurs unacceptable storage overhead.  Instead, all blockchains have some associated state for which blocks describe a state transition, normally stored as a Merkle tree.  As a brutal convenience, we further subsuming the current commitments into our $\para$ notation.
+We normally prevent blocks from referencing data in other blocks directly, aka UTXOs, because doing so incurs unacceptable storage overhead.  Instead, all blockchains have some associated state for which blocks describe a state transition, normally stored as a Merkle tree.  As a brutal convenience, we further subsuming the current state commitments into our $\para$ notation.  We let $\hat{para}$ denote the parachain state $\para$ but with full attached state required by collators, not just the state commitments. 
 % TODO: Expand \para into immutabel \para mutable \hat{para} with the commitments 
 
 Consider a block $B$.  We distinguish a header $B_{\mathsf{head}}$ and body $B_{\mathsf{body}}$ of a block $B = (B_{\mathsf{head}},B_{\mathsf{body}})$.  We ask that $B_{\mathsf{head}}$ contain $H(B_{\mathsf{body}})$ and commitments to the associated state before and after running $B$, normally Merkle roots.  
@@ -34,21 +34,23 @@ Consider a block $B$.  We distinguish a header $B_{\mathsf{head}}$ and body $B_{
 In principle, any block might incorporate additional associated data $M$ also referenced by $B_{\mathsf{head}}$.  We shall not belabour the associated data $M$ here, so anyone who requires it should read thoughtfully.
 
 \begin{definition}\label{def:pob}
-We consider a {\em state witness} procesure consists of  
+We define a {\em state witness procedure} to consists of  
 \begin{itemize}
-\item a randomize algorithm $\prove_\para$ that executes a block $B$, and maybe $M$, and returns a witness proof $\pi_B$ of any transitions of the associated state, as well as 
-\item a deterministic algorithm $\verify_\para$ that takes the blob $\blobB = (B,\pi_B,M)$ executes $B$ applying the state transition in $\para$, and returns $\mathsf{true}$ and mutates $\para$ if and only if $B$ executes correctly with the state transition given by the witness $\pi_B$.  
+\item a randomized algorithm $\prove_{\hat{\para}}$ that executes a block $B$, and maybe $M$, and returns a witness proof $\pi_B$ of any transitions to the associated state, as well as 
+\item deterministic algorithms $\verify_\para$ and $\verify_{\hat{\para}}$ that take the blob $\blobB = (B,\pi_B,M)$ execute $B$ applying the state transition to either the commitments in $\para$ or the full state in $\hat{para}$, and returns $\mathsf{true}$ and mutates $\para$ or $\hat{para}$, if and only if $B$ executes correctly with the state transition given by the witness $\pi_B$. 
 \end{itemize}
 \end{definition}
-We disallow $\prove_\para$ from modifying the associated state commitments in $\para$ and only permit $\verify_\para$ to do so when returning $\mathsf{true}$.
+We disallow $\prove_\para$ from modifying the associated state commitments in $\para$ and only permit $\verify_{\hat{\para}}$ to do so when returning $\mathsf{true}$.
 
 As a convenient Merkle tree notation, we let the notation $\vect{xy}$ denote the copath witness proving that $z$ is a leaf of a Merkle tree with root $x$.  We support internal nodes in this notation too, so $\vect{xz} = \vect{xy} \vect{yz}$ if $y$ lies on the path from $x$ to $z$.  We write $B[\vect{xy}]$ to specify $B$ as the underlying Merklee tree, when not clear from context, especially when $B$ itself is a block.  We shall always write just $\vect{xy}$ when $x$ and $y$ lie in the state tree associated to some blockchain.  
 
-We shall not restrict this proof $\pi_B$ here, but often $\pi_B$ consists of the union of all copath witnesses $\vect{rx}$ in the associated state tree that arise from read and write operations when executing $B$.  If $B$ changes the state tree's Merkle root from $r_{\mathsf{in}}$ to $r_{\mathsf{in}}$ then 
+\newcommand\rin{\ensuremath{r_{\mathsf{in}}}} % {\ensuremath{r_0}}
+\newcommand\rout{\ensuremath{r_{\mathsf{out}}}} % {\ensuremath{r_1}}
+We shall not restrict this proof $\pi_B$ here, but often $\pi_B$ consists of the union of all copath witnesses $\vect{rx}$ in the associated state tree that arise from read and write operations when executing $B$.  If $B$ changes the state tree's Merkle root from $\rin$ to $\rout$ then 
 $$
 \pi_B = 
-  \bigcup \Setst{ \vect{r_{\mathsf{in}}x} }{ \textrm{$B$ reads $x$} }
-  \cup \Setst{ \vect{r_{\mathsf{out}}x} }{ \textrm{$B$ writes $x$} } \mathperiod
+  \bigcup \Setst{ \vect{\rin x} }{ \textrm{$B$ reads $x$} }
+  \cup \Setst{ \vect{\rout x} }{ \textrm{$B$ writes $x$} } \mathperiod
 $$
 There are however other instantiations for $\pi_B$, like some zkSNARKs that takes the read or written leaves $x$ as public inputs.  We define the {\em blob} $\blobB = (B, \pi_B, M)$ for our block $B$ and perhaps its additional associated data $M$, although some plausible instantiations for $\pi_B$ with zkSNARKs allow using only $B_{\mathsf{head}}$ in $\blobB$.
 
