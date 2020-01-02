@@ -37,15 +37,15 @@ We suggest the initial block producers first announce their VRF keys and then ch
 
 
 \subsection{Sortition phase}\label{subsec:sortition_phase}
-\newcommand{\vrfaattemptsbound}{\mathtt{max_attempts}} % A attempts
-\newcommand{\vrfawinnersbound}{\mathtt{max_winners}} % L gossip
-\newcommand{\vrfarepeatbound}{\mathtt{max_repeats}} % L gossip
-\newcommand{\vrfaslotsbound}{\mathtt{num_slots}} % S slots
+\newcommand{\vrfaattemptsbound}{\mathtt{max\_attempts}} % A attempts
+\newcommand{\vrfawinnersbound}{\mathtt{max\_winners}} % L gossip
+\newcommand{\vrfarepeatbound}{\mathtt{max\_repeats}} % L gossip
+\newcommand{\vrfaslotsbound}{\mathtt{num\_slots}} % S slots
 
 We first let $\vrfaattemptsbound$ and $\vrfaslotsbound$ denote positive integer paramaters used to bound participation in the sortition phase.  We let $\vrfawinnersbound$ and $\vrfarepeatbound$ by optional positive integer bounds, at least one of which must be present.  We also let $l>0$ denote the number of epochs over which sortition runs, with a single epoch $l=1$ being possible.  We divide a sortition phase running over epochs $e+0,\ldots,e+l-1$ into three sub-phases:  
 
 In the {\bf first sub-phase}, any block producer $V$ with $\VRFa$ key pair $(\pkvrfa,\skvrfa)$ creates a limited number of VRF outputs 
-$$ (\omega_{V,e,i},\pi_{V,e,i}) := \VRFa.\Sign_{\skvrfa,\skcvrfa}(r_e \| i) \quad \textrm{for $i < \vrfaattemptsbound$.} $$
+$$ (\omega_{V,e,i},\pi_{V,e,i}) := \VRFa.\Sign_{\skvrfa,\skcvrfa}(r_e \| i) \quad \text{for $i < \vrfaattemptsbound$.} $$
 
 We set $\omega'_{V,e,i} := H(\omega_{V,e,i} \| H_1(r_e \| i))$ to give the 2Hash-DH construction from Theorem 2 on page 32 in appendex C of \cite{Praos}.  As a rule, we hide 2Hash-DH inside the $\omega$ output notation elsewhere in Polkadot papers, but we raise this to the surface here because it also hides $\omega_{V,e,i}$, which helps in some variant constructions.
 
@@ -55,6 +55,7 @@ $$ U = \vals[H(\omega'_{V,e,i} \| "WHO") \mod |\vals|] $$
 As we throw away most $\omega_{V,e,i}$ here, we always optimize performance by testing (\dag) before producing $\pi_{V,e,i}$.  
 
 We should send $(i,\omega_{V,e,i},\pi_{V,e,i})$ to $U$ as directly as possible, but always over an encrypted and authenticated channel.  At worst, if gossip must be used then $V$ could gossip a cyphertext $C$ that encrypts $(i,\omega_{V,e,i},\pi_{V,e,i})$ to a public key $U.\pk$ of $U$, and sign $(j,C)$ with $V.\pk$ where $j < \vrfawinnersbound$ is unique among such ciphertexts originating from $V$.  In other words, $\vrfawinnersbound$ acts as another de facto bound on the number of $(i,\omega_{V,e,i},\pi_{V,e,i})$ published.  
+TODO: Fix binding of $j$ to be public
 
 In the {\bf second sub-phase}, each repeater $U$ publishes on-chain at most $\vrfarepeatbound$ such anonymised VRF outputs $(\omega_{V,e,i},\pi_{V,e,i})$ for various block producers $W$.  These transactions record $(i,\omega_{V,e,i},\pi_{V,e,i})$ in the chain's associated state, so they should check the proof $\pi_{V,e,i}$, forbid duplicates, and enforce the above conditions.
 
@@ -69,18 +70,18 @@ We need $r'_{e+l}$ to emerges by the end of epoch $e+l-1$ anyways.  We could the
 $$ \mathcal{S} := \mathtt{trim}_\vrfaslotsbound\left( \mathtt{sort} \Listst{
   H(\omega'_{V,e,i} \| r'_{e+l}); W,i,\omega_{V,e,i}) 
 }{
-  \omega_{V,e,i} \mathrm{ correctly made it on-chain}
+  \omega_{V,e,i} \text{ correctly made it on-chain}
 } \right) $$
 We believe this approach meshes best with both the analysis from \cite{Praos} and the stronger Markov chain analysis from \cite{Kiffer18}.  Yet, several difficult interactions with recycle phase below arise:  We need $r'_{e+l}$ to be finalised by GRANDPA to avoid permissable equivocations in the block production, which basically requires waiting an extra epoch, meaning third sub-phase finishes in $e+l-2$, and $l>1$ of course.  Worse, if $r'_{e+l}$ comes from a VDF then it emerges long before the end of $e+l-1$, so really the third sub-phase must finish before the VDF start, which we discuss further below.
 
 \paragraph{Low or mid-latency:} 
 As an easier option, we instead suggest to sort $\omega'_{V,e,i}$ so the smallest $\omega'_{V,e,i}$ values most likely to survive all sub-phases play the most important roles, ignoring $r'_{e+l}$, and then trim the resulting sorted list to only the smallest $\vrfaslotsbound$ final winners. 
 $$ 
-\mathcal{S} := \mathtt{trim}_\vrfaslotsbound \left( 
+\mathcal{S}_0 := \mathtt{trim}_\vrfaslotsbound \left( 
 \mathtt{sort} \Listst{
   \omega'_{V,e,i}; W,i,\omega_{V,e,i}) 
 }{
-  \omega_{V,e,i} \mathrm{ correctly made it on-chain}
+  \omega_{V,e,i} \text{ correctly made it on-chain} % TODO OOPS!
 } \right) 
 $$
 We fear bias from omitted $\omega'_{V,e,i}$ towards the end of the epoch, so we could simply declare the slot allocations for epoch $e+l$ to be the reverse of this list.
@@ -88,9 +89,9 @@ $$ \mathcal{S} := \mathtt{reverse}( \mathcal{S}_0 )$$
 Instead we think an ``outside-in'' sorting order that places the smallest $\omega'_{V,e,i}$ towards both the end and the beginning of the epoch handles this most cleanly.
 $$ 
 \mathcal{S} := 
-  \mathcal{S}_0[ 1,2,\ldots, 2 \floor{{\vrfaslotsbound-1 \over 2}} + 1 ]
+  \mathcal{S}_0 \left[ 1,2,\ldots, 2 \floor{{\vrfaslotsbound-1 \over 2}} + 1 \right]
 \|
-  \mathtt{reverse}( \mathcal{S}_0[ 0,2,\ldots, 2 \floor{\vrfaslotsbound/2}] )
+  \mathtt{reverse}( \mathcal{S}_0 \left[ 0,2,\ldots, 2 \floor{{\vrfaslotsbound \over 2}} \right] )
 $$
 An outside-in sort still permits an adversary to trade beginning runs for ending runs, but this sounds mostly harmless.
 
@@ -127,10 +128,13 @@ In either variant, all participants could send encrypted messages to upcoming bu
 
 There exist anonymity proposals like MimbleWimble \cite{MimbleWimble} and QuisQuis \cite{QuisQuis} in which transactions can be aggregated, ideally making each block a coin mixing operation.  In practice, these provide no anonymity because they must share and aggregate transactions before insertion into the mempool, which timing pressures prevent.  
 
-We however could aggregate entire transaction for entire blocks because users send their transaction directly to specific upcoming block producers.  Indeed, we could go far beyond this by having each block producer encrypt and send their block directly to the next block producer, so that many block could be aggregated befor being posted onto the chain.
+We could however aggregate transaction for entire blocks because users send their transaction directly to specific upcoming block producers.  At this first stage, all blocks acts like existing coin mixing services, which provide only a fig leaf, although that's still more than MimbleWimble.  
 
-We know this scheme remains vulnerable to correlation attacks, like all mix networks.  Yet, any scheme exposes such information on their network layer, even ZCash \cite{ZCash_vulnerable_2019}.  We propose that if wallets sent cover traffic then conceivably this scheme could provide blockchain level protections that matched its network layer security under reasonable threat models. 
+We could beyond this by having each block producer encrypt and send their block directly to the next several block producers, so that many blocks could be aggregated before being posted onto the chain.  We obtain slightly stronger anonymity as the block size increases, but we fear privacy degrads as liveness concerns would push us into sharing the blocks with more upcoming block producers. 
 
+We further propose that wallets sending cover traffic might provide an even more dramatic savings.  Any cover traffic scheme requires subtle incentivises mechanisms however:  In principle, one could force periodic account movement with VRFs inside zkSNARKs that eventually taxed non-moving accounts.  We tread cautiously here because cover costs could easily exceed those of ZCash's UTXO approach.
+
+Any such scheme remains vulnerable to correlation attacks, like all mix networks.  Yet, all schemes exposes some information on their network layer, even ZCash \cite{ZCash_vulnerable_2019}, so some compromises may become acceptable, especially as our analysis improves.  
 
 \subsection{Production phase}\label{subsec:production_phase}
 
@@ -143,7 +147,7 @@ We therefore require a non-ring non-group proof $\pi^0_{V,e,i} \ne \pi_{V,e,i}$ 
 In any case, our block producers $V$ claims their slot $\ell$ by publishing a block along with a header that includes the full block hash and the appropriate $\omega_{V,e,i}$ and the proof $\pi^0_{V,e,i})$ of correctness for $\omega_{V,e,i}$ that now proves their identity $V$.  
 
 At this point, $V$ seals the block header with the signature
-$$ (\hat{\omega}_{\ell},\hat{\pi}_{\ell}) := \VRFr.\Sign_{\skvrfr}(r''_{e+l+k} \| i, \mathsf{block_header_hash}) \mathperiod $$
+$$ (\hat{\omega}_{\ell},\hat{\pi}_{\ell}) := \VRFr.\Sign_{\skvrfr}(r''_{e+l+k} \| i, \mathsf{block\_header\_hash}) \mathperiod $$
 In other words, $\hat{\omega}_{\ell}$ is a VRF output for $r''_{e+l+k} \| i$ under the key pair $(\pkvrfr,\skvrfr)$, which $\hat{\pi}_{\ell}$ proves correct, and $\hat{\pi}_{\ell}$ also acts as a signature that seals the block header.  We actually do not require this binding between $\VRFa$ and the block seal, so another separate signature works fine here too.
 
 
@@ -158,7 +162,7 @@ We should now close our VRF cycle by defining our randomnesses $r_e$, $r'_{e+l}$
 If we lack any VDF then we should simply define all $r_{e+l+k+1}$, $r'_{e+l+k+1}$, and $r''_{e+l+k+1}$ to be $\Omega^{\labelVRFr}_{e+l+k}$ in epoch $e+l+k$.
 $$
 r_{e+l+k+1} = r'_{e+l+k+1} = r''_{e+l+k+1} = H(\Omega^{\labelVRFr}_{e+l+k})
-% = H\left( \Listst{ H(\hat{\omega_}{\ell} \| r_{e+l+k} \| i) ) }{ \mathrm{$\ell$ in epoch $e$} } \| \mathrm{block chash} \right)
+% = H\left( \Listst{ H(\hat{\omega_}{\ell} \| r_{e+l+k} \| i) ) }{ \text{$\ell$ in epoch $e$} } \| \text{block chash} \right)
 $$
 
 Any VDF has an expected running time $\Trun$ that depends upon some typical fast evaluation model, and a safe waiting time $\Twait > \Trun$ that depends upon the peer-to-peer protocol that allocates resources to VDF evaluation.  We should achieve $\Twait \le 2 \Trun$ with partial evaluation schemes though.  Any VDF also has a securing time $\Tsec$ that gives the time period after a VDF run starts during which the adversary does not know the VDF output.  We say $\Trun/\Tsec$ is the adversarial advantage, although $\Twait/\Tsec$ gives the adversary's practical advantage.  
