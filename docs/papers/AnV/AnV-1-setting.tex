@@ -10,7 +10,7 @@ We expect our sharded blockchain employs a Byzantine fault tolerant ``finality g
 As part of our security model, we assume that $\nvals \ge 3 f + 1$ where $f$ bounds the number of validators controlled by any adversary.
 
 % \begin{assumption}
-An adversary who controls $f$ of the $n$ relay chain validators knows the upcoming block producer for its own upcoming block production slots of course, but we assume Bernoulli trials with probability ${f (n-f) \over n^n}$ describe whether they know the honest block producer assigned to individual upcoming block production slots.  In particular if ${f \over n} < {1\over3}$ then they know less than ${5 \over 9}$ths of the upcoming honest block producers.
+An adversary who controls some $f' \le f$ of the $n$ relay chain validators knows the upcoming block producer for its own upcoming block production slots of course, but we assume Bernoulli trials with probability ${f' (n-f') \over n^2}$ describe whether they know the honest block producer assigned to individual upcoming block production slots.  In particular if ${f \over n} < {1\over3}$ then they know less than ${5 \over 9}$ths of the upcoming honest block producers.
 % \end{assumption}
 We choose this assumption because it supports overall stronger block production mechanisms than proof-of-work or \cite{Praos}, although those would admit a better bound here.
 
