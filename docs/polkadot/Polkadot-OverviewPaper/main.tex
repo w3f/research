@@ -19,12 +19,27 @@
 
 %=================Begin:Macros===================
 
-%\newcommandx{\unsure}[2][1=]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,#1]{#2}}
-\newcommandx{\comment}[2][1=]{\todo[linecolor=blue,backgroundcolor=blue!25,bordercolor=blue,#1]{#2}}
-\newcommandx{\fatemeh}[2][1=]{\todo[linecolor=pink,backgroundcolor=pink!25,bordercolor=pink,#1]{#2}}
-%\newcommandx{\info}[2][1=]{\todo[linecolor=OliveGreen,backgroundcolor=OliveGreen!25,bordercolor=OliveGreen,#1]{#2}}
-%\newcommandx{\improvement}[2][1=]{\todo[linecolor=Plum,backgroundcolor=Plum!25,bordercolor=Plum,#1]{#2}}
-%\newcommandx{\thiswillnotshow}[2][1=]{\todo[disable,#1]{#2}}
+
+%*** To comment a text use e.g. \yourname{the text that you comment}{ your comment}
+\newcommandx{\fatemeh}[2]{{\underline{#1}}\textcolor{pink}{(#2)}}
+\newcommandx{\handan}[2]{{\textbf{#1}}\textcolor{red}{(#2)}}
+\newcommandx{\eray}[2]{{\underline{#1}}\textcolor{blue}{(#2)}}
+\newcommandx{\jeff}[2]{{\underline{#1}}\textcolor{green}{(#2)}}
+\newcommandx{\al}[2]{{\underline{#1}}\textcolor{cyan}{(#2)}}
+\newcommandx{\sergey}[2]{{\underline{#1}}\textcolor{gray}{(#2)}}
+\newcommandx{\alfonso}[2]{{\underline{#1}}\textcolor{purple}{(#2)}}
+\newcommandx{\syed}[2]{{\underline{#1}}\textcolor{orange}{(#2)}}
+
+%***To uncomment all the comments comment out the above macros and replace with below
+
+%\newcommandx{\fatemeh}[2]{{#1}{}}
+%\newcommandx{\handan}[2]{{#1}{}}
+%\newcommandx{\eray}[2]{{#1}{}}
+%\newcommandx{\jeff}[2]{{#1}{}}
+%\newcommandx{\al}[2]{{#1}{}}
+%\newcommandx{\sergey}[2]{{#1}{}}
+%\newcommandx{\alfonso}[2]{{#1}{}}
+%\newcommandx{\syed}[2]{{#1}{}}
 
 \newcommand{\Nom}{\ensuremath{\mathcal{N}}} % Set of nominators
 \newcommand{\Val}{\ensuremath{\mathcal{V}}} % Set of elected validators
