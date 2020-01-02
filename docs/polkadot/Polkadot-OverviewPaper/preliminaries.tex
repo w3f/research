@@ -1,5 +1,11 @@
 \section{Preliminaries}\label{sec:preliminiary}
-
+\handan{}{should we have this section before properties section? If prop section comes after this section we should remove some descriptions of entities in the properties section e.g., validator, fisherman}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=.7\textwidth]{images/Network@2x.png}
+	\caption{Polkadot network structur showing relay chain and parachain and including the roles collator, validator (Image credit: Ignasio Albero)}
+	\label{fig:roles}
+\end{figure}
 \subsection{Structural elements of Polkadot}
 Next, we review the structural elements and roles, shown in Figure~\ref{fig:roles}, that are defined for the Polkadot protocols.
 \paragraph{Parachains:} Multiple heterogeneous blockchains run in parallel in Polkadot.
@@ -26,7 +32,7 @@ and nominators share the economic rewards, or slashes, of their supported valida
 Having nominators allows for an unlimited amount of actors and DOTs to participate in the security of Polkadot.
 
 \paragraph{Collators: } Every parachain has its own set of full nodes called collators.
-A collator produces new blocks and sends it to the parachain-assigned validators.
+A collator produces new blocks and sends it to the \handan{parachain-assigned validators}{why not just parachain validators?}.
 It may only build on top of the parachain blocks that are referenced in the relay chain.
 Collators also process outgoing and incoming cross-chain messages.
 
@@ -35,25 +41,24 @@ In particular, they raise reports in case that a validator-approved parachain bl
 They are rewarded for correct reports, and slashed for bogus ones (which helps avoid report spamming).
 
 
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=.7\textwidth]{images/Network@2x.png}
-	\caption{Polkadot network structur showing relay chain and parachain and including the roles collator, validator (Image credit: Ignasio Albero)}
-	\label{fig:roles}
-\end{figure}
+
 
 \subsection{Adversarial Model of Polkadot}
 
-The adversarial assumption on collators depends on the parachain type. If the parachain is private,
-we assume that there is at least one honest collator.
-Otherwise, we assume that at least the majority of collators are honest.
+%The adversarial assumption on collators depends on the parachain type. If the parachain is private,
+%we assume that there is at least one honest collator.
+%Otherwise, we assume that at least the majority of collators are honest.
+\paragraph{Parties} In Polkadot, honest parties follow the protocol while malicious ones can follow any arbitrary algorithm. We assume that less than one third of the validators are malicious. On the other hand, we do not have any limit on number of malicious fishermen.
+%TODO: What about nominators and collators 
+
+\paragraph{Parachains:} %TODO after session about parachain strategies.
 
 \paragraph{Keys:} We assume that malicious parties generate their keys with an arbitrary algorithm
-while honest ones always generate their keys securely. (What does securely mean?)
+while honest ones always generate their keys securely. 
 
-\paragraph{Network and Communication:} All validators have a local clock.
-We do not rely on any central clock in Polkadot.
-We assume that the network of validators and collators is partially synchronous.
+\paragraph{Network and Communication:} All validators have their own local clock and their clocks do not rely on any central clock.
+We assume that  validators and collators are in a partially synchronous network.
 It means that a message sent by a validator or collator arrives at all parties in the network
-at most $\D$ units of time later where $\D$ is an unknown parameter. So, we assume an eventual delivery in Polkadot.
+at most $\D$ units of time later where $\D$ is an unknown parameter. So, we assume an eventual delivery of a message in Polkadot.
 We also assume that collators and fishermen can connect to the relay chain network to submit their reports.
+%TODO: Do we have authenticated channel between validators?

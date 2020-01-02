@@ -1,8 +1,8 @@
 \section{Overview and Components}\label{sec:components}
 %\begin{samepage}
-Next we summarise Polkadot functionality shortly for an overall picture and then continue to describe the individual components to achieve that functionality.
+Next, we summarise Polkadot functionality shortly for an overall picture and then continue to describe the individual components to show how to achieve that functionality.
 
-Polkadot is a multi-chain system with shared security guarantees. Polkadot consists of a main chain called the Relay Chain and multiple parallel chains
+\handan{Polkadot is a multi-chain system with shared security guarantees}{we use this sentence in couple of places. I think we need to explain with couple of sentences what the shared security means and implies.}. Polkadot consists of a main chain called the Relay Chain and multiple parallel chains
 called Parachains. The relay chain is maintained by validators that are selected through the NPoS scheme \ref{sec:validators} and is responsible for keeping the state of all the parachains \ref{sec:relaychain}.
 These validators need to vote on the consensus over all the parachains, see the consensus scheme \ref{sec:grandpa} for more details.
 The security goal of Polkadot is to be Byzantine fault tolerant when the particpants are rational (see \ref{sec:economics} for more detail on incentives and economics).
