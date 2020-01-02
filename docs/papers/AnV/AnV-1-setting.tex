@@ -5,7 +5,7 @@ We shall describe a blockchain sharding scheme through which a single beacon or 
 \subsection{Chains}
 % \paragraph{Relay chain:}
 
-We expect our sharded blockchain employs a Byzantine fault tolerant ``finality gadget'' for the relay chain that establishes finality for all shards or parachains too, like in the Polkadot and Ethereum 2.0 designs.  We let $\vals$ denote the full validator list for the relay chain, and set $\nvals := |\vals|$.  We expect here that relay chain validators act as bock producers for the relay chain.  
+We expect that our sharded blockchain employs a Byzantine fault tolerant ``finality gadget'' for the relay chain that establishes finality for all shards or parachains too, like in the Polkadot and Ethereum 2.0 designs.  We let $\vals$ denote the full validator list for the relay chain, and set $\nvals := |\vals|$.  We expect here that relay chain validators act as bock producers for the relay chain.  
 
 As part of our security model, we assume that $\nvals \ge 3 f + 1$ where $f$ bounds the number of validators controlled by any adversary.
 
@@ -26,7 +26,7 @@ We prefer if subscripts always denote higher level properties, like identifying 
 
 \subsection{Blocks}
 
-We normally prevent blocks from referencing data in other blocks directly, aka UTXOs, because doing so incurs unacceptable storage overhead.  Instead, all blockchains have some associated state for which blocks describe a state transition, normally stored as a Merkle tree.  As a brutal convenience, we further subsuming the current commitments into our $\para$ notation.
+We normally prevent blocks from referencing data in other blocks directly, e.g. UTXOs, because doing so incurs unacceptable storage overhead.  Instead, all blockchains have some associated state for which blocks describe a state transition, normally stored as a Merkle tree.  As a brutal convenience, we further subsume the current commitments into our $\para$ notation.
 % TODO: Expand \para into immutabel \para mutable \hat{para} with the commitments 
 
 Consider a block $B$.  We distinguish a header $B_{\mathsf{head}}$ and body $B_{\mathsf{body}}$ of a block $B = (B_{\mathsf{head}},B_{\mathsf{body}})$.  We ask that $B_{\mathsf{head}}$ contain $H(B_{\mathsf{body}})$ and commitments to the associated state before and after running $B$, normally Merkle roots.  
@@ -42,7 +42,7 @@ We consider a {\em state witness} procesure consists of
 \end{definition}
 We disallow $\prove_\para$ from modifying the associated state commitments in $\para$ and only permit $\verify_\para$ to do so when returning $\mathsf{true}$.
 
-As a convenient Merkle tree notation, we let the notation $\vect{xy}$ denote the copath witness proving that $z$ is a leaf of a Merkle tree with root $x$.  We support internal nodes in this notation too, so $\vect{xz} = \vect{xy} \vect{yz}$ if $y$ lies on the path from $x$ to $z$.  We write $B[\vect{xy}]$ to specify $B$ as the underlying Merklee tree, when not clear from context, especially when $B$ itself is a block.  We shall always write just $\vect{xy}$ when $x$ and $y$ lie in the state tree associated to some blockchain.  
+As a convenient Merkle tree notation, we let the notation $\vect{xy}$ denote the copath witness proving that $z$ is a leaf of a Merkle tree with root $x$.  We support internal nodes in this notation too, so $\vect{xz} = \vect{xy} \vect{yz}$ if $y$ lies on the path from $x$ to $z$.  We write $B[\vect{xy}]$ to specify $B$ as the underlying Merkle tree, when not clear from context, especially when $B$ itself is a block.  We shall always write just $\vect{xy}$ when $x$ and $y$ lie in the state tree associated to some blockchain.  
 
 We shall not restrict this proof $\pi_B$ here, but often $\pi_B$ consists of the union of all copath witnesses $\vect{rx}$ in the associated state tree that arise from read and write operations when executing $B$.  If $B$ changes the state tree's Merkle root from $r_{\mathsf{in}}$ to $r_{\mathsf{in}}$ then 
 $$
@@ -90,7 +90,7 @@ The active parties in the availability and validity scheme are validators, parac
 \item Parachain validators are responsible to validate a blob. They can be malicious.
 \item Collators are the full nodes of parachain and provide a PoV blob to the responsible parachain validators. They can be malicious and collude with parachain validators.
 \item Validators are responsible for maintaining the relay chain and finalizing the blocks in the relay chain. A validator can also be a parachain validator. 
-\item Fishermen inspects any malicious activity. If any exists they announce and prove it.  
+\item Fishermen inspect any malicious activity. If any exists they announce and prove it.  
 \end{itemize}
 
 
