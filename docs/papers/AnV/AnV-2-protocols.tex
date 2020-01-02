@@ -21,7 +21,11 @@ We first describe the protocol by which collators of a parachain $\para$ submit 
 \smallskip
 % \paragraph{Collator subphase:} 
 
-Initially a {\bf collator} $C$ of a parachain $\para$ must proposes some candidate block $B$ for $\para$.  First, $C$ constructs the witness data $\pi$ by evaluating the block with $\prove_\para(B,M)$, so they can build the candidate blob $\blobB = (B,\pi,M)$.  As $\prove$ is a randomized algorithm, $C$ must next reevaluate the block with $\verify_\para(\blobB)$.  We shall assume verification succeeds, but if this verification fails then $C$ reports invalid parachain code for $\para$, and discards $B$ or possibly shuts down.  Assuming no errors, $C$ sends the candidate blob $\blobB$ to the corresponding parachain validators $\vals_\para$.
+Initially a {\bf collator} $C$ of a parachain $\para$ must proposes some candidate block $B$ for $\para$.  We let $B'$ denotes the parent of $B$ and again let $\rin$ and $\rout$ denote state root before and after executing $B$.  
+
+First, $C$ constructs the witness data $\pi$ by evaluating the block with $\prove_{\hat{\para}}(B,M)$, so they can build the candidate blob $\blobB = (B,\pi,M)$, and also obtain the block metadata $(H(B'),\rin,\rout)$.  
+
+As $\prove$ is a randomized algorithm, $C$ must next reevaluate the block with $\verify_{\hat{\para}}(\blobB)$.  We shall assume verification succeeds, but if this verification fails then $C$ reports invalid parachain code for $\para$, and discards $B$ or possibly shuts down.  Assuming no errors, $C$ sends the candidate blob $\blobB$ to the corresponding parachain validators $\vals_\para$, along with any block metadata $(H(B'),\rin,\rout)$. 
 
 \smallskip
 % \paragraph{Parachain validator:}
@@ -33,8 +37,10 @@ Next each {\bf parachain validator} $V \in \vals_\para$ checks the validity of t
 % \smallskip
 % \paragraph{Parachain validator:}
 
-Now any {\bf parachain validator} $V \in \vals_\para$ runs $\encode_{f+1,\nvals}(\blobB)$ to obtain the list $\pieces'_B$ of $\nvals$ erasure code symbols aka pieces of $\blobB$.  Next $V$ computes a Merkle root $r_B$ for the Merkle tree with leaves $\pieces'_B$.  $V$ constructs the signed candidate receipt $\bar{r}_{B,\{V\}} := (\bar{r}_{B},\{V\})$ for $B$ by signing an inner candidate receipt $\bar{r}_B = (\para.\mathsf{id},H(\bar{r}_{B'}),r_B,H(B),???)$ where $B'$ denotes the parent of $B$, and attaching its signature.  
-% TODO:  Joe asked: should we say that this r includes the parachain block's header?
+Now any {\bf parachain validator} $V \in \vals_\para$ runs $\encode_{f+1,\nvals}(\blobB)$ to obtain the list $\pieces'_B$ of $\nvals$ erasure code symbols aka pieces of $\blobB$.  Next $V$ computes a Merkle root $r_B$ for the Merkle tree with leaves $\pieces'_B$.  $V$ constructs the signed candidate receipt $\bar{r}_{B,\{V\}} := (\bar{r}_{B},\{V\})$ for $B$ by signing an inner candidate receipt $\bar{r}_B = (\para.\mathsf{id},H(\bar{r}_{B'}),r_B,H(B),\rin,\rout)$ where $B'$ denotes the parent of $B$, and attaching its signature.  
+% TODO: Improve explicit state root commitments maybe?
+% Also Joe asks if we should talk about parachain block headers
+
 
 We gossip these candidate receipts $\bar{r}_{B,S}$ among the parachain validators $\vals_\para$.  In doing so, we improve them by further aggregating the signature set $S$.\footnote{We envision $\vals_\para$ being small enough that BLS signatures do not improve verification time over Schnorr signatures, although BLS might reduce the candidate receipt's signature from 640 bytes down to 50 bytes.}  We publish $\bar{r}_{B,S}$ for relay chain block producers using relay chain gossip (memepool) whenever $S > \kappa_\para \npvals$, assuming this happens eventually.  We abandon $B$ however if another conflicting blocks gets finalised by GRANDPA.  We think $\kappa_\para = {1\over2}$ gives a reasonable choice.
 
