@@ -7,11 +7,11 @@ Polkadot will have a native token called DOT. Its various functions are describe
 \subsubsection{NPoS rewards and inflation}
 
 In this section we consider NPoS rewards, i.e.~payments to validators and nominators coming from the minting of new tokens, 
-in normal circumstances. In particular we do not consider rewards from transaction fees, slashings, nor rewards to fishermen 
-and other reporters of offenses; these will be analyzed in further sections. 
+in \handan{normal circumstances}{what is  the difference btw normal and not normal circumstances}. In particular we do not consider rewards from transaction fees, slashings, nor rewards to fishermen 
+and other reporters of offences; these will be analyzed in further sections. 
 NPoS rewards are the main driver of inflation in the system. 
 This is because they are the only mechanism that mints new tokens, and because Treasury expenditure is designed to match 
-the net token burning caused by the transaction fees and slashings mechanisms (see the section on Treasury). 
+the net token burning caused by the transaction fees and slashings mechanisms (see the section on \handan{Treasury}{reference to the section}). 
 Thus, it is natural to also study our inflation model in this section.
 
 Recall that, according to the NPoS protocol, both validators and nominators stake DOTs. 
@@ -38,7 +38,7 @@ Hence, by controlling the staking rate we also control the inflation rate.
 \paragraph{Rewards across validator slots.} Once the total payout for the current era is computed 
 as a function of the staking rate according to the paragraph above, we need to establish how it is distributed.
 Recall that the NPoS validator selection protocol (see Section~\ref{sec:validators}) 
-partitions all validators' and nominators' stake into the different validator slots 
+partitions all validators' and nominators' stake into the different validator \handan{slots}{is it the same as BABE slots?} 
 (where a nominator's stake can be fractionally split among several slots), so as to make the slots' 
 stake backings as high and as uniformly distributed as possible, hence ensuring security and decentralization. 
 A further incentive mechanism we set, to ensure decentralization over time, 
