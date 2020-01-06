@@ -1,6 +1,6 @@
-\subsection{Consensus}\label{sec:grandpa}
+\subsection{Consensus}\label{sec:consensus}
 
-
+In this section, we explain the hybrid consensus protocol of Polkadot which consists of BABE: a block production mechanism of the relay chain that provides probabilistic finality and GRANDPA which provides deterministic finality and works independently from BABE.  Informally, probabilistic finality implies that after certain time passed, a block in the relay chain will be finalized with very high probability (close to 1) and deterministic finality implies a finalized block stays final forever.
 
 %In our consensus protocols, we assume that a message sent by a validator arrives to other validators at most $\D$ times later where $\D$ is an unknown parameter. So, validators are in a partially synchronous network that guarantees  eventual delivery.
 \input{babe.tex}
