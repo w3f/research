@@ -1,10 +1,10 @@
-\subsection{Cryptography}\label{sec:crypto}
+\subsection{Cryptography}\handan{}{can we change the title of the section e.g., Keys in Polkadot or Cryptographic Keys or something else? Cryptography is too generic name for this section}\label{sec:crypto}
 
-In polkadot, we necessarily distinguish among different permissions and functionalities with different keys and key types, respectively.  We roughly categories these into account keys with which users interact and session keys that nodes manage without operator intervention beyond the certification process.
+In Polkadot, we necessarily distinguish among different permissions and functionalities with different keys and key types, respectively.  We roughly categorize these into account keys with which users interact and session keys that nodes manage without operator intervention beyond the certification process.
 
 \subsubsection{Account keys}
 
-Account keys have an associated balance of which portions can be {\em locked} to play roles in staking, resource rental, and governance, including waiting out some unlocking period.  We allow several locks of varying durations, both because these roles impose different restrictions, and for multiple unlocking periods running concurrently. 
+Account keys have an associated balance of which portions can be {\em locked} to play roles in staking, resource rental, and governance, including waiting out some unlocking period.  We allow several locks of varying duration, both because these roles impose different restrictions, and for multiple unlocking periods running concurrently. 
 
 We encourage active participation in all these roles, but they all require occasional signatures from accounts.  At the same time, account keys have better physical security when kept in inconvenient locations, like safety deposit boxes, which makes signing arduous.  We avoid this friction for users as follows.
 
@@ -12,9 +12,9 @@ Accounts that lock funds for staking are called {\em stash accounts}.  All stash
 
 \smallskip
 
-At present, we suport both ed25519 and schnorrkel/sr25519 for account keys.  These are both Schnorr-like signatures implemented using the Ed25519 curve, so both offer extremely similar security.  We recommend ed25519 keys for users who require HSM support or other external key management solution, while schnorrkel/sr25519 provides more blockchain-friendly functionality like HDKD and multi-signatures.  
+At present, we suport both ed25519 and \handan{schnorrkel/sr25519}{ref or link} for account keys.  These are both Schnorr-like signatures implemented using the Ed25519 curve, so both offer extremely similar security.  We recommend ed25519 keys for users who require \handan{HSM}{replace with: Hardware Security Module (HSM)} support or other external key management solution, while schnorrkel/sr25519 provides more blockchain-friendly functionality like \handan{HDKD}{replace with: Hierarchical Deterministic Key Derivation (HDKD)} and \handan{multi-signatures}{refs}.  
 
-In particular, schnorrkel/sr25519 uses the Ristretto implementation \cite{Ristretto} of Mike Hamburg's Decaf \cite[\S7]{Decaf}, which provide the 2-torsion free points of the Ed25519 curve as a prime order group.  Avoiding the cofactor like this means Ristretto makes implementing more complex protocols significantly safer.  We employ Blake2b for most conventional hashing in polkadot, but schnorrkel/sr25519 itself uses STROBE128 \cite{STROBE}, which is based on Keccak-f(1600) and provides a hashing interface well suited to signatures and NIZKs.
+In particular, schnorrkel/sr25519 uses the Ristretto implementation \cite{Ristretto} of Mike Hamburg's Decaf \handan{\cite[\S7]{Decaf}}{a strange symbol appears in pdf}, which provide the 2-torsion free points of the Ed25519 curve as a prime order group.  Avoiding the cofactor like this means Ristretto makes implementing more complex protocols significantly safer.  We employ Blake2b for most conventional hashing in Polkadot, but schnorrkel/sr25519 itself uses STROBE128 \cite{STROBE}, which is based on Keccak-f(1600) and provides a hashing interface well suited to signatures and \handan{NIZKs}{replace with: Non-Interactive Zero-Knowledge Proofs (NIZK)}.
 % See https://github.com/w3f/schnorrkel/blob/master/annoucement.md for more detailed design notes.
 
 \subsubsection{Session keys}\label{sec:session_keys}
@@ -23,19 +23,19 @@ Session keys each fill roughly one particular role in consensus or security.  As
 
 At any time, the controller key can pause or revoke this session certificate and/or issue replacement with new session keys.  All new session keys can be registered in advance, and some must be, so validators can cleanly transition to new hardware by issuing session certificates that only become valid after some future session.  We suggest using pause for emergency maintenance and using revocation if a session key might be compromised.  
 
-We prefer if session keys remain tied to one physical machine because doing so minimizes the risk of accedental equivocation.  We ask validator operators to issue session certificate using an RPC protocol, not handle the session secret keys themselves.  
+We prefer if session keys remain tied to one physical machine because doing so minimizes the risk of accidental equivocation.  We ask validator operators to issue session certificate using an RPC protocol, not \handan{}{to} handle the session secret keys themselves.  
 
-Almost all currently running proof-of-stack networks have a neglegent public key infrastructure that encourages duplicating session secret keys across machines, which reduces security and leads to pointless slashing.
+\handan{Almost all currently running proof-of-\handan{stack}{stake?} networks}{refs} have a negligent public key infrastructure that encourages duplicating session secret keys across machines, which reduces security and leads to pointless slashing.
 
 \smallskip
 
-We impose no prior restrictions on the cryptography employed by specific substrate modules or associated session keys types.  
+We impose no prior restrictions on the cryptography employed by specific \handan{Substrate modules}{we have never mentioned Substrate before. We can add small info about Substrate module and give reference} or associated session keys types.  
 
-In BABE \S\ref{sec:babe}, validators use schnorrkel/sr25519 keys both for regular Schnorr signatures, as well as for a verifiable random function (VRF) based on NSEC5 \cite{NSEC5}.  
+In BABE \handan{\S\ref{sec:babe}}{We did not use \S\ in the previous sections. We should remove \S before all references and citations in this section to be consistent.}, validators use schnorrkel/sr25519 keys both for regular Schnorr signatures, as well as for a verifiable random function (VRF) based on NSEC5 \cite{NSEC5}.  
 
-A VRF is the public-key analog of a pseudo-random function (PRF), aka cryptographic hash function with a distinguished key, such as many MACs.  We award block productions slots when the block producer scores a low enough VRF output $\mathtt{VRF}(r_e || \mathtt{slot_number} )$, so anyone with the VRF public keys can verify that blocks were produced in the correct slot, but only the block producers know their slots in advance via their VRF secret key.
+A VRF is the public-key analog of a pseudo-random function (PRF), aka cryptographic hash function with a distinguished key, such as many MACs.  We award block productions slots when the block producer scores a low enough VRF output \handan{$\mathtt{VRF}(r_e || \mathtt{slot_number} )$}{it does not have the secret key as an input}, so anyone with the VRF public keys can verify that blocks were produced in the correct slot, but only the block producers know their slots in advance via their VRF secret key.
 
-As in \cite{Praos}, we provide a source of randomness $r_e$ for the VRF inputs by hashing together all VRF outputs form the previous session, which requires that BABE keys be registered at least one full session before being used.
+As in \cite{Praos}, we provide a source of randomness $r_e$ for the VRF inputs by hashing together all VRF outputs form the previous session, which requires that BABE keys be registered \handan{at least one full session}{what is the relation between a session and epoch? if one session is one epoch then it should be at least two full session} before being used.
 
 We reduce VRF output malleability by hashing the signer's public key along side the input, which dramatically improves security when used with HDKD.  We also hash the VRF input and output together when providing output used elsewhere, which improves compossibility in security proofs. See the 2Hash-DH construction from Theorem 2 on page 32 in appendix C of \cite{Praos}.  
 
