@@ -57,7 +57,9 @@ There are however other instantiations for $\pi_B$, like some zkSNARKs that take
 We observe this definition satisfies:
 \begin{itemize}
 \item {\em witness correctness} in that $\verify_\para(B,\prove_\para(B,M),M) = \mathsf{true}$ holds with good probability for all $B,M$ for $\rho$, and
-\item {\em witness security} in that \handan{an adversarial $(B,\pi,M)$ satisfies $\verify_\para(B,\pi_B,M) = \mathsf{true}$ and $\pi_B \ne \prove_\para(B,M)$ with a only negligible probability.}{this definition does not cover the whole security. For example the case where $B \notin \rho$ and the adversary find a randomness $r$ for the prove algorithm such that $\prove_\para(B,M,r) = \pi$ and $ \verify_\rho(B, \pi, M) = true $. We can change it as follows: For all $B \notin \rho$ the probability of a PPT adversary to find a tuple $B, M, \pi$ such that $\verify_\rho(B, \pi, M)$ = true is negligible.}
+\item {\em witness security} in that 
+% an adversarial $(B,\pi,M)$ satisfies $\verify_\para(B,\pi_B,M) = \mathsf{true}$ and $\pi_B \ne \prove_\para(B,M)$ with a only negligible probability.
+any probabilistic polynomial-time adversary has only negligible odds of constructing a $(B,\pi,M)$ that satisfies $\verify_\para(B,\pi,M) = \mathsf{true}$ and $\pi \ne \prove_\para(B,M)$
 \end{itemize}
 
 \subsection{Availability}
