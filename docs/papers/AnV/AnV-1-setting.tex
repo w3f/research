@@ -63,7 +63,7 @@ We observe this definition satisfies:
 
 \subsection{Availability}
 
-An {\em rigid/cryptographic $k$-of-$n$} erasure code consists of two algorithms:
+A\handan{ {\em rigid/cryptographic $k$-of-$n$}}{what is rigid/cryptographic?} erasure code consists of two algorithms:
 \begin{itemize}
 \item $\encode_{k,n}$ creates $n$ encoded strings from one source string $B$, while
 \item $\decode_{k,n}$ recreates the original source string $B$ from {\em any} $k$ of the $n$ encoded strings.
@@ -86,27 +86,26 @@ There exist {\em availability sharding protocols} that preserve some string $B$ 
 %Given a total stake $S$ and slashing value $x$, the risk value is defined as $p\frac{x}{S}$ where $p$ is the probability of getting caught.
 %\end{definition}
 
-The active parties in the availability and validity scheme are validators, parachain validators, fishermen and collators. 
+The active parties in the availability and validity scheme are validators, parachain validators, fishermen and collators. We assume that at most $ f $ validators out of $ n $ validators are corrupted where $n \geq 3f+1$. Malicious validators can collude with collators and fisherman. 
 
 
-\begin{itemize}
-\item Parachain validators are responsible to validate a blob. They can be malicious.
-\item Collators are the full nodes of parachain and provide a PoV blob to the responsible parachain validators. They can be malicious and collude with parachain validators.
-\item Validators are responsible for maintaining the relay chain and finalizing the blocks in the relay chain. A validator can also be a parachain validator. 
-\item Fishermen inspect any malicious activity. If any exists they announce and prove it.  
-\end{itemize}
+%\begin{itemize}
+%\item Parachain validators are responsible to validate a blob. They can be malicious.
+%\item Collators are the full nodes of parachain and provide a PoV blob to the responsible parachain validators. They can be malicious and collude with parachain validators.
+%\item Validators are responsible for maintaining the relay chain and finalizing the blocks in the relay chain. A validator can also be a parachain validator. 
+%\item Fishermen inspect any malicious activity. If any exists they announce and prove it.  
+%\end{itemize}
 
 
-We note that $B\in PC$ (resp. $B \notin PC$) means that the block $B$ is a valid (resp. invalid) block for a parachain $PC$.
+%We note that $B\in PC$ (resp. $B \notin PC$) means that the block $B$ is a valid (resp. invalid) block for a parachain $PC$.
 
 
-\begin{definition}[Security of Availability]
-Assume that at most number of $f$ validators are corrupted. If the probability of having a finalized block in the relay chain which includes an unavailable block is negligible, then the availability protocol is secure against malicious validators.
+\begin{definition}[Security of Availability] The availability protocol is secure if the probability of having a finalized block in the relay chain which includes an unavailable block is negligible, then the availability protocol is secure.
 \end{definition}
 
 %More formal definition
 \begin{definition}[Security of Validity]
-Assume that  at most number of $f$ validators are corrupted. If the probability of having a finalized block in the relay chain which includes the header of an invalid block is less than a risk value, then the validity protocol is secure against malicious validators.
+The validity protocol is secure i the probability of having a finalized block in the relay chain which includes the header of an invalid block is negligible.
 \end{definition}
 
 
