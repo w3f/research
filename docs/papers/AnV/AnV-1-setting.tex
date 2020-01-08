@@ -47,9 +47,9 @@ As a convenient Merkle tree notation, we let the notation $\vect{xz}$ denote the
 \newcommand\rout{\ensuremath{r_{\mathsf{out}}}} % {\ensuremath{r_1}}
 We shall not restrict this proof $\pi_B$ here, but often $\pi_B$ consists of the union of all copath witnesses $\vect{rx}$ in the associated state tree that arise from read and write operations when executing $B$.  If $B$ changes the state tree's Merkle root from $\rin$ to $\rout$ then 
 $$
-\handan{\pi_B = 
+\pi_B = 
   \bigcup \Setst{ \vect{\rin x} }{ \textrm{$B$ reads $x$} }
-  \cup \Setst{ \vect{\rout x} }{ \textrm{$B$ writes $x$} } \mathperiod}{}
+  \cup \Setst{ \vect{\rout x} }{ \textrm{$B$ writes $x$} } \mathperiod
 $$
 \handan{}{I could not get $\pi_B$ above. You can explain me this at some point.}
 There are however other instantiations for $\pi_B$, like some zkSNARKs that takes the read or written leaves $x$ as public inputs.  We define the {\em blob} $\blobB = (B, \pi_B, M)$ for our block $B$ and perhaps its additional associated data $M$, although some plausible instantiations for $\pi_B$ with zkSNARKs allow using only $B_{\mathsf{head}}$ in $\blobB$.
