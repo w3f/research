@@ -56,13 +56,13 @@ There are however other instantiations for $\pi_B$, like some zkSNARKs that take
 
 We observe this definition satisfies:
 \begin{itemize}
-\item {\em witness correctness} in that $\verify_\para(B,\prove_\para(B,M),M) = \mathsf{true}$ holds with respectable probability for all $B,M$ for $\rho$, and
+\item {\em witness correctness} in that $\verify_\para(B,\prove_\para(B,M),M) = \mathsf{true}$ holds with good probability for all $B,M$ for $\rho$, and
 \item {\em witness security} in that \handan{an adversarial $(B,\pi,M)$ satisfies $\verify_\para(B,\pi_B,M) = \mathsf{true}$ and $\pi_B \ne \prove_\para(B,M)$ with a only negligible probability.}{this definition does not cover the whole security. For example the case where $B \notin \rho$ and the adversary find a randomness $r$ for the prove algorithm such that $\prove_\para(B,M,r) = \pi$ and $ \verify_\rho(B, \pi, M) = true $. We can change it as follows: For all $B \notin \rho$ the probability of a PPT adversary to find a tuple $B, M, \pi$ such that $\verify_\rho(B, \pi, M)$ = true is negligible.}
 \end{itemize}
 
 \subsection{Availability}
 
-A\handan{ {\em rigid/cryptographic $k$-of-$n$}}{what is rigid/cryptographic?} erasure code consists of two algorithms:
+A {\em rigid/cryptographic $k$-of-$n$} erasure code consists of two algorithms:
 \begin{itemize}
 \item $\encode_{k,n}$ creates $n$ encoded strings from one source string $B$, while
 \item $\decode_{k,n}$ recreates the original source string $B$ from {\em any} $k$ of the $n$ encoded strings.
