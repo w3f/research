@@ -42,7 +42,7 @@ In principle, any block might incorporate additional associated data $M$ also re
 \end{definition}
 We disallow \handan{$\prove_\para$}{ $\prove_{\hat{\para}}$ or  $\prove_{{\para}}$?} from modifying the associated state commitments in $\para$ and only permit $\verify_{\hat{\para}}$ to do so when returning $\mathsf{true}$.
 
-As a convenient Merkle tree notation, we let the notation \handan{$\vect{xy}$}{is it $\vect{xz}$?} denote the copath witness proving that $z$ is a leaf of a Merkle tree with root $x$.  We support internal nodes in this notation too, so $\vect{xz} = \vect{xy} \vect{yz}$ if $y$ lies on the path from $x$ to $z$.  We write $B[\vect{xy}]$ to specify $B$ as the underlying Merkle tree, when not clear from context, especially when $B$ itself is a block.  We shall always write just $\vect{xy}$ when $x$ and $y$ lie in the state tree associated to some blockchain.  
+As a convenient Merkle tree notation, we let the notation $\vect{xz}$ denote the copath witness proving that $z$ is a leaf of a Merkle tree with root $x$.  We support internal nodes in this notation too, so $\vect{xz} = \vect{xy} \vect{yz}$ if $y$ lies on the path from $x$ to $z$.  We write $B[\vect{xy}]$ to specify $B$ as the underlying Merkle tree, when not clear from context, especially when $B$ itself is a block.  We shall always write just $\vect{xy}$ when $x$ and $y$ lie in the state tree associated to some blockchain.  
 
 \newcommand\rin{\ensuremath{r_{\mathsf{in}}}} % {\ensuremath{r_0}}
 \newcommand\rout{\ensuremath{r_{\mathsf{out}}}} % {\ensuremath{r_1}}
