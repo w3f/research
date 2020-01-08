@@ -7,12 +7,17 @@
 \usepackage{amsmath,amsfonts,amsthm} % amssymb
 \usepackage{enumitem}
 \usepackage{harpoon}
-
+\usepackage[normalem]{ulem}
+\usepackage{xargs}                      % Use more than one optional parameter in a new commands
+\usepackage[pdftex,dvipsnames]{xcolor}  % Coloured text etc.
 
 \newtheorem{definition}{Definition}
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
 
+
+\newcommandx{\handan}[2]{{\uline{#1}}\textcolor{red}{(#2)}}
+%\newcommandx{\handan}[2]{{#1}{}}
 \newcommand\mathperiod{.}
 \newcommand\mathcomma{,}
 
