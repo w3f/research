@@ -39,7 +39,7 @@ We define a {\em state witness procedure} to consists of
 \item deterministic algorithms \handan{$\verify_\para$ and $\verify_{\hat{\para}}$}{I did not get why we need two verify algorithm} that take the blob $\blobB = (B,\pi_B,M)$ execute $B$ applying the state transition to either the commitments in $\para$ or the full state in $\hat{\para}$, and returns $\mathsf{true}$ and mutates $\para$ or $\hat{\para}$, if and only if $B$ executes correctly with the state transition given by the witness $\pi_B$. 
 \end{itemize}
 \end{definition}
-We disallow $\prove_{\hat{\para}}$ from modifying the associated state commitments in $\para$ and only permit $\verify_{\hat{\para}}$ to do so when returning $\mathsf{true}$.
+We disallow $\prove_{\hat{\para}}$ from modifying the associated state commitments in $\para$ and only permit $\verify_{\hat{\para}}$ to do so when returning $\mathsf{true}$.  We note that $\verify_\para$ and $\verify_{\hat{\para}}$ make $B$ the more recent block of $\para$, so they should normally fail if $B$ already exists in $\para$ under most chain designs. 
 
 As a convenient Merkle tree notation, we let the notation $\vect{xz}$ denote the copath witness proving that $z$ is a leaf of a Merkle tree with root $x$.  We support internal nodes in this notation too, so $\vect{xz} = \vect{xy} \vect{yz}$ if $y$ lies on the path from $x$ to $z$.  We write $B[\vect{xy}]$ to specify $B$ as the underlying Merkle tree, when not clear from context, especially when $B$ itself is a block.  We shall always write just $\vect{xy}$ when $x$ and $y$ lie in the state tree associated to some blockchain.  
 
@@ -59,7 +59,7 @@ We observe this definition satisfies:
 \item {\em witness correctness} in that $\verify_\para(B,\prove_\para(B,M),M) = \mathsf{true}$ holds with good probability for all $B,M$ for $\rho$, and
 \item {\em witness security} in that 
 % an adversarial $(B,\pi,M)$ satisfies $\verify_\para(B,\pi_B,M) = \mathsf{true}$ and $\pi_B \ne \prove_\para(B,M)$ with a only negligible probability.
-any probabilistic polynomial-time adversary has only negligible odds of constructing a $(B,\pi,M)$ that satisfies $\verify_\para(B,\pi,M) = \mathsf{true}$ and $\pi \ne \prove_\para(B,M)$
+any probabilistic polynomial-time adversary has only negligible odds of constructing a $(B,\pi,M)$ that satisfies $\verify_\para(B,\pi,M) = \mathsf{true}$ and $\pi \ne \prove_\para(B,M)$.
 \end{itemize}
 
 \subsection{Availability}
