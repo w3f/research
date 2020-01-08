@@ -18,7 +18,7 @@ As in other finality gadget designs, the relay chain and each parachain $\para$ 
 
 % \paragraph{Parachains:}
 
-A parachain $\para$ refers to its block producers as {\em collators}, which could come from $\vals$ or elsewhere.  We let $\vals_\para \subset \vals$ denote the sublist of validators assigned to parachain $\para$ \handan{}{and call them {\em parachain validators}}.  We also need a bound $\npvals$ such that $|\vals_\para| \ge \npvals$.
+A parachain $\para$ refers to its block producers as {\em collators}, which could come from $\vals$ or elsewhere.  We let $\vals_\para \subset \vals$ denote the sublist of validators assigned to parachain $\para$, which we term the {\em parachain validators} of $\para$.  We also need a bound $\npvals$ such that $|\vals_\para| \ge \npvals$.
 
 In fact, we always have an epoch parameter $t$ associated to $\para$, but we subsume $t$ into $\para$ here for convenience.  Aside from time, we similarly assume the relay chain provides some randomness $r$ associated to each epoch $t$, which we similarly subsume into our $\para$ notation for convenience.
 
@@ -40,9 +40,9 @@ In principle, any block might incorporate additional associated data $M$ also re
 \item deterministic algorithms \handan{$\verify_\para$ and $\verify_{\hat{\para}}$}{I did not get why we need two verify algorithm} that take the blob $\blobB = (B,\pi_B,M)$ execute $B$ applying the \handan{state transition}{is it state transition function?} to either the commitments in $\para$ or the full state in \handan{$\hat{para}$}{is it $ \hat{para} $ or $ \hat{\para} $}, and returns $\mathsf{true}$ and mutates $\para$ or $\hat{para}$, if and only if $B$ executes correctly with the state transition given by the witness $\pi_B$. 
 \end{itemize}
 \end{definition}
-We disallow \handan{$\prove_\para$}{ $\prove_{\hat{\para}}$ or  $\prove_{{\para}}$?} from modifying the associated state commitments in $\para$ and only permit $\verify_{\hat{\para}}$ to do so when returning $\mathsf{true}$.
+We disallow $\prove_{\hat{\para}}$ from modifying the associated state commitments in $\para$ and only permit $\verify_{\hat{\para}}$ to do so when returning $\mathsf{true}$.
 
-As a convenient Merkle tree notation, we let the notation \handan{$\vect{xy}$}{is it $\vect{xz}$?} denote the copath witness proving that $z$ is a leaf of a Merkle tree with root $x$.  We support internal nodes in this notation too, so $\vect{xz} = \vect{xy} \vect{yz}$ if $y$ lies on the path from $x$ to $z$.  We write $B[\vect{xy}]$ to specify $B$ as the underlying Merkle tree, when not clear from context, especially when $B$ itself is a block.  We shall always write just $\vect{xy}$ when $x$ and $y$ lie in the state tree associated to some blockchain.  
+As a convenient Merkle tree notation, we let the notation $\vect{xz}$ denote the copath witness proving that $z$ is a leaf of a Merkle tree with root $x$.  We support internal nodes in this notation too, so $\vect{xz} = \vect{xy} \vect{yz}$ if $y$ lies on the path from $x$ to $z$.  We write $B[\vect{xy}]$ to specify $B$ as the underlying Merkle tree, when not clear from context, especially when $B$ itself is a block.  We shall always write just $\vect{xy}$ when $x$ and $y$ lie in the state tree associated to some blockchain.  
 
 \newcommand\rin{\ensuremath{r_{\mathsf{in}}}} % {\ensuremath{r_0}}
 \newcommand\rout{\ensuremath{r_{\mathsf{out}}}} % {\ensuremath{r_1}}
