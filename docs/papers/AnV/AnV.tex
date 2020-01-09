@@ -78,9 +78,10 @@
 % }
 \newcounter{symbols}
 \def\newsymbol#1{%
-\expandafter\newcommand\csname #1\endcsname{\hyperref[symbols:#1]\mathbf{#1}}%
-\refstepcounter{symbols}\label{symbols:#1}%
+\expandafter\newcommand\csname #1\endcsname{\hyperref[symbols:#1]\mathsf{#1}}%
+\refstepcounter{symbols}\label{symbols:#1}\mathsf{#1}%
 }
+
 
 \title{Availability and Validity}
 
