@@ -1,6 +1,10 @@
 \subsection{Consensus}\label{sec:consensus}
 
-In this section, we explain the hybrid consensus protocol of Polkadot which consists of BABE: a block production mechanism of the relay chain that provides probabilistic finality and GRANDPA which provides deterministic finality and works independently from BABE.  Informally, probabilistic finality implies that after certain time passed, a block in the relay chain will be finalized with very high probability (close to 1) and deterministic finality implies a finalized block stays final forever.
+In this section, we explain the hybrid consensus protocol of Polkadot which consists of BABE: a block production mechanism of the relay chain that provides probabilistic finality and GRANDPA which provides provable, deterministic finality and works independently from BABE.  Informally, probabilistic finality implies that after certain time passed, a block in the relay chain will be finalized with very high probability (close to 1) and deterministic finality implies a finalized block stays final forever. Provable finality means that furthermore, we can prove to parties not actively involved in the consensus that a block is final.
+
+We need provable finality to makes bridges to chains outside Polkadot easier and for that we need a Byzantine agreement tyoe of consensus. But the validity and availability scheme also may also require us to revert blocks, which would mean that getting Byzantine agreement on every block, as in Tendermint or Algorand, would not be suitable. However, this should happen rarely as a lot of stake will be slashed when we do this. As a result, we want a scheme that generates blocks and optimistically executes them, but may take some time to finalise them. The way XCMP works, mean that message passing speed is constrained by block time, but not by finality time so if we delay finality, but in the end do not revert, then message passing is fast. Even the speed at whoch we finalise blocks may be variable - if we do not recieve reports of invalidity and unavailability then we can finalise fast, but if we do then we may need to delay finality while we execute more involved checks.
+
+As a result of these requirements, we have chosen to seperate the mechanisms for block production and finalising blocks as much as possible. In the next twos ections, we describe the protocols BABE and GRANDPA that do each of these.
 
 %In our consensus protocols, we assume that a message sent by a validator arrives to other validators at most $\D$ times later where $\D$ is an unknown parameter. So, validators are in a partially synchronous network that guarantees  eventual delivery.
 \input{babe.tex}
@@ -13,8 +17,5 @@ In this section, we explain the hybrid consensus protocol of Polkadot which cons
   \caption{GRANDPA votes and how they are aggregated.}
     \label{fig:grandpa}
 \end{figure}
-For the relay chain consensus, we want provably finality, which makes bridges to chains outside Polkadot easier, and we also want the ability to revert chains in the short term if parachain blocks are unavailable for invalid.
-So we combine a block production mechanism BABE with the ability to fork and that gives eventual consensus with a finality gadget GRANDPA, that can finalise blocks and provide proofs that they are final.
-BABE is similar to Ourobors Praos[citation needed] but with a fixed set of validators and improved resilience to clock drift.
-It works by dividing time into slots in each of which validators computing a Verifiable Random Function(VRF) which will decide whether they have the ability to produce a valid block in that slot.
-For fork-choice, we go with the longest chain that includes all blocks finalised by GRANDPA.
+
+As mentioned above, we want a finalisation mechanism that is flexible and seperated from block production, which is achieved by GRANDPA. The only modofication to BABE required for it to work with GRANDPA is to change the fork-choice rule: instead of building on the longest chain, a validitor producing a block should build on the longest chain including all blocks that it sees as finalised. GRANDPA can work with many different block production mechanisms and it should be possible to switch out BABE with another.
