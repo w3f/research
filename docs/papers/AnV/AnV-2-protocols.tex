@@ -100,6 +100,8 @@ We integrate our availability and secondary validity check protocols directly wi
 We run these availability and secondary validity check protocols only for parachain blocks included in relay chain blocks, not for all parachain blocks proposed by parachain validators.  In this way, we reduce the damage done by spammy parachains, at least beyond their own assigned parachain validators.
 
 At the same time, we avoid complex anti-spam or prioritisation logic since only GRANDPA requires this prior voting restriction.  In fact, if we later require prioritisation logic then this trick isolates it inside relay chain block production.
+
+We need pieces to be distributed before secondary checkers announce themsleves, so validators should announce when they receive all pieces required by any relay chain block $R$, but this announcement predates any GRANDPA votes. 
 % TODO:  Any more details on GRANDPA integration?
 
 
