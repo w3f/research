@@ -25,7 +25,7 @@ Initially, a {\bf collator} $C$ of a parachain $\para$ must propose some candida
 
 First, $C$ constructs the witness data $\pi$ by evaluating the block with $\prove_{\hat{\para}}(B,M)$, so they can build the candidate blob $\blobB = (B,\pi,M)$, and also obtain the block metadata $(H(B'),\rin,\rout)$.  
 
-As $\prove$ is a randomized algorithm, \handan{$C$ must next reevaluate the block with $\verify_{\hat{\para}}(\blobB)$}{why does $C$ need to reevaluate? I thought that $C$ creates the proof if $B$ is valid in $\rho$.  If it is the case because of the witness correctness $ \prove $ always generate a correct proof. Reevaluating looks strange. Since $C$ is a full node, it should have easier way to verify a block than constructing blob and generating a proof.}.  We shall assume verification succeeds, but if this verification fails then $C$ reports invalid parachain code for $\para$, and discards $B$ or possibly shuts down.  Assuming no errors, $C$ sends the candidate blob $\blobB$ to the corresponding parachain validators $\vals_\para$, along with any block metadata $(H(B'),\rin,\rout)$. 
+As $\prove$ is a randomized algorithm, \handan{$C$ must next reevaluate the block with $\verify_{\hat{\para}}(\blobB)$}{why $C$ does not verify with the verify algorithm that parachain validator use}.  We shall assume verification succeeds, but if this verification fails then $C$ reports invalid parachain code for $\para$, and discards $B$ or possibly shuts down.  Assuming no errors, $C$ sends the candidate blob $\blobB$ to the corresponding parachain validators $\vals_\para$, along with any block metadata $(H(B'),\rin,\rout)$. 
 
 \smallskip
 % \paragraph{Parachain validator:}
