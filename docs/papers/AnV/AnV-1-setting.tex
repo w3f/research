@@ -35,8 +35,12 @@ In principle, any block might incorporate additional associated data $M$ also re
 
 \begin{definition}\label{def:pob}
 We define a {\em state witness procedure} to consists of
+\begin{itemize}
+
 \item a randomized algorithm $\prove_{\hat{\para}}$ that executes a block $B$, and maybe $M$, and returns a witness proof $\pi_B$ of any transitions to the associated state, as well as 
-\item deterministic algorithms \handan{$\verify_\para$ and $\verify_{\hat{\para}}$}{I did not get why we need two verify algorithm} that take the blob $\blobB = (B,\pi_B,M)$ execute $B$ applying the state transition to either the commitments in $\para$ or the full state in $\hat{\para}$, and returns $\mathsf{true}$ and mutates $\para$ or $\hat{\para}$, if and only if $B$ executes correctly with the state transition given by the witness $\pi_B$. 
+\item deterministic algorithms
+% \handan{$\verify_\para$ and $\verify_{\hat{\para}}$}{I did not get why we need two verify algorithm}
+ that take the blob $\blobB = (B,\pi_B,M)$ execute $B$ applying the state transition to either the commitments in $\para$ or the full state in $\hat{\para}$, and returns $\mathsf{true}$ and mutates $\para$ or $\hat{\para}$, if and only if $B$ executes correctly with the state transition given by the witness $\pi_B$. 
 \end{itemize}
 \end{definition}
 We disallow $\prove_{\hat{\para}}$ from modifying the associated state commitments in $\para$ and only permit $\verify_{\hat{\para}}$ to do so when returning $\mathsf{true}$.  We note that $\verify_\para$ and $\verify_{\hat{\para}}$ make $B$ the more recent block of $\para$, so they should normally fail if $B$ already exists in $\para$ under most chain designs. 
