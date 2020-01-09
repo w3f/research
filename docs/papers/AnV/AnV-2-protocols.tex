@@ -42,7 +42,7 @@ Now any {\bf parachain validator} $V \in \vals_\para$ runs $\encode_{f+1,\nvals}
 % Also Joe asks if we should talk about parachain block headers
 % Anything else?
 
-We gossip these candidate receipts $\bar{r}_{B,S}$ among the parachain validators $\vals_\para$.  In doing so, we improve them by further aggregating the signature set $S$.\footnote{We envision $\vals_\para$ being small enough that BLS signatures do not improve verification time over Schnorr signatures, although BLS might reduce the candidate receipt's signature from 640 bytes down to 50 bytes.}  We publish $\bar{r}_{B,S}$ for relay chain block producers using relay chain gossip (mempool) whenever $S > \kappa_\para \npvals$, assuming this happens eventually.  We abandon $B$ however if another conflicting blocks gets finalised by GRANDPA.  We archive $B$ if GRANDPA is stalled but the fork choice rule clearly favours other forks.  We think $\kappa_\para = {1\over2}$ gives a reasonable choice, but our security analysis below shows that $\kappa_\para \npvals = 1$ suffices.  
+We gossip these candidate receipts $\bar{r}_{B,S}$ among the parachain validators $\vals_\para$.  In doing so, we improve them by further aggregating the signature set $S$.\footnote{We envision $\vals_\para$ being small enough that BLS signatures do not improve verification time over Schnorr signatures, although BLS might reduce the candidate receipt's signature from 640 bytes down to 50 bytes.}  We publish $\bar{r}_{B,S}$ for relay chain block producers using relay chain gossip (mempool) whenever $S > \kappa_\para \npvals$, assuming this happens eventually.  We think $\kappa_\para = {1\over2}$ gives a reasonable choice, but our security analysis below shows that $\kappa_\para \npvals = 1$ suffices.  We archive $B$ if another conflicting blocks gets finalised by GRANDPA, but maybe eventually delete it.  We archive but probably do not delete $B$ if GRANDPA is stalled but the fork choice rule clearly favours other forks.  
 
 \smallskip
 % \paragraph{Relay chain block producer:}
@@ -101,7 +101,7 @@ We run these availability and secondary validity check protocols only for parach
 
 At the same time, we avoid complex anti-spam or prioritisation logic since only GRANDPA requires this prior voting restriction.  In fact, if we later require prioritisation logic then this trick isolates it inside relay chain block production.
 
-We need pieces to be distributed before secondary checkers announce themsleves, so validators should announce when they receive all pieces required by any relay chain block $R$, but this announcement predates any GRANDPA votes. 
+We need pieces to be distributed before secondary checkers announce themsleves, so validators should send an availability announcement when they receive all pieces required by any relay chain block $R$, but this announcement predates any GRANDPA votes. 
 % TODO:  Any more details on GRANDPA integration?
 
 
