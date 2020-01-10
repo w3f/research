@@ -50,6 +50,14 @@ We gossip these candidate receipts $\bar{r}_{B,S}$ among the parachain validator
 Any upcoming {\bf relay chain block producer} $U \in \vals$ enqueues any candidate receipts $\bar{r}_{B,S}$ received for possible inclusion in some future relay chain block that $U$ creates (\handan{Definition \ref{def:header}}{not exists}), which we denote $R$.  We of course need $R$ to have an ancestor $R'$ that includes \handan{$\bar{r}_{B'} = \bar{r}_{B,S}.0.2$}{is 0.2 typo? and isn't it $ \bar{r}_{B',S} $?} and that no $R''$ between $R$ and $R'$ include any block from $\para$.  Ideally $U$ continues aggregating the signatures $S$ on $\bar{r}_{B,S}$ while waiting its turn too, but $R$ must satisfy $|S| \ge \kappa$.  See \href{http://research.web3.foundation/en/latest/polkadot/BABE/Babe/}{BABE} for more details on block production.
 % TODO: Any specific comments on relay chain block headers $\bh$
 
+\smallskip
+% \paragraph{Candidate pieces:}
+
+Associated to each prepiece $d \in \prepieces_B$, we define a {\em candidate piece} $(d,r_B,\vect{r_B d})$ by attaching the Merkle root $r_B$ and an inclusion proof $\vect{rd}$, which authenticates $d$ as being committed to by the Merkle root $r_B$.  We handle only the list $\pieces_B$ of these authenticated pieces for the remainder of the protocol.  Of course this expansion commutes with expanding the signer set $S$ on the candidate receipt $\bar{r}_{B,S}$.
+$$ \pieces_B = Listst{ (d,\bar{r}_{B,S},\vect{r_B d}) }{ d \in \prepieces_B } $$
+
+We henceforth assume a relay chain block $R$ containing $\bar{r}_{B,S}$ exists.  We must distribute all the candidate pieces in $\pieces_B$ among the full relay chain validator set $\vals$ with $\pieces_B[i]$ going to $\vals[i]$ for $i = 1,\ldots,\nvals$, but only once $R$ exists.  
+
 
 \subsection{Topology}
 %TODO: "Piece distribution topology" is too long
@@ -59,17 +67,11 @@ We find that scalability actually depends heavily upon the topology and routing 
 \smallskip
 % \paragraph{Candidate blocks:}
 
-We need our network topology induced on one parachain $\para$ to distribute the $\blobB$s relatively quickly, which amounts to a graph expansion property.  We want a reasonable connectivity property too because too many parachain validators going down requires expensive reconstructions by any unreachable parachain validators (see \handan{\S\ref{sec:reconstructions}}{not defined} below).  We might also ask good collators to send the same block to several well chosen parachain validators as well.  As an example, if our parachain validators $\vals_\para$ form a cycle then $B$ reaches all parachain validators in two hops if the collators send $B$ to one third of $\vals_\para$, but adding well chosen chords reduces our connections with collators and improves our connectivity.  
+We need our network topology induced on one parachain $\para$ to distribute the erasure coded candidate pieces $\pieces_B$s relatively quickly, which amounts to a graph expansion property.  We want a reasonable connectivity property too because too many parachain validators going down requires expensive reconstructions by any unreachable parachain validators (see \handan{\S\ref{sec:reconstructions}}{not defined} below).  We might also ask good collators to send the same block to several well chosen parachain validators as well.  As an example, if our parachain validators $\vals_\para$ form a cycle then $B$ reaches all parachain validators in two hops if the collators send $B$ to one third of $\vals_\para$, but adding well chosen chords reduces our connections with collators and improves our connectivity.  
 
 \smallskip
-% \paragraph{Candidate pieces:}
 
-Associated to each prepiece $d \in \prepieces_B$, we define a {\em candidate piece} $(d,r_B,\vect{r_B d})$ by attaching the Merkle root $r_B$ and an inclusion proof $\vect{rd}$, which authenticates $d$ as being committed to by the Merkle root $r_B$.  We handle only the list $\pieces_B$ of these authenticated pieces for the remainder of the protocol.  Of course this expansion commutes with expanding the signer set $S$ on the candidate receipt $\bar{r}_{B,S}$.
-$$ \pieces_B = Listst{ (d,\bar{r}_{B,S},\vect{r_B d}) }{ d \in \prepieces_B } $$
-
-We henceforth assume a relay chain block $R$ containing $\bar{r}_{B,S}$ exists.  We must distribute all the candidate pieces in $\pieces_B$ among the full relay chain validator set $\vals$ with $\pieces_B[i]$ going to $\vals[i]$ for $i = 1,\ldots,\nvals$, but only once $R$ exists.  All parachain validators in $\vals_\para$ must compute all of $\prepieces_B$ to compute $r_B$, from which computing $\pieces_B$ too costs nothing.  
-
-We should therefore divide the distribution burden as equally as possible among parachain validators in $\vals_\para$.  We now outline an extremely simple topology that satisfies this requirement:
+All parachain validators in $\vals_\para$ must compute all of $\prepieces_B$ to compute $r_B$, from which computing $\pieces_B$ too costs nothing.  We should therefore divide the distribution burden as equally as possible among parachain validators in $\vals_\para$.  We now outline an extremely simple topology that satisfies this requirement:
 
 We recall any parachain $\para_i$ is equipped with a somewhat ephemeral value $\para_i.\mathsf{seed}$ that depends upon its parachain validator assignment and some on-chain randomness $r$.
 $$ \para_i.\mathsf{seed} := H\left( r, \mathsf{sort} \setst{ V.\mathsf{pk} }{ V \in \vals_{\para_i} } \right) $$
