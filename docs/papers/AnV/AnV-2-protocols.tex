@@ -30,7 +30,9 @@ As $\prove$ is a randomized algorithm, $C$ must next reevaluate the block with $
 \smallskip
 % \paragraph{Parachain validator:}
 
-Next each {\bf parachain validator} $V \in \vals_\para$ checks the validity of the block by evaluating the block with $\verify_\para(\blobB)$.  We refer to these as the {\em preliminary validity checks} as well.  We continue below if verification succeeds, but if verification fails, they reject the candidate $\blobB$ and \handan{\handan{reports it as invalid}{ to the validators}, ending its consideration.}{should we add more details about how invalidity report must be as validity reports?}  We expect $V$ gossips $\blobB$ among the parachain validators $\vals_\para$, presumably after checking $\blobB$ itself.
+Next each {\bf parachain validator} $V \in \vals_\para$ checks the validity of the block by evaluating the block with $\verify_\para(\blobB)$.  We refer to these as the {\em preliminary validity checks} as well.  If verification succeeds, then $V$ gossips $\blobB$ among the parachain validators $\vals_\para$ after checking $\blobB$ itself, and we continue below.
+
+If however verification fails, the parachain validator rejects the candidate $\blobB$ and report it as invalid.  We abandon $B$ if no validators sign it, but invalidity claims cannot necessarily result in penalties for either $\para$ or $C$.  If any two validators disagree about a parachain block's validity then all validators shall check the block, as discussed below in \S\ref{???}.
 
 \subsection{Relay chain phase} % Relay chain phase I: Block production 
 
