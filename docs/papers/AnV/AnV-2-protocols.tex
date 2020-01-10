@@ -49,7 +49,7 @@ We gossip these candidate receipts $\bar{r}_{B,S}$ among the parachain validator
 \smallskip
 % \paragraph{Relay chain block producer:}
 
-Any upcoming {\bf relay chain block producer} $U \in \vals$ enqueues any candidate receipts $\bar{r}_{B,S}$ received for possible inclusion in some future relay chain block that $U$ creates (\handan{Definition \ref{def:header}}{not exists}), which we denote $R$.  We of course need $R$ to have an ancestor $R'$ that includes \handan{$\bar{r}_{B'} = \bar{r}_{B,S}.0.2$}{is 0.2 typo? and isn't it $ \bar{r}_{B',S} $?} and that no $R''$ between $R$ and $R'$ include any block from $\para$.  Ideally $U$ continues aggregating the signatures $S$ on $\bar{r}_{B,S}$ while waiting its turn too, but $R$ must satisfy $|S| \ge \kappa$.  See \href{http://research.web3.foundation/en/latest/polkadot/BABE/Babe/}{BABE} for more details on block production.
+Any upcoming {\bf relay chain block producer} $U \in \vals$ enqueues any candidate receipts $\bar{r}_{B,S}$ received for possible inclusion in some future relay chain block that $U$ creates (\handan{Definition \ref{def:header}}{not exists}), which we denote $R$.  We of course need $R$ to have an ancestor $R'$ that includes the candidate receipts $\bar{r}_{B'}$ for the parent parachain block $B'$ of our candidate $\bar{r}_{B,S}$, and that no $R''$ between $R$ and $R'$ include any block from $\para$.  Ideally $U$ continues aggregating the signatures $S$ on $\bar{r}_{B,S}$ while waiting its turn too, but $R$ must satisfy $|S| \ge \kappa$.  See \href{http://research.web3.foundation/en/latest/polkadot/BABE/Babe/}{BABE} for more details on block production.
 % TODO: Any specific comments on relay chain block headers $\bh$
 
 Associated to each prepiece $d \in \prepieces_B$, we define a {\em candidate piece} $(d,r_B,\vect{r_B d})$ by attaching the Merkle root $r_B$ and an inclusion proof $\vect{rd}$, which authenticates $d$ as being committed to by the Merkle root $r_B$.  Of course this expansion commutes with expanding the signer set $S$ on the candidate receipt $\bar{r}_{B,S}$.
@@ -106,7 +106,7 @@ We integrate our availability and secondary validity check protocols directly wi
 
 We run these availability and secondary validity check protocols only for parachain blocks included in relay chain blocks, not for all parachain blocks proposed by parachain validators.  In this way, we reduce the damage done by spammy parachains, at least beyond their own assigned parachain validators.
 
-At the same time, we avoid complex anti-spam or prioritisation logic since only GRANDPA requires this prior voting restriction.  In fact, if we later require prioritisation logic then this trick isolates it inside relay chain block production.
+At the same time, we avoid complex anti-spam or Q logic since only GRANDPA requires this prior voting restriction.  In fact, if we later require prioritisation logic then this trick isolates it inside relay chain block production.
 
 We need pieces to be distributed before secondary checkers announce themselves, so validators should send an availability announcement when they receive all pieces required by any relay chain block $R$, but this announcement predates any GRANDPA votes. 
 % TODO:  Any more details on GRANDPA integration?
@@ -127,7 +127,7 @@ We now explain validators' responses to these unavailability announcements:
 
 First, suppose some validator $V \in \vals$ observes an unavailability announcement for some candidate receipt $\bar{r}_{B,S}$ from some validator $\vals[i]$.  If $V$ possesses the block $\blobB$ then $U$ has computed $\pieces_B$ to check $\bar{r}_{B,S}$, so $V$ already possesses $\pieces_B[i]$ and should offer it to $\vals[i]$.  Any $V \in S$ satisfies this, but so do any validators who signed off on the secondary checks discussed below in \S\ref{sec:validity}. 
 
-Second, if any validator $U \in \vals$ observes unavailability announcements for pieces of some candidate receipt $\bar{r}_{B,\cdot}$ from at least $f+1$ different validators, then $U$ shall not propose relay chain containing $\bar{r}_{B,\cdot}$ in BABE.
+Second, if any validator $U \in \vals$ observes unavailability announcements for pieces of some candidate receipt $\bar{r}_{B,\cdot}$ from at least $f+1$ different validators, then in BABE a block producer $U$ shall not propose a relay chain block containing any $\bar{r}_{B',\cdot}$ for which $B'$ is a descendent of $B$.
 In this situation, there might be prevotes but never any precommits in GRANDPA for chains containing  $\bar{r}_{B,\cdot}$, so $\bar{r}_{B,\cdot}$ cannot possibly be finalised by GRANDPA.  We should consider if the GHOST chain weighting rule used by BABE and by GRANDPA for prevotes should weigh unavailability announcements, but doing so should only impact performance.
 
 As an aside, we also considered $U$ abandoning any fork $C$ for which at least $f+1$ different validators gossiped unavailability announcements for possibly distinct blobs in $C$, instead of for the same blob.  Any truly unavailable pieces eventually trigger both conditions but they trigger this variant with possibly distinct blobs first, and with more false positives.  We optimise for the honest case here and caution that more false positives results in more chains, so spammy parachains create could more load on the availability system.
