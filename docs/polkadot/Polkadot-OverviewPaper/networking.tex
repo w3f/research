@@ -82,24 +82,24 @@ Below we give an overview of where and how each type of message is sent. The col
 
 We use gossiping mainly when the message type is small. For example, GRANDPA votes and attestation are very small. For bigger data structures we need to either use bloom filters or use direct routing.
 
-\textbf{Nets}:
-
+\eray{\textbf{Nets:}}{\paragraph{Nets:}}
+\\
 $PC$ = Parachain Collator and parachain full nodes
-
+\\
 $PV$= Parachain Validators
-
+\\
 $V$ = Validator and relay chain full nodes (->Validator Network ID on chain)
 
-\textbf{Mode}:
-
+\eray{\textbf{Mode}:}{\paragraph{Mode:}}
+\\
 $D$ = Direct transfer
-
+\\
 $G$ = Gossip
-
+\\
 $B$ = Big / Bloomfiltered
-
+\\
 $R$ = Receving e.g., $PC_{R}$ refers to the receiving parachain's collators and full nodes
-
+\\
 $S$ = Sending e.g., $PC_{S}$ refers to the sending parachain's collators and full nodes
 
 \begin{table}[h]
@@ -118,5 +118,5 @@ $S$ = Sending e.g., $PC_{S}$ refers to the sending parachain's collators and ful
 \end{tabular}
 \end{table}
 
-* fallback->D:$PV_{R}$ request $PV_{S}$ and then uses G at $PC_{R}$ to spread them,
-second fallback->D: $PV_{R}$ recover messages from erasure codes obtained from V and use G at $PC_{R}$ to spread them.
+\eray{* fallback->D:$PV_{R}$ request $PV_{S}$ and then uses G at $PC_{R}$ to spread them,
+second fallback->D: $PV_{R}$ recover messages from erasure codes obtained from V and use G at $PC_{R}$ to spread them.}{-comment:Note that greater than symbol shows up as an upside down question mark in latex. Watch out!-}

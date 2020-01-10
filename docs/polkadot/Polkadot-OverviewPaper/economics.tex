@@ -1,6 +1,6 @@
 \subsection{Economics and Incentive Layer}\label{sec:economics}
 
-Polkadot will have a native token called DOT. Its various functions are described in this section.
+Polkadot will have a native token called \eray{DOT}{-comment: Should we use dot instead of DOT as Zeke suggested in his email?-}. Its various functions are described in this section.
 
 
 
@@ -16,47 +16,48 @@ Thus, it is natural to also study our inflation model in this section.
 
 Recall that, according to the NPoS protocol, both validators and nominators stake DOTs. 
 They get paid roughly proportional to their stake, but can be slashed up to $100\%$ in case of a misconduct. 
-We remark that, even though they are actively engaged for only one era at a time (where one era lasts approximately one day), 
+We remark that, even though they are actively engaged for only one era at a time \eray{(where one era lasts approximately one day)}{-comment: Do we already know what the time scales are exactly? A table or figure of time scales to refer to might be a good idea.-}, 
 they can be engaged for an unlimited number of consecutive eras. 
 Furthermore, for added security, their stake remains locked for several weeks after their last active era, 
 to keep them liable to slashing in case an offense is detected late.
+\eray{}{-comment: If we keep stakes locked for several weeks, we might end up drying up liquidity and stop the activity in the network. For instance, if many validators and nominators are all in for a given era, there may not be many dots left for staking in the next era. How do we deal such scenarios?-}
 
-\paragraph{Staking rate, interest rate, inflation rate.} Let the "staking rate" be the total amount of DOTs 
+\paragraph{Staking rate, interest rate, inflation rate\eray{.}{:}} \eray{}{-comment: Colon is used after previous subsubsection titles instead of period. Make it consistent.-} Let the \eray{"staking rate"}{staking rate} be the total amount of DOTs 
 currently staked by validators and nominators, divided by the current total DOT supply. 
-Their average interest rate will be a function of the staking rate:%
+Their average interest rate will be a function of the staking rate%
 \footnote{As we explain below, validators and nominators are not all paid exactly the same 
 interest rate at a given time; in particular, validators are generally paid more than nominators.  
-The average interest rate is simply the total payout divided by the total amount staked.}
+The average interest rate is simply the total payout divided by the total amount staked.}:
 if the staking rate dips below a certain target value (be to selected by governance), 
-the average interest rate will increase, thus incentivizing more participation in NPoS, and vice versa. 
+the average interest rate will increase, thus \eray{incentivizing}{incentivising} more participation in NPoS, and vice versa. 
 For instance, a target value of $50\%$ could be selected for the staking rate as a middle ground between security 
-and liquidity. If the average interest rate is set to $20\%$ p.a.~at that staking rate value, 
+and liquidity. If the average interest rate is set to $20\%$ \eray{p.a.}{-comment: It's not clear what p.a. is. Either write annual or per annum explicitly.-}~at that staking rate value, 
 then we can expect to maintain an inflation rate (due to NPoS rewards) of $50\%\times 20\% = 10\%$ on average. 
-Hence, by controlling the staking rate we also control the inflation rate. 
+Hence, by controlling the staking rate we also control the inflation rate. \eray{}{-comment:Only if the interest rate is fixed that depends on how many dots are minted at every era. This may need to be explained mentioning all the assumption behind it.-}
 
 
-\paragraph{Rewards across validator slots.} Once the total payout for the current era is computed 
-as a function of the staking rate according to the paragraph above, we need to establish how it is distributed.
+\paragraph{Rewards across validator slots\eray{.}{:}} Once the total payout for the current era is computed 
+as a function of the staking rate according to the paragraph above \eray{}{-comment: It's not clear to me how it was calculated per era as the discussion above was for average over a year. We need to explain this clearly.-}, we need to establish how it is distributed.
 Recall that the NPoS validator selection protocol (see Section~\ref{sec:validators}) 
 partitions all validators' and nominators' stake into the different validator \handan{slots}{is it the same as BABE slots?} 
 (where a nominator's stake can be fractionally split among several slots), so as to make the slots' 
-stake backings as high and as uniformly distributed as possible, hence ensuring security and decentralization. 
+stake backings as high and \eray{as}{-remove-} uniformly distributed as possible, hence ensuring security and decentralization. 
 A further incentive mechanism we set, to ensure decentralization over time, 
-is \emph{paying validator slots equally for equal work, NOT proportional to their backings}. 
+is \emph{paying validator slots equally for equal work, \eray{NOT}{-comment: Why capitalized?-} proportional to their backings}. 
 As a consequence, nominators inside a validator slot with more backing will be paid less per staked DOT 
-than nominators backing a less popular validator. Hence, they will be incentivized to change 
+than nominators backing a less popular validator. Hence, they will be \eray{incentivized}{incentivised} to change 
 their preferences over time, converging to the ideal case where all slot backings are equal.
 
 In particular, we devise a point system where validators accumulate points for payable actions performed, 
 and at the end of each era validator slots are rewarded proportional to their points. 
-This ensures that validators are always incentivized to stay efficient and highly responsive.
-Examples of payable actions are: producing a block in BABE, validating a parachain block, etc.
+This ensures that validators are always \eray{incentivized}{incentivised} to stay efficient and highly responsive.
+\eray{Examples of payable actions are: producing a block in BABE, validating a parachain block, etc.}
+{-comment:Instead of examples, it's better to list all actions awarded with points clearly.-}
 
-\paragraph{Rewards within a validator slot.} As a nominator's stake can be split among several slots, 
+\paragraph{Rewards within a validator slot\eray{.}{:}} As a nominator's stake can be split among several slots, 
 that nominator's payout in an era corresponds to the sum of her payouts relative to each of these slots. 
 Within a validator slot, the payment is as follows: 
-First, the validator is paid his commission fee, which is an amount entirely up to him to decide and 
-publicly announced before nominators select their preferences for the era. 
+First, the validator is paid his commission fee, which is an amount entirely up to him to decide and \eray{}{is} publicly announced before nominators select their preferences for the era. 
 This fee is intended to cover the validator's operational costs. 
 Then, the remainder is shared among all parties (both validator and nominators) proportional to their stake within the slot. 
 In other words, the validator is paid twice: once as a non-stake validator with a fixed commission fee, and once as staked nominator. 
@@ -65,8 +66,8 @@ but since this fee is published in advance, nominators will generally prefer to 
 We thus let the market regulate itself. Validators who have built a strong reputation of reliability and performance 
 may be able to charge a higher commission fee, which is fair.
 
-\paragraph{Remark.} As our decision to reward validator slots equally for equal actions independently of their stake 
-is likely to raise eyebrows, we provide further arguments for it. 
+\paragraph{Remark\eray{.}{:}} As our decision to reward validator slots equally for equal actions independently of their stake 
+is likely to raise eyebrows \eray{}{-comment: Why? I would think that the other way around would raise eyebrows since the work done is what matters at the end. Perhaps, adjusting to a confident tone from an apologetic one is better.-}, we provide further arguments for it. 
 First, notice that since validators are paid well and the number of slots is limited, 
  candidates have an incentive to ensure a high enough backing to get elected, 
 and we expect to have enough competition so that the minimum required backing is very high. 
@@ -81,10 +82,12 @@ logistics simpler), so long as they disclose such correlations to nominators.
 
 \subsubsection{Relay-chain transaction fees and block limits}
 
-\paragraph{Limits on resource usage.} Every relay-chain block can process a limited number of transactions, in order to ensure it can be processed efficiently even on less powerful nodes, 
-and avoid delays in block production. 
+\paragraph{Limits on resource usage\eray{.}{:}} Every relay-chain block can process a limited number of transactions, in order to ensure it can be processed efficiently even on less powerful nodes\eray{, 
+and}{ and to} avoid delays in block production. 
 
+\eray{}{-comment: Is this section meant to be developed further? If not, it looks to short to have two separate titles.-}
 
+\eray{}{-comment: empty space between subsections.-}
 
 %\subsubsection{Slashing}
 
