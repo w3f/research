@@ -97,16 +97,18 @@ We admitted adversarial manipulation of our network topology here, but it sounds
 
 We integrate our availability and secondary validity check protocols directly with GRANDPA, in that an honest node $U \in \vals$ should not vote in GRANDPA for some relay chain block $R$ unless for all candidate receipts $\bar{r}_{B,S}$ in $R$,
 \begin{itemize}
-\item $U$ possesses their own piece from $\pieces_B$, and also
+\item $ |S| \geq \kappa $,
+\item $U$ possesses their own piece from $\pieces_B$,
+\item number of unavailability reports are less than  $f+1$ and also
 \item $U$ witnessed enough secondary checks for $\bar{r}_{B,S}$,
- as discussed blow in \S\ref{sec:validitycheck}.
+ as discussed blow in \S\ \ref{sec:validity}.
 \end{itemize}
 
 We run these availability and secondary validity check protocols only for parachain blocks included in relay chain blocks, not for all parachain blocks proposed by parachain validators.  In this way, we reduce the damage done by spammy parachains, at least beyond their own assigned parachain validators.
 
 At the same time, we avoid complex anti-spam or prioritisation logic since only GRANDPA requires this prior voting restriction.  In fact, if we later require prioritisation logic then this trick isolates it inside relay chain block production.
 
-We need pieces to be distributed before secondary checkers announce themsleves, so validators should send an availability announcement when they receive all pieces required by any relay chain block $R$, but this announcement predates any GRANDPA votes. 
+We need pieces to be distributed before secondary checkers announce themselves, so validators should send an availability announcement when they receive all pieces required by any relay chain block $R$, but this announcement predates any GRANDPA votes. 
 % TODO:  Any more details on GRANDPA integration?
 
 
