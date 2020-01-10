@@ -73,6 +73,14 @@
 \newcommand{\rinv}{\ensuremath{r_{f}}}
 
 
+% \def\newalgo#1{%
+% \expandafter\newcommand\csname #1\endcsname{\mathbf{#1}}%
+% }
+\newcounter{symbols}
+\def\newsymbol#1{%
+\expandafter\newcommand\csname #1\endcsname{\hyperref[symbols:#1]\mathbf{#1}}%
+\refstepcounter{symbols}\label{symbols:#1}%
+}
 
 \title{Availability and Validity}
 
