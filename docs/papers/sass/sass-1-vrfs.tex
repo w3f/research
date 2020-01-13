@@ -5,7 +5,7 @@ A {\em verifiable random function} (VRF) is the public-key analog of a cryptogra
 We formalize VRFs with three probabilistic algorithms: 
 \begin{itemize}
 \item $\VRF.\KeyGen$ return a public-secret key pair $(\pkvrfr,\skvrfr)$.
-\item $\VRF.\Sign_{\skvrf}$ takes a secret key $\skvrf$ series of inputs $(\alpha_1,\ldots,\alpha_n)$ with $n>0$ and a message $m$, and produces a series of deterministic outputs $(\omega_1,\ldots,\omega_n)$ and a proof $\pi$, not necessarily deterministic.
+\item $\VRF.\Sign_{\skvrf}$ takes a secret key $\skvrf$ series of inputs $(\alpha_1,\ldots,\alpha_n)$ with $n>0$ and a message $m$, and produces a series of outputs $(\omega_1,\ldots,\omega_n)$ such that $\omega_i$ is determined by $\alpha_i$, and a proof $\pi$, not necessarily deterministic.
 \item $\VRF.\Verify_{\pkvrf}$ takes a public key $\pkvrf$, a series of inputs $(\alpha_1,\ldots,\alpha_n)$, a message $m$, a series of outputs $(\omega_1,\ldots,\omega_n)$, and a proof $\pi$, and returns true or false.
 \end{itemize}
 We impose three criteria upon a VRF:
