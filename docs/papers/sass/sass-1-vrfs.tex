@@ -7,13 +7,15 @@
 \replace{We formalize VRFs with three probabilistic algorithms: } {In more details, we formalize VRFs with  following four algorithms: }
 
 \begin{itemize}
+
 \item $\VRF.\KeyGen$ is a probabilistic algorithm that returns a public-secret key pair $(\pkvrf,\skvrf)$ with the security parameter $ \ell $ as an input.
 \item \insertx{}{$ \VRF.\Out $ is a deterministic algorithm that takes a secret key $\skvrf$, series of inputs $(\alpha_1,\ldots,\alpha_n)$ with $n>0$ as inputs and returns a series of deterministic outputs $(\omega_1,\ldots,\omega_n)$.}
-\item $\VRF.\Sign_{\skvrf}$ is a probabilistic algorithm that takes a secret key $\skvrf$, series of inputs $(\alpha_1,\ldots,\alpha_n)$ with $n>0$ \comment{and a message $m$}{what is this $ m $? why don't we integrate it to $ \alpha $ values?}, and produces a series of deterministic outputs $(\omega_1,\ldots,\omega_n)$ and a proof $\pi$, not necessarily deterministic.
+\item$\VRF.\Sign_{\skvrf}$ takes a secret key $\skvrf$ series of inputs $(\alpha_1,\ldots,\alpha_n)$ with $n>0$  \comment{and a message $m$}{what is this $ m $? why don't we integrate it to $ \alpha $ values?}, and produces a series of outputs $(\omega_1,\ldots,\omega_n)$ such that $\omega_i$ is determined by $\alpha_i$, and a proof $\pi$, not necessarily deterministic.
 
 \comment{}{I think the name should change to $ \VRF.\algo{Prove} $ since what this algorithm does is showing that $ \VRF.\Out(\skvrf, \alpha_1,\ldots,\alpha_n)  = (\omega_1,\ldots,\omega_n)$.} 
 
 \item $\VRF.\Verify_{\pkvrf}$ is a deterministic algorithm that takes a public key $\pkvrf$, a series of inputs $(\alpha_1,\ldots,\alpha_n)$, a message $m$, a series of outputs $(\omega_1,\ldots,\omega_n)$ and outputs True or False.
+
 \end{itemize}
 \comment{We impose three criteria upon a VRF:}{I think we should stick to the definition in the literature as recommended replacements below.}
 
