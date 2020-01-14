@@ -3,8 +3,8 @@
 % ensure high communication responsiveness, and build long-term reputation of reliability.
 % They are heavily staked and prone to slashing in case of offenses,
 % but are otherwise highly remunerated by the network.
-Polkadot will use Nominated Proof-of-Stake (NPoS), our own version of proof-of-stake (PoS).
-Consensus protocols with deterministic finality, such as ours, require a set of registered validators of bounded size.
+Polkadot will use Nominated Proof-of-Stake (NPoS),  own version of proof-of-stake (PoS).
+Consensus protocols with deterministic finality, such as \handan{ours}{maybe it is better to use `in Polkadot' than saying `ours'}, require a set of registered validators of bounded size.
 Polkadot will maintain a number $\nval$ of validators, in the order of hundreds or thousands.
 This number will be ultimately decided by governance, and is intended to grow along with the number of parachains;
 yet, it will be independent of the number of users in the network, to ensure scalability.
@@ -23,7 +23,7 @@ Then, a public protocol (discussed below) takes these lists as input and selects
 with the most backing to serve as validators for the next era.
 
 Nominators share the rewards, or eventual slashings, with the validators they selected, on a per-staked-DOT basis
-(see more details on the Economics section).
+(see more details on \handan{the Economics section}{add reference to this section}).
 Nominators are thus economically incentivised to act as watchdogs for the system, and they should base their preferences 
 on parameters such as validators' stakes, commission fees, past performance, and security practices.
 Our scheme allows for the system to select validators with massive amounts of aggregate stake
@@ -40,7 +40,7 @@ problem based on approval ballots, where nominators have voting power proportion
 and where the goals are \emph{decentralization} and \emph{security}.
 
 \paragraph{Decentralization.} In the late 19th century, Swedish mathematician Edvard Phragm\'{e}n
-proposed a method for electing members to his country’s parliament.
+proposed a \handan{method}{refs} for electing members to his country’s parliament.
 He noticed that the election methods at the time tended to give all the seats
 to the most popular political party; in contrast, his new method ensured that the number of seats
 assigned to each party were proportional to the votes given to them, so it gave more representation to minorities.
@@ -57,7 +57,7 @@ Formally, this means that if each nominator $\nom \in \Nom$ has stake $stake_\no
 $\Can_\nom\subseteq \Can$ of candidates,\footnote{For ease of presentation, we consider here
 that candidates have no stake. This can be achieved by representing a candidate's stake
 as an additional nominator that exclusively approves that candidate.}
-the protocol will select a set $\Val\subseteq \Can$ of $\nval$ validators with the following property: \\
+the protocol will select a set $\Val\subseteq \Can$ of $\nval$ validators with \handan{the following property}{it may be better to say in words why the following mathematical definition represents PJR property.}: \\
 if there is a group of nominators $\Nom'\subseteq \Nom$ and some $1\leq t\leq \nval$ such that
 $$|\cap_{\nom\in \Nom'} \Can_n| \geq t \quad \text{ and } \quad
 \frac{1}{t} \sum_{\nom\in \Nom'} stake_\nom \geq \frac{1}{n} \sum_{\nom\in \Nom} stake_\nom,$$
@@ -73,13 +73,15 @@ over one validator, as well as a lower bound on the potential slashable amount f
 
 Formally, if each nominator $\nom \in \Nom$ has $stake_\nom$ and backs a candidate subset $\Can_\nom\subseteq \Can$,
 the protocol must select not only a set $\Val\subseteq \Can$ of $\nval$ validators
-with the PJR property, but also a distribution of each nominator's stake among the elected validators that she backs,
+with the PJR property, but also \handan{a distribution of each nominator's stake among the elected validators that she backs}{verb of the sentence is missing},
 i.e. a function $f:\Nom\times\Val \rightarrow \mathbb{R}_{\geq 0}$ so that
 $$\sum_{\val\in \Val\cap \Can_\nom} f(\nom, \val) = stake_\nom \quad \text{ for each nominator } \nom\in\Nom,$$
 and the objective is then
 $$\max_{\text{solutions } (\Val, f)} \min_{\val\in \Val} backing_f(\val),
 \quad \text{ where } backing_f(\val) := \sum_{\nom\in \Nom: \ \val\in \Can_\nom} f(\nom, \val). $$
 
-The problem defined by this objective is called \emph{maximin support} in the literature, and is known to be NP-hard.
-We have developed for it several efficient algorithms which offer theoretical guarantees
+The problem defined by this objective is called \handan{\emph{maximin support}}{refs} in the literature, and is known to be NP-hard.
+We have developed for it \handan{several efficient algorithms}{either we should write the algorithms here or give reference to these algorithms} which offer theoretical guarantees
 (constant-factor approximations), and which also scale well and perform well on our testnet.
+
+\eray{}{-comment: Why is there this empty space between subsections?-}

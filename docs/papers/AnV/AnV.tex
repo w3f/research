@@ -7,12 +7,17 @@
 \usepackage{amsmath,amsfonts,amsthm} % amssymb
 \usepackage{enumitem}
 \usepackage{harpoon}
-
+\usepackage[normalem]{ulem}
+\usepackage{xargs}                      % Use more than one optional parameter in a new commands
+\usepackage[pdftex,dvipsnames]{xcolor}  % Coloured text etc.
 
 \newtheorem{definition}{Definition}
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
 
+
+\newcommandx{\handan}[2]{{\uline{#1}}\textcolor{red}{(#2)}}
+%\newcommandx{\handan}[2]{{#1}{}}
 \newcommand\mathperiod{.}
 \newcommand\mathcomma{,}
 
@@ -47,6 +52,7 @@
 \newcommand{\npvals}{\ensuremath{n'}}
 
 \newcommand{\pieces}{\ensuremath{\mathcal{D}}}
+\newcommand{\prepieces}{\ensuremath{\pieces'}}
 
 \newcommand{\val}{\ensuremath{v}}
 
@@ -67,6 +73,15 @@
 \newcommand{\runav}{\ensuremath{r_{a}}}
 \newcommand{\rinv}{\ensuremath{r_{f}}}
 
+
+% \def\newalgo#1{%
+% \expandafter\newcommand\csname #1\endcsname{\mathbf{#1}}%
+% }
+\newcounter{symbols}
+\def\newsymbol#1{%
+\expandafter\newcommand\csname #1\endcsname{\hyperref[symbols:#1]\mathsf{#1}}%
+\refstepcounter{symbols}\label{symbols:#1}\mathsf{#1}%
+}
 
 
 \title{Availability and Validity}

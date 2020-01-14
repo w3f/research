@@ -14,7 +14,7 @@
 \usepackage[pdftex,dvipsnames]{xcolor}  % Coloured text etc.
 % 
 \usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
-
+\usepackage[normalem]{ulem}
 
 %=================End:Packages===================
 
@@ -27,6 +27,11 @@
 \newcommand\mathcomma{,}
 
 \newcommandx{\fatemeh}[2][1=]{\todo[linecolor=pink,backgroundcolor=pink!25,bordercolor=pink,#1]{#2}}
+\newcommandx{\insertx}[2]{{\uline{#1}}\textcolor{red}{ #2}}
+\newcommandx{\replace}[2]{{\sout{#1}}\textcolor{red}{#2}}
+\newcommandx{\remove}[1]{{\sout{#1}}}
+\newcommandx{\comment}[2]{{\uline{#1}}\textcolor{red}{ (-comment- #2)}}
+
 %===================End:Style====================
 
 %==================Begin:Macros==================
@@ -75,6 +80,7 @@
 \newcommand{\Sign}{\algo{Sign}} 
 \newcommand{\Verify}{\algo{Verify}} 
 \newcommand{\KeyGen}{\algo{KeyGen}} 
+\newcommand{\Out}{\algo{Out}} 
 
 \newcommand{\sk}{\ensuremath{\mathsf{sk}}}
 \newcommand{\pk}{\ensuremath{\mathsf{pk}}}
