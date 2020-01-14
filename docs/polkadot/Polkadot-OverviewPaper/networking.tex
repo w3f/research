@@ -47,7 +47,7 @@ Generally speaking, the communication data flow follows these patterns:
 
 In secure protocols in general, and likewise with Polkadot, entities refer to each other by their cryptographic public keys. There is no strong security association with weak references such as IP addresses since those are typically controlled not by the entities themselves but by their communications provider.
 
-Nevertheless in order to communicate we need some sort of association between entities and their addresses. In Polkadot we use a similar scheme as many other blockchains do, that is using the widely used distributed hash table (DHT), Kademlia \cite{Maymounkov:2002:Kademila}. Kademlia is a DHT that uses XOR distance metric for finding a node and is often used for networks with high churn. We use Protocols Labs' libp2p libraries \cite{} Kademlia implementation with some changes for this purpose. To prevent Eclipse attacks \cite{} we allow for routing tables that are large enough to contain at least some honest nodes.
+Nevertheless in order to communicate we need some sort of association between entities and their addresses. In Polkadot we use a similar scheme as many other blockchains do, that is using the widely used distributed hash table (DHT), Kademlia \cite{Maymounkov:2002:Kademila}. Kademlia is a DHT that uses XOR distance metric for finding a node and is often used for networks with high churn. We use Protocols Labs' libp2p libraries \handan{\cite{}}{ref} Kademlia implementation with some changes for this purpose. To prevent Eclipse attacks \handan{\cite{}}{ref} we allow for routing tables that are large enough to contain at least some honest nodes.
 
 Currently, this "address book" service is also used as the primary discovery mechanism - nodes perform random lookups on the space of keys when they join the network, and connect to whichever set of addresses are returned. Likewise, nodes accept any incoming connections. This makes it easy to suport light clients and other unprivileged users, but also makes it easy to perform DoS attacks.
 
@@ -82,24 +82,24 @@ Below we give an overview of where and how each type of message is sent. The col
 
 We use gossiping mainly when the message type is small. For example, GRANDPA votes and attestation are very small. For bigger data structures we need to either use bloom filters or use direct routing.
 
-\textbf{Nets}:
-
+\eray{\textbf{Nets:}}{\paragraph{Nets:}}
+\\
 $PC$ = Parachain Collator and parachain full nodes
-
+\\
 $PV$= Parachain Validators
-
+\\
 $V$ = Validator and relay chain full nodes (->Validator Network ID on chain)
 
-\textbf{Mode}:
-
+\eray{\textbf{Mode}:}{\paragraph{Mode:}}
+\\
 $D$ = Direct transfer
-
+\\
 $G$ = Gossip
-
+\\
 $B$ = Big / Bloomfiltered
-
+\\
 $R$ = Receving e.g., $PC_{R}$ refers to the receiving parachain's collators and full nodes
-
+\\
 $S$ = Sending e.g., $PC_{S}$ refers to the sending parachain's collators and full nodes
 
 \begin{table}[h]
@@ -118,5 +118,5 @@ $S$ = Sending e.g., $PC_{S}$ refers to the sending parachain's collators and ful
 \end{tabular}
 \end{table}
 
-* fallback->D:$PV_{R}$ request $PV_{S}$ and then uses G at $PC_{R}$ to spread them,
-second fallback->D: $PV_{R}$ recover messages from erasure codes obtained from V and use G at $PC_{R}$ to spread them.
+\eray{* fallback->D:$PV_{R}$ request $PV_{S}$ and then uses G at $PC_{R}$ to spread them,
+second fallback->D: $PV_{R}$ recover messages from erasure codes obtained from V and use G at $PC_{R}$ to spread them.}{-comment:Note that greater than symbol shows up as an upside down question mark in latex. Watch out!-}
