@@ -1,18 +1,33 @@
 \section{Verifiable random functions}
 
-A {\em verifiable random function} (VRF) is the public-key analog of a cryptographic hash function with a distinguished key, such as many MACs.  Anyone with the input and the public key can verify the correctness of the VRF output, but only the secret key holder could compute this output.  A hash function requires the key be shared for verification. 
+\insertx{}{A {\em verifiable random function} (VRF) is a cryptographic function that generates a pseudo-random number with a given a secret key and seed(s) as inputs. It also allows us to generate a proof to show the correctness of the output.  Anyone with the input and the corresponding public key can verify the correctness of the VRF output, but only the secret key holder could compute this output.}
+\replace{A \em verifiable random function (VRF) is the}{It can be imagined as a}{  public-key analog of a cryptographic hash function with a distinguished key, such as many MACs.  \remove{Anyone with the input and the public key can verify the correctness of the VRF output, but only the secret key holder could compute this output.}  A hash function requires the key be shared for verification. 
+}
 
-We formalize VRFs with three probabilistic algorithms: 
+\replace{We formalize VRFs with three probabilistic algorithms: } {In more details, we formalize VRFs with  following four algorithms: }
+
 \begin{itemize}
-\item $\VRF.\KeyGen$ return a public-secret key pair $(\pkvrfr,\skvrfr)$.
-\item $\VRF.\Sign_{\skvrf}$ takes a secret key $\skvrf$ series of inputs $(\alpha_1,\ldots,\alpha_n)$ with $n>0$ and a message $m$, and produces a series of deterministic outputs $(\omega_1,\ldots,\omega_n)$ and a proof $\pi$, not necessarily deterministic.
-\item $\VRF.\Verify_{\pkvrf}$ takes a public key $\pkvrf$, a series of inputs $(\alpha_1,\ldots,\alpha_n)$, a message $m$, a series of outputs $(\omega_1,\ldots,\omega_n)$, and a proof $\pi$, and returns true or false.
+\item $\VRF.\KeyGen$ is a probabilistic algorithm that returns a public-secret key pair $(\pkvrf,\skvrf)$ with the security parameter $ \ell $ as an input.
+\item \insertx{}{$ \VRF.\Out $ is a deterministic algorithm that takes a secret key $\skvrf$, series of inputs $(\alpha_1,\ldots,\alpha_n)$ with $n>0$ as inputs and returns a series of deterministic outputs $(\omega_1,\ldots,\omega_n)$.}
+\item $\VRF.\Sign_{\skvrf}$ is a probabilistic algorithm that takes a secret key $\skvrf$, series of inputs $(\alpha_1,\ldots,\alpha_n)$ with $n>0$ \comment{and a message $m$}{what is this $ m $? why don't we integrate it to $ \alpha $ values?}, and produces a series of deterministic outputs $(\omega_1,\ldots,\omega_n)$ and a proof $\pi$, not necessarily deterministic.
+
+\comment{}{I think the name should change to $ \VRF.\algo{Prove} $ since what this algorithm does is showing that $ \VRF.\Out(\skvrf, \alpha_1,\ldots,\alpha_n)  = (\omega_1,\ldots,\omega_n)$.} 
+
+\item $\VRF.\Verify_{\pkvrf}$ is a deterministic algorithm that takes a public key $\pkvrf$, a series of inputs $(\alpha_1,\ldots,\alpha_n)$, a message $m$, a series of outputs $(\omega_1,\ldots,\omega_n)$ and outputs True or False.
 \end{itemize}
-We impose three criteria upon a VRF:
+\comment{We impose three criteria upon a VRF:}{I think we should stick to the definition in the literature as recommended replacements below.}
+
 \begin{enumerate}
-\item[Unforgeability] An adversary with only knowledge of $\pkvrf$, not $\skvrf$, has negligible chances to create fresh $(\alpha_1,\ldots,\alpha_n)$, $(\omega_1,\ldots,\omega_n)$, $m$, and $\pi$ that verifies, meaning for which $\VRF.\Verify$ returns true.
-\item[Randomness] An adversary with only knowledge of $\pkvrf$, not $\skvrf$, has negligible chances to guess the $\omega_i$ corresponding to any $\alpha_i$ for and $i<n$.
-\item[Functionness] An adversary even with knowledge of $\skvrf$ has negligible chances to create one $(\omega_1,\ldots,\omega_n)$ that verifies when combined with two partially distinct $(\alpha_1,\ldots,\alpha_n)$ and $(\alpha'_1,\ldots,\alpha'_n)$ and some $(m,\pi)$ and $(m',\pi)$, respectively.
+	
+\item \insertx{}{[Correctness:] For all $ \alpha $ and the public/secret key pair $ (\pkvrf, \skvrf) $, if $ \VRF.\Sign_{\skvrf}(\alpha) \rightarrow (\omega, \pi)$, then $ \VRF.\Verify_{\pkvrf}(\alpha, \omega) \rightarrow $ True.}
+\item[Unforgeability]\remove{ An adversary with only knowledge of $\pkvrf$, not $\skvrf$, has negligible chances to create fresh $(\alpha_1,\ldots,\alpha_n)$, $(\omega_1,\ldots,\omega_n)$, $m$, and $\pi$ that verifies, meaning for which $\VRF.\Verify$ returns true.}
+
+\comment{}{We do not need unforgeability property in VRFs. We need just randomness property given below in terms of the functionality of VRF. Why do we care whether a malicious party is able to create a fresh $(\alpha_1,\ldots,\alpha_n)$, $(\omega_1,\ldots,\omega_n)$, $m$, and $\pi$? Is it really necessary? Randomness property makes sure that you cannot guess VRF output of a given input and it is what we want from a VRF.}
+
+\item[Randomness] \replace{An adversary with only knowledge of $\pkvrf$, not $\skvrf$ has for any $ alpha $, has negligible chances to guess the $\omega_i$ corresponding to any $\alpha_i$ for and $i<n$.}{For all $ (\pkvrf,\skvrf) $ pair and for all $ \alpha $, it is very difficult for an adversary to decide which one of these two values $ \omega = \VRF.\Out(\skvrf, \alpha) $ and a randomly selected number is a VRF output. This pseudo-randomness property implies that an adversary with only knowledge of $\pkvrf$, not $\skvrf$ has for any $ \alpha $, has negligible chances to guess the $\omega_i$ corresponding to any $\alpha_i$ for and $i<n$.}
+
+
+\item\replace{[Functionness] An adversary even with knowledge of $\skvrf$ has negligible chances to create one $(\omega_1,\ldots,\omega_n)$ that verifies when combined with two partially distinct $(\alpha_1,\ldots,\alpha_n)$ and $(\alpha'_1,\ldots,\alpha'_n)$ and some $(m,\pi)$ and $(m',\pi)$, respectively.}{\item[Uniqueness] Given  $ \alpha = (\alpha_1,\ldots, \alpha_n), \omega = (\omega_1, \ldots, \omega_n) $ and $ \omega' = (\omega'_1, ..., \omega'_n) $ where $ \omega \neq \omega' $, there exist no values $ (\pkvrf, \alpha, \omega_1, \omega_2, \pi_1, \pi_2) $ such that $$ \VRF.\Verify_{\pkvrf}(\alpha,\omega_1, \pi_1) = \VRF.\Verify_{\pkvrf}(\alpha, \omega_2, \pi_2). $$ This security criteria protects against malicious validators who want to prove that that their VRF output is e.g., $ \omega' $ where $ \VRF.\Out_{\skvrf}(\alpha) \neq \omega' $}
 \end{enumerate}
 There exist VRFs with $\pi = \emptyset$ like BLS signatures and RSA-FDH signatures that satisfy the above, but we propose another condition that requires $\pi \ne \emptyset$.
 \begin{enumerate}
