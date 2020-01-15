@@ -1,31 +1,36 @@
 
-\section{Pre-announced VRFs}\label{sec:preannounced}
+\section{Sassafras}\label{sec:preannounced}
 
-We divide time into epochs for our higher level protocol, as well as individual time slots at regular time intervals within our epochs.  We describe here several distinct protocols for constant-time block production that work by participants pre-announcing an appropriate number of prospective VRF outputs, but without revealing their specific VRF public key, and then assign slots by sorting these.  
+We divide time into epochs $  e $ for our higher level protocol, as well as individual time slots at regular time intervals within epochs.  In a very high level, validators validators pre-announce an appropriate number of prospective VRF outputs, but without revealing their specific VRF public key, and then assign slots by sorting before starting an epoch.  
+In this way,  all our slots are occupied by exactly \emph{one} block producer.  
 
-We aim for almost all our slots to be occupied by exactly one block producer.  We therefore address an adversary who spams unearned pre-announced VRFs in tow ways:  We first prevent them outright by anonymising the VRF itself, using either a group or ring VRF.  We alternatively employ only a basic VRF but limit the damage done by spammers by sorting the pre-announces using randomness created only after their publication.
+We therefore address an adversary who spams unearned pre-announced VRFs in two ways:  We first prevent them outright by anonymising the VRF itself, using a ring VRF.  We alternatively employ only a basic VRF but limit the damage done by spammers by sorting the pre-announces using randomness created only after their publication.
 
-We shall present these two threads in parallel because our extra sorting epoch required by the basic VRF version also dramatically improves the grou or ring VRF version as well.  We ignore other niche constructions that do not scale to large block producer sets. 
-
-...
-
-TODO: Specific protocol boxes
+We shall present these two threads in parallel because our extra sorting epoch required by the basic VRF version also dramatically improves the group or ring VRF version as well.  We ignore other niche constructions that do not scale to large block producer sets. 
 
 
-\subsection{VRFs}
 
-As always with VRFs, we should prevent participants from bruit forcing their VRF key to buy some advantage.  We thus need each input to the VRF to be unpredictable when they registered the VRF key.  We provide this unpredictable with a shared random value $r_e$ associated to each epoch $e$.  
+%TODO: Specific protocol boxes
 
-As in Ouroboros Praos \cite{Praos}, we define $r_e$ using VRF outputs in earlier epochs, which permits only limited adversarial bias in $r_e$ but makes $r_e$ unpredictable.  We should not build $r_e$ with pre-announced VRFs though because doing so creates a ``last man standing'' attack right before sorting.  We instead need two VRFs:  
 
-We pre-announce and sort the $\VRFa$ outputs made with key pairs $(\pkvrfa,\skvrfa)$, while we shall define $r_e$ using $\VRFr$ outputs made with key pairs $(\pkvrfr,\skvrfr)$.  We suppress an alternative formulation where one replaces $\VRFa$ by a hash of the $\VRFr$ output, so $\VRFa = H \circ \VRFr$, because this breaks both our group and ring VRF schemes described later, and thus requires some slashing code, as well as our anonymous transaction scheme.
+\paragraph{VRFs in Sassafras:}
+In Sassafras, we need two different VRF constructions $ \VRFa $ and $ \VRFr $. $ \VRFa $ is a ring VRF (Definition \ref{def:ringVRF}) which anonymizes the owner of the VRF output during the verification process. We use outputs of ring VRFs to assign slots to validators randomly and privately. The outputs of $ \VRFa $ are made with key pairs with key pairs $(\pkvrfa,\skvrfa)$. $ \VRFr $ is a normal VRF (Definition \ref{def:VRF}) which is the same VRF used in BABE.  However, in Sassafras, we use $ \VRFr $ \emph{only} to generate the random number $ r_e $ of an epoch $ e $ while in BABE it was used both to assign slots to validators and to generate the random number.  We could not build $r_e$ with $ \VRFa $ because doing so creates a ``the last man standing'' attack right before sorting. The outputs of $ \VRFr $ are made with key pairs with key pairs $(\pkvrfr,\skvrfr)$.
+VRF's in Sassafras take as an input the random number of an epoch together with some other deterministic inputs. We need this number to be random (unpredictable) because we want to prevent participants from bruit forcing their VRF keys to buy some advantage.  We thus need each input to the VRF to be unpredictable when they registered the VRF key.  
 
-We use similar deterministic inputs to both $\VRFa$ and $\VRFr$ for sortition and randomness respectively.  Yet, Schnorr VRFs \cite{NSEC5,schnorrkel} can batch sign multiple inputs, so one could as well sign the blocks using the block itself, perhaps as a second $\VRFr$ input. 
 
-We caution that BLS signatures can only be anonymised with a blinding factor, which makes BLS-like signatures unsuitable for $\VRFa$ unless some other techniques provide the required pairing based assumptions.
+%As in Ouroboros Praos \cite{Praos}, we define $r_e$ using VRF outputs in earlier epochs, which permits only limited adversarial bias in $r_e$ but makes $r_e$ unpredictable.  We should not build $r_e$ with pre-announced VRFs though because doing so creates a ``last man standing'' attack right before sorting.  We instead need two VRFs:  
+
+%We pre-announce and sort the $\VRFa$ outputs made with key pairs $(\pkvrfa,\skvrfa)$, while we shall define $r_e$ using $\VRFr$ outputs made with key pairs $(\pkvrfr,\skvrfr)$. 
+%TODO: We may talk about this after describing how $ \VRFr $ and $ \VRFa $ works: We suppress an alternative formulation where one replaces $\VRFa$ by a hash of the $\VRFr$ output, so $\VRFa = H \circ \VRFr$, because this breaks both our group and ring VRF schemes described later, and thus requires some slashing code, as well as our anonymous transaction scheme.
+
+%TODO: We may talk about this after describing how $ \VRFr $ and $ \VRFa $ works: We use similar deterministic inputs to both $\VRFa$ and $\VRFr$ for sortition and randomness respectively.  Yet, Schnorr VRFs \cite{NSEC5,schnorrkel} can batch sign multiple inputs, so one could as well sign the blocks using the block itself, perhaps as a second $\VRFr$ input. 
+
+%TODO: We may talk about this after describing how $ \VRFr $ and $ \VRFa $ works: We caution that BLS signatures can only be anonymised with a blinding factor, which makes BLS-like signatures unsuitable for $\VRFa$ unless some other techniques provide the required pairing based assumptions.
+
+We denote the validator set of an era by the array $ \vals $. In this notation, $ \vals[i] $ corresponds the $ i^{th} $ validator of  $ \vals $ where $ i \in [0, |\vals|) $. Now, we give the detail of Sassafras which consists of the following phases:
 
 \subsection{Genesis phase}\label{subsec:genesis_phase}
-
+%TODO After talking with Jeff
 We shall use $r_e$ from at least two distinct epochs $e$ in sortition for one epoch, once for the actual pre-announced $\VRFa$ outputs, and once for a sorting coefficient.  We then use $r_e$ from a third epoch to for the $\VRFr$ used to define $r_e$ itself.  We distinguish the notation for these as $r_e$, $r'_e$, and $r''_e$ to smooth VDF integration, but $r_e = r'_e = r''_e$ for many designs, especially in the genesis phase, and without a VDF.
 
 As such, our genesis phase should define several $r_e$, $r'_e$, and $r''_e$ that precede the chain's launch.  In fact, we want numerous such preliminary $r_e$ for some variants involving VDFs, so we define $r_{-e} = r'_{-e} = r''_{-e} = \mathsf{ChaCha}(r'_0,e)$ for as many $e > 0$ as required, with a randomly addressable stream cipher like ChaCha20 seeded/keyed by one initial $\mathsf{rinit}$ and reading form the offset $e$.
@@ -41,23 +46,34 @@ We suggest the initial block producers first announce their VRF keys and then ch
 \newcommand{\vrfawinnersbound}{\mathtt{max\_winners}} % L gossip
 \newcommand{\vrfarepeatbound}{\mathtt{max\_repeats}} % L gossip
 \newcommand{\vrfaslotsbound}{\mathtt{num\_slots}} % S slots
+\newcommand{\vrfwinninglist}{\ensuremath{\mathcal{L}_{\VRFa}}} % the list of winning vrfs
 
-We first let $\vrfaattemptsbound$ and $\vrfaslotsbound$ denote positive integer paramaters used to bound participation in the sortition phase.  We let $\vrfawinnersbound$ and $\vrfarepeatbound$ by optional positive integer bounds, at least one of which must be present.  We also let $l>0$ denote the number of epochs over which sortition runs, with a single epoch $l=1$ being possible.  We divide a sortition phase running over epochs $e+0,\ldots,e+l-1$ into three sub-phases:  
+We first let $\vrfaattemptsbound$ and $\vrfaslotsbound$ denote positive integer parameters used to bound participation in the sortition phase.  We let $\vrfawinnersbound$ and $\vrfarepeatbound$ by optional positive integer bounds, at least one of which must be present.  We also let $l>0$ denote the number of epochs over which sortition runs, with a single epoch $l=1$ being possible.  We divide a sortition phase running over epochs $e+0,\ldots,e+l-1$ into three sub-phases:  
 
 In the {\bf first sub-phase}, any block producer $V$ with $\VRFa$ key pair $(\pkvrfa,\skvrfa)$ creates a limited number of VRF outputs 
 $$ (\omega_{V,e,i},\pi_{V,e,i}) := \VRFa.\Sign_{\skvrfa,\skcvrfa}(r_e \| i) \quad \text{for $i < \vrfaattemptsbound$.} $$
 
-We set $\omega'_{V,e,i} := H(\omega_{V,e,i} \| H_1(r_e \| i))$ to give the 2Hash-DH construction from Theorem 2 on page 32 in appendex C of \cite{Praos}.  As a rule, we hide 2Hash-DH inside the $\omega$ output notation elsewhere in Polkadot papers, but we raise this to the surface here because it also hides $\omega_{V,e,i}$, which helps in some variant constructions.
+We set $\omega'_{V,e,i} := H(\omega_{V,e,i} \| H_1(r_e \| i))$ to give the 2Hash-DH construction from Theorem 2 on page 32 in Appendix C of \cite{Praos}.  \comment{As a rule, we hide 2Hash-DH inside the $\omega$ output notation elsewhere in Polkadot papers, but we raise this to the surface here because it also hides $\omega_{V,e,i}$, which helps in some variant constructions.}{I did not get this sentence.}
 
-We let $c < {1\over2}$ denote a fixed proportion of $V$'s $\vrfaattemptsbound$ blocks.  If $\omega'_{V,e,i} < c$ (\dag) then $V$ sends $(i,\omega_{V,e,i},\pi_{V,e,i})$ to some repeater $U$.  We should select $U$ deterministically under some designs as $H(\omega'_{V,e,i} \| "WHO")$ taken modulo the number of candidate repeaters.  We do not require all block producers act as repeaters, but expect this in practice, meaning
-$$ U = \vals[H(\omega'_{V,e,i} \| "WHO") \mod |\vals|] $$
-% TODO: Add \vals notation earlier
-As we throw away most $\omega_{V,e,i}$ here, we always optimize performance by testing (\dag) before producing $\pi_{V,e,i}$.  
+Given that  $c < {1\over2}$ is a fixed proportion of $V$'s $\vrfaattemptsbound$ blocks, $ V $ checks if  $\omega'_{V,e,i} < c$  for each $ i < \vrfaattemptsbound $. If it is the case, then $ V $ adds the tuple $ (i,\omega_{V,e,i},\pi_{V,e,i}) $ to a list $ \vrfwinninglist $.  The VRF outputs in $ \vrfwinninglist $ is considered as winning VRFs. If the winning VRFs are more than $ \vrfawinnersbound $ i.e.,$ |\vrfwinninglist| >  \vrfawinnersbound$, then $ V $ keeps the tuples in $ \vrfwinninglist $  which have the smallest first $ \vrfawinnersbound $ outputs .  
 
-We should send $(i,\omega_{V,e,i},\pi_{V,e,i})$ to $U$ as directly as possible, but always over an encrypted and authenticated channel.  At worst, if gossip must be used then $V$ could gossip a cyphertext $C$ that encrypts $(i,\omega_{V,e,i},\pi_{V,e,i})$ to a public key $U.\pk$ of $U$, and sign $(j,C)$ with $V.\pk$ where $j < \vrfawinnersbound$ is unique among such ciphertexts originating from $V$.  In other words, $\vrfawinnersbound$ acts as another de facto bound on the number of $(i,\omega_{V,e,i},\pi_{V,e,i})$ published.  
-TODO: Fix binding of $j$ to be public
+\paragraph{Remark 1:}  $\vrfawinnersbound$ acts as another defacto bound on the number of $(i,\omega_{V,e,i},\pi_{V,e,i})$ published. 
+\paragraph{Remark 2:} As we throw away most $\omega_{V,e,i}$ here, we always optimize performance by testing $ \omega'_{V,e,i} < c $ before producing $\pi_{V,e,i}$.  
 
-In the {\bf second sub-phase}, each repeater $U$ publishes on-chain at most $\vrfarepeatbound$ such anonymised VRF outputs $(\omega_{V,e,i},\pi_{V,e,i})$ for various block producers $W$.  These transactions record $(i,\omega_{V,e,i},\pi_{V,e,i})$ in the chain's associated state, so they should check the proof $\pi_{V,e,i}$, forbid duplicates, and enforce the above conditions.
+
+After finding all winning VRFs,  $V$ sends each $(i,\omega_{V,e,i},\pi_{V,e,i}) \in \vrfwinninglist$ to some validator $U$ that we call repeater. $ V $ selects $U$ deterministically i.e., 
+$$ U = \vals[H(\omega'_{V,e,i} \| "WHO") \mod |\vals|]. $$
+
+%TODOh: asked Jeff: We do not require all block producers act as repeaters, but expect this in practice.
+
+% TODO: Add \vals notation earlier: DONE
+
+$ V $ should send $(i,\omega_{V,e,i},\pi_{V,e,i})$ to $U$ as directly as possible in always over \emph{an encrypted and authenticated} channel.  At worst, if gossip must be used then $V$ could gossip a ciphertext $C$ that encrypts $(i,\omega_{V,e,i},\pi_{V,e,i})$ to a public key $U.\pk$ of $U$, and the signature that signs $(i,C)$ with $V.\pk$ where $i < \vrfawinnersbound$.
+%is unique among such ciphertexts originating from $V$.  
+%TODO: Fix binding of $j$ to be public
+
+In the {\bf second sub-phase}, each repeater $U$ publishes on-chain at most $\vrfarepeatbound$ such anonymised and valid VRF outputs $(\omega_{V,e,i},\pi_{V,e,i})$ for various block producers $V$.  These transactions record $(i,\omega_{V,e,i},\pi_{V,e,i})$ in the chain's associated state, so they should check the proof $\pi_{V,e,i}$, forbid duplicates, and enforce the above conditions.
+%TODOh: What if more than \vrfarepeatbound VRFs are received.
 
 As an aside, we could avoid the ring VRF entirely if $U$ published only $\omega'_{V,e,i}$ here, instead of $(i,\omega_{V,e,i},\pi_{V,e,i})$, and omit the verification of course.  We shall omit several details required for securing this scheme however, so an interested reader must delve somewhat deeply.
 
