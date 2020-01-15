@@ -21,14 +21,18 @@ We first describe the protocol by which collators of a parachain $\para$ submit 
 \smallskip
 % \paragraph{Collator subphase:} 
 
-Initially, a {\bf collator} $C$ of a parachain $\para$ must propose some candidate block $B$ for $\para$.  We let $B'$ denotes the parent of $B$ and again let $\rin$ and $\rout$ denote state root before and after executing $B$.  
+Initially, a {\bf collator} $C$ of a parachain $\para$ must propose some candidate block $B$ for $\para$.  We let $B'$ denotes the parent of $B$.  As above, let $\rin$ and $\rout$ denote state root before and after executing $B$.  
 
-First, $C$ constructs the witness data $\pi$ by evaluating the block with $\prove_{\hat{\para}}(B,M)$, so they can build the candidate blob $\blobB = (B,\pi,M)$, and also obtain the block metadata $(H(B'),\rin,\rout)$.  
+In practice, we want shared security so that parachains can communicate, so $B$ should reference some relay chain block(s) $R^0_B$ that distinguish any state $\rho$ maintains on the relay chain, such as the incoming messages accumulated for $\rho$ to be processed by $B$.  We let $q$ denote the Merkle root of this state $\rho$ maintains on the relay chain in $R^0_B$.
+ 
+First, $C$ constructs the witness data $\pi$ by evaluating the block with $\prove_{\hat{\para}}(B,M)$, so they can build the candidate blob $\blobB = (B,\pi,M)$, and also obtain the block metadata $(H(B'),\rin,\rout,H(R^0_B),q,\ldots)$. 
 
-As $\prove$ is a randomized algorithm, $C$ must next reevaluate the block with $\verify_{\hat{\para}}(\blobB)$.  We shall assume verification succeeds, but if this verification fails then $C$ reports invalid parachain code for $\para$, and discards $B$ or possibly shuts down.  Assuming no errors, $C$ sends the candidate blob $\blobB$ to the corresponding parachain validators $\vals_\para$, along with any block metadata $(H(B'),\rin,\rout)$. 
+As $\prove$ is a randomized algorithm, $C$ must next reevaluate the block with $\verify_{\hat{\para}}(\blobB)$.  We shall assume verification succeeds, but if this verification fails then $C$ reports invalid parachain code for $\para$, and discards $B$ or possibly shuts down.  Assuming no errors, $C$ sends the candidate blob $\blobB$ to the corresponding parachain validators $\vals_\para$, along with any block metadata $(H(B'),\rin,\rout,H(R^0_B),q,\ldots)$. 
 
 \smallskip
 % \paragraph{Parachain validator:}
+
+We shall expect the parachain validator $V$ that processes candidate blob $\blobB$ to update $\blobB$'s associated metadata to reference the most recent relay chain block $R^1_B > R^0_B$, so long as $R^1_B$ still contains the same state root $q$ for $\rho$, i.e.\ $(H(B'),\rin,\rout,H(R^1_B),$\vect{R^1_B q}$,\ldots)$.
 
 Next each {\bf parachain validator} $V \in \vals_\para$ checks the validity of the block by evaluating the block with $\verify_\para(\blobB)$.  We refer to these as the {\em preliminary validity checks} as well.  If verification succeeds, then $V$ gossips $\blobB$ among the parachain validators $\vals_\para$ after checking $\blobB$ itself, and we continue below.
 
