@@ -32,13 +32,15 @@ As $\prove$ is a randomized algorithm, $C$ must next reevaluate the block with $
 \smallskip
 % \paragraph{Parachain validator:}
 
-We shall expect the parachain validator $V$ that processes candidate blob $\blobB$ to update $\blobB$'s associated metadata to reference the most recent relay chain block $R^1_B > R^0_B$, so long as $R^1_B$ still contains the same state root $q$ for $\rho$, i.e.\ $(H(B'),\rin,\rout,H(R^1_B),$\vect{R^1_B q}$,\ldots)$.
+We shall expect the parachain validator $V$ that processes candidate blob $\blobB$ to update $\blobB$'s associated metadata to reference the most recent relay chain block $R^1_B > R^0_B$, so long as $R^1_B$ still contains the same state root $q$ for $\rho$, 
+i.e.\ $(H(B'),\rin,\rout,H(R^1_B),$\vect{R^1_B q}$,\ldots)$.
 
 Next each {\bf parachain validator} $V \in \vals_\para$ checks the validity of the block by evaluating the block with $\verify_\para(\blobB)$.  We refer to these as the {\em preliminary validity checks} as well.  If verification succeeds, then $V$ gossips $\blobB$ among the parachain validators $\vals_\para$ after checking $\blobB$ itself, and we continue below.
 
 If however verification fails, the parachain validator rejects the candidate $\blobB$ and report it as invalid.  We abandon $B$ if no validators sign it, but invalidity claims cannot necessarily result in penalties for either $\para$ or $C$.  If any two validators disagree about a parachain block's validity then all validators shall check the block, as discussed below in \S\ref{???}.
 
-\subsection{Relay chain phase} % Relay chain phase I: Block production 
+
+\subsection{Relay chain authorship} % Relay chain phase I: Block production 
 
 % \smallskip
 % \paragraph{Parachain validator:}
@@ -64,6 +66,7 @@ $$ \pieces_B = Listst{ (d,\reciept_{B,S},\vect{\merkleroot_B d}) }{ d \in \prepi
 We must distribute $\pieces_B$ among the full relay chain validator set $\vals$ with $\pieces_B[i]$ going to $\vals[i]$ for $i = 1,\ldots,\nvals$.  In so doing. we force the signer set $S$ into making $\blobB$ available for testing by random secondary checkers without revealing those secondary checkers.  This trick provides the core scalability advantage of Polkadot.
 
 We might however see many competing parachain candidate blocks at this point, so we delay this distribution process until some relay chain block $R$ contains $\reciept_{B,S}$.  We assume such an $R$ containing $\reciept_{B,S}$ exists throughout the remainder of this section.
+
 
 \subsection{Topology}
 %TODO: "Piece distribution topology" is too long
@@ -119,7 +122,7 @@ We need pieces to be distributed before secondary checkers announce themselves, 
 \subsection{Unavailability} % BABE
 \label{sec:unavailability}
 
-We cannot entirely escape the availability question within BABE however:  We have several forks $C_1,\ldots,C_k$ for which at most $f$ validators possess all their chunks, but no fork for which $f+1$ validators possess all their chunks.  Yet, each block producers $U$ possess all their chunks for at least one fork $C_i$.  If BABE were oblivious to availability, then $U$ extends $C_i$, and GRANDPA stalls under this configuration. 
+We cannot entirely escape the availability question within BABE however:  Imagine we have several forks $C_1,\ldots,C_k$ for which at most $f$ validators possess all their chunks, but no fork for which $f+1$ validators possess all their chunks.  Yet, each block producers $U$ possess all their chunks for at least one fork $C_i$.  If BABE were oblivious to availability, then $U$ extends $C_i$, and GRANDPA stalls under this configuration. 
 % TODO:  Anything about secondary validity check here ???
 
 Instead, we define an availability grace period $\grace$ after which an unavailability subprotocol alters BABE's chain selection rule:  
@@ -127,9 +130,9 @@ Instead, we define an availability grace period $\grace$ after which an unavaila
 If a validator $U \in \vals$ cannot obtain some piece $d \in \pieces_B$ within $\grace$ time after seeing the candidate receipt $\reciept_{B,\cdot}$ included in some relay chain block $R$, then $U$ announces via gossip the unavailability of the piece $d$. 
 % TODO: Was $R_{head}$ but really?
 
-We now explain validators' responses to these unavailability announcements:
+We now explain the validators' responses to these unavailability announcements:
 
-First, suppose some validator $V \in \vals$ observes an unavailability announcement for some candidate receipt $\reciept_{B,S}$ from some validator $\vals[i]$.  If $V$ possesses the block $\blobB$ then $V$ has computed $\pieces_B$ to check $\reciept_{B,S}$, so $V$ already possesses $\pieces_B[i]$ and should offer it to $\vals[i]$.  Any $V \in S$ satisfies this, but so do any validators who signed off on the secondary checks discussed below in \S\ref{sec:validity}. 
+First, suppose some validator $V \in \vals$ observes an unavailability announcement for some candidate receipt $\reciept_{B,S}$ from some validator $\vals[i]$.  If $V$ possesses the block $\blobB$ then $V$ has computed $\pieces_B$ to check $\reciept_{B,S}$, so $V$ already possesses $\pieces_B[i]$ and should offer it to $\vals[i]$.  Any $V \in S$ satisfies this, but so shall any validators who signed off on the secondary checks discussed below in \S\ref{sec:validity}. 
 
 Second, if any validator $U \in \vals$ observes unavailability announcements for pieces of some candidate receipt $\reciept_{B,\cdot}$ from at least $f+1$ different validators, then in BABE a block producer $U$ shall not propose a relay chain block containing any $\reciept_{B',\cdot}$ for which $B'$ is a descendent of $B$.
 In this situation, there might be prevotes but never any precommits in GRANDPA for chains containing  $\reciept_{B,\cdot}$, so $\reciept_{B,\cdot}$ cannot possibly be finalised by GRANDPA.  We should consider if the GHOST chain weighting rule used by BABE and by GRANDPA for prevotes should weigh unavailability announcements, but doing so should only impact performance.
