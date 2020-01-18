@@ -1,41 +1,62 @@
 \section{Verifiable random functions}
 
-\insertx{}{A {\em verifiable random function} (VRF) is a cryptographic function that generates a pseudo-random number with a given a secret key and seed(s) as inputs. It also allows us to generate a proof to show the correctness of the output.  Anyone with the input and the corresponding public key can verify the correctness of the VRF output, but only the secret key holder could compute this output.}
-\replace{A \em verifiable random function (VRF) is the}{It can be imagined as a}{  public-key analog of a cryptographic hash function with a distinguished key, such as many MACs.  \remove{Anyone with the input and the public key can verify the correctness of the VRF output, but only the secret key holder could compute this output.}  A hash function requires the key be shared for verification. 
-}
+% ...
+% \subsection{...}
 
-\replace{We formalize VRFs with three probabilistic algorithms: } {In more details, we formalize VRFs with  following four algorithms: }
+A {\em verifiable random function (VRF) is a cryptographic function that generates a pseudo-random output number from a given a secret key $\skvrf$ and an input string $\alpha$ called a seed, and produces a proof of correctness for the output.  Anyone with the input and the corresponding public key $\pkvrf$ can verify the correctness of the VRF output, but only the secret key holder could compute this output.  In a sence, VRFs resemble a public-key analog of a cryptographic hash function with a distinguished key, such as MACs that acts as PRFs, in that a keyed hash function requires the key be shared for verification. 
 
+All known elliptic curve VRFs compute some point $\gamma = \skvrf * H_1(\alpha)$ where $H_1$ hashes to the curve, and provides some correctness proof.  We cannot claim $\gamma$ is pseudo-random because elliptic curve points are not strings and these outputs are related.  Instead, we always follow the 2Hash-DH construction from Theorem 2 on page 32 in appendix C of \cite{Praos} which treats $\gamma$ as a key for an actual PRF $\omega = H(\mathtt{ctx} || \gamma || \alpha)$.  
+
+In more details, we formalize VRFs with following four probabilistic algorithms: 
 \begin{itemize}
-
-\item $\VRF.\KeyGen$ is a probabilistic algorithm that returns a public-secret key pair $(\pkvrf,\skvrf)$ with the security parameter $ \ell $ as an input.
-\item \insertx{}{$ \VRF.\Out $ is a deterministic algorithm that takes a secret key $\skvrf$, series of inputs $(\alpha_1,\ldots,\alpha_n)$ with $n>0$ as inputs and returns a series of deterministic outputs $(\omega_1,\ldots,\omega_n)$.}
-\item$\VRF.\Sign_{\skvrf}$ takes a secret key $\skvrf$ series of inputs $(\alpha_1,\ldots,\alpha_n)$ with $n>0$  \comment{and a message $m$}{what is this $ m $? why don't we integrate it to $ \alpha $ values?}, and produces a series of outputs $(\omega_1,\ldots,\omega_n)$ such that $\omega_i$ is determined by $\alpha_i$, and a proof $\pi$, not necessarily deterministic.
-
-\comment{}{I think the name should change to $ \VRF.\algo{Prove} $ since what this algorithm does is showing that $ \VRF.\Out(\skvrf, \alpha_1,\ldots,\alpha_n)  = (\omega_1,\ldots,\omega_n)$.} 
-
-\item $\VRF.\Verify_{\pkvrf}$ is a deterministic algorithm that takes a public key $\pkvrf$, a series of inputs $(\alpha_1,\ldots,\alpha_n)$, a message $m$, a series of outputs $(\omega_1,\ldots,\omega_n)$ and outputs True or False.
-
+\item $\VRF.\KeyGen$ is a probabilistic algorithm that returns a public-secret key pair $(\pkvrf,\skvrf)$, sometimes with a security parameter $\lambda$ input.
+\item $\VRF.\Sign_{\skvrf}$ is a probabilistic algorithm that takes a secret key $\skvrf$, and series of input seeds $(\alpha_1,\ldots,\alpha_n)$ for any $n\ge1$, and an extra message $m$, and yields a signature or proof $\pi$. 
+\item $\VRF.\Out$ extracts our outputs $(\omega_1,\ldots,\omega_n)$ from the signature $\pi$ and the input seeds $(\alpha_1,\ldots,\alpha_n)$, with each $\omega_i$ is determined only by $\alpha_i$ and $\pkvrf$.
+\item $\VRF.\Verify_{\pkvrf}$ is a probabilistic algorithm that takes a public key $\pkvrf$, a series of inputs $(\alpha_1,\ldots,\alpha_n)$, an extra message $m$, and a proof $\pi$, and outputs true or false.
 \end{itemize}
-\comment{We impose three criteria upon a VRF:}{I think we should stick to the definition in the literature as recommended replacements below.}
 
-\begin{enumerate}
-	
-\item \insertx{}{[Correctness:] For all $ \alpha $ and the public/secret key pair $ (\pkvrf, \skvrf) $, if $ \VRF.\Sign_{\skvrf}(\alpha) \rightarrow (\omega, \pi)$, then $ \VRF.\Verify_{\pkvrf}(\alpha, \omega) \rightarrow $ True.}
-\item[Unforgeability]\remove{ An adversary with only knowledge of $\pkvrf$, not $\skvrf$, has negligible chances to create fresh $(\alpha_1,\ldots,\alpha_n)$, $(\omega_1,\ldots,\omega_n)$, $m$, and $\pi$ that verifies, meaning for which $\VRF.\Verify$ returns true.}
+We shall neglect the separate $\VRF.\Out$ routine and write $(\omega,\pi) = \VRF.\Sign_{\skvrf}(\alpha,m)$ for notational convenience.  We warn however that real $\VRF.\Sign_{\skvrf}$ routines return a tuple $(\gamma,\pi')$, and that $\VRF.\Verify_{\pkvrf}$ takes the same tuple $\pi = (\gamma,\pi')$, but this $\gamma$ requires post-processing both to remove the cofactor and for the 2Hash-DH construction that gives us a PRF.
 
-\comment{}{We do not need unforgeability property in VRFs. We need just randomness property given below in terms of the functionality of VRF. Why do we care whether a malicious party is able to create a fresh $(\alpha_1,\ldots,\alpha_n)$, $(\omega_1,\ldots,\omega_n)$, $m$, and $\pi$? Is it really necessary? Randomness property makes sure that you cannot guess VRF output of a given input and it is what we want from a VRF.}
+We take $n=1$ below for convenience since one turns a VRF with $n=1$ into a VRF with $n>1$ using 
+\cite[\S3.2.1]{PrivacyPass} (see Theorem 3.17 on page 74 of Ryan Henry's PhD thesis \cite{RyanHenryPhD} or \cite{HenryGoldberg13}), but doing so uses $\pkvrf$ one extra time in verification.  
+We could bind the extra message $m$ into the VRF signature by increasing $n$ and ignoring its output.  Instead however, we bind $m$ directly into the proof to avoid these extra $\pkvrf$ since they increase complexity in the next section.
 
-\item[Randomness] \replace{An adversary with only knowledge of $\pkvrf$, not $\skvrf$ has for any $ alpha $, has negligible chances to guess the $\omega_i$ corresponding to any $\alpha_i$ for and $i<n$.}{For all $ (\pkvrf,\skvrf) $ pair and for all $ \alpha $, it is very difficult for an adversary to decide which one of these two values $ \omega = \VRF.\Out(\skvrf, \alpha) $ and a randomly selected number is a VRF output. This pseudo-randomness property implies that an adversary with only knowledge of $\pkvrf$, not $\skvrf$ has for any $ \alpha $, has negligible chances to guess the $\omega_i$ corresponding to any $\alpha_i$ for and $i<n$.}
+We impose two criteria upon our VRF that should be familiar from signature schemes, like correctness and some unforgeability notion.  As a rule, one does not always require the strongest unforgeability notions for VRFs because the output itself imposes a subtlety different criteria.  We obtain EUF-CMA however when using Schnorr DLEQ proofs. 
 
+For any valid key pair $\pkvrf,\skvrf$, we ask:
+\begin{itemize}
+\item {\em Correctness:}
+If $\pi = \VRF.\Sign_{\skvrf}(\alpha,m)$ then $\VRF.\Verify_{\pkvrf}(\alpha,m,\pi)$ holds.
+\item {\rm Unforgeability (EUF-CMA):} 
+An adversary with only knowledge of $\pkvrf$, not $\skvrf$, and who adaptively queries VRF signatures on their own chosen messages, has negligible chances to produce a $\pi$ that verifies for some $(\alpha_1,\ldots,\alpha_n)$ and $m$ in which some $\alpha_i$ or $m$ was never queried.
+\end{itemize}
+% TODO: What unforgeability does the SNARK give? 
 
-\item\replace{[Functionness] An adversary even with knowledge of $\skvrf$ has negligible chances to create one $(\omega_1,\ldots,\omega_n)$ that verifies when combined with two partially distinct $(\alpha_1,\ldots,\alpha_n)$ and $(\alpha'_1,\ldots,\alpha'_n)$ and some $(m,\pi)$ and $(m',\pi)$, respectively.}{\item[Uniqueness] Given  $ \alpha = (\alpha_1,\ldots, \alpha_n), \omega = (\omega_1, \ldots, \omega_n) $ and $ \omega' = (\omega'_1, ..., \omega'_n) $ where $ \omega \neq \omega' $, there exist no values $ (\pkvrf, \alpha, \omega_1, \omega_2, \pi_1, \pi_2) $ such that $$ \VRF.\Verify_{\pkvrf}(\alpha,\omega_1, \pi_1) = \VRF.\Verify_{\pkvrf}(\alpha, \omega_2, \pi_2). $$ This security criteria protects against malicious validators who want to prove that that their VRF output is e.g., $ \omega' $ where $ \VRF.\Out_{\skvrf}(\alpha) \neq \omega' $}
-\end{enumerate}
-There exist VRFs with $\pi = \emptyset$ like BLS signatures and RSA-FDH signatures that satisfy the above, but we propose another condition that requires $\pi \ne \emptyset$.
-\begin{enumerate}
-\item[Binding Unforgeability] An adversary with only knowledge of $\pkvrf$ and several valid signatures has only negligible chances to produce a distinct valid signature even with its $(\alpha_1,\ldots,\alpha_n)$, $(\omega_1,\ldots,\omega_n)$, and possibly $m$ drawn from the valid signatures.
-\end{enumerate}
-We cannot prevent an adversary from providing a zero knowledge proof of verification with only partial information, but this second condition ensures that adversaries cannot trick honest verifiers by altering the presentation of VRF outputs.  
+Any valid key pair $\pkvrf,\skvrf$, there is a map $f_{\pkvrf}(\alpha) = \VRF.\Out(\VRF.\Sign_\skvrf(\alpha))$ upon which we impose additional PRF criteria.  We need $\gamma_i = f_{\pkvrf}(\alpha_i)$ in the above notation, so $\omega_i$ depends only upon $\skvrf$ and $\alpha$, not $i$.
+\begin{itemize}
+\item {\em Uniqueness}
+An adversary with full knowledge of $\skvrf$ has negligible chances to produce a proof $\pi$ for which some $\VRF.\Verify_{\pkvrf}(\alpha,m,\pi)$ passess for the $\pkvrf$ associated to $\skvrf$, but $\VRF.\Out(\pi) \ne f_\skvrf(\alpha)$.
+\item {\em Unpredictability}
+An adversary with only knowledge of $\pkvrf$, not $\skvrf$, has negligible chances to guess the $f_{\pkvrf}(\alpha)$ corresponding to any inout seed $\alpha$.
+\item {\em Pseduo-randomness}
+Our family $\{ f_{\pkvrf} \}_{\skvrf}$ is a PRF, meaning an adversary that queries an oracle for either a function sampled from either $\{ f_{\pkvrf} \}_{\skvrf}$, or else a truly random function with the same domain and range, has only negligible odds to identify which kind of oracle from which she queries.
+\end{itemize}
+We always ensure this PRF assumption using the 2Hash-DH construction from Theorem 2 on page 32 in appendix C of \cite{Praos} as discussed above.
+% TODO: Should we rearange to discusse 2Hash-DH here?
+% We only require the PRF assumption because our PRF adversary always possesses $\skvrf$ in practice.  
+In principle, one might explore weaker public-key pseduo-randomness assumptions, in which an adversary is given either oracle access to $\VRF.\Verify_{\pkvrf}$, etc., or else a model of these methods built from a truly random function, but any useful such definition appears identical to our PRF assumption in practice.
+% TODO: Is this correct Handan?  Is this just equivelent?  If so, citation?  2Hash-DH resut?
+
+In recent years, we witnessed an explosion of protocols that exploit related keys $\pkvrf_1 = k \pkvrf_2$ with public $k$, including reasonable protocols like the Tor Onion Services v3 \cite{TorRendSpecV3}, and dangerous customs like BIP32 \cite{BIP32}.  All related keys protocols create related key attacks on our unpredictability assumption, so VRF users must include $\pkvrf$ in the input seed $\alpha$ when also using related keys protocols.  As discussed below we avoid these extra $\pkvrf$ uses for reasons discussed in the next section, instead opting to avoid related key protocols.
+
+There exist VRFs with $\pi = (\gamma)$ aka $\pi' = \emptyset$ like BLS signatures and RSA-FDH signatures that satisfy many of our assumptions, but only some weaker unforgability notion.  In particular, our trick for increasing $n$ permits combining multiple BLS signatures, which violates EUF-CMA.  
+% TODO: Are BLS signatures EUF-CMA ever anyways?
+
+In this paper, we shall bind an additional message into a VRF signature, which inherently prevents using BLS signatures.  We do not bother identifying a weaker notion than EUF-CMA that permits this binding, but protocol that use threshold VRFs require more care here.
+% We cannot prevent an adversary from providing a zero knowledge proof of verification with only partial information, but this second condition ensures that adversaries cannot trick honest verifiers by altering the presentation of VRF outputs.  
+
+We caution against using BLS signatures as VRFs for numerous other reasons, including their incredibly poor performance, including poor batch verification performance, lack of conservative curve choices, and that non-threshold aggregation breaks uniqueness and creates the above vulnerability to related key attacks.
+
 
 \subsection{Ring VRFs}
 
@@ -45,18 +66,22 @@ In a pre-announce phase, all block producers anonymously publish ring VRF output
 
 We now formalize ring signatures and VRFs with first a commitment scheme for public keys:
 \begin{itemize}
-\item $\algo{Commit}(\pk_1,\ldots)$ returns a commitment $\pkc$ and its openning $\skc_i$ for the public keys $\pk_i$,
+\item $\algo{Commit}(\pk_1,\ldots)$ returns a commitment $\pkc$ and an openning $\skc_i$ for each public key $\pk_i$ in the supplied public key set,
 \end{itemize}
 as well as adopting our normal methods to operate on commitments:
 \begin{itemize}
 \item $\Sign_{\sk,\skc}$ now requires the openning of the commitment to the public key set, as well as the secret key.
 \item $\Verify_{\pkc}$ now takes a commitment to the public key set, instead of a public key.
 \end{itemize}
-In practice, ring VRFs always possess the original non-ring VRF $\Sign_{\skvrf}$ and $\Verify_{\pkvrf}$ methods too.  All $\Sign$ methods compute their outputs $\omega_i$ well before computing their proofs $\pi$, with $\omega$ along being roughly twice as fast for normal VRFs, and many thousands of times faster for ring VRFs.  Almost all VRF protocols throw away many VRF outputs, so VRFs always include methods that test the outputs with some closure before computing the proofs.
+In practice, ring VRFs always possess the original non-ring VRF $\Sign_{\skvrf}$ and $\Verify_{\pkvrf}$ methods too.  
+
+We shall not hide the input seeds $\alpha$, which avoids hashing-to-the-curve in zero-knowledge, but prevents including $\pkvrf$ in $\alpha$, and requires avoiding related key protocols.
+
+All $\Sign$ methods compute their outputs $\omega$ well before computing their proofs $\pi$, with $\omega$ along being roughly twice as fast for normal VRFs, and many thousands of times faster for ring VRFs.  Almost all VRF protocols throw away many VRF outputs, so VRFs always include methods that test the outputs with some closure before computing the proofs.
 
 There are naive ring VRF constructions with signature size linear in the number of signers, which appear unacceptable for our use case.  Indeed, these scale worse than well optimised accountable shuffle operations discussed in the appendix.
 
-% \subsubsecrtion{zkSNARKs}
+\paragraph{Instantiation with zkSNARKs:}
 
 We instead favour constant-size ring VRFs built using zkSNARKs, which should support 10k signers with only about 10k to 20k constraints.  TODO: Do you agree Sergey?
 % TODO: link https://ethresear.ch/t/cryptographic-sortition-possible-solution-with-zk-snark/5102 anywhere?
@@ -67,7 +92,7 @@ TODO:  Groth16 \cite{Groth16}, subversion resistance, Posidon etc.
 
 There are also ring signature constructions that do not require pairings and require only logarithmic size.  As an older example, ring signatures \cite{GK2015} need about 32*7 bytes times the logarithm of the number of validators, so under 3kb for 10,000 validators.  We also note that ring VRFs are linkable ring signatures, so some existing linkable ring signatures implementations may already provide ring VRFs.
 
-% \subsubsecrtion{Inner product proofs}
+\paragraph{Instantiation with Inner product arguments:}
 
 We shall strongly consider the inner product proofs of Bootle, et al. \cite{bccgp2016}.  In this, the signer/prover commits to a secret vector $\bar{v}$ of positive numbers, proves that $\bar{v}_i = H_1(\mathsf{input})$ for exactly one $i$ and that $\bar{v}_j = 0$ for all $j \ne i$, and that the inner product of $\bar{v}$ with the block producer public keys equals the VRF output.  TODO:  Is this really this simple?  Not likely
 
