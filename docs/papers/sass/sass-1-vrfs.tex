@@ -107,17 +107,17 @@ There exist better batching techniques for inner product proofs \cite{bccgp2016}
 
 A group signature also hides the specific signer, like a ring signature, but group signatures require initial setup via some issuer or MPC. 
 
-We could build a group VRF similarly to a group signature by using the rerandomizable signature scheme from \cite{PS16} as a blind rerandomizable certificate.  Our issuer would first blind sign each validator's private key, like in \S6.1 of \cite{PS16}, so that later each validator can prove correctness their VRF output, replacing the proof of knowledge from \S6.2 of \cite{PS16}.  We believe this final step resembles the schnorrkel VRF except with the public key replaced by the signature inputs, but run on the pairing based curve.
+We could build a group VRF similarly to a group signature by using the rerandomizable signature scheme from \cite{PS16} as a blind rerandomizable certificate.  Our issuer would first blind sign each validator's private key, like in \S6.1 of \cite{PS16}, so that later each validator can prove correctness their VRF output, replacing the proof of knowledge from \S6.2 of \cite{PS16}.  We believe this final step resembles the Schnorr DLEQ proof based VRF except with the public key replaced by the signature inputs, but run on the pairing based curve.
 
 In this, we must take care with our pairing assumptions because we loose anonymity if $x H$ with $H$ known ever appears on the curve not used for the VRF output.  
 
 It appears group VRFs only require a few curve points, and verification only requires two pairings and a few scalar multiplications, making them far smaller and faster than ring VRFs.  We require a distributed issuer however, which dramatically complicates the protocol:
 
-We'd want at least two thirds, but preferable all, of validators to be aggregate certificate issuers, meaning they have certified the blinded public keys of all validators and we aggregate all certificates and public keys.  We might achieve this with an MPC but doing so requires choosing when we issuers issue certificates.  
+We'd want at least two thirds, but preferable all, of validators to be aggregate certificate issuers, meaning they have certified the blinded public keys of all validators and we aggregate all certificates and public keys.  We might achieve this with an MPC but doing so requires choosing {\em when} issuers issue certificates;   
 
-In other words, all new prospective validators certify all previously added prospective validators, and all previously added prospective validators must eventually recertify all more recently added prospective validators.  In this way, any spammed slots originate from prospective but not actual validators, probably along with an actual validator who posts them.  
+We become therefore tempted to run this MPC after election but before establishing final validator list, but this complicates protocol layering.  Instead, we could ask that all new prospective validators certify all previously added prospective validators, and all previously added prospective validators eventually recertify all more recently added prospective validators.  In this second approach, any spammed slots in \S\ref{sec:preannounced} ?? originate from prospective but not actual validators, probably along with an actual validator who posts them.  
 
-We become therefore tempted to run this MPC after election but before establishing final validator list, but this complicates protocol layering unacceptably.  We could look into group signatures with ``verifier local revocation'' but these get much more complicated if I remember.
+We could look into group signatures with ``verifier local revocation'' but these get much more complicated.
 
 % \subsection{...}
 
