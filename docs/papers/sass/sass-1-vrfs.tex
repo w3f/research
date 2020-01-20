@@ -1,4 +1,6 @@
 \section{Verifiable random functions}
+%\subsection{Verifiable random functions}
+\label{sec:VRFs}
 
 % ...
 % \subsection{...}
@@ -59,6 +61,7 @@ We caution against using BLS signatures as VRFs for numerous other reasons, incl
 
 
 \subsection{Ring VRFs}
+\label{sec:ringVRF}
 
 A ring VRF operates like a VRF but only proves its key comes from a specific list without giving any information about which specific key.  Any ring VRF yields sortition:
 
@@ -103,7 +106,9 @@ At our number of block producers, we expect the non-pairing based technique to p
 
 There exist better batching techniques for inner product proofs \cite{bccgp2016} in the bulletproofs approach \cite{bulletproofs} than exist for \cite{Groth16}.  We might yet find that zkSNARKs remain more efficient, especially if we cannot apply the multi-proving tools of \cite{bulletproofs}.
 
+
 \subsection{Group VRFs}
+\label{sec:groupVRF}
 
 A group signature also hides the specific signer, like a ring signature, but group signatures require initial setup via some issuer or MPC. 
 

@@ -1,44 +1,67 @@
 
-\section{Sassafras}\label{sec:preannounced}
+%TODO: What should this section be called?
+% \section{Pre-announced VRFs}
+% \section{Protocol}
+\section{Sassafras}
+\label{sec:preannounced}
 
-We divide time into epochs $  e $ for our higher level protocol, as well as individual time slots at regular time intervals within epochs.  In a very high level, validators validators pre-announce an appropriate number of prospective VRF outputs, but without revealing their specific VRF public key, and then assign slots by sorting before starting an epoch.  
-In this way,  all our slots are occupied by exactly \emph{one} block producer.  
+We describe here a narrow family of semi-secret single leader election protocols suitable for producing blocks with a fixed-time increment.  
 
-We therefore address an adversary who spams unearned pre-announced VRFs in two ways:  We first prevent them outright by anonymising the VRF itself, using a ring VRF.  We alternatively employ only a basic VRF but limit the damage done by spammers by sorting the pre-announces using randomness created only after their publication.
+We divide time into epochs $e$ as well as individual time slots at regular time intervals within epochs.  
+In our protocols, block producers pre-announce an appropriate number of prospective VRF outputs, but do so without revealing their specific VRF public key, then assign slots by sorting the VRF outputs, and then finally use this sorted order for the block production sequence in a future epoch.
+In this way, most upcoming slots are occupied by exactly \emph{one} block producer, whose identity is known only to herself and at most one other random selected party.
 
-We shall present these two threads in parallel because our extra sorting epoch required by the basic VRF version also dramatically improves the group or ring VRF version as well.  We ignore other niche constructions that do not scale to large block producer sets. 
+We consider two defenses against an adversary who spams unearned pre-announced VRFs:  We first prevent them outright by anonymising the VRF itself, using a ring VRF.  As a second weaker alternative, we briefly comment on using only a basic VRF but that limits the damage done by spammers by sorting the pre-announces using randomness created only after their publication.  
 
+We shall address these two threads in parallel because our extra sorting epoch required by the basic VRF version also dramatically impacts the group or ring VRF version as well.  We ignore other niche constructions that do not scale to large block producer sets. 
 
 
 %TODO: Specific protocol boxes
 
 
 \paragraph{VRFs in Sassafras:}
-In Sassafras, we need two different VRF constructions $ \VRFa $ and $ \VRFr $. $ \VRFa $ is a ring VRF (Definition \ref{def:ringVRF}) which anonymizes the owner of the VRF output during the verification process. We use outputs of ring VRFs to assign slots to validators randomly and privately. The outputs of $ \VRFa $ are made with key pairs with key pairs $(\pkvrfa,\skvrfa)$. $ \VRFr $ is a normal VRF (Definition \ref{def:VRF}) which is the same VRF used in BABE.  However, in Sassafras, we use $ \VRFr $ \emph{only} to generate the random number $ r_e $ of an epoch $ e $ while in BABE it was used both to assign slots to validators and to generate the random number.  We could not build $r_e$ with $ \VRFa $ because doing so creates a ``the last man standing'' attack right before sorting. The outputs of $ \VRFr $ are made with key pairs with key pairs $(\pkvrfr,\skvrfr)$.
-VRF's in Sassafras take as an input the random number of an epoch together with some other deterministic inputs. We need this number to be random (unpredictable) because we want to prevent participants from bruit forcing their VRF keys to buy some advantage.  We thus need each input to the VRF to be unpredictable when they registered the VRF key.  
+As always with VRFs, we should prevent participants from bruit forcing their VRF key to buy some advantage.  We therefore need each input to the VRF to be unpredictable when they registered the VRF key.  We shall provide this unpredictable with a shared random value $r_e$ associated to each epoch $e$.  
 
+As in Ouroboros Praos \cite{Praos}, we shall define $r_e$ using VRF outputs in earlier epochs, which permits limited adversarial bias in $r_e$ but makes $r_e$ unpredictable.  We cannot however build $r_e$ with pre-announced VRFs because doing so creates a ``last man standing'' attack right before sorting.  
 
-%As in Ouroboros Praos \cite{Praos}, we define $r_e$ using VRF outputs in earlier epochs, which permits only limited adversarial bias in $r_e$ but makes $r_e$ unpredictable.  We should not build $r_e$ with pre-announced VRFs though because doing so creates a ``last man standing'' attack right before sorting.  We instead need two VRFs:  
+Instead, Sassafras needs two different VRF constructions $\VRFa$ and $\VRFr$:
+\begin{itemize}
+\item
+$\VRFa$ provide VRF outputs but anonymizes the public key $\pkvrfa$ associated to the VRF outputs for $\skvrfa$, which anonymizes the owner of $\pkvrfa$ during the verification process.  We sort these $\VRFa$ outputs to assign slots to validators randomly and privately.  We suggest instantiating $\VRFa$ with a ring VRF (\S\ref{sec:ringVRF}), but a group VRF (\S\ref{sec:groupVRF}) works, and we discuss simply omitting the proof $\pi$ from a standard VRF.
+\item
+$\VRFr$ provides a standard VRF (\S\ref{sec:VRFs}) with key pairs $(\pkvrfr,\skvrfr)$, similar to Praos or BABE uses.  We use $\VRFa$ \emph{only} to provide fresh new randomness with each block, from which we hash compute the upcoming randomness $r_e$ of epoch $e$.  
+\end{itemize}
+In Praos and BABE, one VRF played both these roles, but these uses diverge in Sassafras because colluding block producers could delay their pre-announces until witnessing others' pre-announces.  
 
-%We pre-announce and sort the $\VRFa$ outputs made with key pairs $(\pkvrfa,\skvrfa)$, while we shall define $r_e$ using $\VRFr$ outputs made with key pairs $(\pkvrfr,\skvrfr)$. 
-%TODO: We may talk about this after describing how $ \VRFr $ and $ \VRFa $ works: We suppress an alternative formulation where one replaces $\VRFa$ by a hash of the $\VRFr$ output, so $\VRFa = H \circ \VRFr$, because this breaks both our group and ring VRF schemes described later, and thus requires some slashing code, as well as our anonymous transaction scheme.
+%TODO: About the next two paragraps Handan writes:
+%  We may talk about this after describing how $ \VRFr $ and $\VRFa $ works:  
+%It's unclear if that indicate addressing them in the previous section, here, or elsewhere. 
 
-%TODO: We may talk about this after describing how $ \VRFr $ and $ \VRFa $ works: We use similar deterministic inputs to both $\VRFa$ and $\VRFr$ for sortition and randomness respectively.  Yet, Schnorr VRFs \cite{NSEC5,schnorrkel} can batch sign multiple inputs, so one could as well sign the blocks using the block itself, perhaps as a second $\VRFr$ input. 
+We use similar deterministic input seeds to both $\VRFa$ and $\VRFr$ for sortition and randomness respectively, although we need either $\skvrfa \ne \skvrfr$ or else for their to differ, say via domain seperation.  
+We largely suppress the alternative formulation where one replaces $\VRFa$ by a hash of the $\VRFr$ output, so $\VRFa = H \circ \VRFr$, because doing so requires slashing code.
+%  Yet, Schnorr VRFs \cite{NSEC5,schnorrkel} can batch sign multiple inputs, so one could as well sign the blocks using the block itself, perhaps as a second $\VRFr$ input. 
 
-%TODO: We may talk about this after describing how $ \VRFr $ and $ \VRFa $ works: We caution that BLS signatures can only be anonymised with a blinding factor, which makes BLS-like signatures unsuitable for $\VRFa$ unless some other techniques provide the required pairing based assumptions.
+We caution that BLS signatures can only be anonymised with a blinding factor, which makes BLS-like signatures unsuitable for $\VRFa$ unless some other techniques provide the required pairing based assumptions.
 
-We denote the validator set of an era by the array $ \vals $. In this notation, $ \vals[i] $ corresponds the $ i^{th} $ validator of  $ \vals $ where $ i \in [0, |\vals|) $. Now, we give the detail of Sassafras which consists of the following phases:
+We denote the validator set of an era by the array $ \vals $.  In this notation, $ \vals[i] $ corresponds the $ i^{th} $ validator of  $ \vals $ where $ i \in [0, |\vals|) $.   We now describe Sassafras as a series of phases that occur in different epochs or subepochs.
 
-\subsection{Genesis phase}\label{subsec:genesis_phase}
-%TODO After talking with Jeff
-We shall use $r_e$ from at least two distinct epochs $e$ in sortition for one epoch, once for the actual pre-announced $\VRFa$ outputs, and once for a sorting coefficient.  We then use $r_e$ from a third epoch to for the $\VRFr$ used to define $r_e$ itself.  We distinguish the notation for these as $r_e$, $r'_e$, and $r''_e$ to smooth VDF integration, but $r_e = r'_e = r''_e$ for many designs, especially in the genesis phase, and without a VDF.
+\subsection{Genesis phase}
+\label{subsec:genesis_phase}
+\newcommand{\rinit}{\mathtt{rinit}} % L gossip
 
-As such, our genesis phase should define several $r_e$, $r'_e$, and $r''_e$ that precede the chain's launch.  In fact, we want numerous such preliminary $r_e$ for some variants involving VDFs, so we define $r_{-e} = r'_{-e} = r''_{-e} = \mathsf{ChaCha}(r'_0,e)$ for as many $e > 0$ as required, with a randomly addressable stream cipher like ChaCha20 seeded/keyed by one initial $\mathsf{rinit}$ and reading form the offset $e$.
-% \footnote{A stream cipher provides far simpler code than any hash based definition like $r_{e-1} := H(r_e)$.}  
+We could define our initial chain state using a secret sharing scheme like Schoenmakers' PVSS \cite{Schoenmakers_PVSS}, except we foresee an extremely limited initial block producer pool.  
+Instead, we suggest doing a ``soft launch'' in which all block producers create almost all their blocks as yielding similar security and confidence to PVSS. 
 
-We want this initial $\mathsf{rinit}$ to be defined after the initial block producer sets declares their VRF keys.  One could employ a secret sharing scheme like Schoenmakers' PVSS \cite{Schoenmakers_PVSS} here, except we foresee an extremely limited initial block producer pool.  We expect that doing a ``soft launch'' in which all block producers create almost all their blocks should actually yield similar security and confidence to PVSS. 
+We initialize this soft launch by selecting some initial \rinit values from which we define any initial $r_e$ values and choose some initial block production sequence. 
 
-We suggest the initial block producers first announce their VRF keys and then choose $\mathsf{rinit}$ to be the hash of several established random beacons at some preselected points in the future.
+An initial block production sequence should be defined by a Ficher-Yates shuffle, with randomness supplied by the CSPRNG $\mathsf{ChaCha}(\rinit,e,\cdot)$.  We stretch this over as many epochs as required running one shuffle for each epoch because this stream cipher produces almost unlimited randomness.
+
+We use $r_e$ from one or two distinct epochs $e$ in sortition for one epoch, once for the actual pre-announced $\VRFa$ outputs, and once for a optional sorting coefficient discussed in the high latency variant below.  We then use $r_e$ from a third epoch in the $\VRFr$ used to define $r_e$ itself.  We distinguish below the notation for these as $r_e$, $r'_e$, and $r''_e$ to smooth VDF integration, but $r_e = r'_e = r''_e$ for many designs, especially in the genesis phase, and without a VDF.
+
+As such, our genesis phase should define several $r_e$, $r'_e$, and $r''_e$ that precede the chain's launch.  In fact, we want several such preliminary $r_e$ for some variants involving VDFs, so we define $r_{-e} = r'_{-e} = r''_{-e} = \mathsf{ChaCha}(\rinit,0,e)$ for as many $e > 0$ as required
+% \footnote{A stream cipher provides far simpler code than any hash based definition like $r_{e-1} := H(r_e)$.} 
+
+We of course want this initial $\mathsf{rinit}$ to be defined after the initial block producer sets declares their VRF keys.  We suggest the initial block producers first announce their VRF keys and then choose $\mathsf{rinit}$ to be the hash of several established random beacons at some preselected points in the future.
 
 
 \subsection{Sortition phase}\label{subsec:sortition_phase}
