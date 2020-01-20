@@ -69,31 +69,31 @@ We of course want this initial $\mathsf{rinit}$ to be defined after the initial 
 \newcommand{\vrfawinnersbound}{\mathtt{max\_winners}} % L gossip
 \newcommand{\vrfarepeatbound}{\mathtt{max\_repeats}} % L gossip
 \newcommand{\vrfaslotsbound}{\mathtt{num\_slots}} % S slots
-\newcommand{\vrfwinninglist}{\ensuremath{\mathcal{L}_{\VRFa}}} % the list of winning vrfs
+\newcommand{\vrfwinninglist}{\ensuremath{\mathcal{L}}} % the list of winning vrfs
 
 We first let $\vrfaattemptsbound$ and $\vrfaslotsbound$ denote positive integer parameters used to bound participation in the sortition phase.  We let $\vrfawinnersbound$ and $\vrfarepeatbound$ by optional positive integer bounds, at least one of which must be present.  We also let $l>0$ denote the number of epochs over which sortition runs, with a single epoch $l=1$ being possible.  We divide a sortition phase running over epochs $e+0,\ldots,e+l-1$ into three sub-phases:  
 
-In the {\bf first sub-phase}, any block producer $V$ with $\VRFa$ key pair $(\pkvrfa,\skvrfa)$ creates a limited number of VRF outputs 
-$$ (\omega_{V,e,i},\pi_{V,e,i}) := \VRFa.\Sign_{\skvrfa,\skcvrfa}(r_e \| i) \quad \text{for $i < \vrfaattemptsbound$.} $$
+In the {\bf first sub-phase}, any block producer $V$ with $\VRFa$ key pair $(\pkvrfa,\skvrfa)$ creates a limited number of VRF outputs $\omega_{V,e,i} = \VRFa.\Out(\pi_{V,e,i})$ where
+$$ \pi_{V,e,i} := \VRFa.\Sign_{\skvrfa,\skcvrfa}(r_e \| i) \quad \text{for $i < \vrfaattemptsbound$.} $$
+As a rule, we hide the 2Hash-DH construction $\omega_{V,e,i} := H(h \gamma_{V,e,i} \| H_1(r_e \| i))$ where $\pi_{V,e,i} = (\gamma_{V,e,i},\pi'_{V,e,i})$ inside $\VRFa.\Out$.  We remark however that separating $\gamma_{V,e,i}$ helps with our variant formulation using only normal VRFs.  
 
-We set $\omega'_{V,e,i} := H(\omega_{V,e,i} \| H_1(r_e \| i))$ to give the 2Hash-DH construction from Theorem 2 on page 32 in Appendix C of \cite{Praos}.  \comment{As a rule, we hide 2Hash-DH inside the $\omega$ output notation elsewhere in Polkadot papers, but we raise this to the surface here because it also hides $\omega_{V,e,i}$, which helps in some variant constructions.}{I did not get this sentence.}
+We let $c < {1\over2}$ denote a fixed proportion of $V$'s $\vrfaattemptsbound$ blocks.  $V$ sets $\vrfwinninglist_{V,e}$ to be their ``winning'' $\VRFa$ outputs that satisfy $\omega_{V,e,i} < c$ (\dag) for each $i < \vrfaattemptsbound$, but enforces $|\vrfwinninglist_{V,e}| \le \vrfawinnersbound$ by taking only the $\vrfawinnersbound$ smallest $\omega_{V,e,i}$ values.
+$$  \vrfwinninglist_{V,e} := \mathtt{trim}_\vrfawinnersbound \left( 
+  \mathtt{sort} \Setst{ (i,\pi_{V,e,i}) }{ \omega_{V,e,i} < c } 
+\right)  $$
 
-Given that  $c < {1\over2}$ is a fixed proportion of $V$'s $\vrfaattemptsbound$ blocks, $ V $ checks if  $\omega'_{V,e,i} < c$  for each $ i < \vrfaattemptsbound $. If it is the case, then $ V $ adds the tuple $ (i,\omega_{V,e,i},\pi_{V,e,i}) $ to a list $ \vrfwinninglist $.  The VRF outputs in $ \vrfwinninglist $ is considered as winning VRFs. If the winning VRFs are more than $ \vrfawinnersbound $ i.e.,$ |\vrfwinninglist| >  \vrfawinnersbound$, then $ V $ keeps the tuples in $ \vrfwinninglist $  which have the smallest first $ \vrfawinnersbound $ outputs .  
+Of course, $\vrfawinnersbound$ acts as another de facto bound on the number of $(i,\pi_{V,e,i})$ published.  As we throw away most $\pi_{V,e,i}$ here, we always optimize performance by testing $\omega_{V,e,i} < c$ before producing $\pi_{V,e,i}$.  
 
-\paragraph{Remark 1:}  $\vrfawinnersbound$ acts as another defacto bound on the number of $(i,\omega_{V,e,i},\pi_{V,e,i})$ published. 
-\paragraph{Remark 2:} As we throw away most $\omega_{V,e,i}$ here, we always optimize performance by testing $ \omega'_{V,e,i} < c $ before producing $\pi_{V,e,i}$.  
+After finding the winning VRFs $\vrfwinninglist_{V,e}$,  $V$ sends each $(i,\pi_{V,e,i}) \in \vrfwinninglist_{V,e}$ to some validator $U$ that we call repeater.  $V$ selects $U$ deterministically but without leaking its own identify via this choice, perhaps using $H(\omega_{V,e,i} \| "WHO")$.  
+We need not make all block producers act as repeaters, but if we do so then perhaps
+$$ U = \vals[H(\omega'_{V,e,i} \| "WHO") \mod |\vals|] $$
 
-
-After finding all winning VRFs,  $V$ sends each $(i,\omega_{V,e,i},\pi_{V,e,i}) \in \vrfwinninglist$ to some validator $U$ that we call repeater. $ V $ selects $U$ deterministically i.e., 
-$$ U = \vals[H(\omega'_{V,e,i} \| "WHO") \mod |\vals|]. $$
-
-%TODOh: asked Jeff: We do not require all block producers act as repeaters, but expect this in practice.
-
-% TODO: Add \vals notation earlier: DONE
-
-$ V $ should send $(i,\omega_{V,e,i},\pi_{V,e,i})$ to $U$ as directly as possible in always over \emph{an encrypted and authenticated} channel.  At worst, if gossip must be used then $V$ could gossip a ciphertext $C$ that encrypts $(i,\omega_{V,e,i},\pi_{V,e,i})$ to a public key $U.\pk$ of $U$, and the signature that signs $(i,C)$ with $V.\pk$ where $i < \vrfawinnersbound$.
+$V$ should send $(i,\pi_{V,e,i})$ to $U$ as directly as possible, but always over \emph{an encrypted and authenticated} channel.  At worst, if gossip must be used then $V$ could gossip a ciphertext $C$ that encrypts $(i,\pi_{V,e,i})$ to a public key $U.\pk$ of $U$, and the signature that signs $(i,C)$ with $V.\pk$ where $i < \vrfawinnersbound$.
 %is unique among such ciphertexts originating from $V$.  
 %TODO: Fix binding of $j$ to be public
+
+
+
 
 In the {\bf second sub-phase}, each repeater $U$ publishes on-chain at most $\vrfarepeatbound$ such anonymised and valid VRF outputs $(\omega_{V,e,i},\pi_{V,e,i})$ for various block producers $V$.  These transactions record $(i,\omega_{V,e,i},\pi_{V,e,i})$ in the chain's associated state, so they should check the proof $\pi_{V,e,i}$, forbid duplicates, and enforce the above conditions.
 %TODOh: What if more than \vrfarepeatbound VRFs are received.
@@ -180,7 +180,7 @@ Any such scheme remains vulnerable to correlation attacks, like all mix networks
 We sorted $\mathcal{S}$ so that all slot numbers for epoch $e+l+k$ have been assigned to some $\omega_{V,e,i}$.  
 
 We ask each block producer $V$ to claim the appropriate slot number in epoch $e+l+k$, which requires $V$ provide a proof that identifies $V$ uniquely.  
-% We know $\pi_{V,e,i}$ works for the non-ring non-group VRF case with $\pi'_{V,e,i} = \emptyset$.  If however $\pi'_{V,e,i} = \pi_{V,e,i} \ne \emptyset$ then ...
+% We know $\pi_{V,e,i}$ works for the non-ring non-group VRF case with $\pi''_{V,e,i} = \emptyset$.  If however $\pi''_{V,e,i} = \pi_{V,e,i} \ne \emptyset$ then ...
 We therefore require a non-ring non-group proof $\pi^0_{V,e,i} \ne \pi_{V,e,i}$ for correctness of $\omega_{V,e,i}$, which always exist as noted previously.
 
 In any case, our block producers $V$ claims their slot $\ell$ by publishing a block along with a header that includes the full block hash and the appropriate $\omega_{V,e,i}$ and the proof $\pi^0_{V,e,i})$ of correctness for $\omega_{V,e,i}$ that now proves their identity $V$.  

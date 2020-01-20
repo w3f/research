@@ -7,7 +7,7 @@
 
 A {\em verifiable random function (VRF) is a cryptographic function that generates a pseudo-random output number from a given a secret key $\skvrf$ and an input string $\alpha$ called a seed, and produces a proof of correctness for the output.  Anyone with the input and the corresponding public key $\pkvrf$ can verify the correctness of the VRF output, but only the secret key holder could compute this output.  In a sence, VRFs resemble a public-key analog of a cryptographic hash function with a distinguished key, such as MACs that acts as PRFs, in that a keyed hash function requires the key be shared for verification. 
 
-All known elliptic curve VRFs compute some point $\gamma = \skvrf * H_1(\alpha)$ where $H_1$ hashes to the curve, and provides some correctness proof.  We cannot claim $\gamma$ is pseudo-random because elliptic curve points are not strings and these outputs are related.  Instead, we always follow the 2Hash-DH construction from Theorem 2 on page 32 in appendix C of \cite{Praos} which treats $\gamma$ as a key for an actual PRF $\omega = H(\mathtt{ctx} || \gamma || \alpha)$.  
+All known elliptic curve VRFs compute some point $\gamma = \skvrf * H_1(\alpha)$ where $H_1$ hashes to the curve, and provides some correctness proof.  We cannot claim $\gamma$ is pseudo-random because elliptic curve points are not strings and these outputs are related.  Instead, we always follow the 2Hash-DH construction from Theorem 2 on page 32 in appendix C of \cite{Praos} which treats $\gamma$ as a key for an actual PRF $\omega = H(\mathtt{ctx} || h \gamma || \alpha)$ where $h$ is the cofactor.  
 
 In more details, we formalize VRFs with following four probabilistic algorithms: 
 \begin{itemize}
