@@ -1,6 +1,11 @@
 \section{Preliminaries}\label{sec:preliminiary}
 \handan{}{should we have this section before properties section? If prop section comes after this section we should remove some descriptions of entities in the properties section e.g., validator, fisherman}
 \eray{}{-comment: I agree. I think it may help the reader understand the properties better after reading the design.-}
+\syed{}{+1}
+\syed{}{We need an intro here before jumping into the figures; the following is inspired by the intro in the original white paper}
+\syed{}{grinned}
+Polkadot network consists of a large number of validatable, globally-coherent dynamic “parallelised” data-structures called  <i>parachains</it> and the bedrock upon which those parachains are interacting, are known as <it>the relay chains</it>. Figure \ref{fig:roles} shows these subcomponents alongside the sub-actors of the system which are in play to deliver the Polkadot scalable heterogeneous multi-chain system.
+
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=.7\textwidth]{images/Network@2x.png}
@@ -8,19 +13,21 @@
 	\label{fig:roles}
 \end{figure}
 \subsection{Structural elements of Polkadot}
-Next, we review the structural elements and roles, shown in Figure~\ref{fig:roles}, that are defined for the Polkadot protocols.
-\paragraph{Parachains:} Multiple heterogeneous blockchains run in parallel in Polkadot.
+\syed{Next}{In this section}, we review the structural elements and \syed{roles}{different roles defined in the Polkadot protocol and, as} shown in Figure~\ref{fig:roles}\syed{, that are defined for the Polkadot protocols}{-remove-}.
 
-\paragraph{Relay Chain:} This is a central chain in Polkadot. It keeps references
-to all canonical parachain blocks, and thus works as a single source of truth across parachains.
-It also keeps references of all cross-parachain messages.
+\syed{}{perhaps we should use more technical language in this section. I'll try to do so in my review.}
+
+\paragraph{Chain} (or a blockchain) broadly refers to a state machine which possibly replicated in a decentralized environment.
+
+\paragraph{Parachains:} \syed{Multiptle heterogeneous blockchains run in parallel in Polkadot.}{I feel this definition is barely helpufl}
+
+\paragraph{Relay Chain:} \syed{This is}{is} \syed{a}{the Polkadot} central \syed{chain}{state machine} \syed{in Polkadot.}{-remove-} which keeps references to \syed{all canonical parachain blocks}{the current states of all parachains and to the cross parachain transactions}. \syed{and t}{T}hus \syed{}{the relay chain} works as a single source of truth across \syed{parachains}{Polkadot network}.
+\syed{It also keeps references of all cross-parachain messages}{-remove- mentioned above as cross parachain transaction, what is a message otherwise? we need to define it first}.
 
 \subsection{Roles}
 
 \paragraph{Validators:} A fixed set of actors called validators are responsible to maintain the relay chain
-and keep its consensus, and by extension, maintain the consensus of all the parachains.
-In addition, at regular intervals validators are divided into random disjoint subsets
-that are each assigned to a particular parachain.
+and keep its consensus, and by extension, maintain the consensus of all the parachains. Also, at regular intervals validators are divided into random disjoint subsets that are each assigned to a particular parachain.
 Each of these validator subsets ensures the validity and availability of its parachain's blocks.
 Validators receive regular remunerations in DOTs,
 and are likewise heavily staked and prone to slashing in case of offenses.
@@ -41,8 +48,6 @@ Collators also process outgoing and incoming cross-chain messages.
 \paragraph{Fishermen:} Fishermen are staked actors that run background checks on the performance of validators.
 In particular, they raise reports in case that a validator-approved parachain block is unavailable or invalid.
 They are rewarded for correct reports, and slashed for bogus ones (which helps avoid report spamming).
-
-
 
 
 \subsection{Adversarial Model of Polkadot}
