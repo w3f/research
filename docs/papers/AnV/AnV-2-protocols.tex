@@ -149,7 +149,13 @@ We revert this slash whenever revocations later reduce the unavailability announ
 % TODO: Any interactions with slashing computation?
 
 
+\subsection{Approval}
+\label{sec:approval}
 
+As mentioned above in \S\ref{sec:availability}, any validator $V$ accumulates availability announcements for each relay chain block $R$, and $V$ judges $R$ after they observe $f+1$ such availability claims.  If $V$ considers $R$ available then $V$ 
+
+We say a
+We now suppose a validator $V$ has observed $f+1$ availability announcements,  for each candidate included in some relay chain block $R$.
 
 
 
@@ -159,6 +165,14 @@ We revert this slash whenever revocations later reduce the unavailability announ
 
 \subsection{Validity}
 \label{sec:validity}
+
+
+
+As noted in \S\ref{sec:availability}
+
+
+
+
 
 We have now excluded the block headers whose pieces are missing, thanks to the availability and unavailability protocols, at least under the ambiant assumptions for BABE and GRANDPA.
 
