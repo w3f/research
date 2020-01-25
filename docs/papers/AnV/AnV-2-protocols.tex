@@ -15,6 +15,7 @@ We now describe and instantiate our {\em availability and validity protocol} tha
 
 
 \subsection{Parachain phase} 
+\label{sec:parachain}
 
 We first describe the protocol by which collators of a parachain $\para$ submit a candidate block to the parachain validators assigned to $\vals_\para$.
 
@@ -37,7 +38,9 @@ i.e.\ $(H(B'),\rin,\rout,H(R^1_B),$\vect{R^1_B q}$,\ldots)$.
 
 Next each {\bf parachain validator} $V \in \vals_\para$ checks the validity of the block by evaluating the block with $\verify_\para(\blobB)$.  We refer to these as the {\em preliminary validity checks} as well.  If verification succeeds, then $V$ gossips $\blobB$ among the parachain validators $\vals_\para$ after checking $\blobB$ itself, and we continue below.
 
-If however verification fails, the parachain validator rejects the candidate $\blobB$ and report it as invalid.  We abandon $B$ if no validators sign it, but invalidity claims cannot necessarily result in penalties for either $\para$ or $C$.  If any two validators disagree about a parachain block's validity then all validators shall check the block, as discussed below in \S\ref{???}.
+If however verification fails, the parachain validator rejects the candidate $\blobB$ and report it as invalid.  We abandon $B$ if no validators sign it, but invalidity claims cannot necessarily result in penalties for either $\para$ or $C$.  
+
+At any time, if any two validators disagree about a parachain block's validity then all validators shall check the block.  In this case, we accumulate votes until $f+1$ claim validity or invalidity, and then slash the loosing side.  We cannot slash if neither side reaches $f+1$, but we still declare the block invalid in that case.  We expect governance to identify software faults and manually revert slashes they cause, but governance can also manually institute slashes in this second case, or manually slash $\para$ for offenses like malicious code or improper non-determinism. 
 
 
 \subsection{Relay chain authorship} % Relay chain phase I: Block production 
@@ -107,15 +110,17 @@ We integrate our availability and secondary validity check protocols directly wi
 \item $|S| \geq \kappa_\para \npvals$,
 \item $U$ possesses their own piece from $\pieces_B$,
 \item number of unavailability reports are less than  $f+1$ and also
-\item $U$ witnessed enough secondary checks for $\reciept_{B,S}$,
- as discussed blow in \S\ \ref{sec:validity}.
+\item $U$ witnessed ``enough'' secondary checks for $\reciept_{B,S}$,
+ as discussed blow in \S\ref{sec:approval}.
 \end{itemize}
 
 We run these availability and secondary validity check protocols only for parachain blocks included in relay chain blocks, not for all parachain blocks proposed by parachain validators.  In this way, we reduce the damage done by spammy parachains, at least beyond their own assigned parachain validators.
 
 At the same time, we avoid complex anti-spam or Q logic since only GRANDPA requires this prior voting restriction.  In fact, if we later require prioritisation logic then this trick isolates it inside relay chain block production.
 
-We need pieces to be distributed before secondary checkers announce themselves, so validators should send an availability announcement when they receive all pieces required by any relay chain block $R$, but this announcement predates any GRANDPA votes. 
+We need pieces to be distributed before secondary checkers announce themselves or begin their checks.  We therefore ask that validators gossip availability announcements for a relay chain block $R$ whenever they receive their piece for each parachain candidate receipt included in $R$.  As a higher bandwidth but more asynchronous alternative, we could ask that validators gossip availability announcements for candidate receipts, in which case a validator $V$ considers a relay chain block $R$ to be {\em available} once it observes $f+1$ availability announcements for each parachain candidate receipt included in $R$.
+
+In either case, all validators discover the claimed availability of relay chain blocks long before any GRANDPA votes.  In fact, this claimed availability triggers the secondary approval checks discussed blow in \S\ref{sec:approval}.  
 % TODO:  Any more details on GRANDPA integration?
 
 
