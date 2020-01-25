@@ -5,7 +5,7 @@ We shall describe a blockchain sharding scheme through which a single beacon or 
 \subsection{Chains}
 % \paragraph{Relay chain:}
 
-We expect that our sharded blockchain employs a Byzantine fault tolerant ``finality gadget'' for the relay chain that establishes finality for all shards or parachains too, like in the Polkadot and Ethereum 2.0 designs.  We let $\vals$ denote the full validator list for the relay chain, and set $\nvals := |\vals|$, which we term just validators since the relay chain remains clear from context.  We expect here that validators act as block producers for the relay chain.  
+We expect that our sharded blockchain employs a Byzantine fault tolerant ``finality gadget'' for the relay chain that establishes agreement on finality for all shards or parachains too, like in the Polkadot and Ethereum 2.0 designs.  We let $\vals$ denote the full validator list for the relay chain, and set $\nvals := |\vals|$, which we term just validators since the relay chain remains clear from context.  We expect here that validators act as block producers for the relay chain.  
 
 As part of our security model, we assume that $\nvals \ge 3 f + 1$ where $f$ bounds the number of validators controlled by any adversary.
 
