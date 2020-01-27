@@ -1,20 +1,24 @@
 \section{Properties}\label{sec:properties}
 
-\eray{Polkadot provides the following properties.}{-comment: This sentence by itself is strange and does not add any content. Either remove it or put some more explanation, e.g., ``Polkadot provides utility, finality, decentralization, availability, messaging reliability, reasonable size and bandwidth properties that we explain in detail in this section. ".-}
+
+Polkadot provides the following properties to parachains:
+
+%\eray{Polkadot provides the following properties.}{-comment: This sentence by itself is strange and does not add any content. Either remove it or put some more explanation, e.g., ``Polkadot provides utility, finality, decentralization, availability, messaging reliability, reasonable size and bandwidth properties that we explain in detail in this section. ".-}
  
  \subsection{Utility}
 
  The state machine of each parachain in Polkadot provides a utility to the system participants. 
- \eray{It is ensured by state machines that interprets the willingness of a participant to pay for a transaction to be included}{-comment: This sentence does not have an object. It is not clear what is ensured. I did not understand it well, but here is what I got from it: `` State machines interpret the willingness of a participant to pay for a transaction."- }.  Polkadot governance mechanism enables participants to decide what state machines should be included based on needs of participants.
+ %\eray{It is ensured by state machines that interprets the willingness of a participant to pay for %a transaction to be included}{-comment: This sentence does not have an object. It is not clear what is ensured. I did not understand it well, but here is what I got from it: `` State machines interpret the willingness of a participant to pay for a transaction."- }.  
+ Polkadot governance mechanism enables participants to decide what state machines should be included based on needs of participants.
 
 
 
  \subsection{Validity}
-Validity of a new state of a parachain is defined by its own state transition function that defines how a parachain can move from \eray{a}{one} state to another \eray{state}{-remove-}.   Validators who are responsible to (in)validate and produce blocks in the relay chain  know these functions so that they can  check whether a given state of a parachain is valid or not.  In Polkadot, we have three levels of validity checks for each state of each parachain. The first-level check of a parachain state is executed by validators who are responsible for this parachain. These validators are called parachain validators and they shift from one parachain to another \eray{parachain}{-remove-} periodically. The second level of check is executed by staked parties called fishermen \eray{which}{who} report to validators if they see any invalid state to receive some reward. And the last level of check is executed by randomly chosen validators after the block including the state is produced. These checks guarantee that it is almost impossible to have a finalized invalid state in the relay chain.
+Validity of a new state of a parachain is defined by its own state transition function that defines how a parachain can move from one state to another.   Validators who are responsible to (in)validate and produce blocks in the relay chain  know these functions so that they can  check whether a given state of a parachain is valid or not.  In Polkadot, we have three levels of validity checks for each state of each parachain. The first-level check of a parachain state is executed by validators who are responsible for this parachain. These validators are called parachain validators and they shift from one parachain to another periodically. The second level of check is executed by fishermen. And the last level of check is executed by randomly chosen validators after the block including the state is produced. These checks guarantee that it is almost impossible to have a finalized invalid state in the relay chain.
 
  \subsection{Finality}
 
- It is necessary to provide finality on a state of a parachain  to provide a reliable communication in Polkadot so that parachains act by relying on the fact that the data provided by Polkadot related to other parachains will never change.  Polkadot provides the finality property via relay chain which is based on a heterogeneous consensus mechanism \eray{:}{that includes} provable \eray{consensus}{-remove-} and probable \eray{consensus}{consensuses}. The relay chain provides provable consensus with GRANDPA (GHOST-based Recursive ANcestor Deriving Prefix Agreement)  finality gadget. Validators are supposed to vote for a chain in GRANDPA  which has valid blocks (e.g., having valid states of parachains). The probable consensus is based on the block production mechanism of the relay chain that is called BABE (Blind Assignment for Blockchain Extension). BABE is a proof-of-stake based block production mechanism that privately and evenly assigns validators to produce blocks.
+ It is necessary to provide finality on a state of a parachain  to provide a reliable communication in Polkadot so that parachains act by relying on the fact that the data provided by Polkadot related to other parachains will never change.  Polkadot provides the finality property via relay chain which is based on a heterogeneous consensus mechanism that includes provable consensus and probable consensus. The relay chain provides provable consensus with GRANDPA (GHOST-based Recursive ANcestor Deriving Prefix Agreement)  finality gadget. Validators are supposed to vote for a chain in GRANDPA  which has valid blocks (e.g., having valid states of parachains). The probable consensus is based on the block production mechanism of the relay chain that is called BABE (Blind Assignment for Blockchain Extension). BABE is a proof-of-stake based block production mechanism that privately and evenly assigns validators to produce blocks.
 
 \subsection{Decentralization}
 
@@ -28,7 +32,7 @@ and we provide new and precise decentralization guarantees.
 
 
  \subsection{Availability}\label{sec:availability}
-The availability of data in parachains is very critical because only available data can be validated.  In Polkadot, we provide availability via erasure codes of data which are distributed to validators. Thus, when a validator \eray{needs}{-comment: needs or wants? If needs, what does he/she need?-}, he/she can contact with some subset of validators to construct \eray{it}{-comment: what does it refer to? Availability? -}. We guarantee that any state with some unavailable data cannot be finalized in the relay chain.
+The availability of data in parachains is very critical because only available data can be validated.  In Polkadot, we provide availability via erasure codes of data which are distributed to validators. Thus, when a validator needs to access to the data, he/she can contact with some subset of validators to construct it. We guarantee that any state with some unavailable data cannot be finalized in the relay chain.
 
 
 %TODO IN FUTURE: We may need to add more detail about the following two properties
