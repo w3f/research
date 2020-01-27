@@ -1,6 +1,8 @@
-\section{Heterogeneous sharding}
 
-We shall describe a blockchain sharding scheme through which a single beacon or {\em relay chain} can validate numerous heterogeneous shard chains, with true shared security, minimal latency, good liveness, and relative efficiency in terms of computation, network, and storage.  We refer to our shard chains by the term {\em parachains} because shard alone connotes a non-heterogeneous approach.  There exist terms for heterogeneous approaches too, but they all connote bridged designs without shared security.  
+\section{Heterogeneous sharding}
+% \label{sec:parachains} % sharding
+
+We shall describe a blockchain sharding scheme through which a single beacon or {\em relay chain} can validate numerous heterogeneous shard chains, with true shared security, minimal latency, good liveness, and relative efficiency in terms of computation, network, and storage.  We refer to our shard chains by the term {\em parachains} because shard alone connotes a non-heterogeneous approach.  There exist other terms for heterogeneous approaches too, but they all connote bridged designs without shared security.  
 
 \subsection{Chains}
 % \paragraph{Relay chain:}
@@ -28,7 +30,7 @@ We prefer if subscripts always denote higher level properties, like identifying 
 
 \subsection{Blocks}
 
-We normally prevent blocks from referencing data in other blocks directly, e.g. UTXOs, because doing so incurs unacceptable storage overhead.  Instead, all blockchains have some associated state for which blocks describe a state transition, normally stored as a Merkle tree.  As a brutal convenience, we further subsume the \handan{current state commitments}{what is current state commitment?} into our $\para$ notation.  We let $\hat{\para}$ denote the parachain state $\para$ but with full attached state required by collators, not just the state commitments. 
+We normally prevent blocks from referencing data in other blocks directly, e.g. UTXOs, because doing so incurs unacceptable storage overhead.  Instead, all blockchains have some associated state for which blocks describe a state transition, normally stored as a Merkle tree so that the Merkle root acts as a commitment to the entire state.  As a brutal convenience, we further subsume any current state commitments into our $\para$ notation.  We let $\hat{\para}$ denote the parachain state $\para$ but with full attached state required by collators, not just the state commitments. 
 % TODO: Expand \para into immutabel \para mutable \hat{para} with the commitments 
 
 Consider a block $B$.  We distinguish a header $B_{\mathsf{head}}$ and body $B_{\mathsf{body}}$ of a block $B = (B_{\mathsf{head}},B_{\mathsf{body}})$.  We ask that $B_{\mathsf{head}}$ contain $H(B_{\mathsf{body}})$ and commitments to the associated state before and after running $B$, normally Merkle roots.  
