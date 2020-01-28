@@ -91,7 +91,7 @@ $$ \para_i.\mathsf{seed} := H\left( r, \mathsf{sort} \setst{ V.\mathsf{pk} }{ V 
 
 We begin by assuming some abstract symmetric topology $\mathcal{T}$ on the set parachains, preferably a complete graph, i.e.\ diameter one.  Consider two parachains $\para_1$ and $\para_2$ with disjoint validator sets that are connected by an edge in $\mathcal{T}$.  We let $\mathsf{parashuffle}(\para_i,\para_{2-i})$ denote the Fisher-Yates shuffle of $\vals_{\para_i}$ seeded by $H( \para_i.\mathsf{seed}, \para_{2-i}.\mathsf{seed} )$.  We now define a topology $\mathcal{T}_e$ on the $\vals$ by connecting $\mathsf{parashuffle}(\para_1,\para_2)[j]$ to $\mathsf{parashuffle}(\para_2,\para_1)[j]$ for $j = 1,\ldots,\npvals$.
 
-We can adapt this scheme to varying $|\vals_{\para_i}|$ quite easily if not all parachains have the same number of assigned validators, i.e.\ if $\npvals$ turns out not to be well defined.  We can also do additional shuffles if more than one link is desired.  
+We can adapt this scheme to varying $|\vals_{\para_i}| \ge \npvals$ quite easily if not all parachains have the same number of assigned validators, i.e.\ if $\npvals$ is not tight.  We can also do additional shuffles if more than one link is desired.  
 % 
 If assigned two nodes cannot connect to one another, then any still online attempt connections with some random other nodes from the other parachain, or perhaps use some smarter scheme. 
 
