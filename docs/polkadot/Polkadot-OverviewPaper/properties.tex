@@ -14,26 +14,25 @@
 
 \subsection{Finality}
 
- It is necessary to provide finality on a state of a parachain  to provide a reliable communication in Polkadot so that parachains act by relying on the fact that the data provided by Polkadot related to other parachains will never change.  Polkadot provides the finality property via relay chain which is based on a heterogeneous consensus mechanism \eray{:}{that includes} provable \eray{consensus}{-remove-} and probable \eray{consensus}{consensuses}. The relay chain provides provable consensus with GRANDPA (GHOST-based Recursive ANcestor Deriving Prefix Agreement)  finality gadget. Validators are supposed to vote for a chain in GRANDPA  which has valid blocks (e.g., having valid states of parachains). The probable consensus is based on the block production mechanism of the relay chain that is called BABE (Blind Assignment for Blockchain Extension). BABE is a proof-of-stake based block production mechanism that privately and evenly assigns validators to produce blocks.
+\syed{}{We need a minimal definition of finality before we say finality is important to us} It is necessary to provide finality on a state of a parachain  to provide a reliable communication in Polkadot so that parachains act by relying on the fact that the data provided by Polkadot related to other parachains will never change.  Polkadot provides the finality property via relay chain which is based on a heterogeneous consensus mechanism \eray{:}{that includes} provable \eray{consensus}{-remove-} and probable \eray{consensus}{consensuses}. The relay chain provides provable consensus with GRANDPA (GHOST-based Recursive ANcestor Deriving Prefix Agreement)  finality gadget. Validators are supposed to vote for a chain in GRANDPA  which has valid blocks (e.g., having valid states of parachains). The probable consensus is based on the block production mechanism of the relay chain that is called BABE (Blind Assignment for Blockchain Extension). BABE is a proof-of-stake based block production mechanism that privately and evenly assigns validators to produce blocks.
 
 \subsection{Decentralization}
 
-In some of the most popular blockchain projects, there are concerns of centralization of power.
+\syed{In}{While decentralization has been one of the main motivation to adopt the blockchain model,} some of the most popular blockchain projects\syed{, there are concerns of centralization of power.}{are becoming more and more centralized.} 
 This centralization can be caused by several factors, such as
 a) a block-producer selection method where some minorities are over-represented or receive disproportionate power, or
 b) an incentive mechanism that concentrates wealth or encourages cartel formation.
 As we explain in the corresponding sections, our validator selection method (based on nominated proof-of-stake)
-as well as our incentive layer are particularly designed to fight centralization,
+as well as our incentive layer are particularly designed to \syed{fight}{defy/resist}  centralization,
 and we provide new and precise decentralization guarantees.
 
 
- \subsection{Availability}
+\subsection{Availability}
+\syed{}{We need a one-liner definition of each property before talking about it}
 The availability of data in parachains is very critical because only available data can be validated.  In Polkadot, we provide availability via erasure codes of data which are distributed to validators. Thus, when a validator \eray{needs}{-comment: needs or wants? If needs, what does he/she need?-}, he/she can contact with some subset of validators to construct \eray{it}{-comment: what does it refer to? Availability? -}. We guarantee that any state with some unavailable data cannot be finalized in the relay chain.
 
-
-
 %TODO IN FUTURE: We may need to add more detail about the following two properties
-\subsection{Messaging Reliability} Polkadot provides message reliability by regulating and ordering what messages have been sent and received by which parachain or parathread.
+\subsection{Messaging Reliability} Polkadot provides message reliability by regulating and ordering what \syed{messages}{what messages? we need context here} have been sent and received by which parachain or parathread.
 
 \subsection{Reasonable Size and Bandwidth} In Polkadot, the block size is selected carefully with respect to scalability and security. 
 \eray{}{-comment: What is the block size? If mentioned in the coming sections, refer to that. The title has bandwidth, but nothing is mentioned about it.-}
