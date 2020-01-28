@@ -1,5 +1,12 @@
 \documentclass{article}
 %=================Begin:Packages===================
+\usepackage[english]{babel}
+\usepackage{mathtools}
+\usepackage{hyperref}
+
+\mathtoolsset{showonlyrefs=true}
+\addto\extrasenglish{ \renewcommand{\sectionautorefname}{\S} \let\subsectionautorefname\sectionautorefname \let\subsubsectionautorefname\sectionautorefname }
+
 \usepackage{graphicx}
 \usepackage{bmpsize}
 
@@ -97,20 +104,19 @@
 	In this paper we describe the design components of the heterogenous multi-chain Polkadot.
 We review the properties that Polkadot aims to achieve and go over all the components that are designed to achieve those properties.
 
-\eray{}{-comment:Should we use British or American English? Other than punctuation, use of commas etc, I noticed using the letter z or s in words like incentivizing vs. incentivising. Better to decide on which one will be used and make it consistent throughout the paper.-}
-
-\eray{}{-comment: Capitalization in captions are not consistent, e.g., 2.7. Reasonable Size and Bandwidth vs 4.1.Nominated proof-of-stake and validator selection. Either capitalize all or do the other way around.-}
-
-\eray{}{-comment: Should we use dot instead of DOT as suggested by Zeke in his email?-}
-
-\eray{}{-comment: It would be mention the time scales in the network somewhere in the beginning, e.g., with a simple figure for slot time, epoch, era, and mention how long they are. I couldn't find these time scales easily when I was searching for them.-}
-
 \end{abstract}
 
 %\newpage
 \tableofcontents
 \newpage
 \input{introduction}
+<<<<<<< HEAD
+=======
+
+\syed{}{preliminaries should go before properties perhaps. There are lots of terms that are used in properties which need to be defined}
+
+\input{properties}
+>>>>>>> syed-properties-review
 \input{preliminaries}
 \input{properties}
 \input{components}
