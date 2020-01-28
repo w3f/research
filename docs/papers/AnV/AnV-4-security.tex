@@ -30,15 +30,15 @@ If there is one honest $PV$ and there is not any $f+1$ unavailability report, th
 Therefore, all parachain validators have to be malicious not to be caught. 
 If there is at least one honest validator who is assigned for an extra validity check with either of the conditions, then the same case happens as having at least one honest parachain validator. Therefore, an invalid block cannot be detected (the attack succeeds) if all parachain validators are malicious and all extra check validators are malicious as well. 
 
-Remark that the extra check conditions (\ref{cond:mod}) and (\ref{cond:time})  with $\tau = 0$ and (\ref{cond:equiv}) and (\ref{cond:modequiv}) guarantees that the expected number of checks by parachain validators and the extra check validators is $\vcheck$. %In addition to this, the selection mechanism of parachain and extra check validators  guarantees with a overwhelming probability that each validator is responsible from only one parachain as an either extra-check validator or parachain validator. 
-Therefore, we can consider that the parachain validator and extra-validator selection mechanism actually randomly samples $\vcheck$ validators for each parachain. So, the probability of all selected validators for a particular parachain being malicious is bounded by $(\frac{1}{3})^{\vcheck}$. See \ref{lem:permutation} for the details.
+Remark that the extra check conditions (\ref{cond:mod}) and (\ref{cond:time})  with $\tau = 0$ and (\ref{cond:equiv}) and (\ref{cond:modequiv}) guarantees that the expected number of checks by parachain validators and the extra check validators is $\totalchecks$. %In addition to this, the selection mechanism of parachain and extra check validators  guarantees with a overwhelming probability that each validator is responsible from only one parachain as an either extra-check validator or parachain validator. 
+Therefore, we can consider that the parachain validator and extra-validator selection mechanism actually randomly samples $\totalchecks$ validators for each parachain. So, the probability of all selected validators for a particular parachain being malicious is bounded by $(\frac{1}{3})^{\totalchecks}$. See \ref{lem:permutation} for the details.
 
 \end{proof}
 
 
 
 \begin{theorem}\label{thm:vcheckmal}
-Given that $\vcheck$ malicious validators are eligible to check the validity of a block header, the invalidity attack is bounded by the probability  $\exp(-\frac{2}{3}(\mu+r))$ if $\mu + r < n/m$ and the probability $\exp(-\frac{2n}{3m})$ if $\mu + r \geq n/m$.
+Given that $\totalchecks$ malicious validators are eligible to check the validity of a block header, the invalidity attack is bounded by the probability  $\exp(-\frac{2}{3}(\mu+r))$ if $\mu + r < n/m$ and the probability $\exp(-\frac{2n}{3m})$ if $\mu + r \geq n/m$.
 \end{theorem}
 
 \begin{proof}
@@ -50,7 +50,7 @@ $$\Pr[\text{Cond. (\ref{cond:time}) at time } \tau] = p_\tau =  \frac{\mu'}{n - 
 $$\Pr[\text{Cond. (\ref{cond:equiv}) }] = \frac{\mu'}{n - nc} $$
 
 
-We assume that $\npvals = \frac{n}{m}$.  The number of $\vcheck-\npvals = \mu + r$ malicious validators can be selected for the extra check with the following cases:
+We assume that $\npvals = \frac{n}{m}$.  The number of $\totalchecks-\npvals = \mu + r$ malicious validators can be selected for the extra check with the following cases:
 
 \begin{enumerate}
     
@@ -106,13 +106,13 @@ We assume that $\npvals = \frac{n}{m}$.  The number of $\vcheck-\npvals = \mu + 
 %Here, we consider $r_a = 0$ to compute the maximum attack probability and $c_f' = \lceil r_f \rceil$. We do not take $r_f = 0$, because we assume that there is always at least one fisherman.
 
 
-%a parachain validator does not know who are the extra-check validators except the malicious validators if they are assigned to extra check. This comes from the VRF security. So , since $H$ is a random oracle, $B$ is derived from a uniform distribution between $[0,1]$. Therefore, the probability of a validator is assigned to be an investigator at time $\tau$ given that not enough validity check (i.e., $|\mathcal{I}| < \vcheck$) is done before $\tau$ is:
+%a parachain validator does not know who are the extra-check validators except the malicious validators if they are assigned to extra check. This comes from the VRF security. So , since $H$ is a random oracle, $B$ is derived from a uniform distribution between $[0,1]$. Therefore, the probability of a validator is assigned to be an investigator at time $\tau$ given that not enough validity check (i.e., $|\mathcal{I}| < \totalchecks$) is done before $\tau$ is:
 
-%$$p_{\tau} = \frac{\vcheck - \npvals}{|\V|-\npvals}+\tau  = \frac{1+\lceil \runav + \rinv \rceil}{n-nc}+ \tau$$
+%$$p_{\tau} = \frac{\totalchecks - \npvals}{|\V|-\npvals}+\tau  = \frac{1+\lceil \runav + \rinv \rceil}{n-nc}+ \tau$$
 
 %assuming that $|PV| = nc$ where $c \in (0,1)$.
 
-%Remark that when $\tau$ increases meaning that when the time increases without having sufficient validity check, $p_{\tau}$ increases and reaches 1 at some time. For simplicity, we divide time in discrete values $[\tau_0 = 0, \tau_1 =\mu', \tau_2 = 2\mu', ..., \tau_k = k\mu']$ where $k\mu'$ is the time when the number of malicious parties in $\mathcal{I}$ is $\vcheck$. This time can be computed by malicious validators before the validation process begins. In any case, the only way not to be caught is not to have any honest extra-check validator until $k\mu'$. The probability of this is the following given that  the number of malicious parties in $\mathcal{I}$ is $\vcheck$:
+%Remark that when $\tau$ increases meaning that when the time increases without having sufficient validity check, $p_{\tau}$ increases and reaches 1 at some time. For simplicity, we divide time in discrete values $[\tau_0 = 0, \tau_1 =\mu', \tau_2 = 2\mu', ..., \tau_k = k\mu']$ where $k\mu'$ is the time when the number of malicious parties in $\mathcal{I}$ is $\totalchecks$. This time can be computed by malicious validators before the validation process begins. In any case, the only way not to be caught is not to have any honest extra-check validator until $k\mu'$. The probability of this is the following given that  the number of malicious parties in $\mathcal{I}$ is $\totalchecks$:
 
 %\begin{align}
 % \Pr[\mathsf{attack} = 1] = \prod_{i = 0}^k(1-p_{\tau_i})^{2f+1} \leq (1-p_{\tau_0})^{2f+1} &\leq (1-\frac{1+c'_f}{n(1-c)}) ^{\frac{2}{3}n} \nonumber \\
@@ -127,7 +127,7 @@ We assume that $\npvals = \frac{n}{m}$.  The number of $\vcheck-\npvals = \mu + 
 
 \section{Practical Results}
 
-As it can be seen from the proof of theorem \ref{thm:valid}, malicious validators can attack the validity protocol with probability $(\frac{1}{3})^{\vcheck}$. Remember that $\vcheck = \npvals + \mu + r$ where $r = \lceil r_a + r_f \rceil$. If we assume that parachain validators change in every $x$ minutes, the malicious parties need to wait $x3^{\vcheck}$ minutes in order to succeed the attack. For example, if $x = 5$ minutes, then the total time for an attack for each $\vcheck$ is given in Figure \ref{fig:totaltime}:
+As it can be seen from the proof of theorem \ref{thm:valid}, malicious validators can attack the validity protocol with probability $(\frac{1}{3})^{\totalchecks}$. Remember that $\totalchecks = \npvals + \mu + r$ where $r = \lceil r_a + r_f \rceil$. If we assume that parachain validators change in every $x$ minutes, the malicious parties need to wait $x3^{\totalchecks}$ minutes in order to succeed the attack. For example, if $x = 5$ minutes, then the total time for an attack for each $\totalchecks$ is given in Figure \ref{fig:totaltime}:
 
 
 \begin{figure}[h]\centering
@@ -136,12 +136,12 @@ As it can be seen from the proof of theorem \ref{thm:valid}, malicious validator
 	  \label{fig:totaltime}
 \end{figure}
 
-As it can be seen,  if $\vcheck$ is more than 14, the adversary needs to wait more than 50 years for the attack. Therefore, in terms of security, it is important to have  minimum $\vcheck$ validators.
+As it can be seen,  if $\totalchecks$ is more than 14, the adversary needs to wait more than 50 years for the attack. Therefore, in terms of security, it is important to have  minimum $\totalchecks$ validators.
 
 \paragraph{The parameter $\mu$:} The possible $\mu$ (minimum number of extra check) values:
 
 \begin{itemize}
-    \item If $\mu = 0$, then $|pv| = 14$ in order to make sure that minimum $\vcheck$ is always equal to $14$. Given that $|pv| = n/m$ where $m$ is the number of parachain validators $n = 14 * m$. 
+    \item If $\mu = 0$, then $|pv| = 14$ in order to make sure that minimum $\totalchecks$ is always equal to $14$. Given that $|pv| = n/m$ where $m$ is the number of parachain validators $n = 14 * m$. 
     
     \item If $\mu > 0$, then $|pv| < 14$. It means that we need less validators for the security than in the case where $\mu = 0$. Less validators imply less network delay and less network delay implies more secure BABE. On the other hand, if $\mu$ increases, it means that more validators need to reconstruct a blob in order to check the validity. So, validators need to do more work. In terms of scalability of the relay chain, we need to decide $\mu$. 
 \end{itemize}
@@ -150,15 +150,15 @@ As rule of thumb, if we don't care about the number of validators as far as it i
 Another disadvantage of having $\mu = 0$ is that parachain validators have a less risky attack  when all of them are malicious. Imagine a parachain with a few collators. We can assume that they may be malicious and collaborate with the malicious validators. In this case, the validators will not have any report. So, there will be 0 extra checks. As soon as all parachain validators are malicious in this malicious parachain, they can add invalid block headers and cannot be caught. The security argument says here that they need to wait around 50 years for this, so the attack is not possible. However, in the real life, since the attack does not have any risk, the collators can bribe parachain validators with their stake and parachain validators validate an invalid blob.
 
 
-Theorem \ref{thm:vcheckmal} gives the risk that  malicious validators take at  when they put an invalid report.  If $\mu + r \leq n/m$, the invalid block will not be detected with probability $\exp(-\frac{2}{3}(\mu+r))$. In the worst case scenario, if no report is received then the attack probability is $\exp(-\frac{2}{3}(\mu))$. We give in Figure \ref{fig:mu} that the probability of a successful attack in the case of $\vcheck$ malicious validators are selected. As it can be seen in Figure \ref{fig:mu}, their risk is exponentially increasing when $\mu$ increases. In order to make the risk close to 0 even if no report received, $\mu$ should be greater than $4$.
+Theorem \ref{thm:vcheckmal} gives the risk that  malicious validators take at  when they put an invalid report.  If $\mu + r \leq n/m$, the invalid block will not be detected with probability $\exp(-\frac{2}{3}(\mu+r))$. In the worst case scenario, if no report is received then the attack probability is $\exp(-\frac{2}{3}(\mu))$. We give in Figure \ref{fig:mu} that the probability of a successful attack in the case of $\totalchecks$ malicious validators are selected. As it can be seen in Figure \ref{fig:mu}, their risk is exponentially increasing when $\mu$ increases. In order to make the risk close to 0 even if no report received, $\mu$ should be greater than $4$.
 
 \begin{figure}[h]\centering
 	  \includegraphics[width=12cm]{images/muval.png}
-	  \caption{The risk of malicious validators when they attack even if $\vcheck$ validators are malicious}
+	  \caption{The risk of malicious validators when they attack even if $\totalchecks$ validators are malicious}
 	  \label{fig:mu}
 \end{figure}
 
-\paragraph{Fisherman and Collator Reports:} In the validity scheme, we rely on the invalidity reports of fishermen and unavailability reports of collators to find the parameter $ \vcheck $. However, we need to bound $\vcheck$ so that these reports do not make too many validators check the validity. Let us call this bound $\mu_{max}$ (i.e, $\mu + \lceil r_f + r_a \rceil \leq \mu_{max}$). This bound is necessary because regular malicious reports can slow down the process easily. 
+\paragraph{Fisherman and Collator Reports:} In the validity scheme, we rely on the invalidity reports of fishermen and unavailability reports of collators to find the parameter $ \totalchecks $. However, we need to bound $\totalchecks$ so that these reports do not make too many validators check the validity. Let us call this bound $\mu_{max}$ (i.e, $\mu + \lceil r_f + r_a \rceil \leq \mu_{max}$). This bound is necessary because regular malicious reports can slow down the process easily. 
 
 When a fisherman sends a report of invalidity, but later on it is found to be valid, the fisherman is slashed. Therefore, the reliability of a fisherman report can be measured by how much it is staked. 
 Considering this, $r_f$ can be computed as follows:

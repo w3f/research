@@ -38,9 +38,9 @@ With the unavailability protocol, we can detect the block headers whose pieces a
 
 
 We first give some parameters before giving the details of the protocol.
-The first parameter $\vcheck$ defines the total number of validator checks needed for a block header.
+The first parameter $\totalchecks$ defines the total number of validator checks needed for a block header.
 
-$$\vcheck = \npvals + \mu +\lceil \runav + \rinv \rceil$$
+$$\totalchecks = \npvals + \mu +\lceil \runav + \rinv \rceil$$
 
 Here, $\mu$ specifies the minimum number of checks, $\runav$ is the unavailability report factor from collators and $\rinv$ is the invalidity report factor from fishermen who claim invalidity for the relevant block. 
 
@@ -68,7 +68,7 @@ There is a three-factor validity check during the availability protocol:
     \begin{equation}\label{cond:mod}
         ID_{PC} = \mathtt{VRF}_{\sk^v_{j}}(r_{t}) \mod m    
     \end{equation}
-     Here, $ID_{PC} \in \mathbb{N}$ is the identifier of a parachain $PC$ and $r_{t}$ is the VRF randomness of the block producer of slot $t$ in the relay chain (See \href{http://research.web3.foundation/en/latest/polkadot/BABE/Babe/}{BABE} for the details of $r_t$). For the current time $T$ where $T > \grace$, if  less than $\vcheck$ amount of checks are completed with condition (\ref{cond:mod}) or $\mu + \lceil r_a + r_f \rceil < n/m$ , each validator $V_j$ checks the following condition:
+     Here, $ID_{PC} \in \mathbb{N}$ is the identifier of a parachain $PC$ and $r_{t}$ is the VRF randomness of the block producer of slot $t$ in the relay chain (See \href{http://research.web3.foundation/en/latest/polkadot/BABE/Babe/}{BABE} for the details of $r_t$). For the current time $T$ where $T > \grace$, if  less than $\totalchecks$ amount of checks are completed with condition (\ref{cond:mod}) or $\mu + \lceil r_a + r_f \rceil < n/m$ , each validator $V_j$ checks the following condition:
      \begin{equation}\label{cond:time}
         H(ID_{PC} || \mathtt{VRF}_{\sk^v_j}(r_t)) < \frac{\mu + \lceil r_a + r_f \rceil - \theta}{\nvals-\npvals}+\tau  
     \end{equation}
@@ -83,14 +83,14 @@ There is a three-factor validity check during the availability protocol:
     \end{equation}
     
     \begin{equation}\label{cond:equiv}
-         H(ID_{PC} || \mathtt{VRF}_{\sk^v_j}(H_{B})) < \frac{\vcheck - \npvals}{\nvals-\npvals}   
+         H(ID_{PC} || \mathtt{VRF}_{\sk^v_j}(H_{B})) < \frac{\totalchecks - \npvals}{\nvals-\npvals}   
     \end{equation}
     
      where $H_B$ is the hash of the relay chain block whose VRF randomness is $r_t$. Remark that we have greater number of checks for equivocation because it is a sign of malicious activity. Malicious validators can see who is in condition (\ref{cond:mod}) or (\ref{cond:time}) and if there is  no honest validator with the conditions (\ref{cond:mod}) or (\ref{cond:time}), they can equivocate which includes an invalid block. Therefore, we need different conditions than the condition (\ref{cond:mod}) and the condition (\ref{cond:time}).
     
     When $V_j$ satisfies the condition (\ref{cond:mod}), (\ref{cond:time}), (\ref{cond:modequiv}) or (\ref{cond:equiv}), $V_j$ has a right to check the validity. For this, it follows the extra validity check protocol.
     
-    We note that if number of $\vcheck$ validators satisfy the condition (\ref{cond:mod}) or (\ref{cond:time} ) for a parachain with the identifier $ID_{PC}$ and no equivocation exist, then satisfying condition (\ref{cond:modequiv}) or (\ref{cond:equiv}) does not get rewarded.
+    We note that if number of $\totalchecks$ validators satisfy the condition (\ref{cond:mod}) or (\ref{cond:time} ) for a parachain with the identifier $ID_{PC}$ and no equivocation exist, then satisfying condition (\ref{cond:modequiv}) or (\ref{cond:equiv}) does not get rewarded.
     
 \end{enumerate}
 
@@ -120,7 +120,7 @@ In the end of the validity protocol, if at least $f+1$ signatures are given by t
 
 \underline{\textbf{Fisherman}} 
 
-\emph{Slashing:} If at least $\vcheck$ validators sign saying that the block is valid, then fishermen with the claim saying the block is invalid are slashed. All the claims from these fishermen are ignored in future.
+\emph{Slashing:} If at least $\totalchecks$ validators sign saying that the block is valid, then fishermen with the claim saying the block is invalid are slashed. All the claims from these fishermen are ignored in future.
 
 \emph{Rewarding:} If $f+1$ validators sign to say the block is invalid, the  fishermen with the claim saying that the block is invalid are rewarded.
 
