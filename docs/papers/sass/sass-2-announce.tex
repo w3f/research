@@ -52,7 +52,7 @@ We denote the validator set of an era by the array $ \vals $.  In this notation,
 We could define our initial chain state using a secret sharing scheme like Schoenmakers' PVSS \cite{Schoenmakers_PVSS}, except we foresee an extremely limited initial block producer pool.  
 Instead, we suggest doing a ``soft launch'' in which all block producers create almost all their blocks as yielding similar security and confidence to PVSS. 
 
-We initialize this soft launch by selecting some initial \rinit values from which we define any initial $r_e$ values and choose some initial block production sequence. 
+We initialize this soft launch by selecting some initial $ \rinit $ values from which we define any initial $r_e$ values and choose some initial block production sequence. 
 
 An initial block production sequence should be defined by a Ficher-Yates shuffle, with randomness supplied by the CSPRNG $\mathsf{ChaCha}(\rinit,e,\cdot)$.  We stretch this over as many epochs as required running one shuffle for each epoch because this stream cipher produces almost unlimited randomness.
 
