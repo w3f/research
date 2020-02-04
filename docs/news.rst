@@ -1,6 +1,12 @@
 ====
 News
 ====
+**13.01.20**
+    We published a medium blogpost on `XCMP <https://medium.com/web3foundation/polkadots-messaging-scheme-b1ec560908b7>`. 
+
+**20.12.19** 
+    We updated our `XCMP implementation considerations <https://research.web3.foundation/en/latest/polkadot/XCMP.html>`. 
+
 **05.12.19**
     Handan has finished a paper titled: `Consensus on Clock in Universally Composable Timing Model <https://eprint.iacr.org/2019/1348.pdf>`_. It is an updated version of Ouroboros Clepsydra that doesn’t rely on existence of some syncronized parties anymore.
     
