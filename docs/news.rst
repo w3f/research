@@ -2,7 +2,7 @@
 News
 ====
 **13.01.20**
-    We published a medium blogpost on `XCMP <https://medium.com/web3foundation/polkadots-messaging-scheme-b1ec560908b7>`_.
+    We published a medium blogpost on `XCMP <https://medium.com/web3foundation/polkadots-messaging-scheme-b1ec560908b7>`_ giving an overall overview of XCMP and descriping a number of design decisions. 
 
 **20.12.19**
     We updated our `XCMP implementation considerations <https://research.web3.foundation/en/latest/polkadot/XCMP.html>`_. 
