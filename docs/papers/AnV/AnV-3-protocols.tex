@@ -102,10 +102,10 @@ We have described this as $V$ initiating the connection, but a similar procedure
 If $\vals[i_{\para'}]$ cannot reach $V$ then $\vals[i_{\para'}]$ must select some backup node to replace $V$.  Assuming $\mathcal{T}$ is complete, we should distribute these evenly among $\vals_\para \setminus \{V\}$, so as one option $\vals[i_{\para'}]$ could perform a Fisher-Yates shuffle of $\vals_\para \setminus \{V\}$, seeded by its own identity $\vals[i_{\para'}].\mathsf{pk}$ and $\para.\mathsf{seed}$, and then contact those remaining parachain validators in the resulting order.  We caution this option breaks the topology's symmetry, so as noted above nodes might exploit whatever links work first, and only take guidance from this shuffle when creating new links.  If $\mathcal{T}$ is not complete then alternative approaches that choose another parachain work too.  
 
 If $\mathcal{T}$ is not complete then intermediate nodes must forward pieces for other nodes.  In fact, the diameter of $\mathcal{T}$ equals the maximum number of hops required for $\mathcal{T}_e$ to distribute each piece.  
-In practice, we also expect these edges in $\mathcal{T}_e$ the two nodes
+In practice, these edges in $\mathcal{T}_e$ ro be the two nodes
 % $\mathsf{parashuffle}(\para_1,\para_2)[j]$ to $\mathsf{parashuffle}(\para_2,\para_1)[j]$
 maintaining a UDP protocol like QUIC connection because UDP should permit higher valency than TCP and hence permit a lower diameter $\mathcal{T}$.  
-We shall also evaluate other topologies besides $\mathcal{T}_e$ whenever going beyond complete $\mathcal{T}$ proves necessary.
+We should evaluate other topologies besides $\mathcal{T}_e$ before going beyond complete $\mathcal{T}$ proves necessary, but our symmetry property provided by $\mathcal{T}_e$ remains important. 
 
 We admitted adversarial manipulation of our network topology here, but it sounds acceptable for our availability scheme, at least with $\mathcal{T}$ complete.  We shall consider whether this impacts gossip protocols in future work. 
 % TODO:  Future work?  Here below?
