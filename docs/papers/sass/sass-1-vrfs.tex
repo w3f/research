@@ -5,7 +5,7 @@
 % ...
 % \subsection{...}
 
-A {\em verifiable random function (VRF) is a cryptographic function that generates a pseudo-random output number from a given a secret key $\skvrf$ and an input string $\alpha$ called a seed, and produces a proof of correctness for the output.  Anyone with the input and the corresponding public key $\pkvrf$ can verify the correctness of the VRF output, but only the secret key holder could compute this output.  In a sence, VRFs resemble a public-key analog of a cryptographic hash function with a distinguished key, such as MACs that acts as PRFs, in that a keyed hash function requires the key be shared for verification. 
+A {\em verifiable random function (VRF)} is a cryptographic function that generates a pseudo-random output number from a given a secret key $\skvrf$ and an input string $\alpha$ called a seed, and produces a proof of correctness for the output.  Anyone with the input and the corresponding public key $\pkvrf$ can verify the correctness of the VRF output, but only the secret key holder could compute this output.  In a sence, VRFs resemble a public-key analog of a cryptographic hash function with a distinguished key, such as MACs that acts as PRFs, in that a keyed hash function requires the key be shared for verification. 
 
 All known elliptic curve VRFs compute some point $\gamma = \skvrf * H_1(\alpha)$ where $H_1$ hashes to the curve, and provides some correctness proof.  We cannot claim $\gamma$ is pseudo-random because elliptic curve points are not strings and these outputs are related.  Instead, we always follow the 2Hash-DH construction from Theorem 2 on page 32 in appendix C of \cite{Praos} which treats $\gamma$ as a key for an actual PRF $\omega = H(\mathtt{ctx} || h \gamma || \alpha)$ where $h$ is the cofactor.  
 
@@ -34,10 +34,10 @@ An adversary with only knowledge of $\pkvrf$, not $\skvrf$, and who adaptively q
 \end{itemize}
 % TODO: What unforgeability does the SNARK give? 
 
-Any valid key pair $\pkvrf,\skvrf$, there is a map $f_{\pkvrf}(\alpha) = \VRF.\Out(\VRF.\Sign_\skvrf(\alpha))$ upon which we impose additional PRF criteria.  We need $\gamma_i = f_{\pkvrf}(\alpha_i)$ in the above notation, so $\omega_i$ depends only upon $\skvrf$ and $\alpha$, not $i$.
+Any valid key pair $\pkvrf,\skvrf$, there is a map $f_{\pkvrf}(\alpha) = \VRF.\Out(\VRF.\Sign_{\skvrf}(\alpha))$ upon which we impose additional PRF criteria.  We need $\gamma_i = f_{\pkvrf}(\alpha_i)$ in the above notation, so $\omega_i$ depends only upon $\skvrf$ and $\alpha$, not $i$.
 \begin{itemize}
 \item {\em Uniqueness}
-An adversary with full knowledge of $\skvrf$ has negligible chances to produce a proof $\pi$ for which some $\VRF.\Verify_{\pkvrf}(\alpha,m,\pi)$ passess for the $\pkvrf$ associated to $\skvrf$, but $\VRF.\Out(\pi) \ne f_\skvrf(\alpha)$.
+An adversary with full knowledge of $\skvrf$ has negligible chances to produce a proof $\pi$ for which some $\VRF.\Verify_{\pkvrf}(\alpha,m,\pi)$ passess for the $\pkvrf$ associated to $\skvrf$, but $\VRF.\Out(\pi) \ne f_{\skvrf}(\alpha)$.
 \item {\em Unpredictability}
 An adversary with only knowledge of $\pkvrf$, not $\skvrf$, has negligible chances to guess the $f_{\pkvrf}(\alpha)$ corresponding to any inout seed $\alpha$.
 \item {\em Pseduo-randomness}
@@ -49,7 +49,7 @@ We always ensure this PRF assumption using the 2Hash-DH construction from Theore
 In principle, one might explore weaker public-key pseduo-randomness assumptions, in which an adversary is given either oracle access to $\VRF.\Verify_{\pkvrf}$, etc., or else a model of these methods built from a truly random function, but any useful such definition appears identical to our PRF assumption in practice.
 % TODO: Is this correct Handan?  Is this just equivelent?  If so, citation?  2Hash-DH resut?
 
-In recent years, we witnessed an explosion of protocols that exploit related keys $\pkvrf_1 = k \pkvrf_2$ with public $k$, including reasonable protocols like the Tor Onion Services v3 \cite{TorRendSpecV3}, and dangerous customs like BIP32 \cite{BIP32}.  All related keys protocols create related key attacks on our unpredictability assumption, so VRF users must include $\pkvrf$ in the input seed $\alpha$ when also using related keys protocols.  As discussed below we avoid these extra $\pkvrf$ uses for reasons discussed in the next section, instead opting to avoid related key protocols.
+In recent years, we witnessed an explosion of protocols that exploit related keys ${\pkvrf}_1 = k {\pkvrf}_2$ with public $k$, including reasonable protocols like the Tor Onion Services v3 \cite{TorRendSpecV3}, and dangerous customs like BIP32 \cite{BIP32}.  All related keys protocols create related key attacks on our unpredictability assumption, so VRF users must include $\pkvrf$ in the input seed $\alpha$ when also using related keys protocols.  As discussed below we avoid these extra $\pkvrf$ uses for reasons discussed in the next section, instead opting to avoid related key protocols.
 
 There exist VRFs with $\pi = (\gamma)$ aka $\pi' = \emptyset$ like BLS signatures and RSA-FDH signatures that satisfy many of our assumptions, but only some weaker unforgability notion.  In particular, our trick for increasing $n$ permits combining multiple BLS signatures, which violates EUF-CMA.  
 % TODO: Are BLS signatures EUF-CMA ever anyways?
