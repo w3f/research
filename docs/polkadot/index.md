@@ -27,7 +27,12 @@ The data that determines the state transitions is structured as bundles of trans
 
 ## 1. Identifying participants to run the network
 
-![Data structure](images/data_structure.png)
+<figure>
+<center>
+<img  src="images/data_structure.png" width="600" class="verticalcenter"/>
+<figcaption> <b>Figure 3 - Data structure</b></figcaption>
+</center>
+</figure>
 
 ### 1.1 Keys
 
@@ -58,7 +63,12 @@ Use the same validator set for BABE as for GRANDPA as to avoid paying more in to
 
 ## 2. Ensuring state transition properties
 
-![State transition properties](images/properties.png)
+<figure>
+<center>
+<img  src="images/properties.png" width="600" class="verticalcenter"/>
+<figcaption> <b>Figure 4 -State transition properties</b></figcaption>
+</center>
+</figure>
 
 ### 2.1 Utility
 
