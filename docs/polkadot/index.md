@@ -15,10 +15,8 @@ The research focuses on how to enable having such publicly available system in t
 So let us start with abstract state machines. A state machine has a certain state type and state transition type. As the time goes on, state transitions occur.
 
 <figure>
-<center>
-<img  src="images/block_to_transition.png" width="600" class="verticalcenter"/>
+<img  src="images/block_to_transition.png" width="600"/>
 <figcaption> <b>Figure 2 - Block to transition.</b></figcaption>
-</center>
 </figure>
 
 The data that determines the state transitions is structured as bundles of transactions - individual small state transitions triggered by the users of the system. Each bundle is called a block. In order to achieve its properties, ensures that those blocks are hash connected forming joint data structure.
@@ -26,16 +24,13 @@ The data that determines the state transitions is structured as bundles of trans
 ## 1. Identifying participants to run the network
 
 <figure>
-<center>
-<img  src="images/data_structure.png" width="600" class="verticalcenter"/>
+<img  src="images/data_structure.png" width="600"/>
 <figcaption> <b>Figure 3 - Data structure</b></figcaption>
-</center>
 </figure>
 
 ### 1.1 Keys
 
 To identify unique individual participants that will perform duties on the network we use public key cryptography. You can read more about our approach [here](https://research.web3.foundation/en/latest/polkadot/keys/) and see the particular crypto for the first implementation in the [Schnorrkel repo](https://github.com/w3f/schnorrkel).
-
 
 Validator keys indicated by the staking key are:
  - transport layer: ed25519
@@ -62,10 +57,8 @@ Use the same validator set for BABE as for GRANDPA as to avoid paying more in to
 ## 2. Ensuring state transition properties
 
 <figure>
-<center>
-<img  src="images/properties.png" width="600" class="verticalcenter"/>
+<img  src="images/properties.png" width="600"/>
 <figcaption> <b>Figure 4 -State transition properties</b></figcaption>
-</center>
 </figure>
 
 ### 2.1 Utility
