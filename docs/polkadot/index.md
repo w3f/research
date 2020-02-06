@@ -11,19 +11,15 @@ The research focuses on how to enable having such publicly available system in t
 
 So let us start with abstract state machines. A state machine has a certain state type and state transition type. As the time goes on, state transitions occur.
 
-<figure>
-<img  src="images/block_to_transition.png" width="600"/>
-<figcaption> <b>Figure 2 - Block to transition.</b></figcaption>
-</figure>
+![Figure 2 - Block to transition](images/block_to_transition.png)
+
 
 The data that determines the state transitions is structured as bundles of transactions - individual small state transitions triggered by the users of the system. Each bundle is called a block. In order to achieve its properties, ensures that those blocks are hash connected forming joint data structure.
 
 ## 1. Identifying participants to run the network
 
-<figure>
-<img  src="images/data_structure.png" width="600"/>
-<figcaption> <b>Figure 3 - Data structure</b></figcaption>
-</figure>
+![Figure 3 - Data structure](images/data_structure.png)
+
 
 ### 1.1 Keys
 
@@ -53,10 +49,8 @@ Use the same validator set for BABE as for GRANDPA as to avoid paying more in to
 
 ## 2. Ensuring state transition properties
 
-<figure>
-<img  src="images/properties.png" width="600"/>
-<figcaption> <b>Figure 4 -State transition properties</b></figcaption>
-</figure>
+![Figure 4 -State transition properties](images/properties.png)
+
 
 ### 2.1 Utility
 
