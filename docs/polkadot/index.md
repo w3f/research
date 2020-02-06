@@ -6,7 +6,7 @@ Polkadot speaking in abstract terms provides a number of connected finalising st
 
 <figure>
 <center>
-<img  src="images/whole.png" width="600" class="verticalcenter"/>
+<img  src="images/whole.png" width="600" />
 <figcaption> <b>Figure 1 - Data structures and participants.</b></figcaption>
 </center>
 </figure>
