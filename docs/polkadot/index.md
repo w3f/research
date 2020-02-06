@@ -5,7 +5,7 @@ This article summarizes the research efforts relevant to the Polkadot project, f
 Polkadot speaking in abstract terms provides a number of connected finalising state machines. Connected means that a state transition of one machine can affect a transition of another machine. The state machines are final, since most networks participants agree on their state after some time. We would also like to enable adding, removing and changing of the state machines as the time goes on to ensure utility.
 
 <figure>
-<img  align="center" src="images/whole.png" width="600" alt="Data structures and participants"/>
+<img  align="middle" src="images/whole.png" width="700" alt="Data structures and participants"/>
 <figcaption>Fig.1 - Data structures and participants.</figcaption>
 </figure>
 
