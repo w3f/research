@@ -14,15 +14,11 @@ So let us start with abstract state machines. A state machine has a certain stat
 
 The data that determines the state transitions is structured as bundles of transactions - individual small state transitions triggered by the users of the system. Each bundle is called a block. In order to achieve its properties, ensures that those blocks are hash connected forming joint data structure.
 
-## 1. Specification of the Polkadot Runtime Environment
-
-We are working on a implementation level specification of the protocol [here](https://github.com/w3f/polkadot-re-spec).
-
-## 2. Identifying participants to run the network
+## 1. Identifying participants to run the network
 
 ![Data structure](images/data_structure.png)
 
-### 2.1 Keys
+### 1.1 Keys
 
 To identify unique individual participants that will perform duties on the network we use public key cryptography. You can read more about our approach [here](https://research.web3.foundation/en/latest/polkadot/keys/) and see the particular crypto for the first implementation in the [Schnorrkel repo](https://github.com/w3f/schnorrkel).
 
@@ -32,7 +28,7 @@ Validator keys indicated by the staking key are:
  - GRANDPA and consolidated reporting: BLS
  - block production (VRF): Ristretto
 
-### 2.2 Proof-of-Stake
+### 1.2 Proof-of-Stake
 
 In order to keep certain parties accountable for ensuring various properties listed below we make sure to be able to punish these participants by taking away some of their funds (Proof-of-Stake). The primary nodes running the network are the validators. To ensure a large set of participants is able to contribute to the security of the network we introduce a Nominated Proof of Stake scheme (NPoS). This scheme allows participants which do not wish to run nodes to be able to help with the validator selection. The current method used to distribute that stake is the [Sequential Phragmén Method](NPoS/index.md).
 
@@ -45,15 +41,15 @@ Judging NPoS solutions:
 
 A comprehensive list of misbehaviours that have to be penalized can be found in the [sanctioning sheet](https://docs.google.com/spreadsheets/d/1HSCiAf9pyxUSwojGQzg_pestlS_8yupCOTGnIGSvp9Q/edit?usp=sharing).
 
-### 2.3 Why not use different sets for different tasks?
+### 1.3 Why not use different sets for different tasks?
 
 Use the same validator set for BABE as for GRANDPA as to avoid paying more in total for block production + finality.
 
-## 3. Ensuring state transition properties
+## 2. Ensuring state transition properties
 
 ![State transition properties](images/properties.png)
 
-### 3.1 Utility
+### 2.1 Utility
 
 Each state transition should bring some utility to the system participants. In order to ensure that this is the case:
 
@@ -66,7 +62,7 @@ To ensure that the state machines provide utility we should ensure that there is
 
 To ensure that useful state transitions are processed by those state machines, we will want to ensure that useful transactions get included in Polkadot blocks. Polkadot will have a transaction fee mechanism on the relay chain to ensure that transactions issued by parties willing to pay a reasonable price for them are included. There will also be a certain portion of each block that is dedicated to certain high-priority transactions, such as misbehaviour reporting. The utility of the parachain state transitions has to be ensured by the state transition function of a given chain.
 
-### 3.2 Validity
+### 2.2 Validity
 
 ![Validity](images/validity.png)
 
@@ -74,7 +70,7 @@ The notion of validity in Polkadot is determined by a state transition validatio
 
 The blocks are produced by parachain collators, then they get validated using the STVF by the subset of validators responsible for the given parachain to finally get included in the Polkadot Relay Chain. During this process validators, parachain collators and other parties are free to challenge claims of validity to trigger additional check, these parties are referred to as fishermen. [Read here about parachain validity](Availability_and_Validity.md).
 
-### 3.3 Finality
+### 2.3 Finality
 
 ![Finality](images/canonicality.png)
 
@@ -82,19 +78,19 @@ Finality of the Polkadot network state machines is achieved via a combination of
 
 This approach allows for block production (thus transaction confirmations) to be fast, while allowing for as fast as possible economic finality with compact proofs.
 
-### 3.4 Availability
+### 2.4 Availability
 
 ![Availability](images/availability.png)
 
 In order for the critical data from all chains to remain reachable by users and subsequent block producers, Polkadot makes use of an erasure coding based [availability scheme](Availability_and_Validity.md).
 
-### 3.5 Messaging reliability
+### 2.5 Messaging reliability
 
 ![Messaging](images/messaging.png)
 
 Besides ensuring all the above properties for all parachain, a crucial element of Polkadot is that these state machines are able to affect each others state transitions. This is done via the [Cross-Chain Message Passing (XCMP) scheme](XCMP.md).
 
-### 3.6. Size
+### 2.6. Size
 
 ![Size](images/size.png)
 
@@ -104,13 +100,17 @@ To ensure that the state transitions can be processed and stored by the network 
 
 The protocol is being designed with light client support in mind with existing Substrate implementation supporting one.
 
-### 3.7 Bandwidth
+### 2.7 Bandwidth
 
 To ensure usability in realistic network conditions a reasonable bandwidth requirements have to be maintained.
 
-## 4. Desired architectural qualities
+## 3. Desired architectural qualities
 
 * Minimal: Polkadot should have as little functionality as possible.
 * Simple: No additional complexity should be present in the base protocol.
 * General: Polkadot can be optimized through making the model into which extensions fit as abstract as possible.
 * Robust: Polkadot should provide a fundamentally stable base-layer.
+
+## Specification of the Polkadot Runtime Environment
+
+We are working on a implementation level specification of the protocol [here](https://github.com/w3f/polkadot-re-spec).
