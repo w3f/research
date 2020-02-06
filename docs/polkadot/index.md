@@ -6,7 +6,7 @@ Polkadot speaking in abstract terms provides a number of connected finalising st
 
 <figure>
 <center>
-<img  src="images/whole.png" width="700" class="aligncenter"/>
+<img  src="images/whole.png" width="600" class="verticalcenter"/>
 <figcaption> <b>Figure 1 - Data structures and participants.</b></figcaption>
 </center>
 </figure>
@@ -16,7 +16,12 @@ The research focuses on how to enable having such publicly available system in t
 
 So let us start with abstract state machines. A state machine has a certain state type and state transition type. As the time goes on, state transitions occur.
 
-![Block to transition](images/block_to_transition.png)
+<figure>
+<center>
+<img  src="images/block_to_transition.png" width="600" class="verticalcenter"/>
+<figcaption> <b>Figure 2 - Block to transition.</b></figcaption>
+</center>
+</figure>
 
 The data that determines the state transitions is structured as bundles of transactions - individual small state transitions triggered by the users of the system. Each bundle is called a block. In order to achieve its properties, ensures that those blocks are hash connected forming joint data structure.
 
