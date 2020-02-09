@@ -6,21 +6,25 @@ Polkadot will have a native token called \eray{DOT}{-comment: Should we use dot 
 
 \subsubsection{NPoS rewards and inflation}
 
-In this section we consider NPoS rewards, i.e.~payments to validators and nominators coming from the minting of new tokens, 
-in \handan{normal circumstances}{what is  the difference btw normal and not normal circumstances}. In particular we do not consider rewards from transaction fees, slashings, nor rewards to fishermen 
-and other reporters of offences; these will be analyzed in further sections. 
-NPoS rewards are the main driver of inflation in the system. 
-This is because they are the only mechanism that mints new tokens, and because Treasury expenditure is designed to match 
-the net token burning caused by the transaction fees and slashings mechanisms (see the section on \handan{Treasury}{reference to the section}). 
+In this section we consider NPoS-based rewards, i.e.~payments to \emph{stakers} (validators and nominators) 
+coming from the minting of new dots. 
+We remark that unlike other blockchain protocols, the amount of tokens in Polkadot is not bounded by a constant, but we rather keep a controlled yearly inflation. Indeed, research shows~\cite{chitra2019competitive} that in a proof-of-stake based protocol the rewards to stakers must remain competitive, in order to maintain a high security level. 
+
+We do not consider rewards coming from transaction fees, slashings, nor rewards to fishermen 
+and other reporters of offenses; these will be analyzed in further sections. 
+NPoS rewards are the main driver of inflation in the system, because 
+a) they are the only mechanism that mints new tokens, and b) treasury expenditure is designed to match 
+the net token burning caused by the transaction fees and slashings mechanisms (see \autoref{ss:treasury}). 
 Thus, it is natural to also study our inflation model in this section.
 
-Recall that, according to the NPoS protocol, both validators and nominators stake DOTs. 
+Recall from the description of the NPoS protocol that both validators and nominators stake dots. 
 They get paid roughly proportional to their stake, but can be slashed up to $100\%$ in case of a misconduct. 
-We remark that, even though they are actively engaged for only one era at a time \eray{(where one era lasts approximately one day)}{-comment: Do we already know what the time scales are exactly? A table or figure of time scales to refer to might be a good idea.-}, 
-they can be engaged for an unlimited number of consecutive eras. 
-Furthermore, for added security, their stake remains locked for several weeks after their last active era, 
-to keep them liable to slashing in case an offense is detected late.
-\eray{}{-comment: If we keep stakes locked for several weeks, we might end up drying up liquidity and stop the activity in the network. For instance, if many validators and nominators are all in for a given era, there may not be many dots left for staking in the next era. How do we deal such scenarios?-}
+We remark that even though they are actively engaged for only one era at a time \eray{(where one era lasts approximately one day)}{-comment: Do we already know what the time scales are exactly? A table or figure of time scales to refer to might be a good idea.-}, 
+they can continue to be engaged for an unlimited number of consecutive eras. 
+Furthermore, their stake remains locked for several weeks after their last active era, 
+to keep them liable to slashing in case an offense is detected late. (Locked 
+\eray{}{-comment: If we keep stakes locked for several weeks, we might end up drying up liquidity and stop the activity in the network. For instance, if many validators and nominators are all in for a given era, there may not be many dots left for staking in the next era. How do we deal such scenarios?-} 
+\alfonso{}{}
 
 \paragraph{Staking rate, interest rate, inflation rate\eray{.}{:}} \eray{}{-comment: Colon is used after previous subsubsection titles instead of period. Make it consistent.-} Let the \eray{"staking rate"}{staking rate} be the total amount of DOTs 
 currently staked by validators and nominators, divided by the current total DOT supply. 
