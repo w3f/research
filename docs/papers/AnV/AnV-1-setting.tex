@@ -87,6 +87,43 @@ There exist {\em availability sharding protocols} that preserve some string $B$ 
 
 
 
+We discuss a ``crypto-economic'' protocol that hinges upon punishing nodes for incorrect behavior.  All such protocols entail a conviction game in which an adversary engages in some specified missbehavior and the correctly behaving nodes must obtain evidence of incorrect behavior by enough incorrectly behaving nodes, and this evidence be actionable in that correctly behaving nodes have effective defenses against false accusations.  
+%TODO: Is this what people mean by crypto-economic?  Or is it a bullshit term we should avoid?
+In this article, we only discuss subprotocols that produce actual proofs of incorrect behavior, but our overall protocols depend upon weaker evidentiary standards, like in the ... phase of GRANDPA \cite{??}.
+% TODO: How to say this?
+
+Assume again that at most $f' \le f$ out of the $\nvals$ (relay chain) validators deviate from the correct protocol.
+
+
+
+%TODO: Begin of not really true part.
+There are sharding protocols like ByzCoin \cite{ByzCoin} and .. in which validity for blocks on a shard $\rho$ determined solely by the $\npvals$ validators assigned to $\rho$, normally by reaching some vote threshold $\primarychecks \in [\npvals/2,\npvals)$ for each block.
+
+We model these protocols by saying an adversary wins the {\em naively sharded validity game} if they first learn the role assignments for all nodes $\rho \mapsto \vals_\rho$, only then proposes an invalid shard block $B$ for some shard $\rho$, and convince the relay chain finalize $B$, all while fewer than $\primarychecks$ of the incorrectly behaving nodes in $\vals_\rho$ provide proofs of their incorrect behavior to the correctly behaving nodes.  
+
+An adversary wins some random instance of a naively sharded validity game with odds $\epsilon'_{\npvals,\primarychecks}$ of order roughly ${f' \choose \npvals} / {\nvals \choose \npvals}$ TODO:FIX \cite{??}.  
+In these, security depends upon $\epsilon'_{\npvals,\primarychecks}$ being ``negligible'' so that adversaries cannot simply wait until they win the shard assignment lottery before launching an attack.  For this, one requires that $\npvals$ be a significant fraction of $\nvals$, and that $\nvals$ itself be large enough. 
+%TODO: End of not really true part.
+%  Fix by cite ByzCoin, etc. correctly.  Eleftherios? 
+
+We mildly distrust requirements for a large network size $n$ for two reasons: Almost all networks start small at least in the sense of truly independent nodes, and the finality gadget and its gossip assumption limit $n$.  
+
+We worry much more about requirements for a large number $\npvals$ of validators assigned to each shard, and the large number $\primarychecks$ of validtors approving each shard block, because this limits the number $n/\npvals$ of shards, and hence limits the utility of our scaling effort.  Also liveness suffers if $\primarychecks$ is close to $\npvals$, while security against network adversaries suffers otherwise.
+
+We shall create an information asymmetry that turns these odds more in our favor: 
+We require the adversary first declare their parachain block $B$ and commit to its correctness with the stake of $\primarychecks$ validators.  We then reveal the identity of the $\secondarychecks$ validators assigned to actually check $B$ only after this commitment.  We say an adversary wins the {\em parachain validity game} if they finalize an invalid block with fewer than $\primarychecks$ of the $f'$ incorrectly behaving nodes providing proofs of their incorrect behavior to the correctly behaving nodes. 
+
+In this game, we tolerate larger $\epsilon'_{\npvals,\primarychecks}$ because attacks cost an amortised $\epsilon'_{\npvals,\primarychecks} \secondarychecks$ validators' stake. 
+
+
+In advance, we assigned in advance the set $\vals_\para \subset \vals$ of at least $\npvals$ to validate all blocks from a particular parachain $\rho$.  
+In our game, any parachain block $B$ from $\rho$ requires commitments to correctness claim from at least $\primarychecks$ out of these $\npvals$ validators.  We accept $\primarychecks < \npvals$ here since some unpredictable nodes might be offline or slow, so long as $\primarychecks$ allocates sufficient stake to the correctness commitments for $B$.  
+
+After this commitment, we must determine at least $\secondarychecks$ nodes from $\vals \setminus \vals_\para$ who perform secondary checks to conclude the game.  Now our security level dependes only upon this number $\secondarychecks$ of secondary checks.  
+All nodes compute their own target number $\secondarychecks$ of secondary checkers dynamically based upon several report factors from parties who notice deviations from the protocol, as well as $\npvals-\primarychecks$.  If $\npvals$ primary checks appears realistic then we might consider fewer than $\npvals$ primary checks as suspicious, but not that suspicious.  In this case, we might simply target $\totalchecks = \npvals + \secondarychecks$ total checks when counting secondary checks, meaning that secondary checks can freely replace $\npvals-\primarychecks$ primary checks.  
+
+
+
 
 
 

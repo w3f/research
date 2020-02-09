@@ -2,35 +2,6 @@
 \section{Validity}
 \label{sec:validity}
 
-We discuss a ``crypto-economic'' protocol that hinges upon punishing nodes for incorrect behavior.  All such protocols entail a conviction game in which an adversary engages in some specified missbehavior and the correctly behaving nodes must obtain evidence of incorrect behavior by enough incorrectly behaving nodes, and this evidence be actionable in that correctly behaving nodes have effective defenses against false accusations.  
-%TODO: Is this what people mean by crypto-economic?  Or is it a bullshit term we should avoid?
-In this article, we only discuss subprotocols that produce actual proofs of incorrect behavior, but our overall protocols depend upon weaker evidentiary standards, like in the ... phase of GRANDPA \cite{??}.
-% TODO: How to say this?
-
-Assume again that at most $f' \le f$ out of the $\nvals$ (relay chain) validators deviate from the correct protocol.
-
-%TODO: Begin of not really true part.
-We say an adversary wins the {\em naively sharded $\npvals$-validity game} if they first learn the role assignments for all nodes, only then proposes an invalid shard block $B$, and convince the relay chain finalize $B$, all while fewer than $\npvals$ of the $f'$ incorrectly behaving nodes provide proofs of their incorrect behavior to the correctly behaving nodes. 
-
-There are protocols like ByzCoin \cite{ByzCoin} and .. that assign $\npvals$ validators to each shard in order to argue that any adversary wins some random instance of a naively sharded $\npvals$-validity game with odds $\epsilon'_{\npvals}$ of order roughly ${f' \choose \npvals} / {\nvals \choose \npvals}$.  In these, security depends upon $\epsilon'_{\npvals}$ being ``negligible'' so that adversaries cannot simply wait until they win the shard assignment lottery before launching an attack.  For this, one requires that $\npvals$ be a significant fraction of $\nvals$, and that $\nvals$ itself be large enough. 
-%TODO: End of not really true part.
-%  Fix by cite ByzCoin, etc. correctly.  Eleftherios? 
-
-We mildly distrust requirements for a large network size $n$ for two reasons: Almost all networks start small at least in the sense of truly independent nodes, and the finality gadget and its gossip assumption limit $n$.  We worry much more about requirements for a large number $\npvals$ of validators assigned to each shard because this limits the number $n/\npvals$ of shards, and hence the value of our scaling effort.
-
-% We turn these odds more in our favor by requiring the adversary declare their parachain block first and only then learn the role assignments for all nodes.
-We say an adversary wins the {\em parachain $\primarychecks$-validity game} if they first propose an invalid parachain block $B$, and only then learn the nodes assigned to check the block, all while fewer than $\primarychecks$ of the $f'$ incorrectly behaving nodes provide proofs of their incorrect behavior to the correctly behaving nodes. 
-
-Instantiating this game requires several distinct but related paramaters:  
-
-In advance, we assigned the set $\vals_\para \subset \vals$ of at least $\npvals$ to validate all blocks from a particular parachain $\rho$.  
-In our game, any parachain block $B$ from $\rho$ requires commitments to correctness claim from at least $\primarychecks$ out of these $\npvals$ validators.  We accept $\primarychecks < \npvals$ here since some unpredictable nodes might be offline or slow, so long as $\primarychecks$ allocates sufficient stake to the correctness commitments for $B$.  
-
-After this commitment, we must determine at least $\secondarychecks$ nodes from $\vals \setminus \vals_\para$ who perform secondary checks to conclude the game.  Now our security level dependes only upon this number $\secondarychecks$ of secondary checks.  
-All nodes compute their own target number $\secondarychecks$ of secondary checkers dynamically based upon several report factors from parties who notice deviations from the protocol, as well as $\npvals-\primarychecks$.  If $\npvals$ primary checks appears realistic then we might consider fewer than $\npvals$ primary checks as suspicious, but not that suspicious.  In this case, we might simply target $\totalchecks = \npvals + \secondarychecks$ total checks when counting secondary checks, meaning that secondary checks can freely replace $\npvals-\primarychecks$ primary checks.  
-
-
-
 
  $\rfuv$, $\runav$, and $\rinv$ . 
 
