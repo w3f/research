@@ -1,14 +1,14 @@
 # Polkadot
 Draft
 
-Polkadot consists of a main chain called the relay chain and multiple sharded chains called parachains. The relay chain is maintained by validators (see figure below) that are selected through the [NPoS scheme](NPoS/index.html#NPoS) and is responsible for producing blocks (via [BABE](BABE/Babe.html)) of the relay chain and keeping the state of all the parachains.
-These validators need to vote on the consensus over all the parachains, see the consensus scheme called [GRANDPA](GRANDPA.html) for more details. 
+Polkadot consists of a main chain called the relay chain and multiple sharded chains called parachains. The relay chain is maintained by validators (see figure below) that are selected through the [NPoS scheme](NPoS/index.md#the-npos-scheme) and is responsible for producing blocks (via [BABE](BABE/Babe.md)) of the relay chain and keeping the state of all the parachains.
+These validators need to vote on the consensus over all the parachains, see the consensus scheme called [GRANDPA](GRANDPA.md) for more details.
 
 ![Figure 1 - Relay chain, Validators, Parachain, and Collators](images/data_structure.png)
 
-The security goal of Polkadot is to be Byzantine fault tolerant when the participants are rational see [here](Token%20Economics.html) for more detail on incentives and economics.
+The security goal of Polkadot is to be Byzantine fault tolerant when the participants are rational see [here](Token%20Economics.md) for more detail on incentives and economics.
 For parachains, there are additional actors called collators and fishermen that are responsible for parachain block production  and reporting invalid parachain blocks respectively.
-The parachain validators assigned to each parachain validate each parachain block and are responsible to keep it available via the [A&V scheme](Availability_and_Validity.html). Moreover, another feature of Polkadot is enabling interchain messaging among parachains, see [XCMP](XCMP.html) for more details.
+The parachain validators assigned to each parachain validate each parachain block and are responsible to keep it available via the [A&V scheme](Availability_and_Validity.md). Moreover, another feature of Polkadot is enabling interchain messaging among parachains, see [XCMP](XCMP.md) for more details.
 Furthermore, Polkadot has a decentralised governance scheme that can change any Polkadot design decisions and parameterisation.
 
 Polkadot speaking in abstract terms provides a number of connected finalising state machines. Connected means that a state transition of one machine can affect a transition of another machine. The state machines are final, since most networks participants agree on their state after some time. We would also like to enable adding, removing and changing of the state machines as the time goes on to ensure utility.
@@ -36,7 +36,7 @@ Validator keys indicated by the staking key are:
 
 ## Proof-of-Stake
 
-In order to keep certain parties accountable for ensuring various properties listed below we make sure to be able to punish these participants by taking away some of their funds (Proof-of-Stake). The primary nodes running the network are the validators. To ensure a large set of participants is able to contribute to the security of the network we introduce a Nominated Proof of Stake scheme (NPoS). This scheme allows participants which do not wish to run nodes to be able to help with the validator selection. The current method used to distribute that stake is the [Sequential Phragmén Method](NPoS/index.html#NPoS).
+In order to keep certain parties accountable for ensuring various properties listed below we make sure to be able to punish these participants by taking away some of their funds (Proof-of-Stake). The primary nodes running the network are the validators. To ensure a large set of participants is able to contribute to the security of the network we introduce a Nominated Proof of Stake scheme (NPoS). This scheme allows participants which do not wish to run nodes to be able to help with the validator selection. The current method used to distribute that stake is the [Sequential Phragmén Method](NPoS/index.md#the-npos-scheme).
 
 For Polkadot use Phragmén's method as a fallback, but allow for better solutions to be submitted. As an edge case, if no good solution is submitted, run the slow heuristic which provides a 2-approximation (TODO: publish).
 
@@ -60,6 +60,6 @@ Use the same validator set for BABE as for GRANDPA as to avoid paying more in to
 * Robust: Polkadot should provide a fundamentally stable base-layer.
 
 
-For other information regarding the project please refer to the [wiki page](https://wiki.polkadot.network). 
+For other information regarding the project please refer to the [wiki page](https://wiki.polkadot.network).
 
 We are working on a implementation level specification of the protocol [here](https://github.com/w3f/polkadot-re-spec).
