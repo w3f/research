@@ -7,9 +7,12 @@ We now describe and instantiate our {\em availability and validity protocol} tha
 \item a parachain phase that prepares the candidate block and performs preliminary validity checks,
 \item a relay chain submission phase that distributes candidate parachain blocks and produces relay chain blocks,
 \item availability and unavailability subprotocols that enforce availability in GRANDPA and BABE respectively,
-\item fuller secondary validity checks for GRANDPA, and
-\item finally, \handan{objection procedures for fishermen}{this can be before secondary checks too. I think we expect most of time the objections are before finalization}.
+\item fuller secondary validity checks for GRANDPA,
+\item objection procedures for fishermen, and
+\item invokation of a Byzantine fault tolerant ``finality gadget'' that gives us finality.
 \end{itemize}
+
+We do require that secondary checks complete before finality.  We cannot however require that all validator checks conclude before finality, or even ask fishermen to begin checks before finality, so invalidity can be detected after finality.
 
 % TODO: Anything more worth saying here?  Maybe extract from:  The parachain phase is executed between collators and parachain validators. In the end of this phase, the parachain validators validate the block and provide its erasure code pieces to the validators. Then, the relay chain phase begins. If the parachain phase is executed correctly, then the relay chain phase includes extra validation of a parachain block, adding the block header to the relay chain and finalizing that relay chain block. Otherwise, unavailability protocol is run between validators. The details are as follows: 
 
