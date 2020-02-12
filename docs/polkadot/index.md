@@ -1,6 +1,12 @@
 # Polkadot
 
-This article summarizes the research efforts relevant to the Polkadot project, for other information regarding the project please refer to the [wiki page](https://wiki.polkadot.network).
+Polkadot consists of a main chain called the relay chain and multiple sharded chains called parachains. The relay chain is maintained by validators that are selected through the [NPoS scheme](polkadot/NPoS.rst) and is responsible for [producing blocks](polkadot/BABE) of the relay chain and keeping the state of all the parachains.
+These validators need to vote on the consensus over all the parachains, see the consensus scheme \ref{sec:grandpa} for more details.
+The security goal of Polkadot is to be Byzantine fault tolerant when the participants are rational see [here](polkadot/Token Economics.md) for more detail on incentives and economics.
+For parachains, there are additional actors called collators and fishermen that are responsible for parachain block production  and reporting invalid parachain blocks respectively.
+The parachain validators assigned to each parachain validate each parachain block and are responsible to keep it [available](polkadot/Availability_and_Validity.md). Moreover, another feature of Polkadot is enabling interchain messaging among parachains, see [here](polkadot/XCMP.md) for more details.
+Furthermore, Polkadot has a decentralised governance scheme that can change any Polkadot design decisions and parameterisation.
+
 
 Polkadot speaking in abstract terms provides a number of connected finalising state machines. Connected means that a state transition of one machine can affect a transition of another machine. The state machines are final, since most networks participants agree on their state after some time. We would also like to enable adding, removing and changing of the state machines as the time goes on to ensure utility.
 
@@ -16,7 +22,7 @@ So let us start with abstract state machines. A state machine has a certain stat
 
 The data that determines the state transitions is structured as bundles of transactions - individual small state transitions triggered by the users of the system. Each bundle is called a block. In order to achieve its properties, ensures that those blocks are hash connected forming joint data structure.
 
-## Identifying participants to run the network
+## Participants that run the Polkadot network 
 
 ![Figure 3 - Data structure](images/data_structure.png)
 
@@ -114,6 +120,7 @@ To ensure usability in realistic network conditions a reasonable bandwidth requi
 * General: Polkadot can be optimized through making the model into which extensions fit as abstract as possible.
 * Robust: Polkadot should provide a fundamentally stable base-layer.
 
-## Specification of the Polkadot Runtime Environment
+
+For other information regarding the project please refer to the [wiki page](https://wiki.polkadot.network). 
 
 We are working on a implementation level specification of the protocol [here](https://github.com/w3f/polkadot-re-spec).
