@@ -15,11 +15,11 @@ Polkadot
    polkadot/Availability_and_Validity
    polkadot/GRANDPA
    polkadot/XCMP
-   polkadot/Polkadot-Runtime-Environment
    polkadot/Token Economics
    polkadot/keys
    polkadot/networking
    polkadot/slashing
    polkadot/Parachain-Allocation
    polkadot/properties
+   polkadot/Polkadot-Runtime-Environment
    polkadot/*
