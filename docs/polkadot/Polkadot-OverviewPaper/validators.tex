@@ -15,7 +15,7 @@ As such, NPoS is not only much more \emph{efficient} than proof-of-work (PoW),
 but also considerably more \emph{secure} than standard PoS.
 Furthermore, we introduce new guarantees on \emph{decentralization} hitherto unmatched by any other PoS-based blockchain.
 
-A new set of validators is elected at the beginning of every era -- a period during roughly one day --
+A new set of validators is elected at the beginning of every \emph{era} -- a period during roughly one day (see Table~\ref{t:time} in the Appendix) --
 to serve for that era, according to the nominators' preferences.
 More precisely, any DOT holder may choose to become a validator candidate or a nominator.
 Each candidate indicates the amount of stake he is willing to stake and his desired commission fee for operational costs.
@@ -90,7 +90,7 @@ with the PJR property, but also define a distribution of each nominator's stake 
 i.e. a function $f:\Nom\times\Val \rightarrow \mathbb{R}_{\geq 0}$ so that
 $$\sum_{\val\in \Val\cap \Can_\nom} f(\nom, \val) = stake_\nom \quad \text{ for each nominator } \nom\in\Nom,$$
 and the objective is then
-$$\max_{( \text{PJR } \Val, f)} \: \min_{\val\in \Val} \: support_f(\val),
+$$\max_{(\Val, f)} \: \min_{\val\in \Val} \: support_f(\val),
 \quad \text{ where } support_f(\val) := \sum_{\nom\in \Nom: \ \val\in \Can_\nom} f(\nom, \val). $$
 
 The problem defined by this objective is called \emph{maximin support} in the literature~\cite{sanchez2016maximin}, and is known to be NP-hard.

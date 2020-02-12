@@ -1,87 +1,89 @@
 \subsection{Economics and Incentive Layer}\label{sec:economics}
 
-Polkadot will have a native token called \eray{DOT}{-comment: Should we use dot instead of DOT as Zeke suggested in his email?-}. Its various functions are described in this section.
+Polkadot will have a native token called dot. Its various functions are described in this section.
 
 
 
-\subsubsection{NPoS rewards and inflation}
+\subsubsection{Staking rewards and inflation}
 
-In this section we consider NPoS-based rewards, i.e.~payments to \emph{stakers} (validators and nominators) 
+We start with a description of staking rewards, i.e.~payments to \emph{stakers} -- validators and nominators -- 
 coming from the minting of new dots. 
-We remark that unlike other blockchain protocols, the amount of tokens in Polkadot is not bounded by a constant, but we rather keep a controlled yearly inflation. Indeed, research shows~\cite{chitra2019competitive} that in a proof-of-stake based protocol the rewards to stakers must remain competitive, in order to maintain a high security level. 
+Unlike other blockchain protocols, the amount of tokens in Polkadot will not be bounded by an absolute constant, but there will rather be a controlled yearly inflation rate. Indeed, recent research~\cite{chitra2019competitive} suggests that in a proof-of-stake based protocol the staking rewards must remain competitive, in order to maintain high staking rates and high security levels, so deflationary policies are advised against. 
 
-We do not consider rewards coming from transaction fees, slashings, nor rewards to fishermen 
-and other reporters of offenses; these will be analyzed in further sections. 
-NPoS rewards are the main driver of inflation in the system, because 
-a) they are the only mechanism that mints new tokens, and b) treasury expenditure is designed to match 
-the net token burning caused by the transaction fees and slashings mechanisms (see \autoref{ss:treasury}). 
-Thus, it is natural to also study our inflation model in this section.
+In our design, dots minted for staking rewards are the main driver of inflation in the system. 
+This is because Treasury (\autoref{sec:governance}) the only other mechanism that mints dots, 
+is designed to closely match its expenditure to the average dot burning caused by transaction fees and slashings.
+Thus, it is convenient to introduce our inflation model in this section as well. 
+%We do not consider rewards coming from transaction fees, slashings, nor rewards to fishermen and other reporters of offenses; these will be analyzed in further sections. 
 
-Recall from the description of the NPoS protocol that both validators and nominators stake dots. 
+Recall from the description of the NPoS protocol (\autoref{sec:validators}) that both validators and nominators stake dots. 
 They get paid roughly proportional to their stake, but can be slashed up to $100\%$ in case of a misconduct. 
-We remark that even though they are actively engaged for only one era at a time \eray{(where one era lasts approximately one day)}{-comment: Do we already know what the time scales are exactly? A table or figure of time scales to refer to might be a good idea.-}, 
-they can continue to be engaged for an unlimited number of consecutive eras. 
-Furthermore, their stake remains locked for several weeks after their last active era, 
-to keep them liable to slashing in case an offense is detected late. (Locked 
-\eray{}{-comment: If we keep stakes locked for several weeks, we might end up drying up liquidity and stop the activity in the network. For instance, if many validators and nominators are all in for a given era, there may not be many dots left for staking in the next era. How do we deal such scenarios?-} 
-\alfonso{}{}
+Even though they are actively engaged for only one era%
+\footnote{Recall that an era lasts approximately one day. See Table~\ref{t:time} in the Appendix.} 
+at a time, they can continue to be engaged for an unlimited number of eras. 
+During this period their stake is locked, meaning it cannot be spent, and it remains locked for several weeks after their last active era, to keep stakers liable to slashing even if an offense is detected late.
 
-\paragraph{Staking rate, interest rate, inflation rate\eray{.}{:}} \eray{}{-comment: Colon is used after previous subsubsection titles instead of period. Make it consistent.-} Let the \eray{"staking rate"}{staking rate} be the total amount of DOTs 
-currently staked by validators and nominators, divided by the current total DOT supply. 
-Their average interest rate will be a function of the staking rate%
-\footnote{As we explain below, validators and nominators are not all paid exactly the same 
-interest rate at a given time; in particular, validators are generally paid more than nominators.  
-The average interest rate is simply the total payout divided by the total amount staked.}:
-if the staking rate dips below a certain target value (be to selected by governance), 
-the average interest rate will increase, thus \eray{incentivizing}{incentivising} more participation in NPoS, and vice versa. 
-For instance, a target value of $50\%$ could be selected for the staking rate as a middle ground between security 
-and liquidity. If the average interest rate is set to $20\%$ \eray{p.a.}{-comment: It's not clear what p.a. is. Either write annual or per annum explicitly.-}~at that staking rate value, 
-then we can expect to maintain an inflation rate (due to NPoS rewards) of $50\%\times 20\% = 10\%$ on average. 
-Hence, by controlling the staking rate we also control the inflation rate. \eray{}{-comment:Only if the interest rate is fixed that depends on how many dots are minted at every era. This may need to be explained mentioning all the assumption behind it.-}
+\paragraph{Staking rate, interest rate, inflation rate:} Let the staking rate be the total amount of dots 
+currently staked by validators and nominators, divided by the current total dot supply. 
+The stakers' average interest rate will be a function of the staking rate: 
+if the staking rate dips below a certain target value selected by governance, 
+the average interest rate is increased, thus incentivizing more participation in NPoS, and vice versa. 
+For instance, a target staking rate of $50\%$ could be selected as a middle ground between security and liquidity. 
+If the stakers' average yearly interest rate is then set to $20\%$ at that level, 
+we can expect the inflation rate to fluctuate closely around $50\%\times 20\% = 10\%$. 
+Hence, by setting targets for the staking rate and stakers' interest rate, we also control the inflation rate. 
+Following this principle, every era we adjust our estimate of the staking rate, 
+and use it to compute the total amount of dots to be paid to stakers for that era.
 
+\paragraph{Rewards across validator supports:} 
+Once the total payout for the current era is computed, we need to establish how it is distributed.
+Recall that the validator election protocol (\autoref{sec:validators}) partitions the active stake into 
+\emph{validator supports}, where each validator support is composed of the full stake of one validator 
+plus a fraction of the stake of its backing nominators, and this partition is made so as to make validator supports 
+as high and evenly distributed as possible, hence ensuring security and decentralization. 
+A further incentive mechanism put in place to ensure decentralization over time 
+is \emph{paying validator supports equally for equal work, regardless of their stake}. 
+As a consequence, if a popular validator has a high support, its nominators will likely be paid less per staked dot 
+than nominators backing a less popular validator. Hence, nominators will be incentivized to change their preferences 
+over time, helping the system converge to the ideal case where all validator supports have equal stake.
 
-\paragraph{Rewards across validator slots\eray{.}{:}} Once the total payout for the current era is computed 
-as a function of the staking rate according to the paragraph above \eray{}{-comment: It's not clear to me how it was calculated per era as the discussion above was for average over a year. We need to explain this clearly.-}, we need to establish how it is distributed.
-Recall that the NPoS validator selection protocol (see Section~\ref{sec:validators}) 
-partitions all validators' and nominators' stake into the different validator \handan{slots}{is it the same as BABE slots?} 
-(where a nominator's stake can be fractionally split among several slots), so as to make the slots' 
-stake backings as high and \eray{as}{-remove-} uniformly distributed as possible, hence ensuring security and decentralization. 
-A further incentive mechanism we set, to ensure decentralization over time, 
-is \emph{paying validator slots equally for equal work, \eray{NOT}{-comment: Why capitalized?-} proportional to their backings}. 
-As a consequence, nominators inside a validator slot with more backing will be paid less per staked DOT 
-than nominators backing a less popular validator. Hence, they will be \eray{incentivized}{incentivised} to change 
-their preferences over time, converging to the ideal case where all slot backings are equal.
-
-In particular, we devise a point system where validators accumulate points for payable actions performed, 
+In particular, we devise a point system in which validators accumulate points for each payable action performed, 
 and at the end of each era validator slots are rewarded proportional to their points. 
-This ensures that validators are always \eray{incentivized}{incentivised} to stay efficient and highly responsive.
-\eray{Examples of payable actions are: producing a block in BABE, validating a parachain block, etc.}
-{-comment:Instead of examples, it's better to list all actions awarded with points clearly.-}
+This ensures that validators are always incentivized to maintain high performance and responsiveness. 
+Payable actions in Polkadot include: a) validating a parachain block, 
+b) producing a relay chain block in BABE, 
+c) adding to a BABE block a reference to a previously unreferenced uncle block,%
+\footnote{In the BABE protocol, at times two block producers may generate different blocks A and B at the same height, leading to a temporary fork in the relay chain. The fork will quickly be resolved and select one of the blocks, say A, as part of the main chain, while block B becomes an \emph{uncle} to all descendents of A. For security reasons, it is convenient to record and timestamp \emph{all} blocks produced, but since uncle blocks cannot be accessed via parent relations, we encourage block producers to explicitly add these references to the main chain.}
+ and d) producing an uncle block.
 
-\paragraph{Rewards within a validator slot\eray{.}{:}} As a nominator's stake can be split among several slots, 
-that nominator's payout in an era corresponds to the sum of her payouts relative to each of these slots. 
-Within a validator slot, the payment is as follows: 
-First, the validator is paid his commission fee, which is an amount entirely up to him to decide and \eray{}{is} publicly announced before nominators select their preferences for the era. 
-This fee is intended to cover the validator's operational costs. 
-Then, the remainder is shared among all parties (both validator and nominators) proportional to their stake within the slot. 
-In other words, the validator is paid twice: once as a non-stake validator with a fixed commission fee, and once as staked nominator. 
-Notice that a higher commission fee means a higher total payout for the validator and lower payouts to his nominators, 
-but since this fee is published in advance, nominators will generally prefer to back validators with lower fees. 
-We thus let the market regulate itself. Validators who have built a strong reputation of reliability and performance 
-may be able to charge a higher commission fee, which is fair.
+\paragraph{Rewards within a validator slot:} As a nominator's stake is typically split among several validator supports, 
+their payout in an era corresponds to the sum of their payouts relative to each of these supports. 
+Within a validator support, the payment is as follows: 
+First, the validator is paid a \emph{commission fee}, which is an amount intended to cover its operational costs. 
+Then, the remainder is shared among all stakers -- both validator and nominators -- proportional to their stake. 
+Thus, the validator receives two separate rewards: a fee for running a node, and a payout for staking. 
+We remark that the commission fee is up to each validator to set, and must be publicly announced in advance. 
+A higher fee translates to a higher total payout for the validator, and lower payouts to its nominators, 
+so nominators will generally prefer to back validators will lower fees, and the market regulates itself in this regard. 
+Validators who have built a strong reputation of reliability and performance 
+will however be able to charge a higher commission fee, which is fair.
 
-\paragraph{Remark\eray{.}{:}} As our decision to reward validator slots equally for equal actions independently of their stake 
-is likely to raise eyebrows \eray{}{-comment: Why? I would think that the other way around would raise eyebrows since the work done is what matters at the end. Perhaps, adjusting to a confident tone from an apologetic one is better.-}, we provide further arguments for it. 
-First, notice that since validators are paid well and the number of slots is limited, 
- candidates have an incentive to ensure a high enough backing to get elected, 
-and we expect to have enough competition so that the minimum required backing is very high. 
-Furthermore, even if the payouts are roughly the same across slots, within a slot each nominator and validator 
-gets paid proportional to their stake, hence there is always an individual incentive to increase one's own stake. 
-Finally, if a validator considers that his slot has more backing than necessary, he can either increase his 
-commission fee (which has the effect of increasing his own reward at the risk of pushing some nominators away),
-or he can create a new candidate node and split his stake and nominators' support between all his nodes. 
-On this last point, we welcome individuals and companies with multiple validator nodes (and even aim to make their 
-logistics simpler), so long as they disclose such correlations to nominators.
+\medskip
+
+We finalize the section with some observations on the incentives that our payout scheme is expected to cause on stakers. 
+First, as validators are well remunerated and their number is limited, 
+they have an incentive to ensure high backing levels from nominators to ensure getting elected, 
+and thus they will value their reputation. Over time, we expect elections to be highly competitive 
+and for elected validators to have strong track records of performance and reliability and large stake backings.
+Second, even if payouts across different validator supports are independent of their stake, 
+within a validator support each actor is paid proportional to their stake, 
+so there is always an individual incentive to increase one's own stake. 
+Finally, if a validator gains a particularly high level of backing, it can profit from it by either increasing 
+its commission fee, which has the effect of raising its own reward at the risk of losing some nominations, 
+or launching a new node as a validator candidate and splitting its backing among all its nodes. 
+On this last point, we welcome operators with multiple validator nodes, 
+and even aim to make their logistics simpler, so long as they disclose such correlations 
+so that nominators can adjust their strategy accordingly.
 
 
 \subsubsection{Relay-chain transaction fees and block limits}
