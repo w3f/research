@@ -1,6 +1,5 @@
-====
-NPoS
-====
+# NPoS
+
 
 .. raw:: html
 
