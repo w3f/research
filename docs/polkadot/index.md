@@ -4,7 +4,7 @@ Polkadot consists of a main chain called the relay chain and multiple sharded ch
 These validators need to vote on the consensus over all the parachains, see the consensus scheme called [GRANDPA](GRANDPA.html) for more details.
 The security goal of Polkadot is to be Byzantine fault tolerant when the participants are rational see [here](Token%20Economics.html) for more detail on incentives and economics.
 For parachains, there are additional actors called collators and fishermen that are responsible for parachain block production  and reporting invalid parachain blocks respectively.
-The parachain validators assigned to each parachain validate each parachain block and are responsible to keep it available via the [A&V scheme](https://research.web3.foundation/en/latest/polkadot/Availability_and_Validity.html). Moreover, another feature of Polkadot is enabling interchain messaging among parachains, see [XCMP](https://research.web3.foundation/en/latest/polkadot/XCMP.html) for more details.
+The parachain validators assigned to each parachain validate each parachain block and are responsible to keep it available via the [A&V scheme](Availability_and_Validity.html). Moreover, another feature of Polkadot is enabling interchain messaging among parachains, see [XCMP](XCMP.html) for more details.
 Furthermore, Polkadot has a decentralised governance scheme that can change any Polkadot design decisions and parameterisation.
 
 
