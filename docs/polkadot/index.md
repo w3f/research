@@ -1,6 +1,6 @@
 # Polkadot
 
-Polkadot consists of a main chain called the relay chain and multiple sharded chains called parachains. The relay chain is maintained by validators that are selected through the [NPoS scheme](.. /polkadot/NPoS/index.html) and is responsible for producing blocks (via [BABE](https://research.web3.foundation/en/latest/polkadot/BABE/Babe.html)) of the relay chain and keeping the state of all the parachains.
+Polkadot consists of a main chain called the relay chain and multiple sharded chains called parachains. The relay chain is maintained by validators that are selected through the [NPoS scheme](../polkadot/NPoS/index.html) and is responsible for producing blocks (via [BABE](https://research.web3.foundation/en/latest/polkadot/BABE/Babe.html)) of the relay chain and keeping the state of all the parachains.
 These validators need to vote on the consensus over all the parachains, see the consensus scheme called [GRANDPA](https://research.web3.foundation/en/latest/polkadot/GRANDPA.html) for more details.
 The security goal of Polkadot is to be Byzantine fault tolerant when the participants are rational see [here](https://research.web3.foundation/en/latest/polkadot/Token%20Economics.html) for more detail on incentives and economics.
 For parachains, there are additional actors called collators and fishermen that are responsible for parachain block production  and reporting invalid parachain blocks respectively.
