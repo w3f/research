@@ -21,4 +21,5 @@ Polkadot
    polkadot/networking
    polkadot/slashing
    polkadot/Parachain-Allocation
+   polkadot/properties
    polkadot/*
