@@ -11,7 +11,7 @@ jobs:
           command: |
             pip install virtualenv
 
-            python3.8 -mvirtualenv --no-site-packages --no-download .
+            python3.8 -mvirtualenv --no-download .
 
             source bin/activate
 
