@@ -1,4 +1,4 @@
-# Ensuring state transition properties
+# State Transition Properties
 
 ![Figure 4 -State transition properties](images/properties.png)
 
