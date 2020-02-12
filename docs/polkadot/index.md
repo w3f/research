@@ -1,5 +1,4 @@
 # Polkadot
-Draft
 
 Polkadot consists of a main chain called the relay chain and multiple sharded chains called parachains. The relay chain is maintained by validators (see figure below) that are selected through the [NPoS scheme](NPoS/index.md#the-npos-scheme) and is responsible for producing blocks (via [BABE](BABE/Babe.md)) of the relay chain and keeping the state of all the parachains.
 These validators need to vote on the consensus over all the parachains, see the consensus scheme called [GRANDPA](GRANDPA.md) for more details.
