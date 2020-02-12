@@ -27,7 +27,7 @@ The data that determines the state transitions is structured as bundles of trans
 
 ## Keys
 
-To identify unique individual participants that will perform duties on the network we use public key cryptography. You can read more about our approach [here](https://research.web3.foundation/en/latest/polkadot/keys/) and see the particular crypto for the first implementation in the [Schnorrkel repo](https://github.com/w3f/schnorrkel).
+To identify unique individual participants that will perform duties on the network we use public key cryptography. You can read more about our approach [here](keys) and see the particular crypto for the first implementation in the [Schnorrkel repo](https://github.com/w3f/schnorrkel).
 
 Validator keys indicated by the staking key are:
  - transport layer: ed25519
