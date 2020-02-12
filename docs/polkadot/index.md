@@ -1,10 +1,10 @@
 # Polkadot
 
-Polkadot consists of a main chain called the relay chain and multiple sharded chains called parachains. The relay chain is maintained by validators that are selected through the [NPoS scheme](polkadot/NPoS.rst) and is responsible for [producing blocks](polkadot/BABE) of the relay chain and keeping the state of all the parachains.
-These validators need to vote on the consensus over all the parachains, see the [consensus scheme](polkadot/GRANDPA.md) for more details.
+Polkadot consists of a main chain called the relay chain and multiple sharded chains called parachains. The relay chain is maintained by validators that are selected through the [NPoS scheme](polkadot/NPoS.rst) and is responsible for producing blocks (via [BABE](polkadot/BABE)) of the relay chain and keeping the state of all the parachains.
+These validators need to vote on the consensus over all the parachains, see the consensus scheme called [GRANDPA](polkadot/GRANDPA.md) for more details.
 The security goal of Polkadot is to be Byzantine fault tolerant when the participants are rational see [here](polkadot/Token Economics.md) for more detail on incentives and economics.
 For parachains, there are additional actors called collators and fishermen that are responsible for parachain block production  and reporting invalid parachain blocks respectively.
-The parachain validators assigned to each parachain validate each parachain block and are responsible to keep it [available](polkadot/Availability_and_Validity.md). Moreover, another feature of Polkadot is enabling interchain messaging among parachains, see [here](polkadot/XCMP.md) for more details.
+The parachain validators assigned to each parachain validate each parachain block and are responsible to keep it available via the [A&V scheme](polkadot/Availability_and_Validity.md). Moreover, another feature of Polkadot is enabling interchain messaging among parachains, see [XCMP](polkadot/XCMP.md) for more details.
 Furthermore, Polkadot has a decentralised governance scheme that can change any Polkadot design decisions and parameterisation.
 
 
