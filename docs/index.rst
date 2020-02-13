@@ -8,7 +8,7 @@ Our research focuses on areas of:
 
   - Decentralised Algorithms: Consensus, Optimization, Game Theory
   - Cryptoeconomics
-  - Cryptography and Proveable Security
+  - (Proveable) Security and Cryptography
   - Networking
 
 We analyze existing protocols, come up with new ones and specify them. We work closely with development teams to make sure our work is practical and useful in context of Web3 technologies.
