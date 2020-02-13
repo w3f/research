@@ -1,28 +1,19 @@
-# Introduction to Polkadot
-
-Polkadot consists of a main chain called the relay chain and multiple sharded chains called parachains. The relay chain is maintained by validators (see figure below) that are selected through the [NPoS scheme](NPoS/index.md#the-npos-scheme) and is responsible for producing blocks (via [BABE](BABE/Babe.md)) of the relay chain and keeping the state of all the parachains.
-These validators need to vote on the consensus over all the parachains, see the consensus scheme called [GRANDPA](GRANDPA.md) for more details.
+# Polkadot
+## Overview
+Polkadot consists of a main chain called the relay chain and multiple sharded chains called parachains. The relay chain is maintained by validators that are selected through the [NPoS scheme](NPoS/index.md#the-npos-scheme) and is responsible for producing blocks of the relay chain (via [BABE](BABE/Babe.md)) and keeping the state of all the parachains.
+These validators need to vote on the consensus, see [GRANDPA](GRANDPA.md), over all the parachains blocks. For parachains, there are additional actors called collators and fishermen that are responsible for parachain block production  and reporting invalid parachain blocks respectively. The figure below shows part of the relay chain, one parachain, three validators and five collators. 
 
 ![Figure 1 - Relay chain, Validators, Parachain, and Collators](images/data_structure.png)
 
-The security goal of Polkadot is to be Byzantine fault tolerant when the participants are rational see [here](Token%20Economics.md) for more detail on incentives and economics.
-For parachains, there are additional actors called collators and fishermen that are responsible for parachain block production  and reporting invalid parachain blocks respectively.
-The parachain validators assigned to each parachain validate each parachain block and are responsible to keep it available via the [A&V scheme](Availability_and_Validity.md). Moreover, another feature of Polkadot is enabling interchain messaging among parachains, see [XCMP](XCMP.md) for more details.
+Validators are assigned to parachains, which are responsible for validating parachain blockd and keeping them available via the [A&V scheme](Availability_and_Validity.md). Moreover, another feature of Polkadot is enabling interchain messaging among parachains, called [XCMP](XCMP.md). 
+
+The security goal of Polkadot is to be Byzantine fault tolerant when the participants are rational. More details on incentives and economics are reviewed [here](Token%20Economics.md).
+
 Furthermore, Polkadot has a decentralised governance scheme that can change any Polkadot design decisions and parameterisation.
 
-Polkadot speaking in abstract terms provides a number of connected finalising state machines. Connected means that a state transition of one machine can affect a transition of another machine. The state machines are final, since most networks participants agree on their state after some time. We would also like to enable adding, removing and changing of the state machines as the time goes on to ensure utility.
 
 ![Figure 2 - Data structures and participants](images/whole.png)
 
-
-The research focuses on how to enable having such publicly available system in the face of possible adversarial conditions. The public can use the system by interacting with state machines that they are interested in via the internet. Each state machine can provide different functionalities and behave in different ways (have a different state and state transition scheme).
-
-So let us start with abstract state machines. A state machine has a certain state type and state transition type. As the time goes on, state transitions occur.
-
-![Figure 3 - Block to transition](images/block_to_transition.png)
-
-
-The data that determines the state transitions is structured as bundles of transactions - individual small state transitions triggered by the users of the system. Each bundle is called a block. In order to achieve its properties, ensures that those blocks are hash connected forming joint data structure.
 
 ## Keys
 
