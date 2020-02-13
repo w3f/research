@@ -64,7 +64,7 @@ Fishermen are somewhat similar to “full nodes” in present-day blockchain sys
 \paragraph{Keys:} We assume that malicious parties generate their keys with an arbitrary algorithm
 while honest ones always generate their keys securely. 
 
-\paragraph{Network and Communication:} All validators have their own local clock and their clocks do not rely on any central clock.
+\paragraph{Network and Communication:} \label{par:network_coms} All validators have their own local clock and their clocks do not rely on any central clock.
 We assume that  validators and collators are in a partially synchronous network.
 It means that a message sent by a validator or collator arrives at all parties in the network
 at most $\D$ units of time later where $\D$ is an unknown parameter. So, we assume an eventual delivery of a message in Polkadot.
