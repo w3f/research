@@ -2,7 +2,7 @@
 Research at Web3 Foundation
 ===========================
 
-Web3 Foundation Research is being done in an in-house `research team <https://research.web3.foundation/en/latest/research_team_members.html>`_ that mostly located in Zug, Switzerland, as well as in collaboration with a number of industrial projects and academic research groups. To stay up to date with our research team efforts visit `news <https://research.web3.foundation/en/latest/news.html>`_.
+Web3 Foundation Research is being done in an in-house `research team <https://research.web3.foundation/en/latest/research_team_members.html>`_ that is mostly located in Zug, Switzerland, as well as in collaboration with a number of industrial projects and academic research groups. To stay up to date with our research team efforts visit `news <https://research.web3.foundation/en/latest/news.html>`_.
 
 Our research focuses on areas of:
 
