@@ -12,5 +12,4 @@ Research Team Members
    research_team_members/Sergey
    research_team_members/syed
    research_team_members/Ximin
-
    research_team_members/*
