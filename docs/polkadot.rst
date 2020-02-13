@@ -12,8 +12,8 @@ Polkadot
    polkadot/index
    polkadot/NPoS
    polkadot/BABE
-   polkadot/Availability_and_Validity
    polkadot/GRANDPA
+   polkadot/Availability_and_Validity
    polkadot/XCMP
    polkadot/Token Economics
    polkadot/keys
