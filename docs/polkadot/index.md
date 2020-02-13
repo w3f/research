@@ -9,7 +9,7 @@ Validators are assigned to parachains, which are responsible for validating para
 
 The security goal of Polkadot is to be Byzantine fault tolerant when the participants are rational. Rewards are given out when validators behave correctly and validators misbehaviour is punished via the [Slashing mechanism](slashing). More details on incentives and economics are reviewed [here](Token%20Economics.md).
 
-Furthermore, Polkadot has a decentralised governance scheme that can change any Polkadot design decisions and parameterisation. Details on low-level cryptographic primitives can be found [here](keys/) and Polkadot's networking schemes is in progress with some details being reviewed [here](networking/).  
+Furthermore, Polkadot has a decentralised governance scheme that can change any Polkadot design decisions and parameterisation. Details on low-level cryptographic primitives can be found [here](keys/index.md) and Polkadot's networking schemes is in progress with some details being reviewed [here](networking/overview.md).  
 
 
 ![Figure 2 - Data structures and participants](images/whole.png)
