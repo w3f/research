@@ -1,7 +1,15 @@
 # State Transition Properties
 Polkadot speaking in abstract terms provides a number of connected finalising state machines. Connected means that a state transition of one machine can affect a transition of another machine. The state machines are final, since most networks participants agree on their state after some time. We would also like to enable adding, removing and changing of the state machines as the time goes on to ensure utility.
+The research focuses on how to enable having such publicly available system in the face of possible adversarial conditions. The public can use the system by interacting with state machines that they are interested in via the internet. Each state machine can provide different functionalities and behave in different ways (have a different state and state transition scheme).
 
-![Figure 4 -State transition properties](images/properties.png)
+So let us start with abstract state machines. A state machine has a certain state type and state transition type. As the time goes on, state transitions occur.
+
+![Figure 1 - Block to transition](images/block_to_transition.png)
+
+
+The data that determines the state transitions is structured as bundles of transactions - individual small state transitions triggered by the users of the system. Each bundle is called a block. In order to achieve its properties, ensures that those blocks are hash connected forming joint data structure.
+
+![Figure 2 -State transition properties](images/properties.png)
 
 
 ## 1 Utility
