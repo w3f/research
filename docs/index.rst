@@ -6,7 +6,7 @@ Web3 Foundation Research is being done in an in-house `research team <https://re
 
 Our research focuses on areas of:
 
-  - Decentralised algorithms: consensus, optimization, game theory
+  - Decentralised Algorithms: Consensus, Optimization, Game Theory
   - Cryptoeconomics
   - Cryptography and Proveable Security
   - Networking
