@@ -2,17 +2,12 @@
 %\begin{samepage}
 Next, we summarise Polkadot functionality shortly for an overall picture and then continue to describe the individual components to show how to achieve that functionality.
 
-\handan{Polkadot is a multi-chain system with shared security guarantees}{we use this sentence in couple of places. I think we don't need to repeat it here. Also, in one of the places that we use this sentence, we need to explain shortly what the shared security means and implies}. Polkadot consists of a main chain called \handan{the Relay Chain}{is  it ``the relay chain'' or ``the Relay Chain''. We should be consistent with this in whole paper.} and multiple parallel chains
-called Parachains. The relay chain is maintained by validators that are selected through the NPoS scheme \ref{sec:validators} and is responsible for \handan{}{add 'producing blocks of the  Relay Chain \ref{sec:babe} and'} keeping the state of all the parachains \ref{sec:relaychain}.
+Polkadot consists of a main chain called the relay chain and multiple sharded chains called parachains. The relay chain is maintained by validators that are selected through the NPoS scheme \ref{sec:validators} and is responsible for producing blocks of the  Relay Chain \ref{sec:babe} and keeping the state of all the parachains \ref{sec:relaychain}.
 These validators need to vote on the consensus over all the parachains, see the consensus scheme \ref{sec:grandpa} for more details.
 The security goal of Polkadot is to be Byzantine fault tolerant when the participants are rational (see \ref{sec:economics} for more detail on incentives and economics).
-\handan{In addition, the validators are assigned to parachains by dividing the validators set into random disjoint subsets that are each assigned to a particular parachain.}{we repeat it one sentence later. We can remove it here. }
 For parachains, there are additional actors called collators and fishermen that are responsible for parachain block production \ref{sec:parachainblockproduction} and reporting invalid parachain blocks respectively.
-The parachain validators assigned to each parachain validate each parachain block and are responsible to keep it available. \handan{For this purpose, they create erasure coded pieces from the parachain blocks and distribute
-them to all the remaining validators}{do we need to give this detail here?}, see \ref{sec:validity-and-availability}. Moreover, another feature of Polkadot is enabling interchain messaging among parachains, see \ref{sec:XCMP} for more details.
+The parachain validators assigned to each parachain validate each parachain block and are responsible to keep it available, see \ref{sec:validity-and-availability}. Moreover, another feature of Polkadot is enabling interchain messaging among parachains, see \ref{sec:XCMP} for more details.
 Furthermore, Polkadot has a decentralised governance scheme \ref{sec:governance} that can change any Polkadot design decisions and parameterisation.
-
-\eray{}{-comment: Why is there this empty space between subsections?-}
 
 %What do they achieve (refer to properties)?
 \input{validators}
@@ -24,3 +19,7 @@ Furthermore, Polkadot has a decentralised governance scheme \ref{sec:governance}
 \input{crypto}
 \input{networking}
 %\end{samepage}
+
+\section{Summary and Achieved Goals}
+
+We decribed 

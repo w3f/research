@@ -1,6 +1,12 @@
 ====
 News
 ====
+**19-20.02.20**:
+    Alistair is going to attend the Standford Blockchain Conference 2020 and a co-located `Polkadot meetup <https://www.meetup.com/Polkadot-San-Francisco/events/268426884/>`_ organized by Web3 Foundation.
+
+**10.02.20**
+    Handan and Jeff attended Financial Crypto 2020 and presented their posters. 
+
 **13.01.20**
     We published a medium blogpost on `XCMP <https://medium.com/web3foundation/polkadots-messaging-scheme-b1ec560908b7>`_ giving an overall overview of XCMP and descriping a number of design decisions. 
 
