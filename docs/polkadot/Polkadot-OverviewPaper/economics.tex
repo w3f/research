@@ -11,7 +11,7 @@ coming from the minting of new dots.
 Unlike other blockchain protocols, the amount of tokens in Polkadot will not be bounded by an absolute constant, but there will rather be a controlled yearly inflation rate. Indeed, recent research~\cite{chitra2019competitive} suggests that in a proof-of-stake based protocol the staking rewards must remain competitive, in order to maintain high staking rates and high security levels, so deflationary policies are advised against. 
 
 In our design, dots minted for staking rewards are the main driver of inflation in the system. 
-This is because Treasury (\autoref{sec:governance}) the only other mechanism that mints dots, 
+This is because Treasury (\autoref{sec:governance}), the only other mechanism that mints dots, 
 is designed to closely match its expenditure to the average dot burning caused by transaction fees and slashings.
 Thus, it is convenient to introduce our inflation model in this section as well. 
 %We do not consider rewards coming from transaction fees, slashings, nor rewards to fishermen and other reporters of offenses; these will be analyzed in further sections. 
@@ -45,7 +45,7 @@ A further incentive mechanism put in place to ensure decentralization over time
 is \emph{paying validator supports equally for equal work, regardless of their stake}. 
 As a consequence, if a popular validator has a high support, its nominators will likely be paid less per staked dot 
 than nominators backing a less popular validator. Hence, nominators will be incentivized to change their preferences 
-over time, helping the system converge to the ideal case where all validator supports have equal stake.
+over time in favor of less popular validators (with good reputation nonetheless), helping the system converge to the ideal case where all validator supports have equal stake.
 
 In particular, we devise a point system in which validators accumulate points for each payable action performed, 
 and at the end of each era validator slots are rewarded proportional to their points. 
@@ -88,12 +88,9 @@ so that nominators can adjust their strategy accordingly.
 
 \subsubsection{Relay-chain transaction fees and block limits}
 
-\paragraph{Limits on resource usage\eray{.}{:}} Every relay-chain block can process a limited number of transactions, in order to ensure it can be processed efficiently even on less powerful nodes\eray{, 
+\paragraph{Limits on resource usage:} Every relay-chain block can process a limited number of transactions, in order to ensure it can be processed efficiently even on less powerful nodes\eray{, 
 and}{ and to} avoid delays in block production. 
 
-\eray{}{-comment: Is this section meant to be developed further? If not, it looks to short to have two separate titles.-}
-
-\eray{}{-comment: empty space between subsections.-}
 
 %\subsubsection{Slashing}
 
