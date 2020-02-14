@@ -29,14 +29,14 @@ Initially, a {\bf collator} $C$ of a parachain $\para$ must propose some candida
 
 In practice, we want shared security so that parachains can communicate, so $B$ should reference some relay chain block(s) $R^0_B$ that distinguish any state $\rho$ maintains on the relay chain, such as the incoming messages accumulated for $\rho$ to be processed by $B$.  We let $q$ denote the Merkle root of this state $\rho$ maintains on the relay chain in $R^0_B$.
  
-First, $C$ constructs the witness data $\pi$ by evaluating the block with $\prove_{\hat{\para}}(B,M)$, so they can build the candidate blob $\blobB = (B,\pi,M)$, and also obtain the block metadata $(H(B'),\rin,\rout,H(R^0_B),q,\ldots)$. 
+First, $C$ constructs the witness data $\pi$ by evaluating the block with $\prove_{\hat{\para}}(B,M)$, so they can build the {\em candidate proof-of-validity blob} $\blobB = (B,\pi,M)$, and also obtain the block metadata $(H(B'),\rin,\rout,H(R^0_B),q,\ldots)$. 
 
 As $\prove$ is a randomized algorithm, $C$ must next reevaluate the block with $\verify_{\hat{\para}}(\blobB)$.  We shall assume verification succeeds, but if this verification fails then $C$ reports invalid parachain code for $\para$, and discards $B$ or possibly shuts down.  Assuming no errors, $C$ sends the candidate blob $\blobB$ to the corresponding parachain validators $\vals_\para$, along with any block metadata $(H(B'),\rin,\rout,H(R^0_B),q,\ldots)$. 
 
 \smallskip
 % \paragraph{Parachain validator:}
 
-We shall expect the parachain validator $V$ that processes candidate blob $\blobB$ to update $\blobB$'s associated metadata to reference the most recent relay chain block $R^1_B > R^0_B$, so long as $R^1_B$ still contains the same state root $q$ for $\rho$, 
+We shall expect the parachain validator $V$ that processes candidate blob $\blobB$ to update $\blobB$'s associated metadata to reference the most recent relay chain block $R^1_B > R^0_B$, so long as $R^1_B$ still contains the same state root $q$ for $\rho$,
 i.e.\ $(H(B'),\rin,\rout,H(R^1_B),$\vect{R^1_B q}$,\ldots)$.
 
 Next each {\bf parachain validator} $V \in \vals_\para$ checks the validity of the block by evaluating the block with $\verify_\para(\blobB)$.  We refer to these as the {\em preliminary validity checks} as well.  If verification succeeds, then $V$ gossips $\blobB$ among the parachain validators $\vals_\para$ after checking $\blobB$ itself, and we continue below.
@@ -156,22 +156,95 @@ In this situation, there might be prevotes but never any precommits in GRANDPA f
 
 As an aside, we also considered $U$ abandoning any fork $C$ for which at least $f+1$ different validators gossiped unavailability announcements for possibly distinct blobs in $C$, instead of for the same blob.  Any truly unavailable pieces eventually trigger both conditions but they trigger this variant with possibly distinct blobs first, and with more false positives.  We optimise for the honest case here and caution that more false positives results in more chains, so spammy parachains could create more load on the availability system.
 
-Any validator should revoke their past unavailability announcements for some piece $d \in \pieces_B$ whenever they eventually obtain $d$, again by gossiping the revocation.  We also define some super availability grace period, longer than $\npvals \grace$, after which time, if $2 f + 1$ of the validators announced unavailability of some specific piece, then the parachain validators who signed for that block are slashed.
+Any validator should revoke their past unavailability announcements for some piece $d \in \pieces_B$ whenever they eventually obtain $d$, again by gossiping the revocation.  We also define some super availability grace period, longer than $\npvals \grace$, after which time, if $2f+1$ of the validators announced unavailability of some specific piece, then the parachain validators who signed for that block are slashed.
 We revert this slash whenever revocations later reduce the unavailability announcements below $f+1$.
 % TODO: Any interactions with slashing computation?
 
 
-\subsection{Approval}
+\subsection{Approval} % phase
 \label{sec:approval}
 
-As mentioned above in \S\ref{sec:availability}, any validator $V$ accumulates availability announcements for each relay chain block $R$, and $V$ judges $R$ after they observe $f+1$ such availability claims.  If $V$ considers $R$ available then $V$ 
+As mentioned above in \S\ref{sec:availability}, any validator $V$ accumulates availability announcements for each relay chain block $R$.  After $V$ observe $2f+1$ such availability claims, then $V$ considers $R$ {\em available} and enters the approval phase for $R$.  The approval phase for $R$ consist of
+\begin{itermize}
+\item VRF criteria that determine the parachain candidates in $R$ on which $V$ runs secondary checks,
+\item announcements by secondary check criteria winners,
+\item retrieval and reconstruction of full candidate proof-of-validity blobs, 
+\item running secondary checks on the candidate proof-of-validity blobs, and 
+\item announcing these candidates validity or invalidity.
+\end{itermize}
 
-We say a
-We now suppose a validator $V$ has observed $f+1$ availability announcements,  for each candidate included in some relay chain block $R$.
+...
+
+We recall that a relay chain block $R$ has equivocations exist if there exists another relay chain block $R'$ distinct from $R$ using the same VRF output $\omega_{R'} = \omega_R$ for the relay chain randomness.  We distrust relay chain blocks with equivocations of course, and must mark them as having equivocations, but we sadly cannot invalidate them because doing so creates attacks on finality.  TODO: Explain?
+
+\paragraph{Criteria:}
+
+...
+
+We shall define four secondary check criteria on a parachain candidate receipt $\reciept_{B,\cdot}$ on two axes: initial vs completing, and whether the relay chain block $R$ has equivocations.  We define one fifth secondary check criteria to ...
+
+We track the number $\theta_{B,R}$ of secondary checks for $B$ associated to the relay chain block $R$.  If $R$ has equivocations, then we also track the number $\theta_B$ of secondary checks for $B$ not associatred to any relay chain block.  All secondary checks accumulate in the set $S$ of signatures on the candidate receipt $\reciept_{B,S}$.  If $B$ is a block on parachain $\rho$, then any parachain validator for $\rho$ in $\vals_\rho$ gets counted in both $\theta_B$ and $\theta_{B,R}$ for some $R$.  All other validators get counted only if they also published their VRF proof for winning a secondary check criteria for $B$.  We have no single criteria for being counted in both $\theta_{B,R}$ for some $R$ and $\theta_B$, meaning adding a validator to $\theta_{B,R}$ or $\theta_B$ never results in also adding the same validator to $\theta_B$ or $\theta_{B,R}$, respectively, or to $\theta_{B,R'}$ for some other $R'$, although conceivably some might get counted by winning multiple criteria.
+
+We also track the number $\ell_{B,R}$ for each $R$ and $\ell_B$ of the number of secondary check 
+
+Aside from accumulating $\theta_\cdot$, we track several more inputs to our VRF secondary check criteria:  
+
+
+We have a constant baseline minimum number $\basesecondarychecks$ of secondary checks, 
+
+as well as several dynamic report factors, like unavailability report factors $\rfuv$ from validators and $\runav$ from collators, and an invalidity report factor $\rinv$ from both collators and untrusted fishermen.  
+
+We set the target number $\secondarychecks$ of secondary checkers to be the sum of these:
+$$ \secondarychecks = \basesecondarychecks + \lceil \rfuv + \runav + \rinv \rceil $$
+We now target $\totalchecks = \npvals + \secondarychecks$ total checks when if we have enough secondary checks, again meaning that secondary checks can freely replace $\npvals-\primarychecks$ primary checks.  
+
+We have a number $\theta_{R,B}$ of total checks for 
+
+Each parachain candidate $B$ included in $R$, we have the 
+
+We additionally consider if any equivocations exist for the relay chain block $R$, meaning if there exists another relay chain block $R'$ distinct from $R$ using the same VRF output $\omega_{R'} = \omega_R$ for the relay chain randomness.  
+
+We describe four VRF criteria on two axes, initial checks vs filling up, and if $R$ has equivocations.
+
+
+axis 
+
+In the input aka  axis, $V$ always evaluates its VRFs with input given by the VRF output $\omega_R$ used for the relay chain randomness.  At the same tiem. once $V$ observes an equivocation $R' \ne R$ with $\omega_{R'} = \omega_R$ then $V$ also evaluates its VRF with input $\omega_R || H(B)$
+
+
+
+
+evaluates its VRFs with VRF output
+
+
+
+We construct a secondary check claim $\zeta$ for any satisfied VRF criteria.  We broadcast any such $\zeta$ immediately via gossip and retain $\zeta$ to claim priority in retrieval. 
+
+
+
+
+
+\paragraph{Retrieval:} 
+
+In all cases, $V$ takes these steps once it considers some secondary checks VRF criteria satisfied:
+
+First, $V$ construsts its secondary checks claim $\zeta$, which includes any equivocations required to verify $\zeta$.  Among our claim types, two consider the current secondary checks count and relative time as perceived by $V$, but verifiers compute this data locally.  $V$ announces its claim $\zeta$ via gossip.
+
+Second, we let $B$ denote the parachain candidate determined by $\zeta$ and $\reciept_{B,\cdot}$ its candidate receipt.  $V$ reconstructs the full {\em candidate proof-of-validity blob} $\blobB$ by obtaining enough pieces $\pieces_B$ from nodes known to posses them.  
+
+$V$ knows which which nodes have their individual pieces by the availability announcements.  Also $V$ knows that all pieces are known by the primary checkers aka parachain validators who approved $\blobB$, as well as secondary checkers who already approved $\blobB$.  Ideally $V$ might retrieve the pieces in $\pieces_B$ only using its existing connections in our topology specified above, except these intentionally do not include 1/3rd of validators.  Also, $V$ need not connect to any node with all of $\pieces_B$. 
+
+We further caution that verifying the VRF in $\zeta$ incurs computational costs similar to initiating a connections.  We therefore suggest that $V$ first contact some node that possesses all of $\blobB$, and only then begin a full reconstruction process.  
+
+
 
 
 
 TODO:  -1 announced check = +1 vcheck
+
+
+
+\paragraph{}
 
 
 
