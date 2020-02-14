@@ -2,13 +2,13 @@
 Research at Web3 Foundation
 ===========================
 
-Web3 Foundation Research is being done in an in-house `research team <https://research.web3.foundation/en/latest/research_team_members.html>`_ that is mostly located in Zug, Switzerland, as well as in collaboration with a number of industrial projects and academic research groups. To stay up to date with our research team efforts visit `news <https://research.web3.foundation/en/latest/news.html>`_.
+Web3 Foundation Research is being done in an in-house `research team <https://research.web3.foundation/en/latest/research_team_members.html>`_, mostly located in Zug (Switzerland), as well as in collaboration with industrial projects and academic research groups. To stay up to date with our research team efforts visit `news <https://research.web3.foundation/en/latest/news.html>`_.
 
-Our research focuses on areas of:
+Our research focuses on a number of areas that are relevant to decentralised systems:
 
-  - Decentralised Algorithms: Consensus, Optimization, Game Theory
-  - Cryptoeconomics
-  - (Proveable) Security and Cryptography
+  - (Proveable) Security, Cryptography, and Privacy
+  - Decentralised Algorithms: Consensus and Optimization
+  - Cryptoeconomics and Game Theory
   - Networking
 
 We analyze existing protocols, come up with new ones and specify them. We work closely with development teams to make sure our work is practical and useful in context of Web3 technologies.
