@@ -13,7 +13,7 @@ In more details, we formalize VRFs with following four probabilistic algorithms:
 \begin{itemize}
 \item $\VRF.\KeyGen$ is a probabilistic algorithm that returns a public-secret key pair $(\pkvrf,\skvrf)$, sometimes with a security parameter $\lambda$ input.
 \item $\VRF.\Sign_{\skvrf}$ is a probabilistic algorithm that takes a secret key $\skvrf$, and series of input seeds $(\alpha_1,\ldots,\alpha_n)$ for any $n\ge1$, and an extra message $m$, and yields a signature or proof $\pi$. 
-\item $\VRF.\Out$ extracts our outputs $(\omega_1,\ldots,\omega_n)$ from the signature $\pi$ and the input seeds $(\alpha_1,\ldots,\alpha_n)$, with each $\omega_i$ is determined only by $\alpha_i$ and $\pkvrf$.
+\item $\VRF.\Out$ extracts our outputs $(\omega_1,\ldots,\omega_n)$ from the signature $\pi$ and the input seeds $(\alpha_1,\ldots,\alpha_n)$, with each $\omega_i$ being determined only by $\alpha_i$ and $\pkvrf$.
 \item $\VRF.\Verify_{\pkvrf}$ is a probabilistic algorithm that takes a public key $\pkvrf$, a series of inputs $(\alpha_1,\ldots,\alpha_n)$, an extra message $m$, and a proof $\pi$, and outputs true or false.
 \end{itemize}
 
