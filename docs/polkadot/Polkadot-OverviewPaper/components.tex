@@ -22,4 +22,21 @@ Furthermore, Polkadot has a decentralised governance scheme \ref{sec:governance}
 
 \section{Summary and Achieved Goals}
 
-We decribed 
+
+NPoS tries to ensure, under reasonable assumptions about the stakers, that every validator is well backed by stake. It gives an economic incentive to back validators equally. It also algorithmically tries to achieve this as much as possible given the nominator's votes if they are prepared to trust more than one validator with their stake.  This allows it to adapt to changing circumstances even when the votes themselve do not change.
+
+If NPoS succeeds in making every validator well backed, then gthe availibility and validity scheme then ensures, that any attack on the validity of Polkadot is expensive in expectation. That is, the entirity of Polkadot'd economic security backs every parachain. If each parachain is backed by 1/100th of the stake, then if we catch any attempt at validity 
+
+For this to work, we need to be able to revert the chain until we know with good probability that all parachains are correct. This means that we need to be able to reorganise tha chain and for that the chain needs to be capable of forking.
+
+Thus we use a block production mechanism, BABE, that while run by validators, has similar properties to proof of work chains. Specifically we can use the longest chain rule as part of our consensus, and the next block producer is not known in advance.
+
+On it's own BABE would require us to wait a long time after a block is produced for finality, when we expect with high pribability that a block would never be reverted. Sometimes slow finality is required, to deal with challenges to availability. Most of the time however we would porefer to finalise blocks much faster.  To finalise blocks we use GRANDPA, a finality gadget that is cleanly seperated from block production, which gives it the adaptiveness this design needs. 
+
+
+If an account on one parachain sends tokens to another parachain, then XCMP ensures that this message is delivered correctly. It is sent at a speed which is not dependent on how long it takes to finalise blocks, which means that it needs to deal with the possibility of Polkadot forking. The parachain and XCMP logic ensure that a fork of the relay chain defines a consistent history of Polkadot and so that messages only arrive when they have been sent previously in the history defined by this fork.
+
+If this uses a SPREE module then that ensures that so long as the parachains execute correctly then tokens can only be created and destroyed in an agreed upon way. In turn the correct execution of the chains code is guaranteed bu the availability and validity scheme. SPREE ensures that this code is correct as well, even though chains can change their own code.
+
+Governance...
+
