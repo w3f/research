@@ -25,7 +25,7 @@ In this section we summarise Polkadot's components and describe what they aim to
 
 NPoS \ref{sec:validators} tries to ensure, under reasonable assumptions about the stakers, that every validator is well backed by stake. It gives an economic incentive to back validators equally. It also algorithmically tries to achieve this as much as possible given the nominator's votes if they are prepared to trust more than one validator with their stake.  This allows it to adapt to changing circumstances even when the votes themselves do not change.
 
-If NPoS succeeds in making every validator well backed, the availability and validity scheme \ref{sec:validity-and-availability} then ensures, that any attack on the validity of Polkadot is expensive in expectation. That is, the entirety of Polkadot'd economic security backs every parachain. Assuming we have 100 parachains, if each parachain is backed by 1/100th of the stake, then if we catch any attempt at validity manipulation it costs the adversary significantly lower.  
+If NPoS succeeds in making every validator well backed, the availability and validity scheme \ref{sec:validity-and-availability} then ensures, that any attack on the validity of Polkadot is expensive in expectation. That is, the entirety of Polkadot'd economic security backs every parachain. Assuming we have 100 parachains, if each parachain is backed by 1/100th of the stake, then if we catch any attempt at validity manipulation it costs the adversary significantly less to attack the system.  
 
 For this to work, we need to be able to revert the chain until we know with good probability that all parachains are correct. This means that we need to be able to reorganise the chain and for that the chain needs to be capable of forking.
 
