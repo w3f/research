@@ -38,6 +38,7 @@ As such we will still need a tie-breaker for the parachain validators to coordin
 This may be the golden ticked scheme of \cite{2016:Wood:Polkadot}.
 
 \handan{}{In general, when I read this section,  I felt like some parts are not certain because we give options e.g.  we could do this, parachain should do this etc. What if they don't do that? How do we enforce them? I think we should be more direct.}
+
 \subsubsection{Validity and Availability} \label{sec:validity-and-availability}
 Once a block is created it is important that the parachain blob consisting of the parachain block, the PoV block and set of outgoing messages from the parachain is available for a while.
 The naive solution for this would be broadcasting/gossip the parachain blobs to all relay chain nodes, which is not a feasible option because the are are many parachains and the PoV blocks may be big.
@@ -49,13 +50,13 @@ We have no guarantees that anyone other than the collator and parachain validato
 If these collude then the rest of the parachain network need not have it and then most collators cannot build a new block and its invalidity may not be discovered.
 We would like the consensus participants, here the validators, to collectively guarantee the availability rather than relying on a few nodes.
 
-To this end we designed an availability scheme that uses erasure coding \handan{\cite{}}{ref} to distribute the parachain PoV to all validators.
+To this end we designed an availability scheme that uses erasure coding \cite{} to distribute the parachain PoV to all validators.
 When any misbehaviour, unavailability particularly in relation to invalidity, is detected the PoV can be reconstructed from the distributed erasure coded pieces.
 
 If a block is available, then full nodes of the parachain, and any light client that has the PoV block can check its validity. We have three-level of validity check in Polkadot. The first validity check of a blob is executed by the corresponding parachain validators. If they verify the blob then they sign and distribute the erasure codes of the blob to each validator.
 We rely on nodes acting as {\em fishermen} to report invalidity as second level of validity check. They would need to back any claim with their own stake in DOTs. We would assume that most collators would be fishermen, as they have a stake in continued validity of the chain and are already running full nodes, so all they need is stake in DOTs. The third level of validity check is executed by a few randomly and privately assigned validators just after a block containing the blob header is created in the relay chain. We determine the number of validator in the third check considering amount of fishermen reports and unavailability reports by collators. If  any invalid blob is detected in the relay chain, the validators who signed for its validity are slashed.
 
-The security of our availability and validity scheme based on the security of GRANDPA finality gadget (See Section \ref{sec:grandpa}) and the good randomness generated in each BABE epoch (See Section \ref{sec:babe}). Please see \cite{availandvalid} for more details about the availability and validity scheme.
+The security of our availability and validity scheme based on the security of GRANDPA finality gadget (see Section \ref{sec:grandpa}) and the good randomness generated in each BABE epoch (see Section \ref{sec:babe}). Please see \cite{availandvalid} for more details about the availability and validity scheme.
 
 
 \subsubsection{Cross Chain Messaging Protocol (XCMP)} \label{sec:XCMP}
@@ -79,4 +80,3 @@ we implement a method for parachains to make it illegal for another parachain to
 when the parachaim header is included in a relay chain block. The relay chain should at least act as a back up.
 The receiving parachain validators are connected to the parachain network and if they do not receive messages on it, then they can ask for them from the parachain validators of the sending chain at the time the message was sent.
 
-\eray{}{-comment: Why are these empty spaces between subsections?-}
