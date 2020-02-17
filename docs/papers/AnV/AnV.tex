@@ -1,4 +1,7 @@
 \documentclass[letterpaper,11pt]{article}
+
+%=================Begin:Packages===================
+
 \usepackage[utf8]{inputenc}
 \usepackage{a4wide}
 \usepackage[english]{babel}
@@ -11,6 +14,10 @@
 \usepackage{xargs}                      % Use more than one optional parameter in a new commands
 \usepackage[pdftex,dvipsnames]{xcolor}  % Coloured text etc.
 
+%=================End:Packages===================
+
+%==================Begin:Style===================
+
 \newtheorem{definition}{Definition}
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
@@ -21,12 +28,18 @@
 \newcommand\mathperiod{.}
 \newcommand\mathcomma{,}
 
+%===================End:Style====================
+
+%==================Begin:Macros==================
 
 \newcommand{\floor}[1]{\left\lfloor #1 \right\rfloor}
 \newcommand{\ceil}[1]{\left\lceil #1 \right\rceil}
 
 \newcommand{\vect}[1]{\overrightharp{\ensuremath{#1}}} % {\overset{\rightharpoonup}{#1}}
 
+% probability with square brackets of the right size
+% \newcommand{\Pr}{\ensuremath{\mathsf{Pr}}} %probability
+% \newcommand{\Prb}[1]{\ensuremath{\Pr\left [#1 \right ]}}
 
 \newcommand*\set[1]{\{ #1 \}} % in text, we don't want {} to grow
 \newcommand*\Set[1]{\left\{ #1 \right\}}
@@ -39,7 +52,30 @@
 \newcommand*\Listst[2]%
         {\left[\,#1\vphantom{#2} \;\right|\left. #2 \vphantom{#1}\,\right]}
 
-% \newcommand{\Pr}{\ensuremath{\mathsf{Pr}}} %probability
+% uniform random selection from set
+\newcommand{\randsel}[0]{\ensuremath{\xleftarrow{\text{\$}}}}
+
+% oracles
+\newcommand{\ora}[1]{\ensuremath{\mathcal{O}\mathsf{#1}}}
+% oracle set
+\newcommand{\oraSet}[1]{\ensuremath{\mathcal{O}\textsc{#1}}}
+% algorithm
+\newcommand{\algo}[1]{\ensuremath{\mathsf{#1}}}
+% party
+\newcommand{\prt}[1]{\ensuremath{\mathcal{#1}}}
+% long-form variable
+\newcommand{\var}[1]{\ensuremath{\mathit{#1}}}
+
+%=================End:Macros=====================
+
+%=================Begin:Definitions===================
+
+\newcommand{\VRF}{\algo{VRF}} 
+\newcommand{\RingVRF}{\algo{RingVRF}} 
+\newcommand{\Sign}{\algo{Sign}} 
+\newcommand{\Verify}{\algo{Verify}} 
+\newcommand{\KeyGen}{\algo{KeyGen}} 
+\newcommand{\Out}{\algo{Out}} 
 
 \newcommand{\sk}{\ensuremath{\mathsf{sk}}} %secret key
 \newcommand{\pk}{\ensuremath{\mathsf{pk}}} %public key
