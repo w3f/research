@@ -43,17 +43,17 @@ at what time a slot starts according to their local clocks.
 \paragraph{Security Overview of BABE:} Garay et al. \cite{backbone} define the properties defined below in order to obtain a secure blockchain protocol. Informally, we can describe these properties as follows:
 
 \begin{itemize}
-	\item \emph{Common Prefix (CP):} 
+	\item \emph{Common Prefix (CP):} \label{item:common_prefix}
 	%\eray{}{-comment: Isn't this CPP? How did you get CP as an abbreviation here?-}:}: It is used as CP in the literature. I removed the Property to be consisten with the name of the next properties
 	 It ensures that the blocks which are $ k $-blocks before the last block of an honest validator's blockchain cannot be changed. We call  all unchangeable blocks  \emph{finalized} blocks. BABE satisfies CP property thanks to the honest super majority since malicious validators are selected for a slot probabilistically much less than the honest validators. It means that malicious validators do
 	 % \eray{does}{do}
 	  not have enough 
 	  %\eray{source}{sources}: source sounds better for me
 	  to construct another chain which does not include one of the finalized blocks.
-	\item \emph{Chain Quality (CQ):} It ensures sufficient honest block contribution to any best chain owned by an honest party.	We guarantee even in the worst case where a network delay is maximum that there will be at least one honest block in the best chain during an epoch so that the randomness cannot be biased.
-	\item \emph{Chain Growth (CG):} It guarantees a minimum growth between slots. Thanks to super majority of honest validators, malicious validators cannot prevent the growth of the best chain.	
+	\item \emph{Chain Quality (CQ):} \label{item:chain_quality} It ensures sufficient honest block contribution to any best chain owned by an honest party.	We guarantee even in the worst case where a network delay is maximum that there will be at least one honest block in the best chain during an epoch so that the randomness cannot be biased.
+	\item \emph{Chain Growth (CG):} \label{item:chain_growth} It guarantees a minimum growth between slots. Thanks to super majority of honest validators, malicious validators cannot prevent the growth of the best chain.
 	
-	\item \emph{Chain Density (CD):} It ensures that in a sufficiently long portion of the best chain more than half of the blocks produced by honest validators. CQ and CD properties %\eray{implies}{imply} 
+	\item \emph{Chain Density (CD):} \label{item:chain_density} It ensures that in a sufficiently long portion of the best chain more than half of the blocks produced by honest validators. CQ and CD properties %\eray{implies}{imply} 
 	imply this property \cite{Praos}.
 \end{itemize}
 Further details about BABE and  its security analysis can be found in \cite{babe}.
