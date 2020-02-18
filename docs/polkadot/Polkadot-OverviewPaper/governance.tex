@@ -1,46 +1,47 @@
 \subsection{Governance}\label{sec:governance}
 
-Polkadot uses a sophisticated governance mechanism that allows it to evolve gracefully over time at the ultimate behest of its assembled stakeholders. A key and unfailing rule is that 
+Polkadot uses a sophisticated governance mechanism that allows it to evolve gracefully over time at the ultimate behest of its assembled stakeholders. A key and unfailing rule is that \emph{all changes to the protocol must be agreed upon by stake-weighted referendum -- the majority of stake always commands the network.}
 
-\begin{align}\label{rule:governance}
-\text{\emph{all changes to the protocol must be agreed upon by stake-weighted referendum -- the majority of stake can always command the network.}}
-\end{align}
+In order to make any changes to the network, the idea is to compose stakeholders (i.e. all holders of dots) and the Council (\autoref{s:council}) together to administrate a network upgrade decision. No matter whether the proposal is submitted by a stakeholder or the Council, it will ultimately have to go through a referendum to let all stakeholders, weighted by stake, make the decision.
 
-In order to make any changes to the network, the idea is to compose stakeholders (i.e. all holders of dots) and the Council (\autoref{s:council}) together to administrate a network upgrade decision. No matter whether the proposal is proposed by the public (dot holders) or the Council, it will ultimately have to go through a referendum to let all dot holders, weighted by stake, make the decision.
+Each stakeholder in Polkadot has the right to: a) submit a proposal, b) endorse a public proposal to prioritize it in the referendum timetable, c) vote on all active referenda, d) become a candidate for the Council, and e) vote on candidates for the Council. In addition, any stakeholder has the right to become a nominator or a validator candidate, to participate in NPoS (\autoref{sec:validators}).
 
-
-
-\subsubsection{Proposals}
+\subsubsection{Proposals and Referenda}
 
 The core of the Polkadot logic is stored on-chain in an amorphous state-transition function and defined in a platform-neutral language: WebAssembly. Each proposal takes the form of a privileged function call in the runtime, that is able to modify the runtime code itself, achieving what would otherwise require a "hard fork". A proposal is then tabled and associated to a referendum. 
 
 Proposals can be started in one of several ways:
 \begin{itemize}
-\item a public proposal, which is submitted by any dot holder;
+\item a public proposal, which is submitted by any stakeholder;
 \item a Council proposal, submitted by the Council with either majority or unanimous approval;
 \item a proposal submitted automatically as part of the enactment of a prior referendum, and
-\item an emergency proposal submitted by the Technical Committee (\autoref{s:technical}) and approved by the Council.
+\item an emergency proposal submitted by the Technical Committee (\autoref{s:council}) and approved by the Council.
 \end{itemize} 
 
-All proposals approved by referendum have an associated enactment delay, i.e. a time interval between the referendum ending and the changes being enacted. For the first two types of proposals above this is a fixed interval, tentatively set to 28 days. For the third type, it can be set as desired. Emergency proposals deal with major problems with the network which need to be fast-tracked, and hence will have a shorter enactment delay. After the enactment delay, the call to the associated privileged function is automatically made.
+Each proposal approved by referendum has an associated enactment delay, i.e. a time interval between the referendum ending and the changes being enacted. For the first two types of proposals above this is a fixed interval, tentatively set to 28 days. For the third type, it can be set as desired. Emergency proposals deal with major problems with the network which need to be fast-tracked, and hence will have a shorter enactment delay. After the enactment delay, the call to the associated privileged function is automatically made.
 
-Any dot holder can submit a \emph{public proposal} by depositing a fixed minimum amount of dots, which stays locked for a certain period. If someone agrees with the proposal, they may deposit the same amount of tokens to endorse it. Public proposals are stored in a priority queue, and at regular intervals the proposal with the most endorsements gets tabled for a referendum. The locked tokens are released once the proposal is tabled.
+Any stakeholder can submit a \emph{public proposal} by depositing a fixed minimum amount of dots, which stays locked for a certain period. If someone agrees with the proposal, they may deposit the same amount of tokens to endorse it. Public proposals are stored in a priority queue, and at regular intervals the proposal with the most endorsements gets tabled for a referendum. The locked tokens are released once the proposal is tabled.
 
 \emph{Council proposals} are submitted by the Council, either by majority approval or by unanimity, and are stored in a separate priority queue where the priority is set at the Council's discretion. 
 
 \alfonso{}{We should explain what happens to the automatic proposals -- do they go to the public-propsal queue or the Council-proposal queue, or a different queue? I don't know, we need to ask Gavin.}
 
-\subsubsection{Referenda}
-
 A referendum is a simple, inclusive, staked-weighted voting scheme. It has a fixed voting period, after which votes are tallied. Referenda are always binary: voting options are "aye", "nay", or abstaining entirely.
 
 \paragraph{Timetables:} Every thirty days, a new proposal will be tabled and a referendum will come up for a vote. The proposal to be tabled is the top proposal from either the public-proposal queue or the Council-proposal queue, alternating between the two queues if both are non-empty. If both queues are empty, the slot is skipped in the referendum timetable. Multiple referenda cannot be voted upon in the same time period, except for emergency referenda, which follow a parallel timetable.
 
-\paragraph{Vote counting:} Voting on referenda is open to all token holders, with a voting power proportional to the holdings, up to a possible vote multiplier which we explain now. A voter generally must lock their tokens up for at least the enactment delay period beyond the end of the referendum. This is in order to ensure that some minimal economic buy-in to the result is needed and to dissuade vote selling. It is possible to vote without locking at all, but in that case the voting power is a small fraction of a normal vote, given the stake. Conversely, Polkadot will offer \emph{voluntary locking}, that allows a voter to increase their voting power by extending the period of time they are willing to lock up their tokens. This ensures that the more committed voters, who are willing to increase their exposure to a decision, have a greater say in the matter.
+\paragraph{Vote counting:} Voting on referenda is open to all stakeholders, with a voting power proportional to the stake, up to a possible vote multiplier which we explain now. A voter generally must lock their tokens up for at least the enactment delay period beyond the end of the referendum. This is in order to ensure that some minimal economic buy-in to the result is needed and to dissuade vote selling. It is possible to vote without locking at all, but in that case the voting power is a small fraction of a normal vote for the given stake. Conversely, Polkadot will offer \emph{voluntary extended locking}, that allows a voter to increase their voting power by extending the period of time they are willing to lock up their tokens. This ensures that voters committed to the system long term, who are willing to increase their exposure to the decision of a referendum, have a greater say in the matter. In particular parachains, who lock tokens when they join the network (\autoref{s:pAllocation}), as well as validators and nominators, who lock their stake to participate in NPoS (\autoref{sec:validators}), may vote with their locked tokens and automatically benefit from a vote multiplier.
 
-\paragraph{Tallying and turnout biasing:} It may seem restrictive to force a stakeholder-based process to do something as little as, say, nudging the block time down by $5\%$. However, without rule~\eqref{rule:governance} the network would likely be unstable, as placing its control outside of the hands of stakeholders would create a misalignment that would lead to inaction or worse. However, by taking advantage of the fact that turnout is rarely $100\%$, we can effect different outcomes depending on the circumstances, crafting a balance of power between active and passive stakeholders. For example, simple voting systems typically introduce a notion of quorum, whereby a minimum amount of turnout must be reached before a change is passed. For public proposals, we generalize this notion to a "positive turnout bias" for public proposals, where additional turnout always makes change more likely, assuming the same yay-to-nay ratio. Additionally, we favor the nay side (or status quo) by requiring a super-majority approval. This works on two principles: Firstly that the status quo tends to be safer than any change, and thus should have some bias towards it. Secondly that, like all means of empirical measurement, there is inevitably going to be some degree of inaccuracy and volatility over time. A result could be $51\%-49\%$ one month and then change to $49\%-51\%$, and given the costs involved in enacting the changes of a proposal, it is advantageous to ensure that a result would not likely flip within a short period of time after enactment, and thus a supermajority should approve the non-status-quo option. 
+\paragraph{Turnout biasing:} It may seem restrictive to force a stakeholder-based process to do something as little as, say, nudging the block time down by $5\%$. However, without this rule the network would likely be unstable, as placing its control outside of the hands of stakeholders would create a misalignment that may lead to inaction or worse. However, by taking advantage of the fact that turnout is rarely $100\%$, we can effect different outcomes depending on the circumstances, crafting a balance of power between active and passive stakeholders. For example, simple voting systems typically introduce a notion of quorum, whereby a minimum amount of turnout must be reached before a change is passed. For public proposals, we generalize this notion into a "positive turnout bias", where additional turnout always makes change more likely, assuming the same yay-to-nay ratio. Additionally, we favor the nay side (or status quo) by requiring a super-majority approval. This works on two principles: Firstly that the status quo tends to be safer than any change, and thus should have some bias towards it. Secondly that, like all means of empirical measurement, there is inevitably going to be some degree of inaccuracy and volatility over time -- a result could be $51\%-49\%$ one month and then change to $49\%-51\%$, and given the costs involved in enacting the changes of a proposal, it is advantageous to ensure that a result would not likely flip shortly after enactment. 
 
-\subsubsection{The Council}\label{s:council}
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=1.1\textwidth]{images/Turnout-Bias.png}
+  \caption{Adaptive turnout biasing \alfonso{}{to be replaced by a more technical figure}}
+    \label{fig:biasing}
+\end{figure}
+
+\subsubsection{The Council and Technical Committee}\label{s:council}
 
 The Council is an entity comprising a number of actors each represented by an on-chain account. Its goals are to represent passive stakeholders, organize the timetables of referenda, and review the viability and priority of proposals.
 
@@ -48,9 +49,8 @@ Polkadot will likely begin with six seats in the Council, and add an extra indiv
 
 \alfonso{Each of the members is elected through approval voting.}{Not sure if I should mention which method, currently Phragmen, as I'm not sure if we will settle on that.} All stakeholders are free to launch their candidacy for a seat in the Council as well as signal their approval of any of the registered candidates. Members can be removed early only by a referendum.
 
-\subsubsection{The Technical Committee}\label{s:technical}
- 
- \paragraph{Parachain Allocation\eray{}{:}}
+\subsubsection{Allocation of parachain slots}\label{s:pAllocation}
+
 We use auctions to have a fair and transparent parachain allocation procedure.
 Since implementing seal-bid auctions are difficult and \eray{to}{we want to} avoid bid sniping\eray{}{,} we adopt \eray{an}{a} Candle auction \cite{Fuellbrunn:2012:CandleAuction} with a retroactively determined close as follows.
 
