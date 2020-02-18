@@ -43,7 +43,7 @@ Generally speaking, the communication data flow follows these patterns:
 \item as a special case, the erasure coded scheme for availability is sent directly from parachain validators to specific other validators. The scheme is design specifically to handle unreliability in the direct-sending primitive, which is generally harder to achieve reliability for than gossip or non-specific sending to a subset.
 \end{itemize}
 
-\subsubsection{Authentication and discovery}
+\subsubsection{Authentication and discovery} \label{sec:auth_discovery}
 
 In secure protocols in general, and likewise with Polkadot, entities refer to each other by their cryptographic public keys. There is no strong security association with weak references such as IP addresses since those are typically controlled not by the entities themselves but by their communications provider.
 
@@ -53,7 +53,7 @@ Currently, this "address book" service is also used as the primary discovery mec
 
 It is planned to develop a stronger authentication mechanism, where nodes authenticate themselves - their cryptographic identities and their roles as part of Polkadot - and verify other nodes both when (a) connections are mode, and when (b) looking up new nodes in the address book. Furthermore it should be possible to discover nodes that match a particular role, e.g. "collator for parachain C" and so on. Nevertheless it is also important to retain the ability to accept incoming connections from unauthenticated entities, e.g. users submitting transactions, or previously-privileged nodes that have been offline for a while that now want to synchronise, and this needs to be restricted on a resource basis, without starving the authenticated entities.
 
-\subsubsection{Gossiping}
+\subsubsection{Gossiping} \label{sec:gossiping}
 The main idea of gossiping is to broadcast every newly received message in the nodes local network (peers that the node is aware of). Moreover, we apply some restriction to the gossiping protocol to prevent bandwidth problems, e.g., denial-of-service (DoS-ed) as follows. Currently a naive flooding approach is implemented, with various plans to make this more secure and efficient later on, which can be done independently of other components.
 
 For GRANDPA we only allow two votes being received for each type of vote, round number, and voter. Any further votes will be ignored. For block production only valid block producers are allowed to produce one block per round and further blocks will be ignored.
