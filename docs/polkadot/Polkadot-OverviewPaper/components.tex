@@ -2,17 +2,12 @@
 %\begin{samepage}
 Next, we summarise Polkadot functionality shortly for an overall picture and then continue to describe the individual components to show how to achieve that functionality.
 
-\handan{Polkadot is a multi-chain system with shared security guarantees}{we use this sentence in couple of places. I think we don't need to repeat it here. Also, in one of the places that we use this sentence, we need to explain shortly what the shared security means and implies}. Polkadot consists of a main chain called \handan{the Relay Chain}{is  it ``the relay chain'' or ``the Relay Chain''. We should be consistent with this in whole paper.} and multiple parallel chains
-called Parachains. The relay chain is maintained by validators that are selected through the NPoS scheme \ref{sec:validators} and is responsible for \handan{}{add 'producing blocks of the  Relay Chain \ref{sec:babe} and'} keeping the state of all the parachains \ref{sec:relaychain}.
+Polkadot consists of a main chain called the relay chain and multiple sharded chains called parachains. The relay chain is maintained by validators that are selected through the NPoS scheme \ref{sec:validators} and is responsible for producing blocks of the  Relay Chain \ref{sec:babe} and keeping the state of all the parachains \ref{sec:relaychain}.
 These validators need to vote on the consensus over all the parachains, see the consensus scheme \ref{sec:grandpa} for more details.
 The security goal of Polkadot is to be Byzantine fault tolerant when the participants are rational (see \ref{sec:economics} for more detail on incentives and economics).
-\handan{In addition, the validators are assigned to parachains by dividing the validators set into random disjoint subsets that are each assigned to a particular parachain.}{we repeat it one sentence later. We can remove it here. }
 For parachains, there are additional actors called collators and fishermen that are responsible for parachain block production \ref{sec:parachainblockproduction} and reporting invalid parachain blocks respectively.
-The parachain validators assigned to each parachain validate each parachain block and are responsible to keep it available. \handan{For this purpose, they create erasure coded pieces from the parachain blocks and distribute
-them to all the remaining validators}{do we need to give this detail here?}, see \ref{sec:validity-and-availability}. Moreover, another feature of Polkadot is enabling interchain messaging among parachains, see \ref{sec:XCMP} for more details.
+The parachain validators assigned to each parachain validate each parachain block and are responsible to keep it available, see \ref{sec:validity-and-availability}. Moreover, another feature of Polkadot is enabling interchain messaging among parachains, see \ref{sec:XCMP} for more details.
 Furthermore, Polkadot has a decentralised governance scheme \ref{sec:governance} that can change any Polkadot design decisions and parameterisation.
-
-\eray{}{-comment: Why is there this empty space between subsections?-}
 
 %What do they achieve (refer to properties)?
 \input{validators}
@@ -24,3 +19,21 @@ Furthermore, Polkadot has a decentralised governance scheme \ref{sec:governance}
 \input{crypto}
 \input{networking}
 %\end{samepage}
+
+\section{Summary and Achieved Goals}\label{sec:summary}
+In this section we summarise Polkadot's components and describe what they aim to achieve. 
+
+NPoS \ref{sec:validators} tries to ensure, under reasonable assumptions about the stakers, that every validator is well backed by stake. It gives an economic incentive to back validators equally. It also algorithmically tries to achieve this as much as possible given the nominator's votes if they are prepared to trust more than one validator with their stake.  This allows it to adapt to changing circumstances even when the votes themselves do not change.
+
+If NPoS succeeds in making every validator well backed, the availability and validity scheme \ref{sec:validity-and-availability} then ensures, that any attack on the validity of Polkadot is expensive in expectation. That is, the entirety of Polkadot'd economic security backs every parachain. Assuming we have 100 parachains, if each parachain is backed by 1/100th of the stake, then if we catch any attempt at validity manipulation it costs the adversary significantly less to attack the system.  
+
+For this to work, we need to be able to revert the chain until we know with good probability that all parachains are correct. This means that we need to be able to reorganise the chain and for that the chain needs to be capable of forking.
+
+Thus we use a block production mechanism, BABE \ref{sec:babe}, that while run by validators, has similar properties to proof-of-work chains. Specifically we can use the longest chain rule as part of our consensus, and that the next block producer is not known in advance.
+
+On its own BABE would require us to wait a long time after a block is produced for finality, when we expect with high probability that a block would never be reverted. Sometimes slow finality is required, to deal with challenges to availability. Most of the time however we would prefer to finalise blocks much faster.  To finalise blocks we use GRANDPA \ref{sec:consensus}, a finality gadget that is cleanly separated from block production, which gives it the adaptiveness this design needs. 
+
+If an account on one parachain sends tokens to another parachain, then XCMP \ref{sec:XCMP} ensures that this message is delivered correctly. It is sent at a speed which is not dependent on how long it takes to finalise blocks, which means that it needs to deal with the possibility of Polkadot forking. The parachain and XCMP logic ensure that a fork of the relay chain defines a consistent history of Polkadot and so that messages only arrive when they have been sent previously in the history defined by this fork. If the token transfer is carried out in conjunction with SPREE modules then that ensures that so long as the parachains execute correctly then tokens can only be created and destroyed in an agreed upon way. In turn the correct execution of the chains code is guaranteed bu the availability and validity scheme. SPREE ensures that this code is correct as well, even though chains can change their own code.
+
+The governance mechanism allows Polkadot dot-holders to participate in the decision-making process rather than being imposed by a central authority or in the case of some decentralised systems, the developers of the system .  
+

@@ -11,7 +11,7 @@ coming from the minting of new dots.
 Unlike other blockchain protocols, the amount of tokens in Polkadot will not be bounded by an absolute constant, but there will rather be a controlled yearly inflation rate. Indeed, recent research~\cite{chitra2019competitive} suggests that in a proof-of-stake based protocol the staking rewards must remain competitive, in order to maintain high staking rates and high security levels, so deflationary policies are advised against. 
 
 In our design, dots minted for staking rewards are the main driver of inflation in the system. 
-This is because Treasury (\autoref{sec:governance}) the only other mechanism that mints dots, 
+This is because Treasury (\autoref{sec:governance}), the only other mechanism that mints dots, 
 is designed to closely match its expenditure to the average dot burning caused by transaction fees and slashings.
 Thus, it is convenient to introduce our inflation model in this section as well. 
 %We do not consider rewards coming from transaction fees, slashings, nor rewards to fishermen and other reporters of offenses; these will be analyzed in further sections. 
@@ -45,7 +45,7 @@ A further incentive mechanism put in place to ensure decentralization over time
 is \emph{paying validator supports equally for equal work, regardless of their stake}. 
 As a consequence, if a popular validator has a high support, its nominators will likely be paid less per staked dot 
 than nominators backing a less popular validator. Hence, nominators will be incentivized to change their preferences 
-over time, helping the system converge to the ideal case where all validator supports have equal stake.
+over time in favor of less popular validators (with good reputation nonetheless), helping the system converge to the ideal case where all validator supports have equal stake.
 
 In particular, we devise a point system in which validators accumulate points for each payable action performed, 
 and at the end of each era validator slots are rewarded proportional to their points. 
@@ -86,14 +86,22 @@ and even aim to make their logistics simpler, so long as they disclose such corr
 so that nominators can adjust their strategy accordingly.
 
 
-\subsubsection{Relay-chain transaction fees and block limits}
+\subsubsection{Relay-chain block limits and transaction fees}
 
-\paragraph{Limits on resource usage\eray{.}{:}} Every relay-chain block can process a limited number of transactions, in order to ensure it can be processed efficiently even on less powerful nodes\eray{, 
-and}{ and to} avoid delays in block production. 
+\paragraph{Limits on resource usage.} We bound the amount of transactions that a relay-chain block can process, 
+in order to a) ensure that each block can be processed efficiently even on less powerful nodes, and avoid delays in block production; b) have guaranteed availability for a certain amount of high-priority, operational transactions such as misconduct reports; and c) limit the growth rate of the relay-chain state. 
+In particular, we set block constraints on the following resources: on-chain byte-length, 
+time and memory required to process the transactions, and increase in state storage.
 
-\eray{}{-comment: Is this section meant to be developed further? If not, it looks to short to have two separate titles.-}
+We classify transactions into several types, according to their priority level and resource consumption profile. 
+For each of these types we have run tests based on worst-case scenarios for state, and for different input arguments. 
+From these tests, we establish conservative estimates on resource usage for each transaction, and we use these estimates to ensure that all constraints on resource usage are observed.
 
-\eray{}{-comment: empty space between subsections.-}
+We also add an additional constraint on resources: we distinguish between regular and high-priority transactions, and only let regular transactions account for up to $75\%$ of each block resource limit. This is to ensure that each block has a guaranteed space for high-priority transactions of at least $25\%$ of resources.
+
+\paragraph{Transaction fees.} We run an adaptive transaction fee schedule that reacts to the traffic level, and ensures that blocks are typically far from full, so that peaks of activity can be dealt with effectively and long inclusion times are rare. We make fees evolve slowly enough, so that the fee of any transaction can be predicted accurately within a frame of an hour. In particular, we do NOT intend for transaction fees to be the main source of income for stakers
+
+
 
 %\subsubsection{Slashing}
 

@@ -1,0 +1,82 @@
+
+
+
+
+\paragraph{Secondary checks:}
+
+We define secondary check VRF criteria on a parachain candidate receipt $\reciept_{B,\cdot}$.
+
+criteria 
+
+ with two distinct VRF inputs and parameters:  
+
+First, we always run checks using as check VRF input the VRF output randomness source $\hat{\omega}_R$ associated to $R$.  We always do this because $\hat{\omega}_R$ gives adversaries minimal influence over secondary checker assignments. 
+
+Second, we fear an adversary might create an $R'$ with an innocent $B'$ on $\rho$ merely to learn the secondary checkers determined by $\hat{\omega}_R$ for $\rho$, but then equivocate with another $R$ that containing a malicious $B$ on $\rho$.  As a result, if $R$ has equivocations, then we run additional secondary checks using as check VRF input the block hash $H(B)$, or perhaps the Merkle root $\merkleroot_B$.  In this way, an adversary who equivocations always faces new checks against the new parachain block $B$, without impacting the innocent parachains too much when faced with numerous equivocations.
+
+
+We always track the number $\theta_{B,R}$ of secondary checks for $B$ associated to the relay chain block $R$.  If $R$ has equivocations, then we also track the number $\theta_B$ of secondary checks for $B$ independent of any relay chain block.  All secondary checks accumulate inside the set $S$ of signatures on the candidate receipt $\reciept_{B,S}$.  
+
+If $B$ is a block on parachain $\rho$, then any parachain validator for $\rho$ in $\vals_\rho$ gets counted in both $\theta_B$ and $\theta_{B,R}$ for some $R$.  
+All other validators get counted as secondary checkers only if they also published their VRF proof for winning a secondary check criteria for $B$.  We have no single criteria for being counted in both $\theta_{B,R}$ for some $R$ and $\theta_B$, meaning adding a validator to $\theta_{B,R}$ or $\theta_B$ never results in also adding the same validator to $\theta_B$ or $\theta_{B,R}$, respectively, or to $\theta_{B,R'}$ for some other $R'$, although conceivably some might get counted by winning multiple criteria.
+
+We also track the number $\ell_{B,R}$ for each $R$ and $\ell_B$ of the number of secondary check 
+
+Aside from accumulating $\theta_\cdot$, we track several more inputs to our VRF secondary check criteria:  
+
+
+We have a constant baseline minimum number $\basesecondarychecks$ of secondary checks, 
+
+as well as several dynamic report factors, like unavailability report factors $\rfuv$ from validators and $\runav$ from collators, and an invalidity report factor $\rinv$ from both collators and untrusted fishermen.  
+
+We set the target number $\secondarychecks$ of secondary checkers to be the sum of these:
+$$ \secondarychecks = \basesecondarychecks + \lceil \rfuv + \runav + \rinv \rceil $$
+We now target $\totalchecks = \npvals + \secondarychecks$ total checks when if we have enough secondary checks, again meaning that secondary checks can freely replace $\npvals-\primarychecks$ primary checks.  
+
+We have a number $\theta_{R,B}$ of total checks for 
+
+Each parachain candidate $B$ included in $R$, we have the 
+
+We additionally consider if any equivocations exist for the relay chain block $R$, meaning if there exists another relay chain block $R'$ distinct from $R$ using the same VRF output $\omega_{R'} = \omega_R$ for the relay chain randomness.  
+
+We describe four VRF criteria on two axes, initial checks vs filling up, and if $R$ has equivocations.
+
+
+axis 
+
+In the input aka  axis, $V$ always evaluates its VRFs with input given by the VRF output $\omega_R$ used for the relay chain randomness.  At the same tiem. once $V$ observes an equivocation $R' \ne R$ with $\omega_{R'} = \omega_R$ then $V$ also evaluates its VRF with input $\omega_R || H(B)$
+
+
+
+
+evaluates its VRFs with VRF output
+
+
+
+We construct a secondary check claim $\zeta$ for any satisfied VRF criteria.  We broadcast any such $\zeta$ immediately via gossip and retain $\zeta$ to claim priority in retrieval. 
+
+
+\endinput
+
+
+
+
+\paragraph{Tertiary checks:}
+
+We shall also define a third secondary check criteria used to replace secondary checkers who never vote.
+
+
+
+
+
+
+
+TODO:  -1 announced check = +1 vcheck
+
+
+
+\paragraph{}
+
+
+
+

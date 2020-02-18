@@ -8,6 +8,9 @@
 \addto\extrasenglish{ \renewcommand{\sectionautorefname}{\S} \let\subsectionautorefname\sectionautorefname \let\subsubsectionautorefname\sectionautorefname }
 % The lines above allow for the option to use \autoref{}, which adds the section symbol § next to the section number.
 
+\usepackage[margin=1.3in]{geometry}
+
+
 \usepackage{graphicx}
 \usepackage{bmpsize}
 
@@ -113,14 +116,14 @@ We review the properties that Polkadot aims to achieve and go over all the compo
 \newpage
 \input{introduction}
 \input{preliminaries}
-\input{properties}
+%\input{properties}
 \input{components}
 %\input{PolkadotInPractice}
 
 \section*{Acknowledgement}
 We would like to acknowledge Parity Technologies developers for their useful input and good discussions.
 \bibliographystyle{plain}
-\bibliography{references,crypto}
+\bibliography{references,crypto,rt,grandpa}
 \begin{appendix}
 \input{background}
 \end{appendix}

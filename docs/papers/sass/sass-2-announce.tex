@@ -52,7 +52,7 @@ We denote the validator set of an era by the array $ \vals $.  In this notation,
 We could define our initial chain state using a secret sharing scheme like Schoenmakers' PVSS \cite{Schoenmakers_PVSS}, except we foresee an extremely limited initial block producer pool.  
 Instead, we suggest doing a ``soft launch'' in which all block producers create almost all their blocks as yielding similar security and confidence to PVSS. 
 
-We initialize this soft launch by selecting some initial $ \rinit $ values from which we define any initial $r_e$ values and choose some initial block production sequence. 
+We initialize this soft launch by selecting some initial $\rinit$ values from which we define any initial $r_e$ values and choose some initial block production sequence. 
 
 An initial block production sequence should be defined by a Ficher-Yates shuffle, with randomness supplied by the CSPRNG $\mathsf{ChaCha}(\rinit,e,\cdot)$.  We stretch this over as many epochs as required running one shuffle for each epoch because this stream cipher produces almost unlimited randomness.
 
@@ -181,8 +181,8 @@ We therefore require a non-ring non-group VRF signature $\pi^0_{V,e,i} \ne \pi_{
 In any case, our block producers $V$ claims their slot $\ell$ by publishing a block along with a header that includes the full block hash and the appropriate $\omega_{V,e,i}$ and the proof $\pi^0_{V,e,i})$ of correctness for $\omega_{V,e,i}$ that now proves their identity $V$.  
 
 At this point, $V$ seals the block header with the signature
-$$ (\hat{\omega}_{\ell},\hat{\pi}_{\ell}) := \VRFr.\Sign_{\skvrfr}(r''_{e+l+k} \| i, \mathsf{block\_header\_hash}) \mathperiod $$
-In other words, $\hat{\omega}_{\ell}$ is a VRF output for $r''_{e+l+k} \| i$ under the key pair $(\pkvrfr,\skvrfr)$, which $\hat{\pi}_{\ell}$ proves correct, and $\hat{\pi}_{\ell}$ also acts as a signature that seals the block header.  We actually do not require this binding between $\VRFa$ and the block seal, so another separate signature works fine here too.
+$$ \hat{\pi}_{\ell} := \VRFr.\Sign_{\skvrfr}(r''_{e+l+k} \| i, \mathsf{block\_header\_hash}) \mathperiod $$
+In other words, $\hat{\omega}_{\ell} := \VRFr.\Out(\hat{\pi}_{\ell})$ is a VRF output for $r''_{e+l+k} \| i$ under the key pair $(\pkvrfr,\skvrfr)$, which $\hat{\pi}_{\ell}$ proves correct, and $\hat{\pi}_{\ell}$ also acts as a signature that seals the block header.  We actually do not require this binding between $\VRFa$ and the block seal, so another separate signature works fine here too.
 
 
 \subsection{Recycle phase}\label{subsec:recycle_phase}
