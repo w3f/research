@@ -8,8 +8,8 @@
 \begin{longtable}{p{.15\textwidth}p{.55\textwidth}p{.1\textwidth}p{.1\textwidth}} \label{t:time}
     \textbf{Name}  & \textbf{Description} & \textbf{Symbol} & \textbf{Def} \\
     \hline
-    BABE & A mechanism to assign validators randomly to block production. && \ref{sec:babe} \\
-    BABE Slot & A period for which a relay chain block is produced. & \slot & \ref{sec:babe} \\
+    BABE & A mechanism to assign elected validators randomly to block production for a certain slot. && \ref{sec:babe} \\
+    BABE Slot & A period for which a relay chain block can be produced. & \slot & \ref{sec:babe} \\
     Collator & Assist validators in block production. A set of collators is defined as \Col . & \col & \ref{par:collators} \\
     DOT & The Polkadot native token. && \ref{sec:economics} \\
     Elected\newline- validators & A set of elected validators. & \Val & \\
@@ -20,7 +20,7 @@
     Gossiping & Broadcast every newly received message to peers. && \ref{sec:gossiping} \\
     GRANDPA & Mechanism to finalize blocks. && \ref{sec:grandpa} \\
     GRANDPA\newline- Round & a state of the GRANDPA algorithm which leads to block finalization. && \ref{sec:grandpa} \\
-    Nominator & Stake-holding party who nominates validators. A set of nominators is defined as \Nom . & \nom & \ref{par:nominators} \\
+    Nominator & Stake-holding party who nominates validators to be elected. A set of nominators is defined as \Nom . & \nom & \ref{par:nominators} \\
     NPoS & \emph{Nominated Proof-of-Stake} - Polkadot's version of PoS, where nominated validators get elected to be able to produce blocks. && \ref{sec:validators} \\
     Parachain & Heterogeneous independent chain. & \Par & \\
     PJR & \emph{Proportional-Justified-Representation} - Ensures that validators represent as many nominator minorities as possible. && \ref{par:decentralization} \\
@@ -31,7 +31,7 @@
     Runtime & The Wasm blob which contains the state transition functions, including other core operations required by Polkadot. && \ref{par:state_transition} \\
     Sentry\newline- nodes & Specialized proxy server which forward traffic to/from the validator. && \\
     STVF & \emph{State-Transition-Validation-Function} - A function of the Runtime to verify the PoV. && \ref{sec:parachainblockproduction} \\
-    Validator & The highest in charge party who seals new blocks. A set of candidate validators is defined as \Can . The number of validators to elect is defined as \nval . & \val & \ref{par:validators} \\
+    Validator & The elected and highest in charge party who has a chance of being selected by BABE to produce a block. A set of candidate validators is defined as \Can . The number of validators to elect is defined as \nval . & \val & \ref{par:validators} \\
     VRF & \emph{Verifiable-Random-Function} - Cryptographic function for determining elected validators for block production. && \ref{sec:babe} \\
     XCMP & A protocol that parachains use to send messages to each other. && \ref{sec:XCMP} \\
 \caption{Time periods used in Polkadot}
