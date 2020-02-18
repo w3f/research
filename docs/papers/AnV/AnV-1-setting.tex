@@ -4,6 +4,15 @@
 
 We shall describe a blockchain sharding scheme through which a single beacon or {\em relay chain} can validate numerous heterogeneous shard chains.  We aim for true shared security, minimal latency, good liveness, and relative efficiency in terms of computation, network, and storage.  We refer to our shard chains by the term {\em parachains} because shard alone connotes a non-heterogeneous approach.  There exist other terms for heterogeneous approaches too, but they all connote bridged designs without shared security.
 
+\subsection{VRFs}
+
+A {\em verifiable random function (VRF)} is a cryptographic function that generates a pseudo-random output number from a given a secret key $\skvrf$ and an input string $\alpha$ called a seed, and produces a proof of correctness for the output.  In a sence, VRFs resemble a public-key analog of a cryptographic hash function with a distinguished key, such as MACs that acts as PRFs, in that a keyed hash function requires the key be shared for verification. 
+
+Anyone with the input and the corresponding public key $\pkvrf$ can verify the correctness of the VRF output, so VRFs should satisfy appropriate signature scheme security definitions, like EUF-CMA.  We implement output as function applied to the signature and message that must satisfy {\em uniqueness} in that each public key and message admits only one output, {\em unpredictability} for anyone without the secret key, and {\em pseduo-randomness} even for the secret key holder.
+
+We refer readers to \cite[\S1]{Sassafras} for more formal definitions.
+Almost all proof-of-stake and sharded blockchain proposals make heavy usage of VRFs.
+
 \subsection{Chains}
 % \paragraph{Relay chain:}
 
