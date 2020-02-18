@@ -164,87 +164,139 @@ We revert this slash whenever revocations later reduce the unavailability announ
 \subsection{Approval} % phase
 \label{sec:approval}
 
-As mentioned above in \S\ref{sec:availability}, any validator $V$ accumulates availability announcements for each relay chain block $R$.  After $V$ observe $2f+1$ such availability claims, then $V$ considers $R$ {\em available} and enters the approval phase for $R$.  The approval phase for $R$ consist of
+As mentioned above in \S\ref{sec:availability}, any validator $V$ accumulates availability announcements for each relay chain block $R$.  After $V$ observe $2f+1$ such availability claims, then $V$ considers $R$ {\em available} and enters the approval phase for $R$.  We assume that $V$ considers $R$ available and that $V$ has public-secret key pair $(\pk,\sk)$ throughout this subsection.
+
+The approval phase for $R$ has two components, secondary checker assignments and actually performing the checks.  We have three flavours of secondary checker assignments, which all roughly follow the pattern of
 \begin{itermize}
-\item VRF criteria that determine the parachain candidates in $R$ on which $V$ runs secondary checks,
-\item announcements by secondary check criteria winners,
+\item first VRF announcements via gossip, and
+\item then computation of secondary checker assignments.
+\end{itermize}
+\noindent 
+All secondary checker assignments trigger the same secondary check protocol, which consists of
+\begin{itermize}
 \item retrieval and reconstruction of full candidate proof-of-validity blobs, 
 \item running secondary checks on the candidate proof-of-validity blobs, and 
 \item announcing these candidates validity or invalidity.
 \end{itermize}
+We describe this second component first because 
 
 ...
 
-We recall that a relay chain block $R$ has equivocations exist if there exists another relay chain block $R'$ distinct from $R$ using the same VRF output $\omega_{R'} = \omega_R$ for the relay chain randomness.  We distrust relay chain blocks with equivocations of course, and must mark them as having equivocations, but we sadly cannot invalidate them because doing so creates attacks on finality.  TODO: Explain?
+\subsubsection{Checks} 
 
-\paragraph{Criteria:}
+% In this subsection, 
+We now temporarily suppose that $V$ completed some secondary checker assignment criteria subphase:  First, $V$ has constructed and announced via gossip some secondary checker VRF signature $\pi_{V,\cdot}$.  Second, there exists a parachain $\rho$ determined by the specific secondary checker assignment criteria applied to $\VRF.\Out(\pi)$.  We let $B$ denote the parachain candidate $B$ for $\rho$ in $R$ and $\reciept_{B,\cdot}$ its candidate receipt.  
 
-...
+We caution that $\pi_{V,\cdot}$ always depends upon the verifiers' ambiant knowledge, but we optionally package some extra knowledge with $\pi_{V,\cdot}$, like equivocation proofs (see below).  We prevent late stage adversarial influence from shifting secondary checker assignment criteria, but verifiers' ambiant knowledge also impacts if and when $V$ checks $B$.  We cannot however package this extra knowledge with $\pi_{V,\cdot}$, so validators can disagree for a limited time over whether $V$ checks $B$.
 
-We shall define four secondary check criteria on a parachain candidate receipt $\reciept_{B,\cdot}$ on two axes: initial vs completing, and whether the relay chain block $R$ has equivocations.  We define one fifth secondary check criteria to ...
+\paragraph{Retrieval:}
 
-We track the number $\theta_{B,R}$ of secondary checks for $B$ associated to the relay chain block $R$.  If $R$ has equivocations, then we also track the number $\theta_B$ of secondary checks for $B$ not associatred to any relay chain block.  All secondary checks accumulate in the set $S$ of signatures on the candidate receipt $\reciept_{B,S}$.  If $B$ is a block on parachain $\rho$, then any parachain validator for $\rho$ in $\vals_\rho$ gets counted in both $\theta_B$ and $\theta_{B,R}$ for some $R$.  All other validators get counted only if they also published their VRF proof for winning a secondary check criteria for $B$.  We have no single criteria for being counted in both $\theta_{B,R}$ for some $R$ and $\theta_B$, meaning adding a validator to $\theta_{B,R}$ or $\theta_B$ never results in also adding the same validator to $\theta_B$ or $\theta_{B,R}$, respectively, or to $\theta_{B,R'}$ for some other $R'$, although conceivably some might get counted by winning multiple criteria.
+We never consider substructure of $B$ to be meaningful, so $V$ must {\em retrieve} the full {\em candidate proof-of-validity blob} $\blobB$ before checking.  Now $V$ knows which which nodes have their individual pieces, thanks to their availability announcements.  It thus follows from our 2/3rd honest assumption that $V$ could always reconstruct $\blobB$ by obtaining enough pieces $\pieces_B$ from nodes known to posses them.  
 
-We also track the number $\ell_{B,R}$ for each $R$ and $\ell_B$ of the number of secondary check 
+We note however that $V$ also knows that all pieces are known by the primary checkers aka parachain validators who approved $\blobB$, as well as secondary checkers who already approved $\blobB$.  So $V$ could first contact some node that possesses all of $\blobB$, and only then begin a full reconstruction process. 
 
-Aside from accumulating $\theta_\cdot$, we track several more inputs to our VRF secondary check criteria:  
+In both cases, $V$ must recompute $\pieces_B$ to verify $\reciept_{B,\cdot}$.  We therefore cannot see much computational difference between $V$ reconstructing $\pieces_B$ from arbitrary pieces or from $\blobB$ itself.  It remains plausible $V$ avoids some networking overhead by asking for $\blobB$ though.  We think a first implementation could reasonably target reconstructing $\pieces_B$ from arbitrary pieces, while leaving requests for the full $\blobB$ to future optimisations. 
+
+Ideally $V$ might retrieve the pieces in $\pieces_B$ only using its existing connections in our topology specified above, except these intentionally do not include 1/3rd of validators.  Also, $V$ need not connect to any node with all of $\pieces_B$.  Yet, $V$ should connect to at least one prachain validators in $\V_\rho$ who ideally should check $B$ first.  
+
+We strongly caution against abandoning secondary checkers over topology concerns because then adversarial influence over the topology could wreck our assignment criteria below.
+
+In fact, our retrieval component could be engineered to avoid requests entirely:  After obtaining $\pi_{V,\cdot}$, another validator $V'$ could simply compute its own priority for sending its piece from $\pieces_B$ to $V$.  We caution that doing do might become inefficient, either because $V$ winds up rejecting sends, or when many nodes go offline.  
+
+\paragraph{Announcement:}
+
+After $V$ obtains enough pieces to recompute and verify $\reciept_{B,\cdot}$ from $\blobB$, then $V$ verifies $\blobB$ itself by running the execute block function of $\rho$.  If both these checks pass, then $V$ signs $\reciept_{B,\cdot}$ and announces its signature via gossip.  If either check fails, then $V$ claims invalidity for $\reciept_{B,\cdot}$, which results in all validators checking $B$.
+
+\subsubsection{Assignments}
 
 
-We have a constant baseline minimum number $\basesecondarychecks$ of secondary checks, 
+$\equivocationchecks$
+$\basesecondarychecks$
 
-as well as several dynamic report factors, like unavailability report factors $\rfuv$ from validators and $\runav$ from collators, and an invalidity report factor $\rinv$ from both collators and untrusted fishermen.  
+\paragraph{Initial:}
 
-We set the target number $\secondarychecks$ of secondary checkers to be the sum of these:
+% \subparagraph{Announcement:}
+
+We recall that a relay chain block $R$ always has an associated VRF signature $\hat{\pi}_R$ whose output $\hat{\omega}_R := \VRF.\Out_(\hat{\pi}_R)$ gets recycled for the random beacon, and likely seals the block $R$ itself.  In Praos \cite{Praos} or BABE \cite{BABE}, $\hat{\omega}_R$ equals the VRF output $\omega_R$ that justifies creating $R$, but secret single leader elections like Sassafras \cite{Sassafras} might reveal $\omega_R$ early.  We want $\hat{\omega}_R$ to be the random beacon source that only the block producer of $R$ knows in advance, and that even they can only influence by choosing wether or not to make $R$.
+% TODO: Should this be in AnV-1-setting.tex and shoud that say more about VRFs? 
+
+We always run secondary checker assignments be based on $\hat{\omega}_R$ because it gives adversaries minimal influence over secondary checker assignments.  We therefore ask that $V$ announce $\pi_{V,R} := \VRF.\Sign_\sk(\hat{\omega}_R)$ via gossip as soon as it considers $R$ to be available. 
+
+% \subparagraph{Sampling:}
+
+Let $P$ denote the full list of parachains, possibly padded with some null entries.  
+We define a permutation $P_{V,R}$ of $P$ with a Fisher-Yates shuffle seeded by $\omega_{V,R} := \VRF.\Out(\pi_{V,R})$.  We note $P_{V,R}$ is entirely determined by $\hat{\omega}_R$ and the key $\sk$ of $V$, since $P$ itself remains constant and does not change with $R$.
+
+We now assign $V$ to check the parachains listed earliest in its $P_{V,R}$ that require additional validators.
+%
+In concrete terms, anyone observing the gossip messages has the pre-assignment level sets
+$$ \mathsf{pal}(R,\rho,i) := \Setst{ V }{ P_{V,R}[j] = \rho \quad\mathrm{for some $j < i$} } $$
+and then defines $\mathsf{assignees}(R,\rho,\ell)$ to be $\mathsf{pal}(R,\rho,i)$ for the minimal $i$ such that $\mathsf{assignees}(R,\rho,\ell)$ has at least the desired number $\ell$ of validators.
+
+% \subparagraph{Assigning:}
+\smallskip
+
+We accumulate several dynamic report factors, like unavailability report factors $\rfuv$ from validators and $\runav$ from collators, and an invalidity report factor $\rinv$ from both collators and untrusted fishermen.  We set the target number $\secondarychecks$ of secondary checkers to be the sum of these:
 $$ \secondarychecks = \basesecondarychecks + \lceil \rfuv + \runav + \rinv \rceil $$
 We now target $\totalchecks = \npvals + \secondarychecks$ total checks when if we have enough secondary checks, again meaning that secondary checks can freely replace $\npvals-\primarychecks$ primary checks.  
 
-We have a number $\theta_{R,B}$ of total checks for 
+Assuming perfect information, it follows that $\mathsf{assignees}(R,\rho,\totalchecks)$ gives our secondary checkers assigned to a parachain candidate $B$ on $\rho$ in $R$. 
+%
+We caution however that $\omega_{V,R}$ might remain unknown for numerous $V$, due to delays in availability or gossip, either here or earlier.  As this artificially enlarges $\mathsf{assignees}(R,\rho,\totalchecks)$, we suggest using $\mathsf{assignees}(R,\rho,\totalchecks) \cap \mathsf{pal}(R,\rho,t)$ for some time delay paramater $t$ so as to prevent $\mathsf{assignees}(R,\rho,\totalchecks)$ from growing too fast and then shrinking.
 
-Each parachain candidate $B$ included in $R$, we have the 
+% \subparagraph{Delays:}
+\smallskip
 
-We additionally consider if any equivocations exist for the relay chain block $R$, meaning if there exists another relay chain block $R'$ distinct from $R$ using the same VRF output $\omega_{R'} = \omega_R$ for the relay chain randomness.  
+In this way, we avoid relay chain block producers holding excessive power over the assignments, much like if we sampled delays $t_\rho$ directly from $H(\rho.\mathsf{index} || \omega_{V,R})$.  We do not require independence among the $t_\rho$ however, so our shuffle $P_{V,R}$ distributes these initial secondary checker assignments more evenly among the validators.  
 
-We describe four VRF criteria on two axes, initial checks vs filling up, and if $R$ has equivocations.
+Our shuffle has running time linear in the number of parachains, with each iteration sampling from say $\maathsf{ChaChaRng}(\omega_{V,R})$.  We could produce $P_{V,R}$ lazily with a lazy Fisher-Yates shuffle, which sounds like premature optimisation, but gives another advantage over sampling delays.
+
+If larger delays are desired, then we could either pad $P$ with null entries, or else sample extra delays between the levels, probably from a geometric distribution.  We favor sampling extra delays because if delays are large then padding $P$ slows computing $P_{V,R}$ more.
+
+\paragraph{Equivocation:}
+
+% TODO:  Alistair please check this part carefully.  I preserved that equivocation checks use parachain block hashes, not relay chain block hashes, from Handan's write up, which make sense because more equivocations does not require more checks.  It makes (3) from her write up make no sense.  Also her (4) used #Vcehck in a strange way.
+
+We say $R$ has equivocations if there exists another relay chain block $R'$ distinct from $R$ but using the same VRF output $\hat{\omega}_{R'} = \hat{\omega}_R$ for the relay chain randomness.  We distrust relay chain blocks with equivocations of course, and must mark them as having equivocations, but we sadly cannot invalidate them because doing so creates attacks on finality. 
+% TODO: Explain?
+
+We therefore fear an adversary might create an $R'$ with an innocent $B'$ on $\rho$ merely to learn the secondary checkers determined by $\hat{\omega}_R$ for $\rho$, but then equivocate with another $R$ that containing a malicious $B$ on $\rho$.  As a result, if $R$ has equivocations known by $V$ then $V$ announces via gossip $\pi_{V,B} := \VRF.\Sign_\sk(H(B))$ or perhaps with $H(B)$ replaced by the Merkle root $\merkleroot_B$.\footnote{We distinguish here between $\pi_{V,R}$ in which $R$ is a relay chain block as opposed to $\pi_{V,B}$ in which $B$ is a parachain block.}
+
+% \newcommand\equivocationchecks{\ensuremath{\ell_{\mathsf{eqiv}}} 
+
+We need a global paramater $\equivocationchecks$ that gives the number of extra secondary checks demanded after an equivocation, although presumably $\equivocationchecks = \basesecondarychecks$.  We now do additional secondary check assignments based on $\omega_{V,B} := \VRF.\Out(\pi_{V,B})$:  We gradually increase $c$ over time and announce $\pi_{V,B}$ when $H'(\omega_{V,B}) < c$.  We above when $\equivocationchecks$ distinct validators announce their $\pi_{V',B}$ before us.
+
+...
+
+In this way, an adversary who equivocates always faces $\equivocationchecks$ extra checks against the new parachain block $B$, without impacting the innocent parachains too much when faced with numerous equivocations.
+
+Implementers might suppress this check if parachains always carry less value than gets slashed when relay chain block producers equivocate.  Attacks could impact multiple parachains simultaneously but doing so requires significantly more resources.
+
+\paragraph{Replacements:}
+
+Our two above assignment criteria both assign each parachain $\rho$ some sequence of all validators, but then chop off this sequence at $\totalchecks$ and $\equivocationchecks$ respectively.  As written, we cannot consider $R$ for finalisation until all these secondary checkers approve the candidate $B$ for $\rho$ in $R$.
+
+We want validity reports from these specific validators because they were selected to minimise adversarial influence.  We also heard their VRF announcements quite recently, so they were recently online, but they might experience reconstruction trouble, either innocent or not, ala denial of services attacks.  
+
+There are simply modifications to both above assignment algorithms that compensate for slow or absent checkers:  In both, we target one checkers number $\ell$ that also gets used to cut off the sequence of validtors.  We could simply increase the cut off without increasing the target.
+
+Adversaries could not know these sequences in advance, but once they know the sequence then their adaptive behavior opportunities increase.  If adaptive behavior remains a concern, then we instead suggest a third category of replacement secondary checkers:
+
+Consider a validator $V'$ assigned to check candidate $B$ for parachain $\rho$ in a relay chain block $R$, thanks to their VRF output $\omega'$ of the form $\omega_{V',R}$ (initial) or $\omega_{V',B}$ (equivocation).  We run the equivocations assignment criteria using $\omega'$ instead of $H(B)$, with the target $\ell$ set less than 2, and .
+
+Any other validator $V$ computes a VRF signature $\pi := \VRF.\Sign_{\sk}(\omega')$.
+
+ it eventually announces when $H'(\VRF.\Out(\pi)) < c$
 
 
-axis 
-
-In the input aka  axis, $V$ always evaluates its VRFs with input given by the VRF output $\omega_R$ used for the relay chain randomness.  At the same tiem. once $V$ observes an equivocation $R' \ne R$ with $\omega_{R'} = \omega_R$ then $V$ also evaluates its VRF with input $\omega_R || H(B)$
+We now do additional secondary check assignments based on $\omega_{V,B} := \VRF.\Out(\pi_{V,B})$:  We gradually increase $c$ over time and announce when $H'(\omega_{V,B}) < c$.  We above when $\equivocationchecks$ distinct validators announce their $\pi_{V',B}$ before us.
 
 
 
+\subsection{Fishermen}
+\label{sec:fishermen}
 
-evaluates its VRFs with VRF output
-
-
-
-We construct a secondary check claim $\zeta$ for any satisfied VRF criteria.  We broadcast any such $\zeta$ immediately via gossip and retain $\zeta$ to claim priority in retrieval. 
-
-
-
-
-
-\paragraph{Retrieval:} 
-
-In all cases, $V$ takes these steps once it considers some secondary checks VRF criteria satisfied:
-
-First, $V$ construsts its secondary checks claim $\zeta$, which includes any equivocations required to verify $\zeta$.  Among our claim types, two consider the current secondary checks count and relative time as perceived by $V$, but verifiers compute this data locally.  $V$ announces its claim $\zeta$ via gossip.
-
-Second, we let $B$ denote the parachain candidate determined by $\zeta$ and $\reciept_{B,\cdot}$ its candidate receipt.  $V$ reconstructs the full {\em candidate proof-of-validity blob} $\blobB$ by obtaining enough pieces $\pieces_B$ from nodes known to posses them.  
-
-$V$ knows which which nodes have their individual pieces by the availability announcements.  Also $V$ knows that all pieces are known by the primary checkers aka parachain validators who approved $\blobB$, as well as secondary checkers who already approved $\blobB$.  Ideally $V$ might retrieve the pieces in $\pieces_B$ only using its existing connections in our topology specified above, except these intentionally do not include 1/3rd of validators.  Also, $V$ need not connect to any node with all of $\pieces_B$. 
-
-We further caution that verifying the VRF in $\zeta$ incurs computational costs similar to initiating a connections.  We therefore suggest that $V$ first contact some node that possesses all of $\blobB$, and only then begin a full reconstruction process.  
-
-
-
-
-
-TODO:  -1 announced check = +1 vcheck
-
-
-
-\paragraph{}
+...
 
 
 
