@@ -6,8 +6,7 @@ achieved. We do this to simplify the model and to clearly delineate a
 separation of concerns between different layers. Of course, in a real-world
 decentralised system the networking part also has to be decentralised - it is
 no good if all communication passes through a few central servers, even if the
-protocol running on top of it is decentralised within itself. \footnote{As a
-concrete example on why this is the case: in certain security models, including
+protocol running on top of it is decentralised within itself. As a concrete example on why this is the case: in certain security models, including
 the traditional Byzantine fault-tolerant setting, nodes are modelled as capable
 of being malicious but no consideration is given to malicious edges. Under
 these models, if an edge is malicious in practice in the real-world, it is the
@@ -15,7 +14,7 @@ corresponding node(s) that is treated as malicious in the model. If the
 underlying communications network is centralised, this effectively gives the
 central parties the ability to "corrupt" a large number (e.g. $> 1/3$) of nodes
 within this model, breaking its security, even if they don't actually have
-arbitrary execution rights on that many nodes.} In this section we outline and
+arbitrary execution rights on that many nodes. In this section we outline and
 enumerate the specific sending primitives that we require in Polkadot, and
 sketch a high-level design on how we achieve these in a decentralised way, with
 the specifics to be refined as we move forward with a production system.
