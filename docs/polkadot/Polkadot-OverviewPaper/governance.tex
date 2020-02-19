@@ -37,13 +37,13 @@ A referendum is a simple, inclusive, staked-weighted voting scheme. It has a fix
 \begin{figure}[h!]
   \centering
   \includegraphics[width=1.1\textwidth]{images/Turnout-Bias.png}
-  \caption{Adaptive turnout biasing \alfonso{}{to be replaced by a more technical figure}}
+  \caption{Adaptive turnout biasing}
     \label{fig:biasing}
 \end{figure}
 
 \subsubsection{The Council and Technical Committee}\label{s:council}
 
-The Council is an entity comprising a number of actors each represented by an on-chain account. Its goals are to represent passive stakeholders, organize the timetables of referenda, and review the viability and priority of proposals.
+The Council is an entity comprising a number of actors each represented by an on-chain account. Its goals are to represent passive stakeholders, organise the timetables of referenda, and review the viability and priority of proposals.
 
 Polkadot will likely begin with six seats in the Council, and add an extra individual every two weeks, ultimately settling at 24 seats. Each member has a fixed terms, tentatively of 12 months. 
 
@@ -52,24 +52,24 @@ Polkadot will likely begin with six seats in the Council, and add an extra indiv
 \subsubsection{Allocation of parachain slots}\label{s:pAllocation}
 
 We use auctions to have a fair and transparent parachain allocation procedure.
-Since implementing seal-bid auctions are difficult and \eray{to}{we want to} avoid bid sniping\eray{}{,} we adopt \eray{an}{a} Candle auction \cite{Fuellbrunn:2012:CandleAuction} with a retroactively determined close as follows.
+Since implementing seal-bid auctions are difficult and we want to avoid bid sniping, we adopt a Candle auction \cite{Fuellbrunn:2012:CandleAuction} with a retroactively determined close as follows.
 
-Once the auction has started within a fixed window\eray{}{,} bidders can post bids for the auction.
+Once the auction has started within a fixed window, bidders can post bids for the auction.
 Bids go into the block as transactions.
 Bidders are allowed to submit multiple bids.
 Bids that a bidder is submitting either should intersect with all winning bids by same bidder or be contiguous with winning bids by the same bidder.
-If an incoming bid is not changing the winners\eray{}{,} it is ignored.
+If an incoming bid is not changing the winners, it is ignored.
 
-For 4 lease periods\eray{}{,} we have 10 possible ranges.
+For 4 lease periods, we have 10 possible ranges.
 We store the winner for each one of the 10 ranges in a designated data structure.
 We need to make sure that a new bid does not have a gap with a winning bid on another interval from the same bidder.
-This means that once a bidder has won a bid for a given range, say for example, lease periods 1-2\eray{}{,} \eray{}{-comment: What does the 1-2 notation refer to? 1 and 2?-} then he cannot bid on lease period 4 unless someone overbids him for lease periods 1-2.
+This means that once a bidder has won a bid for a given range, say for example, lease periods 1 to 2, then he cannot bid on lease period 4 unless someone overbids him for lease periods 1 to 2.
 
-For any incoming bid\eray{}{,} the new winner is calculated by choosing the combination of bids\eray{}{,} where the average deposit for overall all 4 lease periods is \eray{most}{the highest}.
+For any incoming bid, the new winner is calculated by choosing the combination of bids, where the average deposit for overall all 4 lease periods is the highest.
 Once a bid is added to the block, the amount of their bid gets reserved.
 
-Once a fixed number of blocks have been produced for the auction\eray{}{,} a random \eray{numbers}{number} decides which one of the previous blocks was the closing block\eray{}{,} and we return the winners and their corresponding ranges for that closing block.
-The reserved funds of losers are going to be released once the ending time of the auction is determined\eray{}{,} and the final winners are decided.
+Once a fixed number of blocks have been produced for the auction, a random number decides which one of the previous blocks was the closing block, and we return the winners and their corresponding ranges for that closing block.
+The reserved funds of losers are going to be released once the ending time of the auction is determined, and the final winners are decided.
 
 For example, let us assume we have three bidders that want to submit bids for a parachain slot.
 \eray{Bidder $B_1$ submits the bid (1-4,75 \eray{DOT}{DOTs}), bidder $B_2$ submits (3-4, 90 DOTs), and bidder $B_3$ submits (1-2, 30 \eray{}{DOTs}).}{-comment: I do not understand the notation (3-4, 90 DOTs). -}
@@ -94,13 +94,12 @@ Funds for treasury are raised in two ways:
 }
 
  
-Notice that these methods to raise funds mimic the traditional ways that \eray{governements}{governments} raise funds: by minting coins which leads to controlled inflation, and by collecting taxes and fines.
+Notice that these methods to raise funds mimic the traditional ways that governments raise funds: by minting coins which leads to controlled inflation, and by collecting taxes and fines.
 
-We could raise funds solely from minting new tokens, but we argue that it makes sense to redirect \eray{into treasure the tokens}{the tokens into the treasury} from transaction fees and slashing that would otherwise be burned\eray{:}{.}
-\eray{ - }{-remove-}By doing so\eray{}{,} we reduce the amount of actual stake burning, and this gives us better control over the inflation rate (notice that stake burning leads to deflation, and we \eray{can’t}{cannot} control or predict the events that lead to burning).
+We could raise funds solely from minting new tokens, but we argue that it makes sense to redirect the tokens into the treasury from transaction fees and slashing that would otherwise be burned.
+By doing so, we reduce the amount of actual stake burning, and this gives us better control over the inflation rate (notice that stake burning leads to deflation, and we cannot control or predict the events that lead to burning).
 
-\eray{ - }{-remove-}Following an event that produced heavy stake slashing, we might often have to reimburse the slashed stake, if there is evidence of no wrongdoing. Thus\eray{}{,} it makes sense to have the dots \eray{availabe in}{available in the} treasury, instead of burning and then minting.
+Following an event that produced heavy stake slashing, we might often have to reimburse the slashed stake, if there is evidence of no wrongdoing. Thus, it makes sense to have the dots available in the treasury, instead of burning and then minting.
 
-\eray{ - }{-remove-}Suppose that there is a period \eray{in which there is}{with} an unusually high amount of stake burning, due to either misconducts or transaction fees. This fact is a symptom that there is something wrong with the system, \eray{that}{which} needs \eray{fixing}{to be fixed}. Hence, this will be precisely a period when we need to have more funds available in \eray{}{the} treasury to afford \eray{the}{-remove-} \eray{}{potential} development costs to fix the problem.
+Suppose that there is a period with an unusually high amount of stake burning, due to either misconducts or transaction fees. This fact is a symptom that there is something wrong with the system, which needs to be fixed. Hence, this will be precisely a period when we need to have more funds available in the treasury to afford potential development costs to fix the problem.
 
-\eray{}{-comment:remove extra space between subsections.-}
