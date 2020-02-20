@@ -16,17 +16,17 @@ the model, in fact translates to “$> 1/3$ of nodes are honest and can all
 communicate perfectly reliably with each other all the time” in reality.
 Conversely, if an edge is controlled by a malicious ISP in reality, it is the
 corresponding node(s) that must be treated as malicious in any analysis under
-the model. If the underlying communications network is centralised, this can
-give the central parties the ability to “corrupt” $> 1/3$ of nodes within the
-model thereby breaking its security assumptions, even if they don't actually
-have arbitrary execution rights on that many nodes.
+the model. More significantly, if the underlying communications network is
+centralised, this can give the central parties the ability to “corrupt” $> 1/3$
+of nodes within the model thereby breaking its security assumptions, even if
+they don't actually have arbitrary execution rights on that many nodes.
 
 In this section we outline and enumerate the communication primitives that we
 require in Polkadot, and sketch a high-level design on how we achieve these in
 a decentralised way, with the specifics to be refined as we move forward with a
 production system.
 
-\subsubsection{Networking use-cases and message flows}
+\subsubsection{Networking overview}
 
 Polkadot needs networking subprotocols for a number of its components as follows.
 \begin{enumerate}
@@ -42,7 +42,7 @@ Polkadot needs networking subprotocols for a number of its components as follows
 
 1(a), 2(a) and 3 are conceptually external to Polkadot, being chosen by each parachain for themselves as their own responsibility. However, schemes similar to the ones described below for the relay chain, may also be used by parachains if they decide they are suitable. Additionally, (3) is expected to require information about the relay chain to work. This is public information, and the collators should get it simply by being part of the relay chain gossip network, as an untrusted non-validator full-node.
 
-For the remaining subprotocols, the communication message flow follows the patterns below:
+For the remaining components, the following subprotocols are used:
 
 \begin{enumerate}
 \item (a) N/A - external to Polkadot, (b) Performed with one's \hyperref[sec:gossiping]{gossip neighbours}
@@ -61,11 +61,11 @@ We talk about these in more detail in the next few sections. Finally, we talk ab
 
 This subprotocol is used for most relay-chain artifacts, where everyone needs to see more-or-less the same public information. Part of its structure is also used for when a node goes offline for a long time and needs to synchronise any newer data it hasn't seen before.
 
-The Polkadot relay chain network forms a gossip overlay network on top of the physical communications network, as an efficient way to provide a decentralised broadcast medium. The network consists of a known number of trusted nodes (validators) who have been permissioned via staking, and an unknown number of untrusted nodes (full nodes that don't perform validation) from the permissionless open internet. Some of the untrusted nodes are expected to have other roles in the system, e.g. be a parachain collator, fishermen, etc - but this is not directly relevant to the operation of the gossip protocol.
+The Polkadot relay chain network forms a gossip overlay network on top of the physical communications network, as an efficient way to provide a decentralised broadcast medium. The network consists of a known number of trusted nodes (validators) who have been permissioned via staking, and an unknown number of untrusted nodes (full nodes that don't perform validation) from the permissionless open internet. As an aside, note that some of the untrusted nodes are expected to have other roles in the system, e.g. be a parachain collator, fishermen, etc.
 
 Currently a naive flooding approach is implemented, with plans to make this more secure and efficient later on, as follows:
 
-The trusted nodes will form a structured overlay with a known, deterministic, but unpredictible topology that rotates every era. The untrusted nodes will form an unstructured overlay around the structured code, optimised via latency measurements but in a more sophisticated and secure way than mere "closest first".
+The trusted nodes will form a structured overlay with a known, deterministic, but unpredictible topology that rotates every era. The untrusted nodes will form an unstructured overlay around the structured core, optimised via latency measurements but in a more sophisticated and secure way than mere "closest first". Both topologies are chosen to mitigate eclipse attacks, as well as sybil attacks in the permissionless case.
 
 The gossip protocol will also take into account various constraint rules from the higher-level protocols above, to avoid broadcasting obsolete or otherwise unneeded artifacts. For example, for GRANDPA we only allow two votes being received for each type of vote, round number, and voter; any further votes will be ignored. For block production only valid block producers are allowed to produce one block per round; any further blocks will be ignored.
 
@@ -102,14 +102,14 @@ This subprotocol therefore aims to ensure that the threshold is available and ca
 \item The initial distribution can be pre-emptively pushed from the primary checkers to the validators. This will take part in two stages:
 \begin{enumerate}
 \item Primary distribution - each of the C primary checkers, each send $N/C$ pieces directly to the corresponding validators.
-\item Secondary distribution - sometimes direct sending will fail due to various network anomalies such as NAT, in which case this method acts as a backup, involving sending pieces to some gossip neighbours of any unreachable node.
+\item Secondary distribution - sometimes direct sending will fail due to various network anomalies such as NAT, in which case this method acts as a backup, involving sending pieces to some gossip neighbours of the unreachable nodes.
 \end{enumerate}
 \item Instead of a centralised tracker, tracker-like information such as who has what piece, is broadcast via the relay chain gossip network.
 \end{itemize}
 
-Additionally, the primary checkers are expected to be fully- or mostly-connected (this is a requirement for the collation protocol to work well), and to help the secondary checks complete faster the secondary checkers will also be fully- or mostly-connected.
+The primary checkers are expected to be fully- or mostly-connected; this is a pre-existing requirement for the collation protocol to work well. To help the secondary checks complete faster, the secondary checkers will also be fully- or mostly-connected.
 
-Beyond this, nodes may communicate to any other nodes as the protocol sees fit, similar to bittorrent. To protect against DoS attacks they should implement resource constraints as in bittorrent, and furthermore nodes should authenticate each other and only communicate with other validators (which includes the primary and secondary checkers). Non-validator parties in the latter optional phase will be supplied with an authentication token for this purpose.
+Beyond this, nodes may communicate to any other nodes as the protocol sees fit, similar to bittorrent. To protect against DoS attacks they should implement resource constraints as in bittorrent, and furthermore nodes should authenticate each other and only communicate with other validators, including the primary and secondary checkers. Non-validator parties in the latter optional phase will be supplied with an authentication token for this purpose.
 
 There are various reasons why we do not consider it very suitable, to use a
 structured overlay topology for this component:
@@ -129,7 +129,7 @@ Overlay topologies are generally more useful for the exact opposite of the
 above usage requirements:
 
 \begin{enumerate}
-\item Each data piece is sent to nearly everyone.
+\item Each data piece is sent to nearly everyone, or
 \item People want a specific data piece, but don't know where to get it from.
 \end{enumerate}
 
