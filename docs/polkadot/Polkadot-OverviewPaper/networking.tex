@@ -1,84 +1,153 @@
 \subsection{Networking}\label{sec:networking}
 
-In the above sections we talk abstractly about nodes sending data to another
-node or other set of nodes, without being too specific as to how this is
-achieved. We do this to simplify the model and to clearly delineate a
-separation of concerns between different layers. Of course, in a real-world
-decentralised system the networking part also has to be decentralised - it is
-no good if all communication passes through a few central servers, even if the
-protocol running on top of it is decentralised within itself. As a concrete example on why this is the case: in certain security models, including
-the traditional Byzantine fault-tolerant setting, nodes are modelled as capable
-of being malicious but no consideration is given to malicious edges. Under
-these models, if an edge is malicious in practice in the real-world, it is the
-corresponding node(s) that is treated as malicious in the model. If the
-underlying communications network is centralised, this effectively gives the
-central parties the ability to "corrupt" a large number (e.g. $> 1/3$) of nodes
-within this model, breaking its security, even if they don't actually have
-arbitrary execution rights on that many nodes. In this section we outline and
-enumerate the specific sending primitives that we require in Polkadot, and
-sketch a high-level design on how we achieve these in a decentralised way, with
-the specifics to be refined as we move forward with a production system.
+In the preceding sections we talk about nodes sending data to another node or
+other set of nodes, without being too specific on how this is achieved. We do
+this to simplify the model and to clearly delineate a separation of concerns
+between different layers.
 
-Polkadot needs networking for a number of its components as follows.
+Of course, in a real-world decentralised system the networking part also must
+be decentralised - it's no good if all communication passes through a few
+central servers, even if the high-level protocol running on top of it is
+decentralised with respect to its entities. As a concrete example: in certain
+security models, including the traditional Byzantine fault-tolerant setting,
+nodes are modelled as possibly malicious but no consideration is given to
+malicious edges. A security requirement like “$> 1/3$ of nodes are honest” in
+the model, in fact translates to “$> 1/3$ of nodes are honest and can all
+communicate perfectly reliably with each other all the time” in reality.
+Conversely, if an edge is controlled by a malicious ISP in reality, it is the
+corresponding node(s) that must be treated as malicious in any analysis under
+the model. If the underlying communications network is centralised, this can
+give the central parties the ability to “corrupt” $> 1/3$ of nodes within the
+model thereby breaking its security assumptions, even if they don't actually
+have arbitrary execution rights on that many nodes.
+
+In this section we outline and enumerate the communication primitives that we
+require in Polkadot, and sketch a high-level design on how we achieve these in
+a decentralised way, with the specifics to be refined as we move forward with a
+production system.
+
+\subsubsection{Networking use-cases and message flows}
+
+Polkadot needs networking subprotocols for a number of its components as follows.
 \begin{enumerate}
+\item synchronising newer state for (a) parachains and (b) the relay chain
 \item accepting transactions from users for (a) parachains and (b) the relay chain
-\item collation of blocks within a parachain
-\item validation of parachain blocks, via proofs and attestation, and making these efficiently available \ref{sec:validity-and-availability}
-\item distributing relay chain blocks \ref{sec:relaychainblockproduction} and votes \ref{sec:grandpa}
-\item sending messages between different parachains \ref{sec:XCMP}
-\item synchronising new state for (a) parachains and (b) the relay chain
+\item collation protocol for parachain blocks, including distributing transactions
+\item accepting collated parachain blocks from parachain collators
+\item distributing parachain blocks and validity attestations, and making these available for a time \ref{sec:validity-and-availability} for auditing purposes
+\item collation protocol for relay chain blocks \ref{sec:relaychainblockproduction}, including distributing transactions
+\item finalisation protocol for relay chain blocks \ref{sec:grandpa}, including distributing relay chain blocks
+\item passing messages between different parachains \ref{sec:XCMP}
 \end{enumerate}
 
-1(a), 2 and 3(a) are strictly outside of the scope of Polkadot, being entirely chosen by each parachain for themselves, but schemes similar to the ones described below (to be used by the relay chain) may also be used by parachains if they decide they are suitable.
+1(a), 2(a) and 3 are conceptually external to Polkadot, being chosen by each parachain for themselves as their own responsibility. However, schemes similar to the ones described below for the relay chain, may also be used by parachains if they decide they are suitable. Additionally, (3) is expected to require information about the relay chain to work. This is public information, and the collators should get it simply by being part of the relay chain gossip network, as an untrusted non-validator full-node.
 
-\subsubsection{Message flows}
+For the remaining subprotocols, the communication message flow follows the patterns below:
 
-Generally speaking, the communication data flow follows these patterns:
+\begin{enumerate}
+\item (a) N/A - external to Polkadot, (b) Performed with one's \hyperref[sec:gossiping]{gossip neighbours}
+\item (a) N/A - external to Polkadot, (b) Sender \hyperref[sec:net_service]{sends non-specifically}
+\item N/A - external to Polkadot
+\item Sender \hyperref[sec:net_service]{sends non-specifically}
+\item Special case, see \hyperref[sec:net_storage]{below}
+\item Broadcast via \hyperref[sec:gossiping]{gossip}
+\item Broadcast via \hyperref[sec:gossiping]{gossip}
+\item Special case, see \hyperref[sec:net_crosschain]{below}
+\end{enumerate}
 
-\begin{itemize}
-\item messages within a parachain and within the relay chain are gossipped
-\item messages between a parachain and the relay chain are sent to some non-specific targets, e.g. a parachain validators to some collators, or a collator to some parachain validators. Gossip within the target set then propagates the messages to the entire target set.
-\item messages from users to submit transactions are sent to some non-specific targets, e.g. collators or validators
-\item as a special case, the erasure coded scheme for availability is sent directly from parachain validators to specific other validators. The scheme is design specifically to handle unreliability in the direct-sending primitive, which is generally harder to achieve reliability for than gossip or non-specific sending to a subset.
-\end{itemize}
-
-\subsubsection{Authentication and discovery} \label{sec:auth_discovery}
-
-In secure protocols in general, and likewise with Polkadot, entities refer to each other by their cryptographic public keys. There is no strong security association with weak references such as IP addresses since those are typically controlled not by the entities themselves but by their communications provider.
-
-Nevertheless in order to communicate we need some sort of association between entities and their addresses. In Polkadot we use a similar scheme as many other blockchains do, that is using the widely used distributed hash table (DHT), Kademlia \cite{Maymounkov:2002:Kademila}. Kademlia is a DHT that uses XOR distance metric for finding a node and is often used for networks with high churn. We use Protocols Labs' libp2p libraries \cite{} Kademlia implementation with some changes for this purpose. To prevent Eclipse attacks \cite{eclipseattack} we allow for routing tables that are large enough to contain at least some honest nodes.
-
-Currently, this "address book" service is also used as the primary discovery mechanism - nodes perform random lookups on the space of keys when they join the network, and connect to whichever set of addresses are returned. Likewise, nodes accept any incoming connections. This makes it easy to support light clients and other unprivileged users, but also makes it easy to perform DoS attacks.
-
-It is planned to develop a stronger authentication mechanism, where nodes authenticate themselves - their cryptographic identities and their roles as part of Polkadot - and verify other nodes both when (a) connections are mode, and when (b) looking up new nodes in the address book. Furthermore it should be possible to discover nodes that match a particular role, e.g. "collator for parachain C" and so on. Nevertheless it is also important to retain the ability to accept incoming connections from unauthenticated entities, e.g. users submitting transactions, or previously-privileged nodes that have been offline for a while that now want to synchronise, and this needs to be restricted on a resource basis, without starving the authenticated entities.
+We talk about these in more detail in the next few sections. Finally, we talk about the lower layers underpinning all of these subprotocols, namely \nameref{sec:net_lowlevel}.
 
 \subsubsection{Gossiping} \label{sec:gossiping}
-The main idea of gossiping is to broadcast every newly received message in the nodes local network (peers that the node is aware of). Moreover, we apply some restriction to the gossiping protocol to prevent bandwidth problems, e.g., denial-of-service (DoS-ed) as follows. Currently a naive flooding approach is implemented, with various plans to make this more secure and efficient later on, which can be done independently of other components.
 
-For GRANDPA we only allow two votes being received for each type of vote, round number, and voter. Any further votes will be ignored. For block production only valid block producers are allowed to produce one block per round and further blocks will be ignored.
+This subprotocol is used for most relay-chain artifacts, where everyone needs to see more-or-less the same public information. Part of its structure is also used for when a node goes offline for a long time and needs to synchronise any newer data it hasn't seen before.
 
-We use \emph{Sentry nodes} that are proxy servers who receive all the traffic that would go to a certain validator and forward the traffic as soon as the validator is able to receive it.
+The Polkadot relay chain network forms a gossip overlay network on top of the physical communications network, as an efficient way to provide a decentralised broadcast medium. The network consists of a known number of trusted nodes (validators) who have been permissioned via staking, and an unknown number of untrusted nodes (full nodes that don't perform validation) from the permissionless open internet. Some of the untrusted nodes are expected to have other roles in the system, e.g. be a parachain collator, fishermen, etc - but this is not directly relevant to the operation of the gossip protocol.
 
-We also plan to implement some sort of set reconciliation protocol to reduce redundancy when many senders attempt to send the same object to the same recipient at once.
+Currently a naive flooding approach is implemented, with plans to make this more secure and efficient later on, as follows:
 
-\subsubsection{Specific and non-specific direct sending}
+The trusted nodes will form a structured overlay with a known, deterministic, but unpredictible topology that rotates every era. The untrusted nodes will form an unstructured overlay around the structured code, optimised via latency measurements but in a more sophisticated and secure way than mere "closest first".
 
-In the naive initial version this simply involves looking up a particular key in the address book and connecting to that address.
+The gossip protocol will also take into account various constraint rules from the higher-level protocols above, to avoid broadcasting obsolete or otherwise unneeded artifacts. For example, for GRANDPA we only allow two votes being received for each type of vote, round number, and voter; any further votes will be ignored. For block production only valid block producers are allowed to produce one block per round; any further blocks will be ignored.
 
-For specific-target direct sending, the only higher-layer protocol in Polkadot that requires this primitive is the erasure coded availability protocol, which is designed to handle the case where some of the nodes are actually unreachable.
+The gossip protocol will also include some sort of set reconciliation protocol to reduce redundancy when many senders attempt to send the same object to the same recipient at once.
 
-For non-specific target direct sending, we have a few issues to consider:
+We also plan to use \emph{Sentry nodes} that are proxy servers who receive all the traffic that would go to a certain validator and forward the traffic as soon as the validator is able to receive it.
+
+\subsubsection{Non-specific direct sending} \label{sec:net_service}
+
+This subprotocol is used when some part of Polkadot is providing a service to some external entity, namely (2b) accepting relay chain transactions and (3) accepting collated blocks in the list above.
+
+In our naive initial version this simply involves looking up a particular target set in the address book, selecting a few nodes from this set, and connecting to them. We have a few issues to consider:
 
 \begin{itemize}
 \item How to store and lookup non-specific targets in the address book in a secure and balanced way, and what the representation of the query term(s) should be.
 \item Load-balancing actual transport-layer connection attempts over the whole target set, and ensuring availability.
 \end{itemize}
 
-As a special case, the source may already be a member of the target set, e.g. in an XCMP message the source parachain may share members with the target parachain. In this case, these members may bypass the above process entirely, and gossip between the two sets. However it may not be obvious to other members of the source set that the intersection member(s) are all online, and so they likely will want to attempt the process anyways.
+\subsubsection{Storage and availability} \label{sec:net_storage}
 
-\subsubsection{Message types}
-Below we give an overview of where and how each type of message is sent. The column \emph{Nets} refers to the networks where a type of message is traversing and the column \emph{Mode} refers to the type of  routing. The column \emph{Static DHT Prefixes} refers to the DHT prefixes of the receivers if we use a one DHT for all and use prefixes to separate sub-networks.
+This subprotocol is for \nameref{sec:validity-and-availability}.
 
-We use gossiping mainly when the message type is small. For example, GRANDPA votes and attestation are very small. For bigger data structures we need to either use bloom filters or use direct routing.
+Recall that for scalability, Polkadot does not require everyone to store the state of the whole system, namely all of the state pointed to by all of the blocks. Instead, every parachain block is split into pieces by erasure-coding, such that there is 1 piece for every validator for a total of $N$ piecese, the erasure threshold being $ceil(N/3)$ blocks for security reasons explained elsewhere. All the pieces are available initially at the relevant parachain validators, having been submitted by some of the collators. (In this role, the parachain validators are also called the \emph{primary checkers}.) The pieces are then selectively distributed in the following phases:
 
+\begin{enumerate}
+\item Initial distribution - every validator initially wants 1 of these pieces, and the parachain validators must distribute them
+\item Secondary checks - the \emph{secondary checkers} all want any $ceil(N/3)$ of the pieces, and can get this from anyone.
+\item Yet later, and optionally - other non-validator parties might also want to perform further checks, e.g. in response to fishermen alerts, and again will want any $ceil(N/3)$ of the pieces.
+\end{enumerate}
 
+This subprotocol therefore aims to ensure that the threshold is available and can be retrieved from the relevant validators for some reasonable amount of time, until at least the latter phases are complete. We will follow a bittorrent-like protocol with the following differences:
+
+\begin{itemize}
+\item The initial distribution can be pre-emptively pushed from the primary checkers to the validators. This will take part in two stages:
+\begin{enumerate}
+\item Primary distribution - each of the C primary checkers, each send $N/C$ pieces directly to the corresponding validators.
+\item Secondary distribution - sometimes direct sending will fail due to various network anomalies such as NAT, in which case this method acts as a backup, involving sending pieces to some gossip neighbours of any unreachable node.
+\end{enumerate}
+\item Instead of a centralised tracker, tracker-like information such as who has what piece, is broadcast via the relay chain gossip network.
+\end{itemize}
+
+Additionally, the primary checkers are expected to be fully- or mostly-connected (this is a requirement for the collation protocol to work well), and to help the secondary checks complete faster the secondary checkers will also be fully- or mostly-connected.
+
+Beyond this, nodes may communicate to any other nodes as the protocol sees fit, similar to bittorrent. To protect against DoS attacks they should implement resource constraints as in bittorrent, and furthermore nodes should authenticate each other and only communicate with other validators (which includes the primary and secondary checkers). Non-validator parties in the latter optional phase will be supplied with an authentication token for this purpose.
+
+There are various reasons why we do not consider it very suitable, to use a
+structured overlay topology for this component:
+
+\begin{enumerate}
+\item Each piece is sent to specific people, rather than everyone.
+\item
+\begin{enumerate}
+\item People that want a specific piece of data, know where to get it - i.e.
+      validators, for their own piece, i.e. the primary validators.
+\item Other people want non-specific pieces - i.e. secondary validators,
+      want any 1/3 of all pieces to be able to reconstruct.
+\end{enumerate}
+\end{enumerate}
+
+Overlay topologies are generally more useful for the exact opposite of the
+above usage requirements:
+
+\begin{enumerate}
+\item Each data piece is sent to nearly everyone.
+\item People want a specific data piece, but don't know where to get it from.
+\end{enumerate}
+
+For example, bittorrent has similar requirements and does not use a structured
+overlay either. The peers there connect to other peers on a by-need basis.
+
+\subsubsection{Cross-chain messaging} \label{sec:net_crosschain}
+
+This subprotocol is for \nameref{sec:XCMP}.
+
+TODO
+
+\subsubsection{Authentication, transport, and discovery} \label{sec:net_lowlevel}
+
+In secure protocols in general, and likewise with Polkadot, entities refer to each other by their cryptographic public keys. There is no strong security association with weak references such as IP addresses since those are typically controlled not by the entities themselves but by their communications provider.
+
+Nevertheless in order to communicate we need some sort of association between entities and their addresses. In Polkadot we use a similar scheme as many other blockchains do, that is using the widely used distributed hash table (DHT), Kademlia \cite{Maymounkov:2002:Kademila}. Kademlia is a DHT that uses XOR distance metric for finding a node and is often used for networks with high churn. We use Protocols Labs' libp2p libraries \cite{} Kademlia implementation with some changes for this purpose. To prevent Eclipse attacks \cite{eclipseattack} we allow for routing tables that are large enough to contain at least some honest nodes.
+
+Currently, this \emph{address book} service is also used as the primary discovery mechanism - nodes perform random lookups on the space of keys when they join the network, and connect to whichever set of addresses are returned. Likewise, nodes accept any incoming connections. This makes it easy to support light clients and other unprivileged users, but also makes it easy to perform DoS attacks.
+
+It is planned to develop a stronger authentication mechanism, where nodes authenticate themselves - their cryptographic identities and their roles as part of Polkadot - and verify other nodes both when (a) connections are mode, and when (b) looking up new nodes in the address book. Furthermore it should be possible to discover nodes that match a particular role, e.g. \emph{collator for parachain C} and so on. Nevertheless it is also important to retain the ability to accept incoming connections from unauthenticated entities, e.g. users submitting transactions, or previously-privileged nodes that have been offline for a while that now want to synchronise, and this needs to be restricted on a resource basis, without starving the authenticated entities.
