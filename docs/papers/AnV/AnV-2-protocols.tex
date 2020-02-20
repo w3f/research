@@ -341,7 +341,7 @@ and then defines $\mathsf{assignees}(R,\rho)$ to be $\mathsf{pal}(R,\rho,i)$ for
 
 Assuming perfect information, it follows that $\mathsf{assignees}(R,\rho)$ gives our secondary checkers assigned to a parachain candidate $B$ on $\rho$ in $R$. 
 %
-We caution however that $\omega_{V,R}$ might remain unknown for numerous $V$, due to delays in availability or gossip, either here or earlier.  As this artificially enlarges $\mathsf{assignees}(R,\rho)$, we suggest using $\mathsf{assignees}(R,\rho) \cap \mathsf{pal}(R,\rho,t)$ for some time delayed index paramater $t$ so as to prevent $\mathsf{assignees}(R,\rho)$ from growing too fast and then shrinking.
+We caution however that $\omega_{V,R}$ might remain unknown for numerous $V$, due to delays in availability or gossip, either here or earlier.  As this artificially enlarges $\mathsf{assignees}(R,\rho)$, we suggest using $\mathsf{assignees}(R,\rho) \cap \mathsf{pal}(R,\rho,\lfloor t/\netdelay \rfloor)$ for some time delayed index paramater $t$ so as to prevent $\mathsf{assignees}(R,\rho)$ from growing too fast and then shrinking.
 
 % \smallskip
 % \subparagraph{Delays:}
