@@ -1,4 +1,17 @@
 
+% fn delta(n: u32, l: u32, t: u32, seed: &[u8; 32]) -> Option<u64> {
+%     let s = ::rand_chacha::ChaChaRng::from_seed(h).next_u64();
+%     l * (s / ((n as u64) * (t as u64)))
+
+
+
+
+
+
+
+
+
+
 
 
 
