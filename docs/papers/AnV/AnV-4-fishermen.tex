@@ -1,135 +1,10 @@
 
-\section{OLD Validity}
-\label{sec:validity}
+\section{Others}
+
+{\bf ALL TEXT HERE LIFTED FROM PREVIOUS VERSION, SOME OF IT IS WRONG.}
 
 
-
- $\rfuv$, $\runav$, and $\rinv$ . 
-
-We a base minimum number $\basesecondarychecks$ of secondary checkers, and several 
-$$ \secondarychecks = \basesecondarychecks + \lceil \runav + \rinv + \rinv \rceil $$
-We discuss these report factors below in \S\ref{sec:reportfactors}, but 
-
-These report 
- 
- a fractional $\runav$ is the unavailability report factor from collators
- and $\rinv$ is the invalidity report factor from fishermen who claim invalidity for the relevant block. 
-
-
-
-$\secondarychecks$
-
-$$ \totalchecks = \npvals + \secondarychecks $$
-
-$$ \mu +\lceil \runav + \rinv \rceil $$
-
-
-
-
-
-As noted in \S\ref{sec:availability}
-
-
-
-
-
-We have now excluded the block headers whose pieces are missing, thanks to the availability and unavailability protocols, at least under the ambiant assumptions for BABE and GRANDPA.
-
-
-
-With the unavailability protocol, we can detect the block headers whose pieces are missing. Beyond this, we also need to detect whether invalid block headers are in the relay chain blocks. For example, if all parachain validators are malicious, they can sign for an invalid block. We can catch this only by reconstructing the blob with the available pieces. In the validity check protocol, we describe how extra validators (different from parachain validator) are assigned to check the validity of blocks and how malicious activities are detected.
-
-
-We first give some parameters before giving the details of the protocol.
-The first parameter $\totalchecks$ defines the total number of validator checks needed for a block header.
-
-$$\totalchecks = \npvals + \mu +\lceil \runav + \rinv \rceil$$
-
-Here, $\mu$ specifies the minimum number of checks, $\runav$ is the unavailability report factor from collators and $\rinv$ is the invalidity report factor from fishermen who claim invalidity for the relevant block. 
-
-
-%Here, $\mu$ specifies the minimum number of checks, $\runav$ is the unavailability report factor which is the constant $c_a$ multiplied with the rate of the unavailability report in the last 1000 blocks.
-%$\rinv$ is the invalidity report factor which is the constant $c_f$ multiplied with the relative stake of fishermen who claim invalidity for the relevant block. 
-
-
-
-
-There is a three-factor validity check during the availability protocol:
-
-
-\begin{enumerate}
-
-      
-    \item \textbf{Fisherman Check:} All fishermen collect blobs from collators in order to check the validity all the time. Whenever they discover an invalid block, they announce it to the validators by signing their claim. These claims are added to the block list by the validators. So, these claims are going to be in the relay chain. They do not provide any proof. If their claims are wrong then they are slashed. Otherwise, they are rewarded. The correctness of the fishermen claims is determined with the validity check protocol.
-    
-    \item \textbf{Parachain Validator Check:} All parachain validators check the validity of the block as described in the parachain phase of the availability protocol. If one parachain validator $PV_i$ sees that an invalid block header is in a block of the best relay chain, then he announces the invalidity. If a parachain validator has never seen the blob of the block header in the relay chain or he does not sign for that block, he runs the extra validity check protocol given below.
-    
-    \item \textbf{Non-Parachain Validator Check:} The extra validity checks are done by the non-parachain validators. Now, we explain how these validators are selected.
-    
-    \paragraph{Selection:} The selection process is private and no one knows the selected ones until they make it public. Assume that there exists $m$ parachains in Polkadot. Each validator $V_j$ checks first the following if required extra check is more than $n/m$ (i.e., $\mu + \lceil r_a + r_f \rceil \geq n/m$): 
-    
-    \begin{equation}\label{cond:mod}
-        ID_{PC} = \mathtt{VRF}_{\sk^v_{j}}(r_{t}) \mod m    
-    \end{equation}
-     Here, $ID_{PC} \in \mathbb{N}$ is the identifier of a parachain $PC$ and $r_{t}$ is the VRF randomness of the block producer of slot $t$ in the relay chain (See \href{http://research.web3.foundation/en/latest/polkadot/BABE/Babe/}{BABE} for the details of $r_t$). For the current time $T$ where $T > \grace$, if  less than $\totalchecks$ amount of checks are completed with condition (\ref{cond:mod}) or $\mu + \lceil r_a + r_f \rceil < n/m$ , each validator $V_j$ checks the following condition:
-     \begin{equation}\label{cond:time}
-        H(ID_{PC} \cc \mathtt{VRF}_{\sk^v_j}(r_t)) < \frac{\mu + \lceil r_a + r_f \rceil - \theta}{\nvals-\npvals}+\tau  
-    \end{equation}
-    
-      where $\tau = T- \grace$ and $H$ is a hash function that maps a value between 0 and 1. Here, if $\mu + \lceil r_a + r_f \rceil \geq n/m$, $\theta$ is the number of validators in condition (\ref{cond:mod}) for $ID_{PC}$. Otherwise, $\theta = 0$.
-    
-    However, if a block producer produces multiple blocks with the same VRF randomness $r_t$ (equivocation), then a validator $V_j$ is selected for the extra check if one of the  below two conditions together with (\ref{cond:mod}) and (\ref{cond:time}) are satisfied:
-    
-    
-    \begin{equation}\label{cond:modequiv}
-         ID_{PC} = \mathtt{VRF}_{\sk^v_{j}}(r_{t} \cc H_B) \mod m
-    \end{equation}
-    
-    \begin{equation}\label{cond:equiv}
-         H(ID_{PC} \cc \mathtt{VRF}_{\sk^v_j}(H_{B})) < \frac{\totalchecks - \npvals}{\nvals-\npvals}   
-    \end{equation}
-    
-     where $H_B$ is the hash of the relay chain block whose VRF randomness is $r_t$. Remark that we have greater number of checks for equivocation because it is a sign of malicious activity. Malicious validators can see who is in condition (\ref{cond:mod}) or (\ref{cond:time}) and if there is  no honest validator with the conditions (\ref{cond:mod}) or (\ref{cond:time}), they can equivocate which includes an invalid block. Therefore, we need different conditions than the condition (\ref{cond:mod}) and the condition (\ref{cond:time}).
-    
-    When $V_j$ satisfies the condition (\ref{cond:mod}), (\ref{cond:time}), (\ref{cond:modequiv}) or (\ref{cond:equiv}), $V_j$ has a right to check the validity. For this, it follows the extra validity check protocol.
-    
-    We note that if number of $\totalchecks$ validators satisfy the condition (\ref{cond:mod}) or (\ref{cond:time} ) for a parachain with the identifier $ID_{PC}$ and no equivocation exist, then satisfying condition (\ref{cond:modequiv}) or (\ref{cond:equiv}) does not get rewarded.
-    
-\end{enumerate}
-
-
-\paragraph{Extra Validity Check:}
-An assigned validator $V_j$  asks for the blob for the extra validity check or the erasure code pieces in the following order until receiving all information to check the validity of the block header:
-\begin{enumerate}
-    \item Parachain validators who signed for it: asked for the blob
-    \item Other parachain validators who did not sign for it: asked for the blob
-    \item Validators: asked for the erasure code piece with the proof. Assuming that $V_j$ has a set $\pieces'$ of a correct erasure codes where $|\pieces'|<k$. He asks for at least number of $k-|\pieces'|$ pieces in $\pieces\setminus \pieces'$ from the validators.
-    
-    \item Collators: asked for the erasure codes or the blob. We note that $V_j$ can ask for the blob or the erasure code, if he is connected to the collators network.
-    
-\end{enumerate}
-
-In the end,  if $V_j$'s attempt in option 1 and 2 above is unsuccessful and obtains one third of the missing pieces instead of blob $\blobB$, he adds them to some set $\pieces''$ and reconstructs  $\blobB = (B,\pi,M)$ with the algorithm $\decode_{f+1,\nvals}(\pieces'')$. 
-
-In any case, either obtaining $\blobB$ from $PV$s or the reconstruction algorithm, $V_j$ checks the validity of the block by  running  $\verify(\blobB)\rightarrow b$.
-\begin{itemize}
-    \item if $b = 0$ (the blob is invalid), $V_j$ signs that the block is invalid. Whenever a validator receives a valid signature from another validator saying that the block is invalid, this validator obtains the blob  the same way that extra validators obtain and follow the same process.
-    \item if $b = 1$ (the blob is valid), $V_j$ signs that the block is valid. $V_j$ also  runs the $\encode_{f+1,\nvals}((B,\pi,M))$ to obtain the erasure codes $\pieces = \{d_1,d_2,...,d_n\}$ and constructs a Merkle tree  whose leaves are $d_1,d_2,...,d_n$. In the end, he gives away the missing piece of the validator with the Merkle tree proof whenever a validator announces unavailability. 
-\end{itemize}
-
-
-In the end of the validity protocol, if at least $f+1$ signatures are given by the validators saying that the block is invalid, then it is considered as invalid.
-\subsection{Slashing and Rewarding}
-
-\underline{\textbf{Fisherman}} 
-
-\emph{Slashing:} If at least $\totalchecks$ validators sign saying that the block is valid, then fishermen with the claim saying the block is invalid are slashed. All the claims from these fishermen are ignored in future.
-
-\emph{Rewarding:} If $f+1$ validators sign to say the block is invalid, the  fishermen with the claim saying that the block is invalid are rewarded.
-
-%TODO MORE DETAILS
-
-\noindent\underline{\textbf{Validators}}
+\subsection{Validators}
 
 \emph{Slashing:} If at least $f+1$ validators sign for the invalidity of a block and less than $f+1$ validators sign for the validity of the block, then we slash all validators who signed for the validity.
 
@@ -141,4 +16,28 @@ We note that $f+1$ validity signatures and $f+1$ invalidity signatures are not p
 
 Eligibility of the reward can be easily checked for the parachain validators and extra validators who satisfies the conditions when $\tau = 0$. Latter, we just need to verify the VRF proof.
 However, it is not easy to verify the condition for $\tau > 0$, because this value is subjective. Therefore, we may not need to be very precise for this $\tau$ value, if the signature of the validator is correct.
+
+
+\subsection{Fishermen}
+\label{sec:fishermen}
+
+TODO: Comment on LDPC codes from Coded Merkle Trees paper
+
+...
+
+All fishermen collect blobs from collators in order to check the validity all the time. Whenever they discover an invalid block, they announce it to the validators by signing their claim. These claims are added to the block list by the validators. So, these claims are going to be in the relay chain. They do not provide any proof. If their claims are wrong then they are slashed. Otherwise, they are rewarded. The correctness of the fishermen claims is determined with the validity check protocol.
+
+...
+
+\emph{Slashing:} If at least $\totalchecks$ validators sign saying that the block is valid, then fishermen with the claim saying the block is invalid are slashed. All the claims from these fishermen are ignored in future.
+
+\emph{Rewarding:} If $f+1$ validators sign to say the block is invalid, the  fishermen with the claim saying that the block is invalid are rewarded.
+
+\subsection{Collators}
+\label{sec:collators}
+
+We expect collators are free to act as fishermen ..
+except collator authority should probably be additive with fishermen authority 
+
+... unavailability reports from collators ...
 

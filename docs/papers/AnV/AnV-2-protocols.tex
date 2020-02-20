@@ -366,7 +366,7 @@ We address no-shows carefully in the one-shot scheme, but ignored them in the in
 We should strongly consider moving some or all of the report factor from $\ell_B$ into this condition too.  ...
 % TODO:  Alistair, Jeff, and Handan must discudd this part carefully .
 
-At the extreme, our shuffled parachain list $P_{V,R}$ could be replaced with a single check on the parachain $\rho$ whose index is $\tilde{\pi}_{V,R}$ taken modulo the number of parachains.  All these checks could replace the one-shot winners with no delay.
+At the extreme, our shuffled parachain list $P_{V,R}$ could be replaced with a single check on the parachain $\rho$ whose index is $\tilde{\pi}_{V,R}$ taken modulo the number of parachains.  All these checks could replace the one-shot winners with no delay. 
 
 As an aside, we considered using the no-show validators' VRF outputs $\omega_{V,R}$ here, but judge such designs to be unnecessary code complexity. 
 
@@ -389,12 +389,6 @@ In this one-shot application, we could choose our target number $\ell$ of second
 In this way, an adversary who equivocates always faces $\ell$ extra checks against their new parachain block $B$, without impacting the innocent parachains too much when faced with numerous equivocations.
 
 Implementers might suppress this check if parachains always carry less value than gets slashed when relay chain block producers equivocate.  Attacks could impact multiple parachains simultaneously but doing so requires significantly more resources.
-
-
-\subsection{Fishermen}
-\label{sec:fishermen}
-
-...
 
 
 
