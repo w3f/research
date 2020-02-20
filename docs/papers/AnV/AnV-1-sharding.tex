@@ -6,9 +6,9 @@ We shall describe a blockchain sharding scheme through which a single beacon or 
 
 \subsection{VRFs}
 
-A {\em verifiable random function (VRF)} is a cryptographic function that generates a pseudo-random output number from a given a secret key $\skvrf$ and an input string $\alpha$ called a seed, and produces a proof of correctness for the output.  In a sence, VRFs resemble a public-key analog of a cryptographic hash function with a distinguished key, such as MACs that acts as PRFs, in that a keyed hash function requires the key be shared for verification. 
+A {\em verifiable random function (VRF)} is a cryptographic function that generates a pseudo-random output number from a given a secret key $\sk$ and an input string $\alpha$ called a seed, and produces a proof of correctness for the output.  In a sence, VRFs resemble a public-key analog of a cryptographic hash function with a distinguished key, such as MACs that acts as PRFs, in that a keyed hash function requires the key be shared for verification. 
 
-Anyone with the input and the corresponding public key $\pkvrf$ can verify the correctness of the VRF output, so VRFs should satisfy appropriate signature scheme security definitions, like EUF-CMA.  We implement output as function applied to the signature and message that must satisfy {\em uniqueness} in that each public key and message admits only one output, {\em unpredictability} for anyone without the secret key, and {\em pseduo-randomness} even for the secret key holder.
+Anyone with the input and the corresponding public key $\pk$ can verify the correctness of the VRF output, so VRFs should satisfy appropriate signature scheme security definitions, like EUF-CMA.  We implement output as function applied to the signature and message that must satisfy {\em uniqueness} in that each public key and message admits only one output, {\em unpredictability} for anyone without the secret key, and {\em pseduo-randomness} even for the secret key holder.
 
 We refer readers to \cite[\S1]{Sassafras} for more formal definitions.
 Almost all proof-of-stake and sharded blockchain proposals make heavy usage of VRFs.
@@ -119,11 +119,13 @@ We worry much more about requirements for a large number $\npvals$ of validators
 We shall create an information asymmetry that turns these odds more in defenders favor: 
 We require the adversary first declare their parachain block $B$ and commit to its correctness with the stake of $\primarychecks$ validators.  We then reveal the identity of the $\secondarychecks$ validators assigned to actually check $B$ only after this commitment.  We say an adversary wins the {\em parachain validity game} if they finalize an invalid block with fewer than $\primarychecks$ of the $f'$ incorrectly behaving nodes providing proofs of their incorrect behavior to the correctly behaving nodes. 
 
-In this game, we tolerate larger $\epsilon'_{\npvals,\primarychecks}$ because attacks cost an amortised $\epsilon'_{\npvals,\primarychecks} \secondarychecks$ validators' stake. 
+In this game, we tolerate larger $\epsilon'_{\npvals,\secondarychecks}$ because attacks cost an amortised $\epsilon'_{\npvals,\secondarychecks} \primarychecks$ validators' stake. 
 
 
 In advance, we assigned in advance the set $\vals_\para \subset \vals$ of at least $\npvals$ to validate all blocks from a particular parachain $\rho$.  
 In our game, any parachain block $B$ from $\rho$ requires commitments to correctness claim from at least $\primarychecks$ out of these $\npvals$ validators.  We accept $\primarychecks < \npvals$ here since some unpredictable nodes might be offline or slow, so long as $\primarychecks$ allocates sufficient stake to the correctness commitments for $B$.  
+
+% TODO: Now outdated again blow this point
 
 After this commitment, we must determine at least $\secondarychecks$ nodes from $\vals \setminus \vals_\para$ who perform secondary checks to conclude the game.  Now our security level dependes only upon this number $\secondarychecks$ of secondary checks.  
 All nodes compute their own target number $\secondarychecks$ of secondary checkers dynamically based upon several report factors from parties who notice abnormalities in the protocol run, as well as $\npvals-\primarychecks$.  If $\npvals$ primary checks appears realistic then we might consider fewer than $\npvals$ primary checks as suspicious, but not that suspicious.  In this case, we might simply target $\totalchecks = \npvals + \secondarychecks$ total checks when counting secondary checks, meaning that secondary checks can freely replace $\npvals-\primarychecks$ primary checks.  
