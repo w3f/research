@@ -198,7 +198,7 @@ We note however that $V$ also knows that all pieces are known by the primary che
 
 In both cases, $V$ must recompute $\pieces_B$ to verify $\reciept_{B,\cdot}$.  We therefore cannot see much computational difference between $V$ reconstructing $\pieces_B$ from arbitrary pieces or from $\blobB$ itself.  It remains plausible $V$ avoids some networking overhead by asking for $\blobB$ though.  We think a first implementation could reasonably target reconstructing $\pieces_B$ from arbitrary pieces, while leaving requests for the full $\blobB$ to future optimisations. 
 
-Ideally $V$ might retrieve the pieces in $\pieces_B$ only using its existing connections in our topology specified above, except these intentionally do not include 1/3rd of validators.  Also, $V$ need not connect to any node with all of $\pieces_B$.  Yet, $V$ should connect to at least one prachain validators in $\V_\rho$ who ideally should check $B$ first.  
+Ideally $V$ might retrieve the pieces in $\pieces_B$ only using its existing connections in our topology specified above, except these intentionally do not include 1/3rd of validators.  Also, $V$ need not connect to any node with all of $\pieces_B$.  Yet, $V$ should connect to at least one prachain validators in $\vals_\rho$ who ideally should check $B$ first.  
 
 We strongly caution against abandoning secondary checkers over topology concerns because then adversarial influence over the topology could wreck our assignment criteria below.
 
@@ -217,7 +217,7 @@ After $V$ obtains enough pieces to recompute and verify $\reciept_{B,\cdot}$ fro
 We consider self-assignment schemes determined by several paramaters:
 \begin{itemize}
 \item our target number $\ell$ of eventual checkers,
-\item our total number $n'$ of candidate checkers, normally $n' = \nvals - \npval$,
+\item our total number $n'$ of candidate checkers, normally $n' = \nvals - \npvals$,
 \item the weight $\theta$ of a no-show checker with $1 \leq \theta \leq 2$,
 \item a network delay bound $\netdelay$ for gossip messages, and
 \item a block checking delay bound $\checkdelay$ that covers both retrieval and validation.
@@ -326,8 +326,9 @@ Instead of distinct $z_B$ though, we ask that each $V$ announce one $\tilde{\pi}
 
 % \subparagraph{Sampling:}
 
-Let $P$ denote the full list of parachains, possibly padded with some null entries.  
-We define a permutation $P_{V,R}$ of $P$ with a Fisher-Yates shuffle seeded by $\omega_{V,R} := \VRF.\Out(\tilde{\pi}_{V,R})$.  We note $P_{V,R}$ is entirely determined by $\hat{\omega}_R$ and the key $\sk$ of $V$, since $P$ itself remains constant and does not change with $R$.
+Let $P$ denote the full list of parachains, possibly padded with some null entries.
+Also, for any validator $V$, let $\rho_V$ denote the parachain assignment of $V$.
+We define a permutation $P_{V,R}$ of $P \setminut \{ \rho_V \}$ with a Fisher-Yates shuffle seeded by $\omega_{V,R} := \VRF.\Out(\tilde{\pi}_{V,R})$.  We note $P_{V,R}$ is entirely determined by $\hat{\omega}_R$ and the key $\sk$ of $V$, since $P$ itself remains constant and does not change with $R$.
 
 We now assign $V$ to check the parachains listed earliest in its $P_{V,R}$ that require additional validators.
 %
