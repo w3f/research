@@ -166,7 +166,7 @@ We think that receiving modules should not act on the messages on receipt, but m
 
 ### How much data is this?
 
-The egress data for a sending pararchain has a Merkle root and block number for receiving paras. The Merkle root will be a 32 byte hash and the block number 4 bytes. 
+The egress data for a sending parachain has a Merkle root and block number for receiving paras. The Merkle root will be a 32 byte hash and the block number 4 bytes. 
 
 
 We may have up to a million channels. This means 36 MB data on-chain or 72MB if we include the Merkle trees as well as the data and the Merkle root for each egress table. In the worst case, half of these would be updated in a block.

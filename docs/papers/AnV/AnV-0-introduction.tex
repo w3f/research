@@ -1,3 +1,20 @@
 
 % \section{Introduction sectrions should never be numbered unless journal style demands}
 
+...
+
+
+
+In \S\ref{sec:parachains}, we first recall our tools like verifiable random functions, erasure coding, and state witnesses, and then describe the sharding problem and introduce our security definitions. 
+
+We describe and instantiate our {\em availability and validity protocol} in \S\ref{sec:availability_n_backing} and \S\ref{sec:approval} that provides efficient sharding.  It roughly consists of 
+\begin{itemize}
+\item a parachain phase that prepares the candidate block and performs preliminary backing validity checks,
+\item a relay chain submission phase that distributes candidate parachain blocks and produces relay chain blocks,
+\item availability and unavailability subprotocols that enforce availability in GRANDPA and BABE respectively,
+\item fuller approval validity checks for GRANDPA,
+\item objection procedures for fishermen, and
+\item invokation of a Byzantine fault tolerant ``finality gadget'' that gives us finality.
+\end{itemize}
+
+\S\ref{sec:fishermen}  ????

@@ -1,5 +1,54 @@
 
 
+\smallskip
+\paragraph{Initial no-shows:}
+\paragraph{Replacements:}
+
+
+Our two above assignment criteria both assign each parachain $\rho$ some sequence of all validators, but then chop off this sequence at $\totalchecks$ and $\equivocationchecks$ respectively.  As written, we cannot consider $R$ for finalisation until all these secondary checkers approve the candidate $B$ for $\rho$ in $R$.
+
+We want validity reports from these specific validators because they were selected to minimise adversarial influence.  We also heard their VRF announcements quite recently, so they were recently online, but they might experience reconstruction trouble, either innocent or not, ala denial of services attacks.  
+
+There are simply modifications to both above assignment algorithms that compensate for slow or absent checkers:  In both, we target one checkers number $\ell$ that also gets used to cut off the sequence of validtors.  We could simply increase the cut off without increasing the target.
+
+Adversaries could not know these sequences in advance, but once they know the sequence then their adaptive behavior opportunities increase.  If adaptive behavior remains a concern, then we instead suggest a third category of replacement secondary checkers:
+
+Consider a validator $V'$ assigned to check candidate $B$ for parachain $\rho$ in a relay chain block $R$, thanks to their VRF output $\omega'$ of the form $\omega_{V',R}$ (initial) or $\omega_{V',B}$ (equivocation).  We run the equivocations assignment criteria using $\omega'$ instead of $H(B)$, with the target $\ell$ set less than 2, and .
+
+Any other validator $V$ computes a VRF signature $\pi := \VRF.\Sign_{\sk}(\omega')$.
+
+ it eventually announces when $H'(\VRF.\Out(\pi)) < c$
+
+
+We now do additional secondary check assignments based on $\omega_{V,B} := \VRF.\Out(\pi_{V,B})$:  We gradually increase $c$ over time and announce when $H'(\omega_{V,B}) < c$.  We above when $\equivocationchecks$ distinct validators announce their $\pi_{V',B}$ before us.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% fn delta(n: u32, l: u32, t: u32, seed: &[u8; 32]) -> Option<u64> {
+%     let s = ::rand_chacha::ChaChaRng::from_seed(h).next_u64();
+%     l * (s / ((n as u64) * (t as u64)))
+
+
+
+
+
+
+
+
+
+
+
 
 
 \paragraph{Secondary checks:}

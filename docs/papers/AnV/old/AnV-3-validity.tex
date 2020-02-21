@@ -1,4 +1,6 @@
 
+\endinput 
+
 \section{OLD Validity}
 \label{sec:validity}
 
@@ -119,6 +121,9 @@ In any case, either obtaining $\blobB$ from $PV$s or the reconstruction algorith
 
 
 In the end of the validity protocol, if at least $f+1$ signatures are given by the validators saying that the block is invalid, then it is considered as invalid.
+
+
+
 \subsection{Slashing and Rewarding}
 
 \underline{\textbf{Fisherman}} 
@@ -141,4 +146,6 @@ We note that $f+1$ validity signatures and $f+1$ invalidity signatures are not p
 
 Eligibility of the reward can be easily checked for the parachain validators and extra validators who satisfies the conditions when $\tau = 0$. Latter, we just need to verify the VRF proof.
 However, it is not easy to verify the condition for $\tau > 0$, because this value is subjective. Therefore, we may not need to be very precise for this $\tau$ value, if the signature of the validator is correct.
+
+
 
