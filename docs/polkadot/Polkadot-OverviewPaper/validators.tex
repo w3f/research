@@ -24,7 +24,7 @@ Then a public protocol , discussed below, takes these lists as input and elects 
 with the most backing to serve as validators for the next era.
 
 Nominators share the rewards, or eventual slashings, with the validators they nominated, on a per-staked-DOT basis; 
-see \autoref{sec:economics} for more details. 
+see Section~\ref{sec:economics} for more details. 
 Nominators are thus economically incentivized to act as watchdogs for the system, and they will base their preferences 
 on parameters such as validators' staking levels, commission fees, past performance, and security practices.
 Our scheme allows for the system to elect validators with massive amounts of aggregate stake
@@ -74,8 +74,8 @@ In words, if a minority $\Nom'$ has at least $t$ commonly trusted candidates,
 to whom it could "afford" to provide with an average support of at least 
 $\frac{1}{\nval} \sum_{\nom\in \Nom} stake_\nom$ 
 (which in turn is an upper bound on the average validator support in the elected set $\Val$), 
-then this minority has a justified claim to be represented in $\Val$ by at least $t$ candidates 
-(though not necessarily commonly trusted).
+then this minority has a justified claim to be represented in $\Val$ by at least $t$ candidates,  
+though not necessarily commonly trusted.
 
 \paragraph{Security.} If a nominator gets two or more of its trusted candidates elected as validators,
 the protocol must also establish how to split her stake and assign these fractions to them.
