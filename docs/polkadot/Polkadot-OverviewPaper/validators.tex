@@ -40,7 +40,7 @@ taking the nominators' lists of trusted candidates as input. Formally, the proto
 problem based on approval ballots, where nominators have voting power proportional to their stake,
 and where the goals are \emph{decentralization} and \emph{security}.
 
-\paragraph{Decentralization.} In the late 19th century, Swedish mathematician Edvard Phragm\'{e}n
+\paragraph{Decentralization.} \label{par:decentralization} In the late 19th century, Swedish mathematician Edvard Phragm\'{e}n
 proposed a method for electing members to his country’s parliament~\cite{brill2017phragmen}.
 He noticed that the election methods at the time tended to give a disproportionately large number of seats 
 to the most popular political party; in contrast, his new method ensured that the number of seats
@@ -73,9 +73,9 @@ for some $1\leq t\leq \nval$, then $|\Val\cap (\cup_{\nom\in\Nom'} \Can_n)| \geq
 In words, if a minority $\Nom'$ has at least $t$ commonly trusted candidates, 
 to whom it could "afford" to provide with an average support of at least 
 $\frac{1}{\nval} \sum_{\nom\in \Nom} stake_\nom$ 
-(which in turn is an upper bound on the average validator support in the elected set $\Val$), 
-then this minority has a justified claim to be represented in $\Val$ by at least $t$ candidates 
-(though not necessarily commonly trusted).
+which in turn is an upper bound on the average validator support in the elected set $\Val$. 
+Then this minority has a justified claim to be represented in $\Val$ by at least $t$ candidates 
+though not necessarily commonly trusted.
 
 \paragraph{Security.} If a nominator gets two or more of its trusted candidates elected as validators,
 the protocol must also establish how to split her stake and assign these fractions to them.
@@ -97,4 +97,4 @@ $$\max_{(\Val, f)} \: \min_{\val\in \Val} \: support_f(\val),
 The problem defined by this objective is called \emph{maximin support} in the literature~\cite{sanchez2016maximin}, and is known to be NP-hard.
 We have developed for it several efficient algorithms which offer theoretical guarantees 
 (constant-factor approximations), and also scale well and have been successfully tested on our testnet. 
-\alfonso{These results will be published in a separate paper soon.}{Once the NPoS paper is ready, we should put it on arXiv and add a reference here.}
+%\alfonso{These results will be published in a separate paper soon.}{Once the NPoS paper is ready, we should put it on arXiv and add a reference here.}
