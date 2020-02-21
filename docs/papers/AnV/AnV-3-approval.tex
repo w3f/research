@@ -1,0 +1,230 @@
+
+
+\section{Approval} % phase
+\label{sec:approval}
+
+We now describe and instantiate the subprotocols that provide the approval validity checks required before finality.
+
+As mentioned above in \S\ref{sec:availability}, any validator $V$ accumulates availability announcements for each relay chain block $R$.  After $V$ observe $2f+1$ such availability claims, then $V$ considers $R$ {\em available} and enters the approval phase for $R$.  We assume that $V$ considers $R$ available and that $V$ has public-secret key pair $(\pk,\sk)$ throughout this subsection.
+
+The approval phase for $R$ has two components, approval checker assignments and actually performing the checks.  We have three flavours of approval checker assignments, which all roughly follow the pattern of
+\begin{itemize}
+\item first VRF announcements via gossip, and
+\item then computation of approval checker assignments.
+\end{itemize}
+\noindent 
+All approval checker assignments trigger the same approval check protocol, which consists of
+\begin{itemize}
+\item retrieval and reconstruction of full candidate proof-of-validity blobs, 
+\item running approval checks on the candidate proof-of-validity blobs, and 
+\item announcing these candidates validity or invalidity.
+\end{itemize}
+We describe this second component first because 
+
+...
+
+
+\subsection{Checking} 
+
+% In this subsection, 
+We now temporarily suppose that $V$ completed some approval checker assignment criteria subphase:  First, $V$ has constructed and announced via gossip some approval checker VRF signature $\pi_{V,\cdot}$.  Second, there exists a parachain $\rho$ determined by the specific approval checker assignment criteria applied to $\VRF.\Out(\pi)$.  We let $B$ denote the parachain candidate $B$ for $\rho$ in $R$ and $\reciept_{B,\cdot}$ its candidate receipt.  
+
+We caution that $\pi_{V,\cdot}$ always depends upon the verifiers' ambiant knowledge, but we optionally package some extra knowledge with $\pi_{V,\cdot}$, like equivocation proofs (see below).  We prevent late stage adversarial influence from shifting approval checker assignment criteria, but verifiers' ambiant knowledge also impacts if and when $V$ checks $B$.  We cannot however package this extra knowledge with $\pi_{V,\cdot}$, so validators can disagree for a limited time over whether $V$ checks $B$.
+
+\subsubsection{Retrieval}
+
+We never consider substructure of $B$ to be meaningful, so $V$ must {\em retrieve} the full {\em candidate proof-of-validity blob} $\blobB$ before checking.  Now $V$ knows which which nodes have their individual pieces, thanks to their availability announcements.  It thus follows from our 2/3rd honest assumption that $V$ could always reconstruct $\blobB$ by obtaining enough pieces $\pieces_B$ from nodes known to posses them.  
+
+We note however that $V$ also knows that all pieces are known by the preliminary backing validity checkers aka parachain validators who approved $\blobB$, as well as approval checkers who already approved $\blobB$.  So $V$ could first contact some node that possesses all of $\blobB$, and only then begin a full reconstruction process. 
+
+In both cases, $V$ must recompute $\pieces_B$ to verify $\reciept_{B,\cdot}$.  We therefore cannot see much computational difference between $V$ reconstructing $\pieces_B$ from arbitrary pieces or from $\blobB$ itself.  It remains plausible $V$ avoids some networking overhead by asking for $\blobB$ though.  We think a first implementation could reasonably target reconstructing $\pieces_B$ from arbitrary pieces, while leaving requests for the full $\blobB$ to future optimisations. 
+
+Ideally $V$ might retrieve the pieces in $\pieces_B$ only using its existing connections in our topology specified above, except these intentionally do not include 1/3rd of validators.  Also, $V$ need not connect to any node with all of $\pieces_B$.  Yet, $V$ should connect to at least one prachain validators in $\vals_\rho$ who ideally should check $B$ first.  
+
+We strongly caution against abandoning approval checkers over topology concerns because then adversarial influence over the topology could wreck our assignment criteria below.
+
+In fact, our retrieval component could be engineered to avoid requests entirely:  After obtaining $\pi_{V,\cdot}$, another validator $V'$ could simply compute its own priority for sending its piece from $\pieces_B$ to $V$.  We caution that doing do might become inefficient, either because $V$ winds up rejecting sends, or when many nodes go offline.  
+
+\subsubsection{Announcement}
+
+After $V$ obtains enough pieces to recompute and verify $\reciept_{B,\cdot}$ from $\blobB$, then $V$ verifies $\blobB$ itself by running the execute block function of $\rho$.  If both these checks pass, then $V$ signs $\reciept_{B,\cdot}$ and announces its signature via gossip.  If either check fails, then $V$ claims invalidity for $\reciept_{B,\cdot}$, which results in all validators checking $B$.
+
+
+\subsection{Assignments}
+
+\newcommand\netdelay{\ensuremath{\Delta_{\mathsf{net}}}}
+\newcommand\checkdelay{\ensuremath{\Delta_{\mathsf{check}}}}
+
+We consider self-assignment schemes determined by several paramaters:
+\begin{itemize}
+\item our target number $\ell$ of eventual checkers,
+\item our total number $n'$ of candidate checkers, normally $n' = \nvals - \npvals$,
+\item the weight $\theta$ of a no-show checker with $1 \leq \theta \leq 2$,
+\item a network delay bound $\netdelay$ for gossip messages, and
+\item a block checking delay bound $\checkdelay$ that covers both retrieval and validation.
+\end{itemize}
+We never split the check bound $\checkdelay$ into separate retrieval and validation bounds, because doing so could only improves latency in extremely niche situations, and normally the extra gossip costs far more. 
+
+\subsubsection{Verifiable random sampling}
+
+We propose self-assignment schemes based on employ {\em verifiable random sampling} using a VRF:  
+
+Any protocol run requires some seed $z$ and some associated time $T_0$ that marks the protocols' start time.  As a rule, we select $z$ to satisfy some freshness assumption, meaning our adversary learns $z$ before some time $T_0$ with odds less than our ambiant security treshold $f/n$.
+
+Any validator $V$ with key pair $(\pk,\sk)$ computes its VRF signature $\tilde{\pi}_{V,z} := \VRF.\Sign_\sk(z)$, which it announces when specified by the specific protocol, but not before $T_0$.  Anyone else verifies $\tilde{\pi}_{V,z}$ with $\pk$.  All participants seed their sampling procedure for $V$'s assignment with the verifiable randomness $\tilde{\omega}_{V,z} := \VRF.\Out(\pi_{V,z})$.
+
+We prefer $z$ already be known to verifiers, but our protocols run far too fast to enforce this.  We expect premature gossip messages that arrive before the verifier knows $z$ require subtle caching and expiration policies, but some scenarios provide a short proof for $z$, which may or may not be worth including in gossip messages.
+
+We remark that gossip messages could be signed with $\pi$ itself by incorporating the output into the full gossip message, which gets signed as extra message data.  If done, this reduces the computational cost for signature verification by a third to a half, but may violate protocol layering and complicate validating protocol security and correctness, audits, etc. 
+
+We always need target number $\ell$ of eventual checkers when sampling assignments based on $\tilde{\omega}_{V,z}$.  We shall often alter $\ell$ during protocol runs though, so assignments must be covariant in $\ell$, meaning increasing $\ell$ should not invalidate assignments made with smaller $\ell$.  We avoid rejection sampling after $\ell$ enters the sampling computation for this reason.
+
+\subsubsection{Generic one-shot delay}
+
+We first define a generic ``one-shot'' self-assignment subprotocol in which the seed $z$ uniquely identifies a parachain candidate $B$ on some parachain $\rho$.  We term this a ``one-shot'' protocol in that validators reveal their assignment at the last possible moment before checking, which costs us efficiency but gives code simplicity and completeness.  It also gives us a fig leaf of defense against some adaptive adversary classes.  We describe this subprotocol generically because it acts as a basis for almost all our self-assignment subprotocols, thanks to being one-shot, and should enable considerable code reuse.  
+
+All validators track the set $A_z$ of valid announced checker claims, as well as the subset $S_z$ of all validity claims $S_B$ for $B$ generated by nodes in $A_z$.  We identify here the generic one-shot protocol run by $z$ because multiple $z$ may imply the same $B$, except we emphasise that messages exist only for $S_B$ not $S_z$, and that our protocol run ends by considering $S_z$ sufficient.  
+
+We uniformly sample time delays from the interval $[0,\netdelay {n' \over \ell}]$, so that an expected $\ell$ land in $[0,\netdelay]$.  We use verifiable sampling here of course, meaning we compute this delay $d_{V,z}$ from $\tilde{\omega}_{V,z}$.  
+%
+As noted above, we shall alter $\ell$ during protocol runs, which prevents rejection sampling.  We do not however require perfect uniformity, so simple integer division suffices here $d_{V,z} = {\netdelay n' \omega_{V,z} - \netdelay \over \ell m}$ where $m$ is the upper bound on $\omega_{V,z}$, i.e.\ $\omega_{V,z} \in [0,m)$.  
+%
+In this, we subtract $\netdelay$ to condense the first $[0,\netdelay)$ time interval at zero to make all initial nodes start at time $T_0$ and prevent powerful adversaries from forcing nodes before them. 
+%
+In Rust, we might sample with code resembling
+\begin{code}
+fn generic_oneshot_assigned_delay(
+    ctx: &'static [u8],
+    network_delay: u32, 
+    candidates: u32,
+    target: u32,
+    omega: ::schnorrkel::vrf::VRFInOut,\
+) -> u32 {
+    assert!(network_delay > 0); // Unrealistic network otherwise
+    assert!(candidates > 0 && target > 0); // No candidates, not even us.
+    let mut s = u32::from_le_bytes( omega.make_bytes(ctx) ) as u64;
+    s *= (candidates as u64) * (network_delay as u64);
+    s /= (u32::value_max() as u64) + 1;
+    s.saturating_sub(network_delay as u64)
+    .try_into::<u32>().expect("candidates * network_delay > u32::value_max()")
+    / target
+}
+\end{code}
+
+Consider a validator $V$ with current time $t$.  We describe how $V$ tracks the announcements $A_z$ and their answering validity claims $S_z$, and deals with no-shows.
+
+$V$ records the time $t_a$ it receives each checker announcement $a \in A_z$.  Also $V$ defines its no-show count $\ell'$ to be the number of $a \in A_z$ for which both $t_a + \checkdelay < t$ and the owner $V'\in \vals$ of $a$ does not yet appear in $S_z$.
+
+All validator $V$ announces via gossip their $\tilde{\pi}_{V,z}$, and begins retrieving and checking $B$, whenever
+\begin{enumerate}
+\item $T_0 + d_{V,z} + \netdelay < t$,
+\item $|A_z| < \ell + \theta \ell'$, and
+\item $V \notin \vals \setminus \vals_\rho$.
+\begin{enumerate}
+In some protocols, we do increase $\ell$ to compensate for absent parachain validators in $\vals_\rho$, so relieving a validity claim from a $V \in \vals_\rho$ may reduce $\ell$, but such a claim never counts towards $S_z$.
+
+Also $V$ considers the block $B$ valid whenever $|S_z| \ge \ell + \theta \ell'$, but one-shot subprotocol cannot terminiate themselves because their caller might later increase $\ell$.  We ask the caller manage prioritisation for work on $z$ and $B$.
+
+
+% \subsection{Criteria}
+%
+% $\equivocationchecks$
+% $\basesecondarychecks$
+
+\subsubsection{Initial one-shot:}
+
+We recall that a relay chain block $R$ always has an associated VRF signature $\hat{\pi}_R$ whose output $\hat{\omega}_R := \VRF.\Out_(\hat{\pi}_R)$ gets recycled for the random beacon, and perhaps seals the block $R$ itself.  In Praos \cite{Praos} or BABE \cite{BABE}, $\hat{\omega}_R$ equals the VRF output $\omega_R$ that justifies creating $R$, but secret single leader elections like Sassafras \cite{Sassafras} might reveal $\omega_R$ early.  We want $\hat{\omega}_R$ to be the random beacon source that only the block producer of $R$ knows in advance, and that even they can only influence by choosing wether or not to make $R$.
+% TODO: Should this be in AnV-1-setting.tex and shoud that say more about VRFs? 
+
+We always run initial approval checker assignments based on $\hat{\omega}_R$ and the parachain $\rho$ of $B$ to minimize an adversaries influence to their choice to use their own $\hat{\pi}_R$.  Implementations have two options for these initial approval checker assignments, either repeatedly employ the one-shot scheme described above, or else reduce variance among validator workloads with a packed scheme described below.
+
+We describe using the one-shot self-assignment subprotocol:  All validators run the one-shot self-assignment subprotocol for each parachain $\rho$ represented in $R$ using the seed $z_B := \hat{\omega}_R || \rho.\mathsf{seed}$.\footnote{We write $z_B$ instead of $z_{R,\rho}$ because parachains have only one block per relay chain block.}  We outline computing the associated target number $\ell_B$ of eventual checkers for the one-shot assignment subprotocol: 
+
+As discussed previously, our approval phase begins only after acquiring enough preliminary backing parachain validators from $\rho$.  We suppose here that $\npvals$ preliminary backing checks to always be realistic, making fewer than $\npvals$ preliminary backing checks suspicious.  We set $\ell'_B$ to be the number $|\vals_\rho|$ of parachain validators for $\rho$ minus $|S \cap \vals_\rho|$. 
+% TODO: \npvals vs |\vals_\rho|
+We also define $\theta'$ to be a suspicion factor with $0 \le \theta' \le 2$, which we multiply by $\ell'_B$ below.
+
+We accumulate several dynamic report factors, like an unavailability report factors $\rfuv$ from validators and $\runav$ from collators, and an invalidity report factor $\rinv$ from both collators and untrusted fishermen.  We set the target number $\ell$ of approval checkers to be the sum of these, along with any missing preliminary backers $\npvals-\primarychecks$.  So
+$$ \ell_B := \basesecondarychecks + \lceil \theta' \ell'_B + \rfuv + \runav + \rinv \rceil \mathoperiod $$
+
+Implementations might slightly delay accounting for $\theta' \ell_\rho$, and possibly other factors, to prevent $\ell$ from being overly large initially. 
+
+\subsubsection{Initial packed}
+
+We observe one shortcoming of the generic one-shot self-assignment scheme:  All validators have separate $z_B$ for each parachain $\rho$ represented in $R$, which results in statistically independent VRF signatures $\hat{\pi}_{V,B}$ for each $\rho$.  
+
+We normally love independence under attack scenarios, but here it frequently results in validators either not doing any approval check or else doing far too many.  In principle, we could dampen the excess checks this with additional prioritisation rules for the generic scheme, except such rules allow adversaries to pack in their own nodes with high priorities.
+
+Instead, we shall sacrifice some unneeded independence across parachains for a more balanced distribution.
+%
+We shall reuse our target number $\ell_B$ of approval checkers as defined for the initial one-shot variant, which depends upon the parachain $\rho$ of $B$ as well as the relay chain block $R$.
+%
+Instead of distinct $z_B$ though, we ask that each $V$ announce one $\tilde{\pi}_{V,R} := \VRF.\Sign_\sk(\hat{\omega}_R)$ via gossip for $R$ as soon as it considers $R$ to be available, making $\hat{\omega}_R$ alone the seed.
+
+% \subparagraph{Sampling:}
+
+Let $P$ denote the full list of parachains, possibly padded with some null entries.
+Also, for any validator $V$, let $\rho_V$ denote the parachain assignment of $V$.
+We define a permutation $P_{V,R}$ of $P \setminut \{ \rho_V \}$ with a Fisher-Yates shuffle seeded by $\omega_{V,R} := \VRF.\Out(\tilde{\pi}_{V,R})$.  We note $P_{V,R}$ is entirely determined by $\hat{\omega}_R$ and the key $\sk$ of $V$, since $P$ itself remains constant and does not change with $R$.
+
+We now assign $V$ to check the parachains listed earliest in its $P_{V,R}$ that require additional validators.
+%
+In concrete terms, anyone observing the gossip messages has the pre-assignment level sets
+$$ \mathsf{pal}(R,\rho,i) := \Setst{ V }{ P_{V,R}[j] = \rho \quad\mathrm{for some $j < i$} } $$
+and then defines $\mathsf{assignees}(R,\rho)$ to be $\mathsf{pal}(R,\rho,i)$ for the minimal $i$ such that $\mathsf{assignees}(R,\rho)$ has at least the desired number $\ell_B$ of validators.\footnote{We could leave $\ell_B$ as a paramater here for a more generic construction, but this sampling procedure neer gets reused elsewhere.}
+
+
+All validators track the set $A_z$ of valid announced checker claims, as well as the subset $S_z$ of all validity claims $S_B$ for $B$ generated by nodes in $A_z$.  We identify here the generic one-shot protocol run by $z$ because multiple $z$ may imply the same $B$, except we emphasise that messages exist only for $S_B$ not $S_z$, and that our protocol run ends by considering $S_z$ sufficient.  
+
+% \smallskip
+% \subparagraph{Assigning:}
+
+Assuming perfect information, it follows that $\mathsf{assignees}(R,\rho)$ gives our approval checkers assigned to a parachain candidate $B$ on $\rho$ in $R$. 
+%
+We know that $\tilde{\omega}_{V,R}$ might remain unknown for numerous $V$, due to delays in availability or gossip, either here or earlier.  As this artificially enlarges $\mathsf{assignees}(R,\rho)$, we adopt a solution similar to the one-shot protocol:  All validators therefore accumulate the set $A_R = \{ (t_{V,R},\tilde{\pi}_{V,R})) \}$ of valid VRF announcements, along with the time $t_{V,R}$ when they were received.
+We gradually enable assignments by replacing $\mathsf{assignees}(R,\rho)$ with the slower growing
+$$ \mathsf{assignees}(R,\rho) \cap \mathsf{pal}(R,\rho,\lfloor {t - T_0 \over \netdelay} \rfloor) $$
+
+% \smallskip
+% \subparagraph{Delays:}
+
+In this way, we still avoid relay chain block producers holding excessive power over the assignments, much like in the generic one-shot scheme.  We do however sacrifice some independence of delays across parachains so that our shuffle $P_{V,R}$ can distribute these initial approval checker assignments more evenly among the validators.  
+
+Our shuffle has running time linear in the number of parachains, with each iteration sampling from say $\mathsf{ChaChaRng}(\omega_{V,R})$.  We could produce $P_{V,R}$ lazily with a lazy Fisher-Yates shuffle, which sounds like premature optimisation, but gives another advantage over sampling delays.
+
+If larger delays are desired, then we could either pad $P$ with null entries, or else sample extra delays between the levels, probably from a geometric distribution.  We favor sampling extra delays because if delays are large then padding $P$ slows computing $P_{V,R}$ more.
+
+\subsubsection{Initial no-shows}
+
+We address no-shows carefully in the one-shot scheme, but ignored them in the initial packed discussion since no-shows defenses largely help against adaptive attacker classes.  We suggest the initial packed scheme fall back onto the one-shot scheme for no-shows.  Intuitively, we run the initial one-shot scheme in parallel with ``$\ell = 0$'' or more precisely with the generic one-shot scheme's second announcement condition replaced by $|A_z| < \theta \ell'$. 
+
+We should strongly consider moving some or all of the report factor from $\ell_B$ into this condition too.  ...
+% TODO:  Alistair, Jeff, and Handan must discudd this part carefully .
+
+At the extreme, our shuffled parachain list $P_{V,R}$ could be replaced with a single check on the parachain $\rho$ whose index is $\tilde{\pi}_{V,R}$ taken modulo the number of parachains.  All these checks could replace the one-shot winners with no delay. 
+
+As an aside, we considered using the no-show validators' VRF outputs $\omega_{V,R}$ here, but judge such designs to be unnecessary code complexity. 
+
+\subsubsection{Equivocation:}
+
+% TODO:  Alistair, Jeff, and Handan must discudd this part carefully to set \equivocationchecks.  I preserved that equivocation checks use parachain block hashes, not relay chain block hashes, from Handan's write up, which make sense because more equivocations does not require more checks.  It makes (3) from her write up make no sense.  Also her (4) used #Vcehck in a strange way. 
+
+We say $R$ has equivocations if there exists another relay chain block $R'$ distinct from $R$ but using the same VRF output $\hat{\omega}_{R'} = \hat{\omega}_R$ for the relay chain randomness.  We distrust relay chain blocks with equivocations of course, and must mark them as having equivocations, but we sadly cannot invalidate them because doing so creates attacks on finality. 
+% TODO: Explain?
+
+We therefore fear an adversary might create an $R'$ with an innocent $B'$ on $\rho$ merely to learn the approval checkers determined by $\hat{\omega}_R$ for $\rho$, but then equivocate with another $R$ that containing a malicious $B$ on $\rho$.  In this scenario, our equivocation $R$ triggers exactly the same approval checks for $B$ as $R'$ did for $B'$, which wrecks our advantage over the adversary.
+
+We desire additional checks that remain unforeseeable to our adversary here, but without triggering excessive checks against innocent parachain candidates under repeated equivocations.     
+
+We find this compromise by instantiating the generic one-shot self-assignment subprotocol with seed $z_B = H(B)$, or perhaps with $H(B)$ replaced by the Merkle root $\merkleroot_B$, so that each parachain candidate gets assigned only an extra checkers group only once.  In other words, we work with VRF signatures $\tilde{\pi}_{V,B} := \VRF.\Sign_\sk(H(B))$ and do verifiable sampling with the VRF outputs $\omega_{V,B} := \VRF.\Out(\tilde{\pi}_{V,B})$, as opposed to the $\tilde{\pi}_{V,R,\rho}$ or $\tilde{\pi}_{V,R}$ from our initial checks.
+
+In this one-shot application, we could choose our target number $\ell$ of approval checkers to be a constant $\equivocationchecks$, perhaps equal to $\basesecondarychecks$, or at the other extreme reuse our target number $\ell_B$ of approval checkers as defined for the initial one-shot variant.  We suggest however that report factor from $\ell_B$ by reconsidered under the equivocations attack scenario.
+
+In this way, an adversary who equivocates always faces $\ell$ extra checks against their new parachain block $B$, without impacting the innocent parachains too much when faced with numerous equivocations.
+
+Implementers might suppress this check if parachains always carry less value than gets slashed when relay chain block producers equivocate.  Attacks could impact multiple parachains simultaneously but doing so requires significantly more resources.
+
+
+\subsection{Finality} 
+
+...
