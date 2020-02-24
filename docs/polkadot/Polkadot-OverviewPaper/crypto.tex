@@ -30,8 +30,7 @@ Almost all early proof-of-stake networks have a negligent public key infrastruct
 
 \smallskip
 
-We impose no prior restrictions on the cryptography employed by specific Substrate modules \footnote{DEFINE WHAT THEY ARE} or associated session keys types.  
-% TODO: I've no idea what this footnote wants since it goes into this below.
+We impose no prior restrictions on the cryptography employed by specific components or their associated session keys types.\footnote{We always implement cryptography for polkadot in native code, not just because the runtime suffers from WASM's performance penalties, but because all of Polkadot's consensus protocols are partially implemented outside the runtime in Substrate modules.}
 
 In BABE \ref{sec:babe}, validators use schnorrkel/sr25519 keys both for regular Schnorr signatures, as well as for a verifiable random function (VRF) based on NSEC5 \cite{NSEC5}.  
 
