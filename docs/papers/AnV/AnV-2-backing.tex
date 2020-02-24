@@ -51,6 +51,7 @@ At any time, if any two validators disagree about a parachain block's validity t
 
 
 \subsection{Relay chain authorship} % Relay chain phase I: Block production 
+\label{sec:backing}
 
 % \smallskip
 % \paragraph{Parachain validator:}
@@ -81,6 +82,7 @@ We might however see many competing parachain candidate blocks at this point, so
 
 
 \subsection{Topology}
+\label{sec:topology}
 %TODO: "Piece distribution topology" is too long
 
 We find that scalability actually depends heavily upon the topology and routing used to distribute data, but that specifics depend upon the scale.  We briefly explain the specialised topology and routing requirements for our two phases of parachain data distribution.  We caution however that routing almost always requires some capacity for multi-hop forwarding because otherwise risks excluding some elected validators.  

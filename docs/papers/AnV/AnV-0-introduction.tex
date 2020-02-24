@@ -7,14 +7,15 @@
 
 In \S\ref{sec:parachains}, we first recall our tools like verifiable random functions, erasure coding, and state witnesses, and then describe the sharding problem and introduce our security definitions. 
 
-We describe and instantiate our {\em availability and validity protocol} in \S\ref{sec:availability_n_backing} and \S\ref{sec:approval} that provides efficient sharding.  It roughly consists of 
+We describe and instantiate our {\em availability and validity protocol} for efficient sharding as several phases across \S\ref{sec:availability_n_backing}, \S\ref{sec:approval}, and \S\ref{sec:...}.  As a rough outline,
 \begin{itemize}
-\item a parachain phase that prepares the candidate block and performs preliminary backing validity checks,
-\item a relay chain submission phase that distributes candidate parachain blocks and produces relay chain blocks,
-\item availability and unavailability subprotocols that enforce availability in GRANDPA and BABE respectively,
-\item fuller approval validity checks for GRANDPA,
-\item objection procedures for fishermen, and
-\item invokation of a Byzantine fault tolerant ``finality gadget'' that gives us finality.
+\item a parachain phase in which collators produce candidate parachain blocks (\S\ref{sec:parachain}) and parachain validators perform preliminary backing validity checks (\S\ref{sec:backing}),
+\item a relay chain submission phase that distributes candidate parachain blocks and produces relay chain blocks (\S\ref{sec:backing} and \S\ref{sec:topology}),
+\item availability (\S\ref{sec:availability}) and unavailability (\S\ref{sec:unavailability}) subprotocols that enforce availability in GRANDPA and BABE respectively,
+\item assigning secondary checkers (\ref{sec:assignment}) who fuller approval validity checks (\S\ref{sec:approcal_checks}), and
+\item invokation of a Byzantine fault tolerant ``finality gadget'' that gives us finality (\S\ref{sec:finality}).
 \end{itemize}
+We depend upon slashing to provide economic security guarantees, so we discuss slashing both in \S\ref{\sec:slashing} and when relavant in the main protocol description.
 
-\S\ref{sec:fishermen}  ????
+We also discuss objection procedures for fishermen in \S\ref{sec:fishermen} and collators in \S\ref{sec:collators}.
+
