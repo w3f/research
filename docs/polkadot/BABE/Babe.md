@@ -66,11 +66,14 @@ We assume that each party has a local buffer that contains the transactions to b
 
 BABE is almost the same as Ouroboros Praos [2] except chain selection rule and the slot time adjustment.
 
-In BABE, all validators have same amount of stake so their probability of being selected as slot leaders is equal. Given that we have $n$ validators and relative stake of each party is $\theta = 1/n$  the probability of being selected is
 
-$$p = \phi_c(\theta) = 1-(1-c)^{\theta}$$
+Given that the weight (i.e., stake) of a validator $V_i$ is $w_i$ and the total weigh is $W = w_1 + w_2 + ... + w_n$ where $n$ is the number of validators, the parameter $\theta_i = \frac{w_i}{W}$ and the probability of a validator $V_i$ selected is
+
+$$p = \phi_c(\theta_i) = 1-(1-c)^{\theta_i}$$
 
 where $c$ is a constant. 
+
+In BABE, all validators have same amount of stake so their probability of being selected as slot leaders is equal. Therefore, $\theta_1 = \theta_2 = ... = \theta_n = \theta = \frac{1}{n}$.
 
 The threshold used in BABE for each validator $P_i$ is 
 
