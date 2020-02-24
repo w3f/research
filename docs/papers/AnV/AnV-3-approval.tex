@@ -8,9 +8,9 @@ We now describe the subprotocols that provide the approval validity checks requi
 
 We preserve the notation from \S\ref{sec:availability}:  
 
-Any parachains block $B$ on a parachain $\rho$ has a candidate proof-of-validity blob $\blobB$ that contains the witness proofs for any parachain state interactions, as well as an associated candidate receipt $\reciept_B$ that contains the Merkle root $\merkleroot_B$ for the Merkle tree with leaves consisting of the erasure coded pieces $\prepieces_B$ of $\blobB$.  We distributed the authenticated pieces $\pieces_B$ that consist of one piece from $\prepieces_B$ and its witness copath for $\merkleroot_B$.  
+Any parachains block $B$ on a parachain $\rho$ has a candidate proof-of-validity blob $\blobB$ that contains the witness proofs for any parachain state interactions, as well as an associated candidate receipt $\receipt_B$ that contains the Merkle root $\merkleroot_B$ for the Merkle tree with leaves consisting of the erasure coded pieces $\prepieces_B$ of $\blobB$.  We distributed the authenticated pieces $\pieces_B$ that consist of one piece from $\prepieces_B$ and its witness copath for $\merkleroot_B$.  
 
-All nodes accumulate the attested candidate receipts $\reciept_{B,S}$ that consist of its inner candidate receipt $\reciept_B$ and three attestation types: validation, unavailability, and perhaps a special availability attestation that revokes an unavailability attestation.  We do accumulate availability attestations for full relay chain blocks of course.
+All nodes accumulate the attested candidate receipts $\receipt_{B,S}$ that consist of its inner candidate receipt $\receipt_B$ and three attestation types: validation, unavailability, and perhaps a special availability attestation that revokes an unavailability attestation.  We do accumulate availability attestations for full relay chain blocks of course.
 
 Any validator $V$ accumulates availability and unavailability attestations for each candidate $B$ in each relay chain block $R$.  After $V$ observe $2f+1$ such availability claims for all candidates $B$ in some relay chain block $R$, then $V$ considers $R$ to be {\em available} and enters the approval phase for $R$.  
 
@@ -40,7 +40,7 @@ We describe this second component first because ???why???.
 \label{sec:approcal_checks}
 
 % In this subsection, 
-We now temporarily suppose that $V$ completed some approval checker assignment criteria subphase:  First, $V$ has constructed and announced via gossip some approval checker VRF signature $\pi_{V,\cdot}$.  Second, there exists a parachain $\rho$ determined by the specific approval checker assignment criteria applied to $\VRF.\Out(\pi)$.  We let $B$ denote the parachain candidate $B$ for $\rho$ in $R$ and $\reciept_{B,\cdot}$ its candidate receipt.  
+We now temporarily suppose that our validator $V$ completed some approval checker assignment criteria subphase:  First, $V$ has constructed and announced via gossip some approval checker VRF signature $\pi_{V,\cdot}$.  Second, there exists a parachain $\rho$ determined by the specific approval checker assignment criteria applied to $\VRF.\Out(\pi)$.  We let $B$ denote the parachain candidate $B$ for $\rho$ in $R$ and $\receipt_{B,\cdot}$ its candidate receipt.  
 
 We caution that $\pi_{V,\cdot}$ always depends upon the verifiers' ambiant knowledge, but we optionally package some extra knowledge with $\pi_{V,\cdot}$, like equivocation proofs (see below).  We prevent late stage adversarial influence from shifting approval checker assignment criteria, but verifiers' ambiant knowledge also impacts if and when $V$ checks $B$.  We cannot however package this extra knowledge with $\pi_{V,\cdot}$, so validators can disagree for a limited time over whether $V$ checks $B$.
 
@@ -50,7 +50,7 @@ We never consider substructure of $B$ to be meaningful, so $V$ must {\em retriev
 
 We note however that $V$ also knows that all pieces are known by the preliminary backing validity checkers aka parachain validators who approved $\blobB$, as well as approval checkers who already approved $\blobB$.  So $V$ could first contact some node that possesses all of $\blobB$, and only then begin a full reconstruction process. 
 
-In both cases, $V$ must recompute $\pieces_B$ to verify $\reciept_{B,\cdot}$.  We therefore cannot see much computational difference between $V$ reconstructing $\pieces_B$ from arbitrary pieces or from $\blobB$ itself.  It remains plausible $V$ avoids some networking overhead by asking for $\blobB$ though.  We think a first implementation could reasonably target reconstructing $\pieces_B$ from arbitrary pieces, while leaving requests for the full $\blobB$ to future optimisations. 
+In both cases, $V$ must recompute $\pieces_B$ to verify $\receipt_{B,\cdot}$.  We therefore cannot see much computational difference between $V$ reconstructing $\pieces_B$ from arbitrary pieces or from $\blobB$ itself.  It remains plausible $V$ avoids some networking overhead by asking for $\blobB$ though.  We think a first implementation could reasonably target reconstructing $\pieces_B$ from arbitrary pieces, while leaving requests for the full $\blobB$ to future optimisations. 
 
 Ideally $V$ might retrieve the pieces in $\pieces_B$ only using its existing connections in our topology specified above, except these intentionally do not include 1/3rd of validators.  Also, $V$ need not connect to any node with all of $\pieces_B$.  Yet, $V$ should connect to at least one prachain validators in $\vals_\rho$ who ideally should check $B$ first.  
 
@@ -60,7 +60,7 @@ In fact, our retrieval component could be engineered to avoid requests entirely:
 
 \subsubsection{Announcement}
 
-After $V$ obtains enough pieces to recompute and verify $\reciept_{B,\cdot}$ from $\blobB$, then $V$ verifies $\blobB$ itself by running the execute block function of $\rho$.  If both these checks pass, then $V$ signs $\reciept_{B,\cdot}$ and announces its signature via gossip.  If either check fails, then $V$ claims invalidity for $\reciept_{B,\cdot}$, which results in all validators checking $B$.
+After $V$ obtains enough pieces to recompute and verify $\receipt_{B,\cdot}$ from $\blobB$, then $V$ verifies $\blobB$ itself by running the execute block function of $\rho$.  If both these checks pass, then $V$ signs $\receipt_{B,\cdot}$ and announces its signature via gossip.  If either check fails, then $V$ claims invalidity for $\receipt_{B,\cdot}$, which results in all validators checking $B$.
 
 
 \subsection{Assignments}
@@ -106,7 +106,7 @@ As noted above, we shall alter $\ell$ during protocol runs, which prevents rejec
 In this, we subtract $\netdelay$ to condense the first $[0,\netdelay)$ time interval at zero to make all initial nodes start at time $T_0$ and prevent powerful adversaries from forcing nodes before them. 
 %
 In Rust, we might sample with code resembling
-\begin{code}
+\begin{verbatim}
 fn generic_oneshot_assigned_delay(
     ctx: &'static [u8],
     network_delay: u32, 
@@ -123,7 +123,7 @@ fn generic_oneshot_assigned_delay(
     .try_into::<u32>().expect("candidates * network_delay > u32::value_max()")
     / target
 }
-\end{code}
+\end{verbatim}
 
 Consider a validator $V$ with current time $t$.  We describe how $V$ tracks the announcements $A_z$ and their answering validity claims $S_z$, and deals with no-shows.
 
@@ -134,7 +134,7 @@ All validator $V$ announces via gossip their $\tilde{\pi}_{V,z}$, and begins ret
 \item $T_0 + d_{V,z} + \netdelay < t$,
 \item $|A_z| < \ell + \theta \ell'$, and
 \item $V \notin \vals \setminus \vals_\rho$.
-\begin{enumerate}
+\end{enumerate}
 In some protocols, we do increase $\ell$ to compensate for absent parachain validators in $\vals_\rho$, so relieving a validity claim from a $V \in \vals_\rho$ may reduce $\ell$, but such a claim never counts towards $S_z$.
 
 Also $V$ considers the block $B$ valid whenever $|S_z| \ge \ell + \theta \ell'$, but one-shot subprotocol cannot terminiate themselves because their caller might later increase $\ell$.  We ask the caller manage prioritisation for work on $z$ and $B$.
@@ -159,7 +159,7 @@ As discussed previously, our approval phase begins only after acquiring enough p
 We also define $\theta'$ to be a suspicion factor with $0 \le \theta' \le 2$, which we multiply by $\ell'_B$ below.
 
 We accumulate several dynamic report factors, like an unavailability report factors $\rfuv$ from validators and $\runav$ from collators, and an invalidity report factor $\rinv$ from both collators and untrusted fishermen.  We set the target number $\ell$ of approval checkers to be the sum of these, along with any missing preliminary backers $\npvals-\primarychecks$.  So
-$$ \ell_B := \basesecondarychecks + \lceil \theta' \ell'_B + \rfuv + \runav + \rinv \rceil \mathoperiod $$
+$$ \ell_B := \basesecondarychecks + \lceil \theta' \ell'_B + \rfuv + \runav + \rinv \rceil \mathperiod $$
 
 Implementations might slightly delay accounting for $\theta' \ell_\rho$, and possibly other factors, to prevent $\ell$ from being overly large initially. 
 
@@ -179,12 +179,12 @@ Instead of distinct $z_B$ though, we ask that each $V$ announce one $\tilde{\pi}
 
 Let $P$ denote the full list of parachains, possibly padded with some null entries.
 Also, for any validator $V$, let $\rho_V$ denote the parachain assignment of $V$.
-We define a permutation $P_{V,R}$ of $P \setminut \{ \rho_V \}$ with a Fisher-Yates shuffle seeded by $\omega_{V,R} := \VRF.\Out(\tilde{\pi}_{V,R})$.  We note $P_{V,R}$ is entirely determined by $\hat{\omega}_R$ and the key $V.\sk$ of $V$, since $P$ itself remains constant and does not change with $R$.
+We define a permutation $P_{V,R}$ of $P \setminus \{ \rho_V \}$ with a Fisher-Yates shuffle seeded by $\omega_{V,R} := \VRF.\Out(\tilde{\pi}_{V,R})$.  We note $P_{V,R}$ is entirely determined by $\hat{\omega}_R$ and the key $V.\sk$ of $V$, since $P$ itself remains constant and does not change with $R$.
 
 We now assign $V$ to check the parachains listed earliest in its $P_{V,R}$ that require additional validators.
 %
 In concrete terms, anyone observing the gossip messages has the pre-assignment level sets
-$$ \mathsf{pal}(R,\rho,i) := \Setst{ V }{ P_{V,R}[j] = \rho \quad\mathrm{for some $j < i$} } $$
+$$ \mathsf{pal}(R,\rho,i) := \Setst{ V }{ P_{V,R}[j] = \rho \mathrm{\ for some\ } j < i } $$
 and then defines $\mathsf{assignees}(R,\rho)$ to be $\mathsf{pal}(R,\rho,i)$ for the minimal $i$ such that $\mathsf{assignees}(R,\rho)$ has at least the desired number $\ell_B$ of validators.\footnote{We could leave $\ell_B$ as a paramater here for a more generic construction, but this sampling procedure neer gets reused elsewhere.}
 
 
@@ -244,9 +244,9 @@ Implementers might suppress this check if parachains always carry less value tha
 \subsubsection{Finality} 
 \label{sec:finality}
 
-As noted above, any validator $V$ accumulates approval checks $S$ for a candidate receipt $\reciept_{B,S}$.  All our assignment schemes come with applicability criteria, like $R$ having equivocations, as well as fulfilment criteria, like $|S_z| \ge \ell + \theta \ell'$.  We judge $R$ approved when all applicabile assignment schemes appear fulfilled.  An approved relay chain block $R$ becomes eligible for consideration by our finality gadget GRANDPA.
+As noted above, any validator $V$ accumulates approval checks $S$ in an attested candidate receipt $\receipt_{B,S}$.  All our assignment schemes come with applicability criteria, like $R$ having equivocations, as well as fulfilment criteria, like $|S_z| \ge \ell + \theta \ell'$.  We judge $R$ approved when all applicabile assignment schemes appear fulfilled.  An approved relay chain block $R$ becomes eligible for consideration by our finality gadget GRANDPA.
 
-Any fulfilment problems come from either unavailability, which eventually redirects block production in \s\ref{sec:unavailability}, or else from no-shows, who eventually get replaced.
+Any fulfilment problems come from either unavailability, which eventually redirects block production in \S\ref{sec:unavailability}, or else from no-shows, who eventually get replaced.
 
 
 
