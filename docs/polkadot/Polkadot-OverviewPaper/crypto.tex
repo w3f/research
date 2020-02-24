@@ -1,4 +1,4 @@
-\subsection{Cryptographic Keys}\label{sec:crypto}
+\subsection{Cryptography}\label{sec:crypto}
 
 In Polkadot, we necessarily distinguish among different permissions and functionalities with different keys and key types, respectively.  We roughly categorise these into account keys with which users interact and session keys that nodes manage without operator intervention beyond a certification process.
 
@@ -34,11 +34,11 @@ We impose no prior restrictions on the cryptography employed by specific compone
 
 In BABE \ref{sec:babe}, validators use schnorrkel/sr25519 keys both for regular Schnorr signatures, as well as for a verifiable random function (VRF) based on NSEC5 \cite{NSEC5}.  
 
-A VRF is the public-key analog of a pseudo-random function (PRF), aka cryptographic hash function with a distinguished key, such as many MACs.  We award block production slots when the block producer scores a low enough VRF output \handan{$\mathtt{VRF}(r_e || \mathtt{slot_number} )$}{it does not have the secret key as an input}, so anyone with the VRF public keys can verify that blocks were produced in the correct slot, but only the block producers know their slots in advance via their VRF secret key.
+A VRF is the public-key analog of a pseudo-random function (PRF), aka cryptographic hash function with a distinguished key, such as many MACs.  We award block production slots when the block producer scores a low enough VRF output $\mathtt{VRF}_{\sk}(r_e || \mathtt{slot_number} )$, so anyone with the VRF public keys can verify that blocks were produced in the correct slot, but only the block producers know their slots in advance via their VRF secret key.
 
-As in \cite{Praos}, we provide a source of randomness $r_e$ for the VRF inputs by hashing together all VRF outputs form the previous session, which requires that BABE keys be registered \handan{at least one full session}{what is the relation between a session and epoch? if one session is one epoch then it should be at least two full session} before being used.
+As in \cite{Praos}, we provide a source of randomness $r_e$ for the VRF inputs by hashing together all VRF outputs form the previous session, which requires that BABE keys be registered at least two full epochs before being used.
 
-We reduce VRF output malleability by hashing the signer's public key along side the input, which dramatically improves security when used with HDKD.  We also hash the VRF input and output together when providing output used elsewhere, which improves compossibility in security proofs. See the 2Hash-DH construction from Theorem 2 on page 32 in appendix C of \cite{Praos}.  
+We reduce VRF output malleability by hashing the signer's public key along side the input, which dramatically improves security when used with HDKD.  We also hash the VRF input and output together when providing output used elsewhere, which improves compossibility when used as a random oracle in security proofs.  See the 2Hash-DH construction from Theorem 2 on page 32 in appendix C of \cite{Praos}.  
 
 In GRANDPA \ref{sec:grandpa}, validators shall vote using BLS signatures, which supports convenient signature aggregation and select ZCash's BLS12-381 curve for performance.  There is a risk that BLS12-381 might drops significantly below 128 bits of security, due to number field sieve advancements.  If and when this happens, we expect upgrading GRANDPA to another curve to be straightforward. 
 % https://mailarchive.ietf.org/arch/msg/cfrg/eAn3_8XpcG4R2VFhDtE_pomPo2Q
