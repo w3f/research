@@ -3,9 +3,23 @@
 \section{Approval} % phase
 \label{sec:approval}
 
-We now describe the subprotocols that provide the approval validity checks required before finality.
+We now describe the subprotocols that provide the approval validity checks required before finality.  
 
-As mentioned above in \S\ref{sec:availability}, any validator $V$ accumulates availability announcements for each relay chain block $R$.  After $V$ observe $2f+1$ such availability claims, then $V$ considers $R$ {\em available} and enters the approval phase for $R$.  We assume that $V$ considers $R$ available and that $V$ has public-secret key pair $(\pk,\sk)$ throughout this subsection.
+
+We preserve the notation from \S\ref{sec:availability}:  
+
+Any parachains block $B$ on a parachain $\rho$ has a candidate proof-of-validity blob $\blobB$ that contains the witness proofs for any parachain state interactions, as well as an associated candidate receipt $\reciept_B$ that contains the Merkle root $\merkleroot_B$ for the Merkle tree with leaves consisting of the erasure coded pieces $\prepieces_B$ of $\blobB$.  We distributed the authenticated pieces $\pieces_B$ that consist of one piece from $\prepieces_B$ and its witness copath for $\merkleroot_B$.  
+
+All nodes accumulate the attested candidate receipts $\reciept_{B,S}$ that consist of its inner candidate receipt $\reciept_B$ and three attestation types: validation, unavailability, and perhaps a special availability attestation that revokes an unavailability attestation.  We do accumulate availability attestations for full relay chain blocks of course.
+
+Any validator $V$ accumulates availability and unavailability attestations for each candidate $B$ in each relay chain block $R$.  After $V$ observe $2f+1$ such availability claims for all candidates $B$ in some relay chain block $R$, then $V$ considers $R$ to be {\em available} and enters the approval phase for $R$.  
+
+In this section, we assume that all validator mentioned consider the relay chain block $R$ to be available, but implementations must obviously support candidate validity attestations arriving before other attestations make them valid. 
+
+In spirit, candidate validity attestations could come from any validator, and should ideally be saved due to being slashable, but we only interpret these signatures as relevant towards specific goals, like backing or approval, when they come from nodes with the appropriate role assigned.
+
+In the previous section (\S\ref{sec:availability}), we previously only saw candidate validity attestations interpreted as initial sponsoring or backing before, both by validators assigned to the parachain $\rho$, but approval checks discussed here provide attestations by other validators, and the next section discusses invalidity and unavailability attestations by non-validators.
+
 
 The approval phase for $R$ has two components, approval checker assignments and actually performing the checks.  We have three flavours of approval checker assignments, which all roughly follow the pattern of
 \begin{itemize}
@@ -19,9 +33,7 @@ All approval checker assignments trigger the same approval check protocol, which
 \item running approval checks on the candidate proof-of-validity blobs, and 
 \item announcing these candidates validity or invalidity.
 \end{itemize}
-We describe this second component first because 
-
-...
+We describe this second component first because ???why???.
 
 
 \subsection{Checking}
@@ -161,13 +173,13 @@ Instead, we shall sacrifice some unneeded independence across parachains for a m
 %
 We shall reuse our target number $\ell_B$ of approval checkers as defined for the initial one-shot variant, which depends upon the parachain $\rho$ of $B$ as well as the relay chain block $R$.
 %
-Instead of distinct $z_B$ though, we ask that each $V$ announce one $\tilde{\pi}_{V,R} := \VRF.\Sign_\sk(\hat{\omega}_R)$ via gossip for $R$ as soon as it considers $R$ to be available, making $\hat{\omega}_R$ alone the seed.
+Instead of distinct $z_B$ though, we ask that each $V$ announce one $\tilde{\pi}_{V,R} := \VRF.\Sign_{V.\sk}(\hat{\omega}_R)$ via gossip for $R$ as soon as it considers $R$ to be available, making $\hat{\omega}_R$ alone the seed.
 
 % \subparagraph{Sampling:}
 
 Let $P$ denote the full list of parachains, possibly padded with some null entries.
 Also, for any validator $V$, let $\rho_V$ denote the parachain assignment of $V$.
-We define a permutation $P_{V,R}$ of $P \setminut \{ \rho_V \}$ with a Fisher-Yates shuffle seeded by $\omega_{V,R} := \VRF.\Out(\tilde{\pi}_{V,R})$.  We note $P_{V,R}$ is entirely determined by $\hat{\omega}_R$ and the key $\sk$ of $V$, since $P$ itself remains constant and does not change with $R$.
+We define a permutation $P_{V,R}$ of $P \setminut \{ \rho_V \}$ with a Fisher-Yates shuffle seeded by $\omega_{V,R} := \VRF.\Out(\tilde{\pi}_{V,R})$.  We note $P_{V,R}$ is entirely determined by $\hat{\omega}_R$ and the key $V.\sk$ of $V$, since $P$ itself remains constant and does not change with $R$.
 
 We now assign $V$ to check the parachains listed earliest in its $P_{V,R}$ that require additional validators.
 %
@@ -220,7 +232,7 @@ We therefore fear an adversary might create an $R'$ with an innocent $B'$ on $\r
 
 We desire additional checks that remain unforeseeable to our adversary here, but without triggering excessive checks against innocent parachain candidates under repeated equivocations.     
 
-We find this compromise by instantiating the generic one-shot self-assignment subprotocol with seed $z_B = H(B)$, or perhaps with $H(B)$ replaced by the Merkle root $\merkleroot_B$, so that each parachain candidate gets assigned only an extra checkers group only once.  In other words, we work with VRF signatures $\tilde{\pi}_{V,B} := \VRF.\Sign_\sk(H(B))$ and do verifiable sampling with the VRF outputs $\omega_{V,B} := \VRF.\Out(\tilde{\pi}_{V,B})$, as opposed to the $\tilde{\pi}_{V,R,\rho}$ or $\tilde{\pi}_{V,R}$ from our initial checks.
+We find this compromise by instantiating the generic one-shot self-assignment subprotocol with seed $z_B = H(B)$, or perhaps with $H(B)$ replaced by the Merkle root $\merkleroot_B$, so that each parachain candidate gets assigned only an extra checkers group only once.  In other words, we work with VRF signatures $\tilde{\pi}_{V,B} := \VRF.\Sign_{V.\sk}(H(B))$ and do verifiable sampling with the VRF outputs $\omega_{V,B} := \VRF.\Out(\tilde{\pi}_{V,B})$, as opposed to the $\tilde{\pi}_{V,R,\rho}$ or $\tilde{\pi}_{V,R}$ from our initial checks.
 
 In this one-shot application, we could choose our target number $\ell$ of approval checkers to be a constant $\equivocationchecks$, perhaps equal to $\basesecondarychecks$, or at the other extreme reuse our target number $\ell_B$ of approval checkers as defined for the initial one-shot variant.  We suggest however that report factor from $\ell_B$ by reconsidered under the equivocations attack scenario.
 

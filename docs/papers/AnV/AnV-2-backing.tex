@@ -3,7 +3,7 @@
 \label{sec:availability_n_backing}
 % \label{sec:backing}
 
-We now describe and instantiate the subprotocols that provide the preliminary financial backing checks from parachain validator and that ensure availability for our later approval validity checks.
+We now describe the subprotocols that provide the preliminary financial backing checks from parachain validators and that ensure availability for our later approval validity checks.
 
 
 We now describe and instantiate our {\em availability and validity protocol} that provides efficient sharding.  It consists of 
@@ -57,7 +57,7 @@ At any time, if any two validators disagree about a parachain block's validity t
 
 We require at least $\primarychecks$ of the parachain validator $\vals_\para$ sign preliminary backing validity checks for $B$ before continuing, so we assume this going forward.
 
-Now any {\em parachain validator} $V \in \vals_\para$ runs $\encode_{f+1,\nvals}(\blobB)$ to obtain the {\em prepieces} list $\prepieces_B$ of $\nvals$ erasure code symbols aka pieces of $\blobB$.  Next $V$ computes a Merkle root $\merkleroot_B$ for the Merkle tree with leaves $\prepieces_B$.  $V$ constructs the signed candidate receipt $\reciept_{B,\{(V,\sigma)\}} := (\reciept_{B},\{V\})$ for $B$ by signing an inner candidate receipt $\reciept_B = (\para.\mathsf{id},H(\reciept_{B'}),\merkleroot_B,H(B),\rin,\rout)$ where $B'$ denotes the parent of $B$, and attaching its signature\handan{}{ and where id is ...}.  
+Now any {\em parachain validator} $V \in \vals_\para$ runs $\encode_{f+1,\nvals}(\blobB)$ to obtain the {\em prepieces} list $\prepieces_B$ of $\nvals$ erasure code symbols aka pieces of $\blobB$.  Next $V$ computes a Merkle root $\merkleroot_B$ for the Merkle tree with leaves $\prepieces_B$.  $V$ constructs the attested candidate receipt $\reciept_{B,\{(V,\sigma)\}} := (\reciept_{B},\{V\})$ for $B$ by signing an (inner) candidate receipt $\reciept_B = (\para.\mathsf{id},H(\reciept_{B'}),\merkleroot_B,H(B),\rin,\rout)$ where $B'$ denotes the parent of $B$, and attaching its signature\handan{}{ and where id is ...}.  
 % TODO: Improve explicit state root commitments maybe?
 % Also Joe asks if we should talk about parachain block headers
 % Anything else?
@@ -135,9 +135,11 @@ We integrate our availability and approval validity check protocols directly wit
 
 We run these availability and approval validity check protocols only for parachain blocks included in relay chain blocks, not for all parachain blocks proposed by parachain validators.  In this way, we reduce the damage done by spammy parachains, at least beyond their own assigned parachain validators.
 
-At the same time, we avoid complex anti-spam or Q logic since only GRANDPA requires this prior voting restriction.  In fact, if we later require prioritisation logic then this trick isolates it inside relay chain block production.
+At the same time, we avoid complex anti-spam logic since only GRANDPA requires this prior voting restriction.  In fact, if we later require prioritisation logic then this trick isolates it inside relay chain block production.
 
-We need pieces to be distributed before approval checkers announce themselves or begin their checks.  We therefore ask that validators gossip availability announcements for a relay chain block $R$ whenever they receive their piece for each parachain candidate receipt included in $R$.  As a higher bandwidth but more asynchronous alternative, we could ask that validators gossip availability announcements for candidate receipts, in which case a validator $V$ considers a relay chain block $R$ to be {\em available} once it observes $f+1$ availability announcements for each parachain candidate receipt included in $R$.
+We need pieces to be distributed before approval checkers announce themselves or begin their checks.  We therefore ask that validators gossip availability announcements for a relay chain block $R$ whenever they receive their piece for each parachain candidate receipt included in $R$.  
+
+As a higher bandwidth but more asynchronous alternative, we could ask that validators gossip availability announcements for candidate receipts, in which case a validator $V$ considers a relay chain block $R$ to be {\em available} once it observes $f+1$ availability announcements for each parachain candidate receipt included in $R$.
 
 In either case, all validators discover the claimed availability of relay chain blocks long before any GRANDPA votes.  In fact, this claimed availability triggers the later approval checks discussed blow in \S\ref{sec:approval}.  
 % TODO:  Any more details on GRANDPA integration?
