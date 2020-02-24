@@ -16,7 +16,6 @@ We now describe and instantiate our {\em availability and validity protocol} tha
 \item invokation of a Byzantine fault tolerant ``finality gadget'' that gives us finality.
 \end{itemize}
 
-We do require that approval validity checks complete before finality.  We cannot however require that all validator checks conclude before finality, or even ask fishermen to begin checks before finality, so invalidity can be detected after finality.
 
 % TODO: Anything more worth saying here?  Maybe extract from:  The parachain phase is executed between collators and parachain validators. In the end of this phase, the parachain validators validate the block and provide its erasure code pieces to the validators. Then, the relay chain phase begins. If the parachain phase is executed correctly, then the relay chain phase includes extra validation of a parachain block, adding the block header to the relay chain and finalizing that relay chain block. Otherwise, unavailability protocol is run between validators. The details are as follows: 
 
@@ -58,7 +57,7 @@ At any time, if any two validators disagree about a parachain block's validity t
 
 We require at least $\primarychecks$ of the parachain validator $\vals_\para$ sign preliminary backing validity checks for $B$ before continuing, so we assume this going forward.
 
-Now any {\em parachain validator} $V \in \vals_\para$ runs $\encode_{f+1,\nvals}(\blobB)$ to obtain the {\em prepieces} list $\prepieces_B$ of $\nvals$ erasure code symbols aka pieces of $\blobB$.  Next $V$ computes a Merkle root $\merkleroot_B$ for the Merkle tree with leaves $\prepieces_B$.  $V$ constructs the signed candidate receipt $\reciept_{B,\{V\}} := (\reciept_{B},\{V\})$ for $B$ by signing an inner candidate receipt $\reciept_B = (\para.\mathsf{id},H(\reciept_{B'}),\merkleroot_B,H(B),\rin,\rout)$ where $B'$ denotes the parent of $B$, and attaching its signature\handan{}{ and where id is ...}.  
+Now any {\em parachain validator} $V \in \vals_\para$ runs $\encode_{f+1,\nvals}(\blobB)$ to obtain the {\em prepieces} list $\prepieces_B$ of $\nvals$ erasure code symbols aka pieces of $\blobB$.  Next $V$ computes a Merkle root $\merkleroot_B$ for the Merkle tree with leaves $\prepieces_B$.  $V$ constructs the signed candidate receipt $\reciept_{B,\{(V,\sigma)\}} := (\reciept_{B},\{V\})$ for $B$ by signing an inner candidate receipt $\reciept_B = (\para.\mathsf{id},H(\reciept_{B'}),\merkleroot_B,H(B),\rin,\rout)$ where $B'$ denotes the parent of $B$, and attaching its signature\handan{}{ and where id is ...}.  
 % TODO: Improve explicit state root commitments maybe?
 % Also Joe asks if we should talk about parachain block headers
 % Anything else?

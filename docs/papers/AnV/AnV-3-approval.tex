@@ -3,7 +3,7 @@
 \section{Approval} % phase
 \label{sec:approval}
 
-We now describe and instantiate the subprotocols that provide the approval validity checks required before finality.
+We now describe the subprotocols that provide the approval validity checks required before finality.
 
 As mentioned above in \S\ref{sec:availability}, any validator $V$ accumulates availability announcements for each relay chain block $R$.  After $V$ observe $2f+1$ such availability claims, then $V$ considers $R$ {\em available} and enters the approval phase for $R$.  We assume that $V$ considers $R$ available and that $V$ has public-secret key pair $(\pk,\sk)$ throughout this subsection.
 
@@ -100,7 +100,7 @@ fn generic_oneshot_assigned_delay(
     network_delay: u32, 
     candidates: u32,
     target: u32,
-    omega: ::schnorrkel::vrf::VRFInOut,\
+    omega: ::schnorrkel::vrf::VRFInOut,
 ) -> u32 {
     assert!(network_delay > 0); // Unrealistic network otherwise
     assert!(candidates > 0 && target > 0); // No candidates, not even us.
@@ -183,7 +183,7 @@ All validators track the set $A_z$ of valid announced checker claims, as well as
 
 Assuming perfect information, it follows that $\mathsf{assignees}(R,\rho)$ gives our approval checkers assigned to a parachain candidate $B$ on $\rho$ in $R$. 
 %
-We know that $\tilde{\omega}_{V,R}$ might remain unknown for numerous $V$, due to delays in availability or gossip, either here or earlier.  As this artificially enlarges $\mathsf{assignees}(R,\rho)$, we adopt a solution similar to the one-shot protocol:  All validators therefore accumulate the set $A_R = \{ (t_{V,R},\tilde{\pi}_{V,R})) \}$ of valid VRF announcements, along with the time $t_{V,R}$ when they were received.
+We know that $\tilde{\omega}_{V,R}$ might remain unknown for numerous $V$, due to delays in availability or gossip, either here or earlier.  As this artificially enlarges $\mathsf{assignees}(R,\rho)$, we adopt a solution similar to the one-shot protocol:  All validators therefore accumulate the set $A_R = \{ (V,\tilde{\pi}_{V,R},t_{V,R}) \}$ of valid VRF announcements, along with the time $t_{V,R}$ when they were received.
 We gradually enable assignments by replacing $\mathsf{assignees}(R,\rho)$ with the slower growing
 $$ \mathsf{assignees}(R,\rho) \cap \mathsf{pal}(R,\rho,\lfloor {t - T_0 \over \netdelay} \rfloor) $$
 
@@ -198,12 +198,14 @@ If larger delays are desired, then we could either pad $P$ with null entries, or
 
 \subsubsection{Initial no-shows}
 
-We address no-shows carefully in the one-shot scheme, but ignored them in the initial packed discussion since no-shows defenses largely help against adaptive attacker classes.  We suggest the initial packed scheme fall back onto the one-shot scheme for no-shows.  Intuitively, we run the initial one-shot scheme in parallel with ``$\ell = 0$'' or more precisely with the generic one-shot scheme's second announcement condition replaced by $|A_z| < \theta \ell'$. 
+We addressed no-shows carefully in the one-shot scheme, but ignored them in the initial packed discussion since no-shows defenses largely help against adaptive attacker classes.  We suggest the initial packed scheme fall back onto the one-shot scheme with $z_B := \hat{\omega}_R || \rho.\mathsf{seed}$ for replacing no-shows should.  Intuitively, we run the initial one-shot scheme in parallel with ``$\ell = 0$'' or more precisely with the generic one-shot scheme's second announcement condition replaced by $|A_z| < \theta \ell'$.  
+
+In short, we already needed some special handling for initial one-shot winners with no delay, so $P_{V,R}$ merely replaces this.
 
 We should strongly consider moving some or all of the report factor from $\ell_B$ into this condition too.  ...
 % TODO:  Alistair, Jeff, and Handan must discudd this part carefully .
 
-At the extreme, our shuffled parachain list $P_{V,R}$ could be replaced with a single check on the parachain $\rho$ whose index is $\tilde{\pi}_{V,R}$ taken modulo the number of parachains.  All these checks could replace the one-shot winners with no delay. 
+At one extreme, our shuffled parachain list $P_{V,R}$ could be replaced with a single check on the parachain $\rho$ whose index is $\tilde{\pi}_{V,R}$ taken modulo the number of parachains, but doing so sounds less efficient and equally complex.  
 
 As an aside, we considered using the no-show validators' VRF outputs $\omega_{V,R}$ here, but judge such designs to be unnecessary code complexity. 
 
@@ -227,6 +229,12 @@ In this way, an adversary who equivocates always faces $\ell$ extra checks again
 Implementers might suppress this check if parachains always carry less value than gets slashed when relay chain block producers equivocate.  Attacks could impact multiple parachains simultaneously but doing so requires significantly more resources.
 
 
-\subsection{Finality} 
+\subsubsection{Finality} 
+\label{sec:finality}
 
-...
+As noted above, any validator $V$ accumulates approval checks $S$ for a candidate receipt $\reciept_{B,S}$.  All our assignment schemes come with applicability criteria, like $R$ having equivocations, as well as fulfilment criteria, like $|S_z| \ge \ell + \theta \ell'$.  We judge $R$ approved when all applicabile assignment schemes appear fulfilled.  An approved relay chain block $R$ becomes eligible for consideration by our finality gadget GRANDPA.
+
+Any fulfilment problems come from either unavailability, which eventually redirects block production in \s\ref{sec:unavailability}, or else from no-shows, who eventually get replaced.
+
+
+
