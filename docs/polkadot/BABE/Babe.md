@@ -87,7 +87,7 @@ BABE consists of three phases:
 
 In this phase, we manually produce the unique genesis block.
 
-The genesis block contain a random number $r_1$ for use during the first epoch for slot leader assignments, the initial stake's of the stake holders ($st_1, st_2,..., st_n$) and their corresponding session public keys ($\pkvrf_{1}, \pkvrf_{2},..., \pkvrf_{n}$), $(\pksgn_{1}, \pksgn_{2},..., \pksgn_{n}$).
+The genesis block contain a random number $r_1$ for use during the first epoch for slot leader assignments. Session public keys of initial validators are ($\pkvrf_{1}, \pkvrf_{2},..., \pkvrf_{n}$), $(\pksgn_{1}, \pksgn_{2},..., \pksgn_{n}$).
 
 We might reasonably set $r_1 = 0$ for the initial chain randomness, by assuming honesty of all validators listed in the genesis block.  We could use public random number from the Tor network instead however.
 
