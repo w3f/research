@@ -354,13 +354,20 @@ After finding $k_{cq}$ such that $p \leq p_{attack}$, let the epoch length $R = 
 The parameters below are computed with the code in https://github.com/w3f/research/blob/master/experiments/parameters/babe_NTP.py
 #### PARAMETERS OF BABE WITH NTP 
 c = 0.42, slot time T = 6
+
 It is secure in 3 years with probability 0.996248075142
+
 It is resistant to 5.9 second network delay
+
 -~~~~~~~~~~~~~~ Common Prefix Property ~~~~~~~~~~~~~~
+
 k = 140
+
 It means: Prun the last 140 blocks of the best chain. All the remaining ones are probabilistically finalized
+
 -~~~~~~~~~~~~~~ Epoch Length ~~~~~~~~~~~~~~
-Epoch length should be at least 1829 slots,3.04833333333 hours
+
+Epoch length should be at least 1829 slots, 3.04833333333 hours
 
 
 ### BABE with the Median Algorithm
@@ -368,26 +375,41 @@ In order to make  $p_{delay}$ small, we let $\gamma = 0.1$ and $\omega = 0.37$. 
 
 
 1.   Let $k = 8 k_{cp}$ (The CQ property parameter) We note that $4 k_{cp}$ is the optimal value that minimizes $R = 2 s_{ecq} + s_{hcg}$.
-2 - 6 are as above
+
+Steps 2 - 6 are as above
 
 Finding synch-epoch length
+
 1.  Set $\mu_{hcq} = 0.54$
+
 2. Set $2  s_{ecq} / (2  mu_{hcq} - 1)$
+
 3. Let sync-epoch length = $s_{hcq} + 2  s_{ecq}$
 
 
 
 The parameters below are computed with the code in https://github.com/w3f/research/blob/master/experiments/parameters/babe_median.py
+
 #### PARAMETERS OF BABE WITH THE MEDIAN ALGORITHM 
+
 c = 0.42, slot time T = 6
+
 It is secure in 3 years with probability 0.995125418496
+
 It is resistant to 2.00053609831 second network delay and0.499231950845 seconds drift in one sync-epoch
+
 -~~~~~~~~~~~~~~ Common Prefix Property ~~~~~~~~~~~~~~
+
 k = 312
+
 It means: Prun the last 312 blocks of the best chain. All the remaining ones are probabilistically finalized
+
 -~~~~~~~~~~~~~~ Epoch Length ~~~~~~~~~~~~~~
+
 Sync-Epoch length should be at least 7188 slots, 11.98 hours
+
 Epoch length should be at least 2130 slots,3.55 hours
+
 Probability of waiting more than 2D in the end of sync epoch is 0.0791998132892
 
 
@@ -399,6 +421,7 @@ All computer clocks are not very accurate because the frequency that makes time 
 Computer clocks drift because the frequency of clocks varies over time, mostly influenced by environmental changes such as temperature, air pressure or magnetic fields, etc. Below, you can see the experiment in a non-air conditioned environment on linux computer clocks.  12 PPM correspond to one second per day roughly. I seems that in every 10000 second the change on the clocks are around 1 PPM (i.e., every 3 hours the clocks drifts 0.08 seconds.). We can roughly say that the clock drifts around 1 second per day. If we have sync epoch around 12 hours it means that we have 0.5 second drift and
 
 [![](https://i.imgur.com/Slspcg6.png)](http://www.ntp.org/ntpfaq/NTP-s-sw-clocks-quality.htm#AEN1220)
+
 **Figure. Frequency Correction within a Week**
 
 ## References
