@@ -45,6 +45,7 @@ We now temporarily suppose that our validator $V$ completed some approval checke
 We caution that $\pi_{V,\cdot}$ always depends upon the verifiers' ambiant knowledge, but we optionally package some extra knowledge with $\pi_{V,\cdot}$, like equivocation proofs (see below).  We prevent late stage adversarial influence from shifting approval checker assignment criteria, but verifiers' ambiant knowledge also impacts if and when $V$ checks $B$.  We cannot however package this extra knowledge with $\pi_{V,\cdot}$, so validators can disagree for a limited time over whether $V$ checks $B$.
 
 \subsubsection{Retrieval}
+\label{sec:retrieval}
 
 We never consider substructure of $B$ to be meaningful, so $V$ must {\em retrieve} the full {\em candidate proof-of-validity blob} $\blobB$ before checking.  Now $V$ knows which which nodes have their individual pieces, thanks to their availability announcements.  It thus follows from our 2/3rd honest assumption that $V$ could always reconstruct $\blobB$ by obtaining enough pieces $\pieces_B$ from nodes known to posses them.  
 
@@ -262,6 +263,28 @@ We impose one further assignment scheme mentioned previously in \S\ref{sec:parac
 
 We judge $R$ approved when all applicabile assignment schemes appear fulfilled.  An approved relay chain block $R$ becomes eligible for consideration by our finality gadget GRANDPA.
 
+
+
+
+\endinput 
+
+We shall integrate our availability and approval validity check protocols directly with our finality gadget GRANDPA in \S\ref{sec:finality}, based upon the approval criteria in \S\ref{sec:assignment}
+
+
+, in that an honest node $U \in \vals$ should not vote in GRANDPA for some relay chain block $R$ unless for all attested candidate receipts $\receipt_{B,S}$ for $R$,
+\begin{itemize}
+\item $|S| \geq \primarychecks$,
+\item $U$ possesses their own piece from $\pieces_B$,
+\item number of unavailability reports are less than  $f+1$ and also
+\item $U$ witnessed ``enough'' approval checks for $\receipt_{B,S}$,
+ as discussed blow in \S\ref{sec:approval}.
+\end{itemize}
+
+We run these availability and approval validity check protocols only for parachain blocks included in relay chain blocks, not for all parachain blocks proposed by parachain validators.  In this way, we reduce the damage done by spammy parachains, at least beyond their own assigned parachain validators.
+
+At the same time, we avoid complex anti-spam logic since only GRANDPA requires this prior voting restriction.  In fact, if we later require prioritisation logic then this trick isolates it inside relay chain block production.
+
+We need pieces to be distributed before approval checkers announce themselves or begin their checks.  We therefore ask that validators gossip availability announcements for a relay chain block $R$ whenever they receive their piece for each parachain candidate receipt included in $R$.  
 
 
 

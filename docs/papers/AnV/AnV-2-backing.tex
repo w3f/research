@@ -57,25 +57,27 @@ At any time, if any two validators disagree about a parachain block's validity t
 
 We require at least $\primarychecks$ of the parachain validator $\vals_\para$ sign preliminary backing validity checks for $B$ before continuing, so we assume this going forward.
 
-Now any {\em parachain validator} $V \in \vals_\para$ runs $\encode_{f+1,\nvals}(\blobB)$ to obtain the {\em prepieces} list $\prepieces_B$ of $\nvals$ erasure code symbols aka pieces of $\blobB$.  Next $V$ computes a Merkle root $\merkleroot_B$ for the Merkle tree with leaves $\prepieces_B$.  $V$ constructs the attested candidate receipt $\receipt_{B,\{(V,\sigma)\}} := (\receipt_{B},\{V\})$ for $B$ by signing an (inner) candidate receipt $\receipt_B = (\para.\mathsf{id},H(\receipt_{B'}),\merkleroot_B,H(B),\rin,\rout)$ where $B'$ denotes the parent of $B$, and attaching its signature\handan{}{ and where id is ...}.  
+Now any {\em parachain validator} $V \in \vals_\para$ runs $\encode_{f+1,\nvals}(\blobB)$ to obtain the {\em unauthenticated pieces} list $\prepieces_B$ of $\nvals$ erasure code symbols aka pieces of $\blobB$.  Next $V$ computes a Merkle root $\merkleroot_B$ for the Merkle tree with leaves $\prepieces_B$.  $V$ constructs the attested candidate receipt $\receipt_{B,\{(V,\sigma)\}} := (\receipt_{B},\{V\})$ for $B$ by signing an (inner) candidate receipt $\receipt_B = (\para.\mathsf{id},H(\receipt_{B'}),\merkleroot_B,H(B),\rin,\rout)$ where $B'$ denotes the parent of $B$, and attaching its signature\handan{}{ and where id is ...}.  
 % TODO: Improve explicit state root commitments maybe?
 % Also Joe asks if we should talk about parachain block headers
 % Anything else?
 
 We gossip these attested candidate receipts $\receipt_{B,S}$ among the parachain validators $\vals_\para$.  
 %
-In doing so, we improve them by further aggregating the signature set $S$.\footnote{We envision $\vals_\para$ being small enough that BLS signatures do not improve verification time over Schnorr signatures, although BLS might reduce the candidate receipt's signature from 640 bytes down to 50 bytes.}  We publish $\receipt_{B,S}$ for relay chain block producers using relay chain gossip (mempool) whenever $S \ge \primarychecks$, assuming this happens eventually.  
+In doing so, we improve them by further aggregating the signature set $S$.\footnote{We envision $\vals_\para$ being small enough that BLS signatures do not improve verification time over Schnorr signatures, although BLS might reduce the candidate receipt's signature from 640 bytes down to 50 bytes.}  We publish $\receipt_{B,S}$ for relay chain block producers using relay chain gossip (mempool) whenever $S$ restricted to $\vals_\rho$ has attestations from at least $\primarychecks$ validators, assuming this happens eventually.  If $S$ remains too small, then validators in $\vals \setminut \vals_\rho$ ignore $\receipt_{B,S}$.
 We think $\primarychecks = {1\over2} \npvals$ gives a reasonable choice, but our security analysis only requires enough stake back $B$, so $\primarychecks = 1$ suffices provided the backing validator possesses enough stake.
 
-We archive $B$ if another conflicting blocks gets finalised by GRANDPA, but maybe eventually delete it.  We archive but probably do not delete $B$ if GRANDPA is stalled but the fork choice rule clearly favours other forks.  
+We archive $B$ if another conflicting blocks gets finalised by GRANDPA, eventually deleting it.  We archive but probably do not delete $B$ if GRANDPA is stalled, probably even when the fork choice rule favours other forks.  
 
-\smallskip
+% \smallskip
 % \paragraph{Relay chain block producer:}
 
-Any upcoming {\bf relay chain block producer} $U \in \vals$ enqueues any attested candidate receipts $\receipt_{B,S}$ received for possible inclusion in some future relay chain block that $U$ creates, which we denote $R$.  We of course need $R$ to have an ancestor $R'$ that includes the candidate receipts $\receipt_{B'}$ for the parent parachain block $B'$ of our candidate $\receipt_{B,S}$, and that no $R''$ between $R$ and $R'$ include any block from $\para$.  Ideally $U$ continues aggregating the signatures $S$ on $\receipt_{B,S}$ while waiting its turn too, but $R$ must satisfy $|S| \ge \primarychecks$.  See \href{http://research.web3.foundation/en/latest/polkadot/BABE/Babe/}{BABE} for more details on block production.
+Any {\bf relay chain block producer} $U \in \vals$ with an upcoming relay chain block production slot enqueues any attested candidate receipts $\receipt_{B,S}$ with sufficient $S$ received for possible inclusion in some future relay chain block that $U$ creates.  
+
+We now suppose $U$ makes a relay chain block $R$ that includes $\receipt_{B,S}$.  We of course need $R$ to have an ancestor $R'$ that includes the candidate receipts $\receipt_{B',S'}$ for the parent parachain block $B'$ of our candidate $\receipt_{B,S}$, and that no $R''$ between $R$ and $R'$ include any block from $\para$.  Ideally $U$ continues collecting the signatures $S$ on $\receipt_{B,S}$ while waiting its turn too.  See \href{http://research.web3.foundation/en/latest/polkadot/BABE/Babe/}{BABE} for more details on block production.
 % TODO: Any specific comments on relay chain block headers $\bh$
 
-Associated to each prepiece $d \in \prepieces_B$, we define a {\em candidate piece} $(d,\merkleroot_B,\vect{\merkleroot_B d})$ by attaching the Merkle root $\merkleroot_B$ and an inclusion proof $\vect{rd}$, which authenticates $d$ as being committed to by the Merkle root $\merkleroot_B$.  Of course this expansion commutes with expanding the signer set $S$ on the attested candidate receipt $\receipt_{B,S}$.
+Associated to each unauthenticated piece $d \in \prepieces_B$, we define an {\em authenticated (erasure coded candidate) piece} $(d,\merkleroot_B,\vect{\merkleroot_B d})$ by attaching the Merkle root $\merkleroot_B$ and an inclusion proof $\vect{rd}$, which authenticates $d$ as being committed to by the Merkle root $\merkleroot_B$.  Of course this expansion commutes with expanding the signer set $S$ on the attested candidate receipt $\receipt_{B,S}$.
 
 We handle only the list $\pieces_B$ of these authenticated pieces for the remainder of the protocol. 
 $$ \pieces_B = Listst{ (d,\receipt_{B,S},\vect{\merkleroot_B d}) }{ d \in \prepieces_B } $$
@@ -94,7 +96,9 @@ We find that scalability actually depends heavily upon the topology and routing 
 \smallskip
 \paragraph{Candidate blocks:}
 
-We need our network topology to permit one parachain $\para$ to distribute the erasure coded candidate pieces $\pieces_B$s relatively quickly, which amounts to a graph expansion property.  We want a reasonable connectivity property too because too many parachain validators going down requires expensive reconstructions by any unreachable parachain validators (see \handan{\S\ref{sec:reconstructions}}{not defined} below).  We might also ask good collators to send the same block to several well chosen parachain validators as well.  As an example, if our parachain validators $\vals_\para$ form a cycle then $B$ reaches all parachain validators in two hops if the collators send $B$ to one third of $\vals_\para$, but adding well chosen chords reduces our connections with collators and improves our connectivity.  
+We need our network topology to permit one parachain $\para$ to distribute the authenticated erasure coded candidate pieces $\pieces_B$s relatively quickly, which amounts to a graph expansion property.  We might want a much stronger connectivity property below if doing full reconstructions turns out to be our most efficient mechanism for block retrieval, but if not then some similar expansion property permits forwarding pieces for reconstructions (see \S\ref{sec:retrieval}).
+
+We might also ask good collators to send the same block to several well chosen parachain validators as well.  As an example, if our parachain validators $\vals_\para$ form a cycle then $B$ reaches all parachain validators in two hops if the collators send $B$ to one third of $\vals_\para$, but adding well chosen chords reduces our connections with collators and improves our connectivity.  
 
 \smallskip
 \paragraph{Candidate pieces:}
@@ -116,7 +120,7 @@ We have described this as $V$ initiating the connection, but a similar procedure
 
 If $\vals[i_{\para'}]$ cannot reach $V$ then $\vals[i_{\para'}]$ must select some backup node to replace $V$.  Assuming $\mathcal{T}$ is complete, we should distribute these evenly among $\vals_\para \setminus \{V\}$, so as one option $\vals[i_{\para'}]$ could perform a Fisher-Yates shuffle of $\vals_\para \setminus \{V\}$, seeded by its own identity $\vals[i_{\para'}].\mathsf{pk}$ and $\para.\mathsf{seed}$, and then contact those remaining parachain validators in the resulting order.  We caution this option breaks the topology's symmetry, so as noted above nodes might exploit whatever links work first, and only take guidance from this shuffle when creating new links.  If $\mathcal{T}$ is not complete then alternative approaches that choose another parachain work too.  
 
-If $\mathcal{T}$ is not complete then intermediate nodes must forward pieces for other nodes.  In fact, the diameter of $\mathcal{T}$ equals the maximum number of hops required for $\mathcal{T}_e$ to distribute each piece.  
+If $\mathcal{T}$ is not complete then intermediate nodes must forward authenticated pieces for other nodes.  In fact, the diameter of $\mathcal{T}$ equals the maximum number of hops required for $\mathcal{T}_e$ to distribute each piece.  
 In practice, these edges in $\mathcal{T}_e$ ro be the two nodes
 % $\mathsf{parashuffle}(\para_1,\para_2)[j]$ to $\mathsf{parashuffle}(\para_2,\para_1)[j]$
 maintaining a UDP protocol like QUIC connection because UDP should permit higher valency than TCP and hence permit a lower diameter $\mathcal{T}$.  
@@ -126,43 +130,39 @@ We admitted adversarial manipulation of our network topology here, but it sounds
 % TODO:  Future work?  Here below?
 
 
-\subsection{Availability} % GRANDPA
-\label{sec:availability}
+\subsection{Availability}
+\label{sec:availability}  % Pre-GRANDPA
 
-We shall integrate our availability and approval validity check protocols directly with our finality gadget GRANDPA in \S\ref{sec:finality}, based upon the approval criteria in \S\ref{sec:assignment}
+% We isolated work on candidates for any given parachain $\para$ to $\vals_\para$ ...
+At this point, we consider a relay chain block $R$ being gossiped among the validators $\vals$.  $R$ contains candidate receipts $\receipt_{B,S}$ for candidate blocks $B$ on distinct parachains $\para$.  
 
+We must established that our authenticated pieces $\pieces_B$ for each $B$ in $R$ were correctly distributed before our approval checkers announce their assignments in \S\ref{sec:assignment} or run their assigned checks in \S\ref{sec:approcal_checks}, which must happen before our finality gadget GRANDPA considers $R$ in \S\ref{sec:finality}.  
 
-, in that an honest node $U \in \vals$ should not vote in GRANDPA for some relay chain block $R$ unless for all attested candidate receipts $\receipt_{B,S}$ for $R$,
-\begin{itemize}
-\item $|S| \geq \primarychecks$,
-\item $U$ possesses their own piece from $\pieces_B$,
-\item number of unavailability reports are less than  $f+1$ and also
-\item $U$ witnessed ``enough'' approval checks for $\receipt_{B,S}$,
- as discussed blow in \S\ref{sec:approval}.
-\end{itemize}
+As our erasure coding permits recovery from any $f+1$ pieces, we establish correct distribution simply by asking all validators to ``vote'' whether they received their assigned authenticated pieces $\pieces_B$ for all the parachain candidates $B$ in $R$. 
+% which makes $R$ {\em available} (see \S\ref{sec:approval}).
 
-We run these availability and approval validity check protocols only for parachain blocks included in relay chain blocks, not for all parachain blocks proposed by parachain validators.  In this way, we reduce the damage done by spammy parachains, at least beyond their own assigned parachain validators.
+It suffices if validators announce an availability attestation via gossip once they receive their authenticated piece $\pieces_B$ for each $B$ in $R$.  In this design, a validator $V$ considers a relay chain block $R$ to be {\em available} once it observes $f+1$ availability attestations for $R$.
 
-At the same time, we avoid complex anti-spam logic since only GRANDPA requires this prior voting restriction.  In fact, if we later require prioritisation logic then this trick isolates it inside relay chain block production.
+As an alternative, we could ask that validators gossip availability announcements for each candidate receipt $\receipt_{B,S}$ separately.  In this design, we achieve a weaker ``mixed'' availability notion more quickly, which itself suffices to begin the approval checks in \S\ref{sec:approval}.  We need more bandwidth and computation fort his approach, although this could be reduced if availability attestation simply contained a bitfield or other compressed scheme for selecting parachains.
 
-We need pieces to be distributed before approval checkers announce themselves or begin their checks.  We therefore ask that validators gossip availability announcements for a relay chain block $R$ whenever they receive their piece for each parachain candidate receipt included in $R$.  
+We should require each validator possess its authenticated pieces from $\pieces_B$ before voting in our finality gadget too though, which imposes our first stronger availability notion before finality anyways.  In other words, we only profit from the weaker ``mixed'' availability notion by launching approval validity checks sooner.
 
-As a higher bandwidth but more asynchronous alternative, we could ask that validators gossip availability announcements for candidate receipts, in which case a validator $V$ considers a relay chain block $R$ to be {\em available} once it observes $f+1$ availability attestations for each parachain candidate receipt included in $R$.
-
-In either case, all validators discover the claimed availability of relay chain blocks long before any GRANDPA votes.  In fact, this claimed availability triggers the later approval checks discussed blow in \S\ref{sec:approval}.  
-% TODO:  Any more details on GRANDPA integration?
+In either case, all validators establish an availability notion for relay chain blocks long before any GRANDPA votes, which triggers the later approval checks discussed blow in \S\ref{sec:approval}.
 
 
-\subsection{Unavailability} % BABE
-\label{sec:unavailability}
+\subsection{Unavailability}
+\label{sec:unavailability} % BABE
 
-We cannot entirely escape the availability question within BABE however:  Imagine we have several forks $C_1,\ldots,C_k$ for which at most $f$ validators possess all their chunks, but no fork for which $f+1$ validators possess all their chunks.  Yet, each block producers $U$ possess all their chunks for at least one fork $C_i$.  If BABE were oblivious to availability, then $U$ extends $C_i$, and GRANDPA stalls under this configuration. 
+We cannot entirely escape the availability question within our relay chain block production scheme BABE either:  Imagine we have several forks $C_1,\ldots,C_k$ for which at most $f$ validators possess all their chunks, but no fork for which $f+1$ validators possess all their chunks.  Yet, each block producers $U$ possess all their chunks for at least one fork $C_i$.  If BABE were oblivious to availability, then $U$ extends $C_i$, and GRANDPA stalls under this configuration. 
 % TODO:  Anything about secondary validity check here ???
 
 Instead, we define an availability grace period $\grace$ after which an unavailability subprotocol alters BABE's chain selection rule:  
 
 If a validator $U \in \vals$ cannot obtain some piece $d \in \pieces_B$ within $\grace$ time after seeing the attested candidate receipt $\receipt_{B,\cdot}$ included in some relay chain block $R$, then $U$ announces via gossip the unavailability of the piece $d$. 
 % TODO: Was $R_{head}$ but really?
+In essence, these unavailability announcements are precisely opposite our second piecemeal availability announcement strategy, perhaps replacing the bitfield with trifield represented as 5 trits per bytes, or another compression technique that made availability announcements more efficient than unavailability.
+
+As unavailability announcements are always piecemeal, if we adopt the first availability announcement strategy that covers whole relay chain blocks then we might still need partial availability announcements to revoke unavailability announcements, either for BABE or if not using requests for pieces then to halt send attempts.
 
 We now explain the validators' responses to these unavailability announcements:
 
