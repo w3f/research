@@ -1,4 +1,4 @@
-\section{Overview and Components and Sub-protocols}\label{sec:components}
+\section{Polkadot's Sub-protocols and Components}\label{sec:components}
 %\begin{samepage}
 Next, we summarise Polkadot functionality shortly for an overall picture and then continue to describe the individual sub-protocols and components. We conclude with a summary and description of what each sub-protoclol and components achieve in Section \ref{sec:summary}. 
 
@@ -6,7 +6,7 @@ Next, we summarise Polkadot functionality shortly for an overall picture and the
 The relay chain is maintained by validators that are selected through the NPoS scheme \ref{sec:validators} and is responsible for producing blocks of the relay chain \ref{sec:babe} and keeping the state of all the parachains \ref{sec:relaychain}.
 These validators need to vote on the consensus over all the parachains, see the consensus scheme \ref{sec:grandpa} for more details.
 The security goal of Polkadot is to be Byzantine fault tolerant when the participants are rational (see \ref{sec:economics} for more detail on incentives and economics).
-For parachains, there are additional actors called collators and fishermen that are responsible for parachain block production \ref{sec:parachainblockproduction} and reporting invalid parachain blocks respectively.
+Collators and fishermen that are responsible for parachain block production \ref{sec:parachainblockproduction} and reporting invalid parachain blocks respectively.
 The parachain validators assigned to each parachain validate each parachain block and are responsible to keep it available, see \ref{sec:validity-and-availability}. Moreover, another feature of Polkadot is enabling interchain messaging among parachains, see \ref{sec:XCMP} for more details.
 Furthermore, Polkadot has a decentralised governance scheme \ref{sec:governance} that can change any Polkadot design decisions and parameterisation.
 
