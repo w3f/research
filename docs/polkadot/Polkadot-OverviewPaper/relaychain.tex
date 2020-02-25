@@ -9,24 +9,24 @@ proof of inclusion of a specific pair.
 
 To keep the state size in control, the relay chain state is solely used to facilitate the relay chain operations such as staking and identifying validators. The Merkle Radix tree is not supposed to store any information regarding the internal operation of the parachains.
 
-\paragraph{State transition: } \label{par:state_transition} Like any transaction-based transition system, Polkadot state changes via an executing ordered set of instructions. These instructions, traditionally known as transactions, are referred as Extrinsics in Polkadot Jargon. They cover any data provided from ``outside'' of the machine's state which can affect state transition. Polkadot relay chain is divided into two major components, namely the ``Runtime'' and the ``Runtime environment''. The execution logic of the state-transition function is mainly encapsulated in the Runtime while all other generic operations, commonly shared among modern blockchain-based replicated state machines, are embedded into the Runtime environment. In particular, the latter is in charge of network communication, block production and consensus engines.
+\paragraph{State transition: } \label{par:state_transition} Like any transaction-based transition system, Polkadot state changes via an executing ordered set of instructions. These instructions, traditionally known as transactions, are referred as extrinsics in Polkadot jargon. They cover any data provided from ``outside'' of the machine's state which can affect state transition. Polkadot relay chain is divided into two major components, namely the ``Runtime'' and the ``Runtime environment''. The execution logic of the state-transition function is mainly encapsulated in the Runtime while all other generic operations, commonly shared among modern blockchain-based replicated state machines, are embedded into the Runtime environment. In particular, the latter is in charge of network communication, block production and consensus engines.
 
-Runtime functions are compiled into a Web assembly module and are stored as part of the state. The Runtime environment communicates the Extrinsics with the Runtime and interacts with it to execute the state transition. In this way, the state transition logic itself can be upgraded as a part of the state transition.
+Runtime functions are compiled into a Web assembly module and are stored as part of the state. The Runtime environment communicates the extrinsics with the Runtime and interacts with it to execute the state transition. In this way, the state transition logic itself can be upgraded as a part of the state transition.
 
 \paragraph{Extrinsics:} \label{par:extrinsics}
 
-Extrinsics are the input data supplied to the Polkadot relay-chain state machine to transition to new states. Extrinsics are needed to be stored into blocks of the relay chain in order to achieve consensus among the state machine replica. Extrinsics are divided into two broad categories namely Transactions and Inherents.
+Extrinsics are the input data supplied to the Polkadot relay-chain state machine to transition to new states. Extrinsics are needed to be stored into blocks of the relay chain in order to achieve consensus among the state machine replica. Extrinsics are divided into two broad categories namely transactions and inherents.
 
-Transactions are signed and are gossiped around on the network between nodes. In contrast, Inherents are not signed and are not gossiped individually but rather only when they are included in a block. The Inherents in a block are assumed to be valid if a supermajority of validators assumes so. The timestamp is an example of inherent Extrinsics which must be included in each Polkadot Relay chain block.
+Transactions are signed and are gossiped around on the network between nodes. In contrast, inherents are not signed and are not gossiped individually but rather only when they are included in a block. The inherents in a block are assumed to be valid if a supermajority of validators assumes so. The timestamp is an example of inherent extrinsics which must be included in each Polkadot relay chain block.
 
 Transactions on the relay chain are mainly concerned with the operation of the relay chain and Polkadot protocol as a whole, such as \texttt{set\_code}, \texttt{transfer}, \texttt{bond}, \texttt{validate}, \texttt{nominate}, \texttt{vote}.
 
 Relay chain block producers listen to all transaction network messages. Upon receiving a transaction message, the transaction(s) are validated by the Runtime. The valid transactions then are arranged in a queue based on their priority and dependency and are considered for inclusion in future blocks accordingly.
 
-\paragraph{Block format}
-A typical relay chain block consists of a header and a body. The body simply consists of a list of Extrinsics.
+\paragraph{Relay chain block format}
+A typical relay chain block consists of a header and a body. The body simply consists of a list of extrinsics.
 
-The header contains the \textit{hash of parent block}, \textit{block number}, the \textit{root of the state tree}, the \textit{root of the Merkle tree} resulting from arranging the Extrinsics in such a tree and the \textit{digest}. The digest stores auxiliary information from the consensus engines which are required to validate the block and its origin as well as information helping light clients to validate the block without having access to the state storage.
+The header contains the \textit{hash of parent block}, \textit{block number}, the \textit{root of the state tree}, the \textit{root of the Merkle tree} resulting from arranging the extrinsics in such a tree and the \textit{digest}. The digest stores auxiliary information from the consensus engines which are required to validate the block and its origin as well as information helping light clients to validate the block without having access to the state storage.
 
 \paragraph{Consensus:}
 
@@ -37,7 +37,7 @@ Unlike the consensus architecture of many former blockchains, which builds a sca
 
 The block production layer of the consensus is to be fast and probabilistically safe. Block production randomly and secretly assigns the production of each block to a certain block producer to mitigate denial of service and eclipse attacks. The detail of Polkadot block production consensus sub-protocol is described in Section \ref{sec:babe}.
 
-Simultaneously, the Polkadot execute a BFT-based consensus finality protocol which is tasked to observe (possibly) several incompatible (but likely valid) state transitions produced by the first layer and democratically finalise a canonical version as the valid history of the relay chain. Besides scalability, the choice of relay chain consensus protocol provides efficient absolute (in contrast to probabilistic) finality. That is, once a block is finalised, the canonical chain will always contain that block in the future. The finality subprotocol of Polkadot consensus is explained in Section
+Simultaneously, the Polkadot execute a BFT-based consensus finality protocol which is tasked to observe possibly several incompatible, but likely valid, state transitions produced by the first layer and democratically finalise a canonical version as the valid history of the relay chain. Besides scalability, the choice of relay chain consensus protocol provides efficient absolute, in contrast to probabilistic, finality. That is, once a block is finalised, the canonical chain will always contain that block in the future. The finality subprotocol of Polkadot consensus is explained in Section
 \ref{sec:grandpa}
 
 \paragraph{Block Building}\label{sec:relaychainblockproduction}
