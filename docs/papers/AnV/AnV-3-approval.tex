@@ -240,13 +240,28 @@ In this way, an adversary who equivocates always faces $\ell$ extra checks again
 
 Implementers might suppress this check if parachains always carry less value than gets slashed when relay chain block producers equivocate.  Attacks could impact multiple parachains simultaneously but doing so requires significantly more resources.
 
+\subsubsection{Rewards}
+
+We could reward validators for both their assignment announcements as well as actually running their assigned approval checks.  We note the packed assignments strategy produces more uniform rewards than the one-shot strategy, although amortised rewards work out similarly.  
+
+We do not slash validators for not delivering their assigned checks, but ... 
+
 
 \subsubsection{Finality} 
 \label{sec:finality}
 
-As noted above, any validator $V$ accumulates approval checks $S$ in an attested candidate receipt $\receipt_{B,S}$.  All our assignment schemes come with applicability criteria, like $R$ having equivocations, as well as fulfilment criteria, like $|S_z| \ge \ell + \theta \ell'$.  We judge $R$ approved when all applicabile assignment schemes appear fulfilled.  An approved relay chain block $R$ becomes eligible for consideration by our finality gadget GRANDPA.
+As noted above, any validator $V$ accumulates approval checks $S$ in an attested candidate receipt $\receipt_{B,S}$.  All our assignment schemes come with applicability criteria, like $R$ having equivocations, as well as fulfilment criteria, like $|S_z| \ge \ell + \theta \ell'$.  
 
-Any fulfilment problems come from either unavailability, which eventually redirects block production in \S\ref{sec:unavailability}, or else from no-shows, who eventually get replaced.
+All validators would eventually get every approval assignment, which ensures we have enough assignments, and that no-shows eventually get replaced.  As a result, any individual validator faces several obstacles to approving $R$, either
+\begin{itemize}
+\item $R$ contains an available but invalid parachain candidate receipt $\receipt_{B,S}$, which results in slashing its backers in $S$, or else
+\item $R$ contains an unavailable candidate receipt $\receipt_{B,S}$, which eventually redirects block production in \S\ref{sec:unavailability}. 
+\end{itemize}
+
+We impose one further assignment scheme mentioned previously in \S\ref{sec:parachain}:  If any two relay chain validators ever give opposing validity attestations for some candidate $B$ included in $R$, then all relay chain validators should produce approval validations for $B$.  In this case, we accumulate votes until $f+1$ claim validity or invalidity, and then slash the loosing side.  We cannot slash if neither side reaches $f+1$, but we still declare the block invalid in that case.  We expect governance to identify software faults and manually revert slashes they cause, but governance can also manually institute slashes in this second case, or manually slash $\para$ for offenses like malicious code or improper non-determinism. 
+
+We judge $R$ approved when all applicabile assignment schemes appear fulfilled.  An approved relay chain block $R$ becomes eligible for consideration by our finality gadget GRANDPA.
+
 
 
 

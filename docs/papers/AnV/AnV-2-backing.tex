@@ -129,7 +129,10 @@ We admitted adversarial manipulation of our network topology here, but it sounds
 \subsection{Availability} % GRANDPA
 \label{sec:availability}
 
-We integrate our availability and approval validity check protocols directly with GRANDPA, in that an honest node $U \in \vals$ should not vote in GRANDPA for some relay chain block $R$ unless for all attested candidate receipts $\receipt_{B,S}$ for $R$,
+We shall integrate our availability and approval validity check protocols directly with our finality gadget GRANDPA in \S\ref{sec:finality}, based upon the approval criteria in \S\ref{sec:assignment}
+
+
+, in that an honest node $U \in \vals$ should not vote in GRANDPA for some relay chain block $R$ unless for all attested candidate receipts $\receipt_{B,S}$ for $R$,
 \begin{itemize}
 \item $|S| \geq \primarychecks$,
 \item $U$ possesses their own piece from $\pieces_B$,
