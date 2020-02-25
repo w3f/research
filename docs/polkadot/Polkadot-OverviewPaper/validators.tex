@@ -11,21 +11,21 @@ This number will be ultimately decided by governance, and is intended to grow li
 yet it will be independent of the number of users in the network, thus ensuring scalability.
 However, NPoS allows for an unlimited number of DOT holders to participate as \emph{nominators},
 who help maintain high levels of security by putting more value at stake.
-As such, NPoS is not only much more \emph{efficient} than proof-of-work (PoW),
-but also considerably more \emph{secure} than standard PoS.
-Furthermore, we introduce new guarantees on \emph{decentralization} hitherto unmatched by any other PoS-based blockchain.
+As such, NPoS is not only much more efficient than proof-of-work (PoW),
+but also considerably more secure than standard PoS.
+Furthermore, we introduce new guarantees on decentralization hitherto unmatched by any other PoS-based blockchain.
 
 A new set of validators is elected at the beginning of every \emph{era} -- a period during roughly one day (see Table~\ref{t:time} in the Appendix) --
 to serve for that era, according to the nominators' preferences.
-More precisely, any DOT holder may choose to become a validator candidate or a nominator.
+More precisely, any dot holder may choose to become a validator candidate or a nominator.
 Each candidate indicates the amount of stake he is willing to stake and his desired commission fee for operational costs.
 In turn, each nominator locks some stake and publishes a list with any number of candidates that she trusts.
-Then a public protocol , discussed below, takes these lists as input and elects the candidates
+Then a public protocol, discussed below, takes these lists as input and elects the candidates
 with the most backing to serve as validators for the next era.
 
-Nominators share the rewards, or eventual slashings, with the validators they nominated, on a per-staked-DOT basis; 
+Nominators share the rewards, or eventual slashings, with the validators they nominated, on a per-staked-dot basis; 
 see Section~\ref{sec:economics} for more details. 
-Nominators are thus economically incentivized to act as watchdogs for the system, and they will base their preferences 
+Nominators are thus economically incentivised to act as watchdogs for the system, and they will base their preferences 
 on parameters such as validators' staking levels, commission fees, past performance, and security practices.
 Our scheme allows for the system to elect validators with massive amounts of aggregate stake
 - much higher than any single party's dot holdings -
@@ -35,21 +35,21 @@ This makes it very difficult for an adversarial entity to get validators elected
 -- as it either needs a large amount of dots or high enough reputation to get the required nominators' backing -- 
 as well as very costly to attack the system -- as it is liable to lose all of its stake and its earned reputation.
 
-Polkadot elects validators via a decentralized protocol with carefully selected, simple and publicly known rules,
+Polkadot elects validators via a decentralised protocol with carefully selected, simple and publicly known rules,
 taking the nominators' lists of trusted candidates as input. Formally, the protocol solves a multi-winner election
 problem based on approval ballots, where nominators have voting power proportional to their stake,
-and where the goals are \emph{decentralization} and \emph{security}.
+and where the goals are decentralisation and security.
 
-\paragraph{Decentralization.} \label{par:decentralization} In the late 19th century, Swedish mathematician Edvard Phragm\'{e}n
+\paragraph{Decentralisation:} \label{par:decentralization} In the late 19th century, Swedish mathematician Edvard Phragm\'{e}n
 proposed a method for electing members to his country’s parliament~\cite{brill2017phragmen}.
 He noticed that the election methods at the time tended to give a disproportionately large number of seats 
 to the most popular political party; in contrast, his new method ensured that the number of seats
 assigned to each party was proportional to the votes given to them, so it gave more representation to minorities.
 
 In the literature of computational social choice, Phragm\'{e}n's method has been recently revisited, 
-algorithmically optimized, and shown to achieve a property called \emph{proportional justified representation} (PJR), 
+algorithmically optimised, and shown to achieve a property called \emph{proportional justified representation} (PJR), 
 see \cite{sanchez2017proportional, brill2017phragmen}.
-In the context of NPoS, this property turns out to be ideal to guarantee decentralization.
+In the context of NPoS, this property turns out to be ideal to guarantee decentralisation.
 It ensures that the set of selected validators represents as many nominator minorities as possible,
 proportional to their stake, and that no minority is unjustly under-represented.
 Such minorities may naturally form due to political views, economic interests, geographical locations, etc.
@@ -77,11 +77,11 @@ $\frac{1}{\nval} \sum_{\nom\in \Nom} stake_\nom$
 then this minority has a justified claim to be represented in $\Val$ by at least $t$ candidates,  
 though not necessarily commonly trusted.
 
-\paragraph{Security.} If a nominator gets two or more of its trusted candidates elected as validators,
+\paragraph{Security:} If a nominator gets two or more of its trusted candidates elected as validators,
 the protocol must also establish how to split her stake and assign these fractions to them.
 In turn, these assignations define the total stake support that each validator receives.
 Our objective is to make these validators' supports as high and as balanced as possible.
-In particular, we focus on maximizing the \emph{minimum validator support}.
+In particular, we focus on maximising the \emph{minimum validator support}.
 Intuitively, the minimum support corresponds to a lower bound on the cost for an adversary to gain control
 over one validator, as well as a lower bound on the slashable amount for a misconduct.
 
