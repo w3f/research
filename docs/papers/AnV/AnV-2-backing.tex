@@ -141,7 +141,7 @@ We must established that our authenticated pieces $\pieces_B$ for each $B$ in $R
 As our erasure coding permits recovery from any $f+1$ pieces, we establish correct distribution simply by asking all validators to ``vote'' whether they received their assigned authenticated pieces $\pieces_B$ for all the parachain candidates $B$ in $R$. 
 % which makes $R$ {\em available} (see \S\ref{sec:approval}).
 
-It suffices if validators announce an availability attestation via gossip once they receive their authenticated piece $\pieces_B$ for each $B$ in $R$.  In this design, a validator $V$ considers a relay chain block $R$ to be {\em available} once it observes $f+1$ availability attestations for $R$.
+It suffices if validators announce an availability attestation via gossip once they receive their authenticated piece $\pieces_B$ for each $B$ in $R$.  In this design, a validator $V$ considers a relay chain block $R$ to be {\em strongly available} once it observes $f+1$ availability attestations for $R$ and possesses all it own pieces for candidates in $R$.
 
 As an alternative, we could ask that validators gossip availability announcements for each candidate receipt $\receipt_{B,S}$ separately.  In this design, we achieve a weaker ``mixed'' availability notion more quickly, which itself suffices to begin the approval checks in \S\ref{sec:approval}.  We need more bandwidth and computation fort his approach, although this could be reduced if availability attestation simply contained a bitfield or other compressed scheme for selecting parachains.
 
