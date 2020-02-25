@@ -88,8 +88,8 @@ so that nominators can adjust their strategy accordingly.
 
 \subsubsection{Relay-chain block limits and transaction fees}
 
-\paragraph{Limits on resource usage.} We bound the amount of transactions that a relay-chain block can process, 
-in order to a) ensure that each block can be processed efficiently even on less powerful nodes, and avoid delays in block production; b) have guaranteed availability for a certain amount of high-priority, operational transactions such as misconduct reports; and c) limit the growth rate of the relay-chain state. 
+\paragraph{Limits on resource usage:} We bound the amount of transactions that a relay-chain block can process, 
+in order to a) ensure that each block can be processed efficiently even on less powerful nodes and avoid delays in block production; b) have guaranteed availability for a certain amount of high-priority, operational transactions such as misconduct reports, even when there is high network traffic; and c) limit the growth rate of the relay-chain state. 
 In particular, we set block constraints on the following resources: on-chain byte-length, 
 time and memory required to process the transactions, and increase in state storage.
 
@@ -99,12 +99,14 @@ From these tests, we establish conservative estimates on resource usage for each
 
 We also add an additional constraint on resources: we distinguish between regular and high-priority transactions, and only let regular transactions account for up to $75\%$ of each block resource limit. This is to ensure that each block has a guaranteed space for high-priority transactions of at least $25\%$ of resources.
 
-\paragraph{Transaction fees.} We run an adaptive transaction fee schedule that reacts to the traffic level, and ensures that blocks are typically far from full, so that peaks of activity can be dealt with effectively and long inclusion times are rare. We make fees evolve slowly enough, so that the fee of any transaction can be predicted accurately within a frame of an hour. In particular, we do NOT intend for transaction fees to be the main source of income for stakers
+\paragraph{Transaction fees:} We use the model described above to set the fee level of a transaction based on three parameters: its type, its on-chain length, and its expected resource usage. This fee differentiation is used to reflect the different costs that a transaction incurs on the network and on the state, and to encourage the processing of certain types of transactions over others. A fraction of every transaction fee is paid to the block producer, while another fraction goes to finance the Treasury (Section~\ref{sec:treasury}). We highlight that, for a block producer, the rewards coming from transaction fees may constitute only a small fraction of their overall revenue, just enough to incentivize inclusion on the block.
+
+We also run an adaptive transaction fee schedule that reacts to the traffic level, and ensures that blocks are typically far from full, so that peaks of activity can be dealt with effectively and long inclusion times are rare. In particular, the fee of each transaction is multiplied by a parameter that evolves over time depending on the current network traffic. 
+
+ 
+
+We make fees evolve slowly enough, so that the fee of any transaction can be predicted accurately within a frame of an hour. In particular, we do NOT intend for transaction fees to be the main source of income for stakers
 
 
 
 %\subsubsection{Slashing}
-
-
-
-%\subsubsection{Auction economics}
