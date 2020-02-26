@@ -2,7 +2,7 @@
 
 Author: Handan Kilinc Alper
 
-Last updated: 24.02.2020
+Last updated: 26.02.2020
 
 Email: handan@web3.foundation
 
@@ -211,7 +211,7 @@ BABE is the same as Ouroboros Praos except the chain selection rule and clock ad
 ### Definitions
 We give the definitions of  security properties before jumping to proofs.
 
-**Definition 1 (Chain Growth (CG)) [1,2]:** Chain growth with parameters $\tau \in (0,1]$ and $s \in \mathbb{N}$ ensures that if the best chain owned by an honest party at the onset of some slot $sl_u$ is $C_u$, and the best chain owned by an honest party at the onset of slot $sl_v \geq sl_v+s$ is $C_v$, then the difference between the length of $C_v$ and $C_u$ is greater or equal than/to $\tau s$.
+**Definition 1 (Chain Growth (CG)) [1,2]:** Chain growth with parameters $\tau \in (0,1]$ and $s \in \mathbb{N}$ ensures that if the best chain owned by an honest party at the onset of some slot $sl_u$ is $C_u$, and the best chain owned by an honest party at the onset of slot $sl_v \geq sl_u+s$ is $C_v$, then the difference between the length of $C_v$ and $C_u$ is greater or equal than/to $\tau s$.
 
 The honest chain growth (HCG) property is weaker version of CG which is the same definition with the restriction that $sl_v$  and $sl_u$ are assigned to honest validators. The parameters of HCG are $\tau_{hcg}$ and $s_{hcg}$ instead of $\tau$ and $s_{cg}$ in the CG definition.
 
