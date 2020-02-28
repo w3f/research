@@ -28,14 +28,14 @@ A typical relay chain block consists of a header and a body. The body simply con
 
 The header contains the \textit{hash of parent block}, \textit{block number}, the \textit{root of the state tree}, the \textit{root of the Merkle tree} resulting from arranging the extrinsics in such a tree and the \textit{digest}. The digest stores auxiliary information from the consensus engines which are required to validate the block and its origin as well as information helping light clients to validate the block without having access to the state storage.
 
-\paragraph{Relay Chain block building}\label{sec:relaychainblockproduction}
-In this section, we present a summary of various steps of relay chain operation which carried out by its validators. Validators of the being nominated and selected to produce and finalise a certain number of blocks. A priori, each validator privately knows the slot of the time during which it is supposed to produce a block and waits for its turn.
+\paragraph{Relay chain block building:}\label{sec:relaychainblockproduction}
+In this section, we present a summary of various steps of relay chain operation which are carried out by its validators. A priori, each validator privately knows the times during which it is supposed to produce a block (see \ref{sec:babe}).
 
 Meanwhile, transactions ranging from the validated parachain block hash, transfer, staking, nomination or slashing for protocol violation are submitted to the relay chain validators. The validators examine the validity of the transactions and store them in their transaction pool. Once the time slot during which the validator is expected to produce the block has arrived, the validator estimates the block which most likely represents the state which is going to be finalised by the finality protocol and set it as the current state of the relay chain. Then the validator selects valid transactions with fulfilled pre-requisite from the transaction pool, executes them and updates the state accordingly. The validator executes and collates as many transactions as the block capacity allows and attaches a cryptographic digest of the final stage of the relay chain after executing the selected transactions. Finally the validator signs and publishes the built block.
 
 Upon receiving the new block, other validators examine that the producer's adherence to the protocol as well as the validity of included transactions and store the block in the \emph{block tree} which represents all possible candidates for a final state transition of the relay chain. 
 
-Simultaneously, the set of validators votes on various branches of the block tree and prunes branches which conflict with the version agreed upon by the supermajority of the validators. In that way, they eventually agree on a canonical state of the relay chain.
+Simultaneously, the set of validators votes on various branches of the block tree (see \ref{sec:grandpa}) and prunes branches which conflict with the version agreed upon by the supermajority of the validators. In that way, they eventually agree on a canonical state of the relay chain.
 
 
 %\paragraph{Consensus:}
