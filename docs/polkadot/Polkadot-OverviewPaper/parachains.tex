@@ -76,12 +76,11 @@ to authenticate that they were send by a $B$ whose header  $PH$ was in a particu
 
 Parachains act on incoming messages in order. This order is determined by the consistent history given by the relay chain. A parachain $D$ always acts on messages sent by parachain blocks whose header was in earlier relay chain blocks first. When several such source parachains have a header in the relay chain block, the messages from these parachains are acted on in some predetermined order of parachains, either sequentially in order of increasing parachain id, or some shuffled version of this. 
 
-A parachain $D$ acts on all messages sent by one parachain $S$ in one parachain block or none of them. A parachain header $PH'$ of $D$ contains a reference to the relay chain block, by block hash or block number, that the parachain block $B'$ of $D$ corresponding to $PH'$receives all messages up to and to the parachain id.
-This must advance by at least one parachain in every parachain block. To produce a parachain block on parachain $D which builds on a particular relay chain block $R$,
+A parachain $D$ acts on all messages sent by one parachain $S$ in one parachain block or none of them. A parachain header $PH'$ of $D$ contains a watermark, a reference to the relay chain block, by block hash or block number, that the parachain block $B'$ of $D$ corresponding to $PH'$receives all messages up to and to the parachain id of the parachain that it acts on all parachains up to in that relay chain block.
+The watermark must advance by at least one parachain in every parachain block. To produce a parachain block on parachain $D$ which builds on a particular relay chain block $R$,
 a collator would need to look at which parachain headers were built between the relay chain block that the last parachain block of this chain built on,
-and for each of those that indicated that they sent messages to $\Par$, it needs the corresponding message data.
+and for each of those that indicated that they sent messages to $D$, it needs the corresponding message data.
 Thus it can construct a PoV block so that the (STVF) can validate that all such messages were acted on. Since a parachain must accept all messages that are sent to it,
-we implement a method for parachains to make it illegal for another parachain to send it any messages that can be used in the case of spam occurring. If any node is connected to both parachain networks, then it should forward messages and their proofs from one parachain to the other,
-when the parachaim header is included in a relay chain block. The relay chain should at least act as a back up.
-The receiving parachain validators are connected to the parachain network and if they do not receive messages on it, then they can ask for them from the parachain validators of the sending chain at the time the message was sent.
+we implement a method for parachains to make it illegal for another parachain to send it any messages that can be used in the case of spam occurring. If any node is connected to both the source and destination parachain networks, then it should forward messages and their proofs from one parachain to the other,
+when the parachain header of the parachain block that send the message is included in a relay chain block. The relay chain should at least act as a back up: the receiving parachain validators  of $D$ are connected to $D$'s parachain network and if they do not receive messages on it, then they can ask for them from the parachain validators of the sending chain $S$ at the time the message was sent.
 
