@@ -1,33 +1,31 @@
 \subsection{Parachains}\label{sec:parachains}
 
 \subsubsection{Block Production}\label{sec:parachainblockproduction}
+
+We will discuss block production for a general parachain. At the end of the section, we will discuss akternatives.
+
 In outline, a collator produces a parachain block, sends it to the parachain validators,
 who sign its header as valid, and the header with enough signatures is placed on the relay chain.
 At this point, the parachain block is as canonical as the relay chain block its header appeared in.
 If that is in the best chain according to BABE (See Section \ref{sec:babe}), so is the parachain block and when that is finalised, so is the parachain block.
 
 Because the parachain validators switch parachains frequently, they are stateless clients of the parachain.
-Thus we distinguish between the parachain block $B$, which is enough for full nodes of the parachain such as collators to update the parachain state,
+Thus we distinguish between the parachain block $B$, which is normally enough for full nodes of the parachain such as collators to update the parachain state,
 and the {\em Proof of Validity(PoV)} block $B_{PoV}$, which a validator who does not have the parachain state can verify.
 
 Any validator should be able to verify $B_{PoV}$ given the relay chain state using the parachain's {\em state transition validation function} (STVF),
-the Wasm code for which is also on the relay chain.
+the Web asssembly code for which is stored on the relay chain in a simailr way to the relay chain's runtime.
 The STVF takes as an input the PoV block,
 \begin{itemize}
 	\item  the header of the last parachain block from this parachain and,
 	\item the message roots of all parachain blocks that have sent messages to this parachain since the last parachain block
 	(see Section \ref{sec:XCMP} for details such as the range needed)
 \end{itemize}
-It should output the validity of the block and its outgoing messages.
-The PoV block should contain any outgoing messages and for most parachains, it will also contain the parachain block.
-If it does contain the parachain block, the parachain validators should gossip the block to the parachain network, as a back up to the collator itself doing so.
-If it does not, then the parachain will need its own scheme to make sure that the parachain block data is available (see Section \ref{sec:validity-and-availability}).
+The STVF outputs the validity of the block, the header of this block and its outgoing messages.
+The PoV block contains any outgoing messages and the parachain block $B$. The parachain validators should gossip the parachain block to the parachain network, as a back up to the collator itself doing so.
 
-The PoV block will frequently be the parachain block, its outgoing messages, its header and a light client proof,
-i.e. Merkle proofs that give all elements of the input and output state that are used or modified by the state transition from the input and output state roots.
-However, the inclusion of the light client proof is optional and other types of proof are possible.
-For example, a parachain may use succinct or zero knowledge proofs of validity that can give more scalability than light client proofs.
-Or a permissioned chain could take signatures from authorities in place of much of the proof.
+The PoV block will be the parachain block, its outgoing messages, its header and light client proof witnesses. These witnesses are Merkle proofs that give all elements of the input and output state that are used or modified by the state transition from the input and output state roots.
+
 
 To aid in censorship resistance, a parachain may want to use proof of work or proof of stake to selected collators, where the selection strategy is up to the given parachain.
 This can be implemented in the STVF and need not be a part of the Polkadot protocol. So for proof of work,
@@ -35,9 +33,13 @@ the STVF would check that the hash of the block is sufficiently small.
 However, for speed, it would be useful to ensure that most relay chain blocks can include a parachain block.
 For PoW, this would necessitate it being probable that multiple collators are allowed to produce a block.
 As such we will still need a tie-breaker for the parachain validators to coordinate on validating the same parachain block first.
-This may be the golden ticked scheme of \cite{2016:Wood:Polkadot}.
+This may be the golden ticked scheme of \cite{2016:Wood:Polkadot}. For proof of stake this may not be necessaery.
 
-\handan{}{In general, when I read this section,  I felt like some parts are not certain because we give options e.g.  we could do this, parachain should do this etc. What if they don't do that? How do we enforce them? I think we should be more direct.}
+Optionally, for some parachains, the parachain block $B$ may not be enough for collators to update their state. This may happen for chains that use succinct zero-knowledge proofs to update their state, or even for permissioned chains that just give signatures from authorities for validity. Such chains may have another notion of parachain block which is actually needed to update their state and must have their own scheme to guarantee the availability of this data.
+
+
+
+
 
 \subsubsection{Validity and Availability} \label{sec:validity-and-availability}
 Once a block is created it is important that the parachain blob consisting of the parachain block, the PoV block and set of outgoing messages from the parachain is available for a while.
