@@ -3,7 +3,7 @@
 
 In Polkadot, we produce relay chain blocks using our Blind Assignment for Blockchain Extension protocol (BABE).
  %\eray{, abbreviated BABE}{(BABE)}.
-BABE assigns validators randomly to block production slots using  the randomness generated with blocks. These assignments are completely private until the assigned validators produce their blocks. Therefore, we use ``Blind Assignment'' in the protocol name. BABE is similar to Ouroboros Praos \cite{Praos} with some significant differences in the chain selection rule and timing assumptions.
+BABE assigns validators randomly to block production slots using  the randomness generated with blocks. A block production slot is a division of time when a block producer may produce a block. Note, that time is not universally agreed on, which we will address later.  These assignments are completely private until the assigned validators produce their blocks. Therefore, we use ``Blind Assignment'' in the protocol name. BABE is similar to Ouroboros Praos \cite{Praos} with some significant differences in the chain selection rule and timing assumptions.
 
 In BABE, we may have slots without any assignment
 %\eray{c}{assinments,}
