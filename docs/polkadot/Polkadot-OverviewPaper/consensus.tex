@@ -20,9 +20,7 @@ As mentioned above, we want a finalisation mechanism that is flexible and separa
 
 Intuitively GRANDPA is a Byzantine agreement protocol that works to agree on a chain, out of many possible forks, by following some simpler fork choice rule, which together with the block production mechanism would give probabilistic finality if GRANDPA itself stopped finalising blocks. We want to be able to agree on many blocks at once, in contrast to single-block Byzantine agreement protocols.
 
-We assume that we can ask the fork choice rule for the best block given a particular block. 
-
-The basic idea is that we want to agree by Byzantine agreement on the prefix of the chain that everyone agrees on. To make this more robust, we try to agree on the prefix of the chain that 2/3 of validators agree on.
+We assume that we can ask the fork choice rule for the best block given a particular block. The basic idea is that we want to agree by Byzantine agreement on the prefix of the chain that everyone agrees on. To make this more robust, we try to agree on the prefix of the chain that 2/3 of validators agree on.
 
 \begin{figure}[h!]
   \centering
@@ -31,13 +29,13 @@ The basic idea is that we want to agree by Byzantine agreement on the prefix of 
     \label{fig:grandpa}
 \end{figure}
 
-We make use of a GHOST on votes rule, much like Casper TFG \cite{CasperTFG} or some of the fork choice rules suggested for use with Casper FGG \cite{CasperFFG}. We use this rule inside what is structured like a more traditional Byzantine agreement protocol, to process votes. The 2/3 GHOST rule (pictured in Figure \ref{fig:grandpa})  works as follows. We have a set of votes, given by block hashes.  in which honest validators should not have more than one vote, and we take the head of the chain formed inductively as follows. We start with the genesis block and then include the child of that block that 2/3 of the voters voted for descendants of, as long as there is exactly one such child. The head of this chain is $g(V)$ where $V$ is the set of votes.
+We make use of a GHOST on votes rule, much like Casper TFG \cite{CasperTFG} or some of the fork choice rules suggested for use with Casper FFG \cite{CasperFFG}. We use this rule inside what is structured like a more traditional Byzantine agreement protocol, to process votes. The 2/3 GHOST rule (pictured in Figure \ref{fig:grandpa})  works as follows. We have a set of votes, given by block hashes.  in which honest validators should not have more than one vote, and we take the head of the chain formed inductively as follows. We start with the genesis block and then include the child of that block that 2/3 of the voters voted for descendants of, as long as there is exactly one such child. The head of this chain is $g(V)$ where $V$ is the set of votes.
 
 There are two voting phases in a round of GRANDPA, prevote and precommit. Firstly validators prevote on a best chain. Then they apply the 2/3-GHOST rule, $g$ to the set of prevotes $V$ they see and precommit $g(V)$. Then similarly they take the set of precommits $C$ they see and finalise $g(C)$.
 
 To ensure safety, we ensure that all votes are descendants of any block that could possibly have been finalised in the last round. Nodes maintain an estimate of the the last block that could have been finalised in a round, which is calculated from the prevotes and precommits. Before starting a new round, a node waits until it sees enough precommits for it to be sure that no block later than or on a different to this round's estimate can be finalised. Then it ensures that it only prevote sand precommits in the next round to blocks that are descendants of the last round's estimate (which it keeps updating by listening to precommits from the last round). This ensures safety.
 
-To ensure livness, we select one validator in rotation to be the primary. They start the round by broadcasting their estimate for the last round. Then when validators prevote, if the primary's block passes certain checks, among them that it is at least the validator's estimate, then it prevotes for the best chain including the primary's block. The idea here is that if the primary's block has not been finalised, then we make progress by finalising it. If it has not, and we all agree on the best chain including the last finalised block, which we should eventually if BABE works, then we now make progress by finalising that chain.
+To ensure livness, we select one validator in rotation to be the primary. They start the round by broadcasting their estimate for the last round. Then when validators prevote, if the primary's block passes certain checks, among them that it is at least the validator's estimate, then it prevotes for the best chain including the primary's block. The idea here is that if the primary's block has not been finalised, then progress is made by finalising the block. If the primary's block has not been finalised and we all agree on the best chain including the last finalised block, which we should eventually if BABE works, then we now make progress by finalising that chain.
   
 
 
