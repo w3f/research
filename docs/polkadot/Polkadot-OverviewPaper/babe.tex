@@ -19,8 +19,8 @@ Therefore, next we only describe BABE together with its security properties.
 %since Aura blocks \eray{is}{are} not the part of the security of BABE.
 
 
-BABE \cite{babe} consists of \emph{epochs} ($e_1,e_2,...$) and each epoch consists of a number of sequential block production slots (\(e_i = \{sl^i_{1}, sl^i_{2},\ldots,sl^i_{t}\}\)) up to the bound  $R$.
-Each validator knows in which slots that he is supposed to produce a block at the beginning of every epoch. When the time for their slot comes, they produce the block by proving that they are assigned to
+BABE \cite{babe} consists of another time division called \emph{epochs} ($e_1,e_2,...$), where each epoch consists of a number of sequential block production slots (\(e_i = \{sl^i_{1}, sl^i_{2},\ldots,sl^i_{t}\}\)) up to the bound  $R$.
+Each validator knows in which slots it is supposed to produce a block at the beginning of every epoch. When the time for its slot comes, the validator produces the block by proving that it is assigned to
 %\eray{}{to} 
 this slot.
 
