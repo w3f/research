@@ -1,6 +1,9 @@
 ====
 News
 ====
+**05.03.20**:
+    The interlay (http://interlay.io) project is working on Bitcoin-Polkadot bridge specification. 
+
 **19-20.02.20**:
     Alistair is going to attend the Standford Blockchain Conference 2020 and a co-located `Polkadot meetup <https://www.meetup.com/Polkadot-San-Francisco/events/268426884/>`_ organized by Web3 Foundation.
 
