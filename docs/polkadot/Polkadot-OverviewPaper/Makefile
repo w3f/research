@@ -1,4 +1,4 @@
 all: main.pdf
 
-%.pdf: %.tex
+%.pdf: %.tex $(wildcard *.tex)
 	latexmk -pdf "$<"
