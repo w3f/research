@@ -118,3 +118,24 @@ When validating the block nodes verify these proofs.
 
 The validator must also include a never before seen VRF output, called the BABE VRF above. This may be done with the existing (non-jubjub) key on the same input (r_m || i).
 
+## Probabilities and parameters.
+
+The first parameter we consider is $x$. We need that there is a very small probability of their being less than $s$ winning tickets, even if up to $1/3$ of validators are offline. The probability of a ticket winning is $T=xs/a|V|$. 
+Let $n$ be the number of validators who actually participate and so $2|V|/3 \leq n \leq |V|$. These $n$ validators make $a$ attempts each for a total of $an$ attempts.
+Let $X$ be the nimber of winning tickets.
+
+Then it's expectation has $E[X] = Tan = xsn/|V|$. If we set $x=2$, this is $ \geq 4s/3$. In this case, $Var[X] = anT(1-T) \leq anT = xsn/|V| = 2sn/|V| \leq 2s$. Using Bernstein's inequality:
+\begin{align*}
+\Pr[X < s] & \leq \Pr[X < E[X]-s/3] \\
+& \leq exp(-\frac{(s/3)^2}{(Var[X]+s/3)}) \\
+& \leq exp(-s/(9(2+1/3))) \\
+& \leq exp(-s/21)
+\end{align*}
+
+For $s=600$, this gives under $4 * 10^{-13}$, which is certainly small enough. We only need the Aura fallback to deal with censorship. On the other hand, we couldn't make $x$ smaller than $3/2$ and still have tolerance against validators going offline. So $x=2$ is a sensible choice, and we should never need the Aura fallback.
+
+The next parameter we should set is $a$. The problem here is that if a validator $v$ gets $a$ winning tickets in an epoch, then when the adversary sees these, they now know that there will be no more blocks from $v$.
+
+
+
+
