@@ -104,7 +104,7 @@ A PoV block needs to include a nested Merkle proof and hash chain expansion that
 
 Consider a collator $C_A$ that wants to produce a PoV block for para $A$. We assume para B has a channel to para A (can send messages to A) and para A has a channel to para D (can send messages to D). Note that if channels are unidirectional then A might not be able to  send messages to B and D not to A. 
 
-The collator $C_A$ ask some full node of the relay chain needs to construct a light client proof of what the message roots for all channel that are open to para $A$ (e.g., para B). Note that $C_A$ and the full node might be riunning on the same machine. 
+The collator $C_A$ ask some full node of the relay chain needs to construct a light client proof of what the message roots for all channel that are open to para $A$ (e.g., para B). Note that $C_A$ and the full node might be running on the same machine. 
 
 $C_A$ also needs light client proofs for the watermarks of paras, para A has channels to (e.g., para D). All these light client proofs should be constructed simultaneously from the relay chain state so they all start with the same relay chain state root. This relay chain state root and corresponding block numebr will be in the parachain header (candidate_receipt). 
 
