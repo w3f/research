@@ -106,7 +106,7 @@ Consider a collator $C_A$ that wants to produce a PoV block for para $A$. We ass
 
 The collator $C_A$ ask some full node of the relay chain needs to construct a light client proof of what the message roots for all channel that are open to para $A$ (e.g., para B). Note that $C_A$ and the full node might be running on the same machine. 
 
-$C_A$ also needs light client proofs for the watermarks of paras, para A has channels to (e.g., para D). All these light client proofs should be constructed simultaneously from the relay chain state so they all start with the same relay chain state root. This relay chain state root and corresponding block numebr will be in the parachain header (candidate_receipt). 
+$C_A$ also needs light client proofs for the watermarks of paras, para A has channels to (e.g., para D). All these light client proofs should be constructed simultaneously from the relay chain state so they all start with the same relay chain state root. This relay chain state root and corresponding block number will be in the parachain header (candidate_receipt). 
 
 **Optional**: For parachains, if we are going with ingress queues for them, we maintain a list of (paraid, last message root, block number) for all incoming channels that the relay chain updates every block. Thus the relay chain light client proof is just this list and a Merkle proof. 
 
