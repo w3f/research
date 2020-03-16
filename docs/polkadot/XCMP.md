@@ -122,7 +122,7 @@ Along with the latest message from B, $C_A$ should receive the proof that links 
 
 When $C_A$ has both: 
 - all proofs of messages from message roots, 
-- all proofs of messages roots from one relay chain state root (the nested Merkle prrofs described above), 
+- all proofs of messages roots from one relay chain state root (the nested Merkle proofs described above), 
 it can combine them to get proofs for all messages from the relay chain state root and put these proofs along with all messages acted on into the PoV block.
 
 For example, if para A has received many messages from para B since its last watermark, then the PoV block should include:
