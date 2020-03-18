@@ -41,7 +41,7 @@
 %\alfonso{}{Also, we should either add "session" to the table, or remove all mentions of sessions. Simplifying could be a good idea, so maybe the latter?}
 \input{comparison}
 
-\section{SPREE}
+\section{SPREE} \label{sec:SPREE}
 
 SPREE (Shared Protected Runtime Execution Enclaves) is a way for parachains to have shared code, and furthermore for the execution and state of that code to be sandboxed. From the paoint of view of parachain A, how much can it trust parachain B? Polkadot's shared security guarantees the correct execution of B's code with as much security as it does A's code. However, if we do not know B's code itself and even if we know the code now, maybe the governance mechanism of B can change the code and we do not trust that. This changes if we knew some of B's code, that it's governance did not have control of, and which could be sent messages by A. Then we would know how B's code would act on those messages if it was executed correctly and so shared security gives us the guarantees we need.
 
