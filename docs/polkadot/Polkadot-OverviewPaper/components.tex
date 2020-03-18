@@ -10,11 +10,13 @@ The elected validators are responsible for running the relay chain \ref{sec:rela
 
 To achieve good scalability the number of validators in each of these subsets is small. Nonetheless, thanks to the NPoS guarantee that every validator is well backed, the availability and validity scheme (Section~\ref{sec:validity-and-availability}) can ensure that any attack on the validity of Polkadot is very expensive in expectation. In fact, the entirety of Polkadot's economic security backs every parachain. This is in stark contrast to having, say, 100 independent blockchains with an equivalent sum total of stake, where on average each blockchain is backed by 1/100-th of the stake, and thus only benefits from 1/100-th the level of security. We guarantee availability by using erasure coding of each parachain block to make the validators collectively and robustly responsible for the availability of these blocks without breaking scalability. 
 
-For this to work, we need to be able to revert the chain until we know with good probability that all parachains are correct. This means that we need to be able to reorganise the chain and for that the chain needs to be capable of forking. Thus we use a block production mechanism, BABE \ref{sec:babe}, that while run by validators, has similar properties to proof-of-work chains. Specifically we can use the longest chain rule as part of our consensus, and that the next block producer is not known in advance. On its own BABE would require us to wait a long time after a block is produced for finality, when we expect with high probability that a block would never be reverted. Slow finality is required in some circumstances to deal with challenges to availability. Most of the time, however, we would prefer to finalise blocks much faster.  For this purpose, validators finalise blocks using GRANDPA \ref{sec:consensus}, a finality gadget that is cleanly separated from block production. This seperation makes it very adaptive and here allows us to delay finalising blocks until challenges are dealt with, without slowing down block production. GRANDPA gets Byzantine ageement on finalised blocks and will allow us to prove to an entity that keeps track of the validator set which blocks are finalised, which will be important for bridges,
+For this to work, we need to be able to revert the chain until we know with good probability that all parachains are correct. This means that we need to be able to reorganise the chain and for that the chain needs to be capable of forking. Thus we use a block production mechanism, BABE \ref{sec:babe}, that while run by validators, has similar properties to proof-of-work chains. Specifically we can use the longest chain rule as part of our consensus, and that the next block producer is not known in advance. On its own BABE would require us to wait a long time after a block is produced for finality, when we expect with high probability that a block would never be reverted. Slow finality is required in some circumstances to deal with challenges to availability. Most of the time, however, we would prefer to finalise blocks much faster.  For this purpose, validators finalise blocks using GRANDPA \ref{sec:consensus}, a finality gadget that is cleanly separated from block production. This seperation makes it very adaptive and here allows us to delay finalising blocks until challenges are dealt with, without slowing down block production. GRANDPA gets Byzantine ageement on finalised blocks and will allow us to prove to an entity that keeps track of the validator set which blocks are finalised, which will be important for bridges \ref{sec:bridge}
 
 If an account on one parachain sends tokens to another parachain, then XCMP \ref{sec:XCMP} ensures that this message is delivered correctly. It is sent at a speed which is not dependent on how long it takes to finalise blocks, which means that it needs to deal with the possibility of Polkadot forking. The parachain and XCMP logic ensure that a fork of the relay chain defines a consistent history of Polkadot and so that messages only arrive when they have been sent previously in the history defined by this fork. If the token transfer is carried out in conjunction with SPREE modules \ref{sec:SPREE} then that ensures that so long as the parachains execute correctly then tokens can only be created and destroyed in an agreed upon way. In turn the correct execution of the chains code is guaranteed by the availability and validity scheme. SPREE ensures that this code is correct as well, even though chains can change their own code.
 
+The governance mechanism \ref{sec:governance} allows Polkadot dot-holders to participate in the decision-making process rather than being imposed changes to the system by a central authority or in the case of some decentralised systems, the developers of the system. 
 
+Lastly we review some of the primitives that Polkadot sub-protocols are suing such as the cryptographic keys and networking scheme in Section \ref{sec:crypto} and Section \ref{sec:networking}, respectively. %Sell these!
 
 
 
@@ -22,13 +24,13 @@ If an account on one parachain sends tokens to another parachain, then XCMP \ref
 
 
 %Polkadot consists of a main chain called the relay chain and multiple sharded chains called parachains. 
- that are also responsible for producing the relay chain blocks \ref{sec:babe} and keeping the state of all the parachains \ref{sec:relaychain}.
-Validators need to vote on the consensus over all the parachains, see the consensus scheme \ref{sec:grandpa} for more details.
+ %that are also responsible for producing the relay chain blocks \ref{sec:babe} and keeping the state of all the parachains \ref{sec:relaychain}.
+%Validators need to vote on the consensus over all the parachains, see the consensus scheme \ref{sec:grandpa} for more details.
 
-Collators and fishermen that are responsible for parachain block production  and reporting invalid parachain blocks respectively.
-The parachain validators assigned to each parachain validate each parachain block and are responsible to keep it available, see \ref{sec:validity-and-availability}. Moreover, another feature of Polkadot is enabling interchain messaging among parachains, see \ref{sec:XCMP} for more details.
-Furthermore, Polkadot has a decentralised governance scheme \ref{sec:governance} that can change any Polkadot design decisions and parameterisation.
-Furthermore, we review some of the primitives that Polkadot sub-protocols are suing such as the cryptographic keys and networking scheme in Section \ref{sec:crypto} and Section \ref{sec:networking}, respectively. 
+%Collators and fishermen that are responsible for parachain block production  and reporting invalid parachain blocks respectively.
+%The parachain validators assigned to each parachain validate each parachain block and are responsible to keep it available, see \ref{sec:validity-and-availability}. Moreover, another feature of Polkadot is enabling interchain messaging among parachains, see \ref{sec:XCMP} for more details.
+%Furthermore, Polkadot has a decentralised governance scheme \ref{sec:governance} that can change any Polkadot design decisions and parameterisation.
+
 %What do they achieve (refer to properties)?
 \input{validators}
 \input{relaychain}
@@ -51,7 +53,7 @@ In this section we summarise Polkadot's components and describe what they aim to
 
 
 
-The governance mechanism \ref{sec:governance} allows Polkadot dot-holders to participate in the decision-making process rather than being imposed changes to the system by a central authority or in the case of some decentralised systems, the developers of the system .  
+  
 
 %Moreover, the token economics of Polkadot aims at 
 
