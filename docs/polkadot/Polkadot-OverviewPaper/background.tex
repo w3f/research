@@ -55,11 +55,10 @@ Parts of SPREEs design and implementation have yet to be fully designed. Credit 
 
 \section{Interoperability with External Chains}\label{sec:bridge}
 
-Polkadot is going to host a number of bridge components to other chains. 
-This document outlines what we are looking for in bridges on specific bridge parachains in Polkadot. Here we will be focused on BTC and ETH (1.x) and hence will mostly be reviewing bridging proof of work chains.
+Polkadot is going to host a number of bridge components to other chains. This section will be focused on bridging to BTC and ETH (1.x) and hence will mostly be reviewing bridging proof of work chains. 
 The bridge logic will have two important parts: a bridge relay, which understands as much as possible the consensus of the bridged chain, and a bank (name change possible for PR reasons), which involves staked actors owning bridged chain tokens on behalf of Polkadot.
 The bridge relay needs to be able to carry out consensus verification of the bridged chain and verify transaction inclusion proofs there. On the one hand, the bank can be used by users on the bridged chain to lock tokens as backing for the corresponding asset they want to receive on Polkadot, e.g., PolkaETH or PolkaBTC. On the other hand, users can use the bank to redeem these assets into the bridged chain tokens.
-XClaim \cite{} is the only existing design similar to this as far as we know.
+XClaim \cite{Zamyatin:2019:XClaim} is the only existing design similar to this as far as we know.
 The bridge relay aims to put as much of the logic of a light/thin client of a bridged chain on a bridge parachain as is feasible – think BTC-Relay. However, crypto and storage are much cheaper on a parachain than in an ETH smart contract. We aim to put all block headers and proofs-of-inclusion of certain transactions of the bridged chain in the blocks of the bridge parachain. This is enough to decide whether a transaction is in a chain which is probably final.
 Generally, the idea for the bridge relay is to have a longest-chain bridge chain where conflicts are resolved with a voting/attestation scheme.
 
