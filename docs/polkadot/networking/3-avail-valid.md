@@ -6,7 +6,7 @@
 
 ====================================================================
 
-# A&V networking
+# Availability and Validity (A&V) networking
 
 Status: draft; initial outline complete & awaiting feedback
 
@@ -57,15 +57,19 @@ This is an optional consideration; we believe we do not need to consider it in t
 
 ## Protocol overview
 
-We rely on an underlying gossip network that allows us to broadcast various metadata to everyone, namely:
+We rely on an underlying gossip network that allows us to broadcast various metadata to every node of the relay chain, namely:
 
-1. receipts of specific pieces ("I have X piece")
+1. receipts of specific pieces ("I have pieces X, Y and Z")
 2. receipts of "enough" pieces ("I have >1/3 of pieces, I don't need more"). This could also double as an attestation to everyone else, that there is availability from the attester's position on the network.
 3. [TBX S1 #1]
 
 This metadata should be gossiped every few seconds. The data of the actual pieces are distributed via a separate topology as described below:
 
 Recall that we have a disjoint partition of N validators into C sets of parachain validators, each set having size N/C. For our purposes for this subprotocol, we will randomly assign a co-ordinate (c, i) to every validator, with c in [0, C) and i in [0, N/C). Fixing c and varying i defines a particular parachain validator set; varying c and fixing i defines what we'll call a particular validator "ring". This name is only meant to be very slightly suggestive, the precise structure and its justification will be described below.
+
+Example:
+
+Let's say we have 20 validators `[a, b, c, ..., t]` and 5 parachains. The co-ordinates of the validators could look like such `[a: (0, 0), b: (0, 1), c: (0, 2), d: (0, 3), e: (1, 0), ..., t: (4, 3)]`. The validator set of the first parachain would be `[a, b, c, d]`. The first validator ring would be `[a, e, i, m, q]`, the second `[b, f, j, n, r]`.
 
 A validator ring is mostly-connected as permitted by the physical topology. Nodes within this ring talk to each other periodically via short-term and low-cost QUIC connections.
 
@@ -86,7 +90,7 @@ Note that there is also background activity, as described below.
 
 ## Protocol phase 1: initial distribution
 
-Every validator is both a distributor of C pieces and a distributee (recipient) of C pieces [TODO: correction, explanation]. Every piece has one source parachain and one main target storer, and so we can index pieces with a tuple (c_s, (c_t, i_t)).
+Every validator is both a distributor of C pieces and a distributee (recipient) of C pieces [TODO: correction, explanation]. Every piece has one source parachain and one main target storer, and so we can index pieces with a tuple (c_s, (c_t, i_t)) which would read as *the piece with source parachain c_s and destination validator on parachain c_t with index i_t*.
 
 In phase 1, pieces are distributed by the source parachain validators (c_s, \*) to the main target storers. This happens in two stages. Stage A is where most of the material is distributed, and stage B acts as a backup mechanism for anything that was missed during stage A.
 
@@ -96,7 +100,7 @@ As a distributor, each validator (c, i) attempts to send the relevant pieces for
 
 In more detail:
 
-Each distributor (c, i) will, with parallelism = C / 4, for s in [0..C), try to send the relevant piece to target t = (c+s, i) [TBX S1 #2]. C / 4 comes from our estimate that T_b ~= 4 * T_L.
+Each distributor (c, i) will, with parallelism = C / 4, for s in [0..C), try to send the relevant piece to target t = ((c+s) mod C, i) [TBX S1 #2]. C / 4 comes from our estimate that T_b ~= 4 * T_L.
 
 Trials are done with a timeout, slightly larger than T_l. Sending is via QUIC. In order for it to be treated as a success, it should include an acknowledgement of receipt. Note this is orthogonal from the gossiped receipts which include a validator signature; by contrast this transport-level receipt can be assumed to be already protected by QUIC transport authentication.
 
@@ -104,7 +108,7 @@ If a gossiped receipt is received at any point during the whole process, for a t
 
 **Stage B**
 
-As a distributee, if after a grace period we still haven't received our piece (c', (c, i)) from a parachain validator (c', i), then we will ask the other validators (c', i') for all i' != i in that parachain for the piece (c', (c, i)), load-balanced as described in more detail below.
+As a distributee, if after a grace period we still haven't received our piece (c', (c, i)) from a parachain validator (c', i), then we will ask the other validators (c', i') for all i' != i (from all other rings) in that parachain for the piece (c', (c, i)), load-balanced as described in more detail below.
 
 This gives the distributee a more direct level of control over obtaining their own pieces.
 
