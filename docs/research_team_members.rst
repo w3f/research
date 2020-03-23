@@ -7,7 +7,6 @@ Research Team Members
    
    research_team_members/alfonso
    research_team_members/alistair
-   research_team_members/eray
    research_team_members/fatemeh
    research_team_members/handan
    research_team_members/jeff
