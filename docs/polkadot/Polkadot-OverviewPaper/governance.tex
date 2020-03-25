@@ -1,10 +1,10 @@
 \subsection{Governance}\label{sec:governance}
 
-Polkadot uses sophisticated mechanisms for Governance which allows it to evolve gracefully over time at the ultimate behest of its assembled stakeholders. A key and unfailing rule is that \emph{all changes to the protocol must be agreed upon by stake-weighted referendum -- the majority of stake always commands the network.}
+Polkadot uses sophisticated mechanisms for Governance which allows it to evolve gracefully over time at the ultimate behest of its assembled stakeholders. A key and unfailing rule is that all changes to the protocol must be agreed upon by stake-weighted referendum -- the majority of stake always commands the network.
 
 In order to make any changes to the network, the idea is to compose dot holders and the Council (Section \ref{s:council}) together to administrate a network upgrade decision. No matter whether the proposal is submitted by a dot holder or by the Council, it will ultimately have to go through a referendum to let all dot holders, weighted by stake, make the decision.
 
-Each dot holder in Polkadot has the right to: a) submit a proposal, b) endorse a public proposal to prioritize it in the referendum timetable, c) vote on all active referenda, d) become a candidate for a seat in the Council, and e) vote on candidates for the Council. In addition, any dot holder may become a nominator or a validator candidate to participate in NPoS (see Section \ref{sec:validators}).
+Each dot holder in Polkadot has the right to: a) submit a proposal, b) endorse a public proposal to prioritise it in the referendum timetable, c) vote on all active referenda, d) become a candidate for a seat in the Council, and e) vote on candidates for the Council. In addition, any dot holder may become a nominator or a validator candidate to participate in NPoS (see Section \ref{sec:validators}).
 
 \subsubsection{Proposals and Referenda}
 
@@ -54,13 +54,13 @@ Finally, in the exceptional case that a Council proposal receives unanimous supp
 
 The Council will constantly review candidate proposals to deal with emerging issues in the system. A candidate proposal is officially backed by the Council -- and enters the queue of Council proposals -- only after it is approved by a strict majority of Council members, with no member exercising a veto. A candidate proposal can be vetoed only once; if, after a cool-down period, it is once more approved by a majority of Council members, it cannot be vetoed a second time. 
 
-As mentioned before, in the case that all members vote in favor, a Council proposal is consider uncontroversial and enjoys a special turnout bias that makes it more likely to be approved. 
+As mentioned before, in the case that all members vote in favour, a Council proposal is consider uncontroversial and enjoys a special turnout bias that makes it more likely to be approved. 
 
 Finally, Council members may vote to cancel any proposal, regardless of who submitted it, but their vote must be unanimous. Since unanimity is a high requirement, it is expected that this measure will only be used when it is an entirely uncontroversial move. This may function as a last resort if there is an issue found late in the day with a referendum's proposal such as a bug in the code of the runtime or a vulnerability  that the proposal would institute. If the cancellation is controversial enough that there is at least one dissenter, then it will be left to all dot holders en masse to determine the fate of the proposal, with the registered Council cancellation votes serving as red flags so that voters pay special attention.
 
 \paragraph{Electing Council members:} At Polkadot Genesis, there will be 6 to 12 seats in the Council, and an extra seat will be added every two weeks, ultimately settling at 24 seats.  All Council members have a fixed term of one year, and a member can be removed early only by referendum. 
 
-All dot holders are free to register their candidacy for the Council, and free to vote for any number of candidates, with a voting power proportional to their stake. A general election for the 24 Council seats will take place once a year. Much like the validator election problem in NPoS, this is a stake-weighted, multi-winner election problem based on approval ballots. We can thus solve it using the same algorithm we use for NPoS, which in particular offers the property of \emph{proportional justified representation}; see Section~\ref{sec:validators} for more details. This property guarantees that the elected Council will represent as many minorities as possible, thus ensuring that Governance stay decentralized and resistant to capture. Council members can be re-elected indefinitely, provided their approval remains high enough. 
+All dot holders are free to register their candidacy for the Council, and free to vote for any number of candidates, with a voting power proportional to their stake. A general election for the 24 Council seats will take place once a year. Much like the validator election problem in NPoS, this is a stake-weighted, multi-winner election problem based on approval ballots. We can thus solve it using the same algorithm we use for NPoS, which in particular offers the property of \emph{proportional justified representation}; see Section~\ref{sec:validators} for more details. This property guarantees that the elected Council will represent as many minorities as possible, thus ensuring that Governance stay decentralised and resistant to capture. Council members can be re-elected indefinitely, provided their approval remains high enough. 
 
 \medskip
 
@@ -82,7 +82,7 @@ A special data structure which allows us to keep track of the provisional winner
 \footnote{More precisely, one of the blocks produced during the bidding time-window is selected by a public pseudo-random function, and all bids processes after that block are ignored. A cryptographic guarantee ensures that the pseudo-random function cannot be biased by any minority controlling less than 1/3 of the block production, with overwhelming probability.} %
 The final winners correspond to the subset of non-overlapping periods with highest average bid per slot. For example, let us assume that at closing time we have the following winning bids: 75 dots for period $(1,4)$, 30 dots for period $(1,2)$, 90 dots for period $(3,4)$, and 100 dots for period $(2,3)$. In this example, set $[(1,2), (3,4)]$ has an average bid per slot of $(2\times 30 + 2\times 90)/4 = 60$, set $[(1,4)]$ has an average of $(4\times 75)/4 = 75$, and set $[(2,3)]$ has an average of $(0+2\times 100+0)/4=50$, so the final winner is set $[(1,4)]$. 
 
-The stated goals of this design are to incentivize parties to bid early and avoid bid sniping, to give less funded projects a chance of winning a slot hence securing the decentralized nature of Polkadot, and to discourage griefing attacks by parties who raise the value of the winning bid with no intention of winning themselves.
+The stated goals of this design are to incentivise parties to bid early and avoid bid sniping, to give less funded projects a chance of winning a slot hence securing the decentralised nature of Polkadot, and to discourage griefing attacks by parties who raise the value of the winning bid with no intention of winning themselves.
 
 \subsubsection{Treasury}\label{sec:treasury}
 

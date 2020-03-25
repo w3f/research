@@ -27,7 +27,7 @@ During this period their stake is locked, meaning it cannot be spent, and it rem
 currently staked by validators and nominators, divided by the current total dot supply. 
 The stakers' average interest rate will be a function of the staking rate: 
 if the staking rate dips below a certain target value selected by governance, 
-the average interest rate is increased, thus incentivizing more participation in NPoS, and vice versa. 
+the average interest rate is increased, thus incentivising more participation in NPoS, and vice versa. 
 For instance, a target staking rate of $50\%$ could be selected as a middle ground between security and liquidity. 
 If the stakers' average yearly interest rate is then set to $20\%$ at that level, 
 we can expect the inflation rate to fluctuate closely around $50\%\times 20\% = 10\%$. 
@@ -40,12 +40,12 @@ Once the total payout for the current era is computed, we need to establish how 
 Recall that the validator election protocol (\autoref{sec:validators}) partitions the active stake into 
 \emph{validator supports}, where each validator support is composed of the full stake of one validator 
 plus a fraction of the stake of its backing nominators, and this partition is made so as to make validator supports 
-as high and evenly distributed as possible, hence ensuring security and decentralization. 
-A further incentive mechanism put in place to ensure decentralization over time 
-is \emph{paying validator supports equally for equal work, regardless of their stake}. 
+as high and evenly distributed as possible, hence ensuring security and decentralisation. 
+A further incentive mechanism put in place to ensure decentralisation over time 
+is paying validator supports equally for equal work, regardless of their stake. 
 As a consequence, if a popular validator has a high support, its nominators will likely be paid less per staked dot 
-than nominators backing a less popular validator. Hence, nominators will be incentivized to change their preferences 
-over time in favor of less popular validators (with good reputation nonetheless), helping the system converge to the ideal case where all validator supports have equal stake.
+than nominators backing a less popular validator. Hence, nominators will be incentivised to change their preferences 
+over time in favour of less popular validators (with good reputation nonetheless), helping the system converge to the ideal case where all validator supports have equal stake.
 
 In particular, we devise a point system in which validators accumulate points for each payable action performed, 
 and at the end of each era validator slots are rewarded proportional to their points. 
@@ -70,7 +70,7 @@ will however be able to charge a higher commission fee, which is fair.
 
 \medskip
 
-We finalize the section with some observations on the incentives that our payout scheme is expected to cause on stakers. 
+We finalise the section with some observations on the incentives that our payout scheme is expected to cause on stakers. 
 First, as validators are well remunerated and their number is limited, 
 they have an incentive to ensure high backing levels from nominators to ensure getting elected, 
 and thus they will value their reputation. Over time, we expect elections to be highly competitive 
@@ -99,13 +99,13 @@ From these tests, we establish conservative estimates on resource usage for each
 
 We also add an additional constraint on resources: we distinguish between regular and high-priority transactions, and only let regular transactions account for up to $75\%$ of each block resource limit. This is to ensure that each block has a guaranteed space for high-priority transactions of at least $25\%$ of resources.
 
-\paragraph{Transaction fees:} We use the model described above to set the fee level of a transaction based on three parameters: its type, its on-chain length, and its expected resource usage. This fee differentiation is used to reflect the different costs that a transaction incurs on the network and on the state, and to encourage the processing of certain types of transactions over others. A fraction of every transaction fee is paid to the block producer, while another fraction goes to finance the Treasury (Section~\ref{sec:treasury}). We highlight that, for a block producer, the rewards coming from transaction fees may constitute only a small fraction of their overall revenue, just enough to incentivize inclusion on the block.
+\paragraph{Transaction fees:} We use the model described above to set the fee level of a transaction based on three parameters: its type, its on-chain length, and its expected resource usage. This fee differentiation is used to reflect the different costs that a transaction incurs on the network and on the state, and to encourage the processing of certain types of transactions over others. A fraction of every transaction fee is paid to the block producer, while another fraction goes to finance the Treasury (Section~\ref{sec:treasury}). We highlight that, for a block producer, the rewards coming from transaction fees may constitute only a small fraction of their overall revenue, just enough to incentivise inclusion on the block.
 
 We also run an adaptive transaction fee schedule that reacts to the traffic level, and ensures that blocks are typically far from full, so that peaks of activity can be dealt with effectively and long inclusion times are rare. In particular, the fee of each transaction is multiplied by a parameter that evolves over time depending on the current network traffic. 
 
  
 
-We make fees evolve slowly enough, so that the fee of any transaction can be predicted accurately within a frame of an hour. In particular, we do NOT intend for transaction fees to be the main source of income for stakers
+We make fees evolve slowly enough, so that the fee of any transaction can be predicted accurately within a frame of an hour. In particular, we do not intend for transaction fees to be the main source of income for stakers.
 
 
 

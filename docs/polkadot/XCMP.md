@@ -104,9 +104,9 @@ A PoV block needs to include a nested Merkle proof and hash chain expansion that
 
 Consider a collator $C_A$ that wants to produce a PoV block for para $A$. We assume para B has a channel to para A (can send messages to A) and para A has a channel to para D (can send messages to D). Note that if channels are unidirectional then A might not be able to  send messages to B and D not to A. 
 
-The collator $C_A$ ask some full node of the relay chain needs to construct a light client proof of what the message roots for all channel that are open to para $A$ (e.g., para B). Note that $C_A$ and the full node might be riunning on the same machine. 
+The collator $C_A$ ask some full node of the relay chain needs to construct a light client proof of what the message roots for all channel that are open to para $A$ (e.g., para B). Note that $C_A$ and the full node might be running on the same machine. 
 
-$C_A$ also needs light client proofs for the watermarks of paras, para A has channels to (e.g., para D). All these light client proofs should be constructed simultaneously from the relay chain state so they all start with the same relay chain state root. This relay chain state root and corresponding block numebr will be in the parachain header (candidate_receipt). 
+$C_A$ also needs light client proofs for the watermarks of paras, para A has channels to (e.g., para D). All these light client proofs should be constructed simultaneously from the relay chain state so they all start with the same relay chain state root. This relay chain state root and corresponding block number will be in the parachain header (candidate_receipt). 
 
 **Optional**: For parachains, if we are going with ingress queues for them, we maintain a list of (paraid, last message root, block number) for all incoming channels that the relay chain updates every block. Thus the relay chain light client proof is just this list and a Merkle proof. 
 
@@ -116,13 +116,13 @@ We include all 100+ of these channel Merkle proofs in the relay chain light clie
 
 After the full node has given the collater, $C_A$, all the light client proofs, $C_A$ has the block number and message root of all latest messages. Thus it can verify if para A has correctly received any particular message's content (payload) already. 
 
-In case a message say from para B has not been acted on by para A, then $C_A$ needs that message and its proof from the message root. $C_A$ may have this message and proof already, if $C_A$ does not, then it needs to ask any full node of the para B that it happens to be connected to or para A's para validators or the para validators of B at the block number of the message. If the messages from para B are coming from its para validators, this may mean asking many validators who were para validators of B at different times, since the para validators of paras rotate as a function of block number. Note that full nodes pf para B would know all of these messages and should be asked first.
+In case a message say from para B has not been acted on by para A, then $C_A$ needs that message and its proof from the message root. $C_A$ may have this message and proof already, if $C_A$ does not, then it needs to ask any full node of the para B that it happens to be connected to or para A's para validators or the para validators of B at the block number of the message. If the messages from para B are coming from its para validators, this may mean asking many validators who were para validators of B at different times, since the para validators of paras rotate as a function of block number. Note that full nodes of para B would know all of these messages and should be asked first.
 
 Along with the latest message from B, $C_A$ should receive the proof that links the latest message to the message root and also the block number of the previous message, so it knows if it needs to ask for earlier messages as well. 
 
 When $C_A$ has both: 
 - all proofs of messages from message roots, 
-- all proofs of messages roots from one relay chain state root (the nested Merkle prrofs described above), 
+- all proofs of messages roots from one relay chain state root (the nested Merkle proofs described above), 
 it can combine them to get proofs for all messages from the relay chain state root and put these proofs along with all messages acted on into the PoV block.
 
 For example, if para A has received many messages from para B since its last watermark, then the PoV block should include:

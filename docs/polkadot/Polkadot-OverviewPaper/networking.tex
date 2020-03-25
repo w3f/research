@@ -140,7 +140,22 @@ overlay either. The peers there connect to other peers on a by-need basis.
 
 This subprotocol is for \nameref{sec:XCMP}.
 
-TODO
+To recap that section, parachains can send messages to each other. The contents
+of outgoing messages are initially stored by the sending parachain block, and
+are contained in the parachain PoV blocks and therefore also initially stored
+by the parachain validators and distributed to other validators as part of the
+\hyperref[sec:net_storage]{availability protocol}. Relay chain blocks contain
+metadata that describes the relevant outgoing messages corresponding to the
+incoming messages for every parachain.
+
+The job of XCMP networking therefore, is for each parachain to retrieve its
+incoming messages from the outboxes. In our initial implementation of Polkadot
+these will be distributed via the gossip network, starting from the parachain
+validators of the outgoing messages. This is obviously not optimal, because
+everyone will also receive messages destined for other people, that they don't
+need. Further work will add more capabilities to our gossip network and
+possibly other subprotocols, to support a more restricted and optimised
+distribution.
 
 \subsubsection{Authentication, transport, and discovery} \label{sec:net_lowlevel}
 

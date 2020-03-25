@@ -6,6 +6,7 @@
 
 \usepackage{enumitem}
 \usepackage{url}
+\usepackage{amsthm}
 
 \usepackage{amsfonts}
 \usepackage{amsmath}
@@ -23,7 +24,6 @@
 \newtheorem{definition}{Definition}
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
-
 \newcommand\mathperiod{.}
 \newcommand\mathcomma{,}
 
@@ -50,12 +50,12 @@
 \newcommand*\Set[1]{\left\{ #1 \right\}}
 \newcommand*\setst[2]{\{ #1 | #2 \}}
 \newcommand*\Setst[2]%
-        {\left\{\,#1\vphantom{#2} \;\right|\left. #2 \vphantom{#1}\,\right\}}
+{\left\{\,#1\vphantom{#2} \;\right|\left. #2 \vphantom{#1}\,\right\}}
 
 \newcommand*\List[1]{\left[ #1 \right]}  % cute abbreviations
 \newcommand*\listst[2]{[ #1 | #2 ]}
 \newcommand*\Listst[2]%
-        {\left[\,#1\vphantom{#2} \;\right|\left. #2 \vphantom{#1}\,\right]}
+{\left[\,#1\vphantom{#2} \;\right|\left. #2 \vphantom{#1}\,\right]}
 
 % uniform random selection from set
 \newcommand{\randsel}[0]{\ensuremath{\xleftarrow{\text{\$}}}}
@@ -100,7 +100,8 @@
 \newcommand{\pkcvrfa}{\ensuremath{\pkcvrf^\labelVRFa}}
 \newcommand{\skvrfr}{\ensuremath{\skvrf^\labelVRFr}}
 \newcommand{\pkvrfr}{\ensuremath{\pkvrf^\labelVRFr}}
-
+\newcommand{\pr}{\ensuremath{\mathsf{Pr}}}
+\newcommand{\weakperiod}{\ensuremath{\mathsf{\Gamma_W}}}
 \newcommand{\Trun}{\ensuremath{T_{\mathsf{run}}}}
 \newcommand{\Twait}{\ensuremath{T_{\mathsf{wait}}}}
 \newcommand{\Tsec}{\ensuremath{T_{\mathsf{sec}}}}
@@ -130,23 +131,23 @@
 
 
 \begin{document}
-
-\maketitle
-
-\begin{abstract}
-We describe a lock block production protocol that both keeps upcoming block producers anonymous, like Ouroboros Praos and legacy proof-of-work schemes do, as well as providing predictable or fairly constant block times. 
-We also support transactions being encrypted and sent to upcoming block producers, which eliminates the ``memepool'' from blockchain protocols, which permits some anonymity from MimbleWimble.
-\end{abstract}
-
-% \newpage
-% \tableofcontents
-% \newpage
-
-\input{sass-0-introduction}
-\input{sass-1-vrfs}
-\input{sass-2-announce}
-\input{sass-3-analysis}
-
-\bibliographystyle{plain}
-%\bibliography{references,crypto}
+	
+	\maketitle
+	
+	\begin{abstract}
+		We describe a lock block production protocol that both keeps upcoming block producers anonymous, like Ouroboros Praos and legacy proof-of-work schemes do, as well as providing predictable or fairly constant block times. 
+		We also support transactions being encrypted and sent to upcoming block producers, which eliminates the ``memepool'' from blockchain protocols, which permits some anonymity from MimbleWimble.
+	\end{abstract}
+	
+	% \newpage
+	% \tableofcontents
+	% \newpage
+	
+	\input{sass-0-introduction}
+	\input{sass-1-vrfs}
+	\input{sass-2-announce}
+	\input{sass-3-analysis}
+	
+	\bibliographystyle{plain}
+	%\bibliography{references,crypto}
 \end{document}

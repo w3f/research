@@ -74,7 +74,7 @@ We want block producers for at least a large fraction of slots unknown in advanc
 
 Concretely, $v$ chooses another validator $v'$, based on the output $out_{m,v,i}$ for $i \in I_{win}$. To this end, the validator takes $k=out_{m,v,i} \textrm{mod} |V|$ and sends its winning ticket to the $k$th validator in a fixed ordering. Then the validator signs the message: $(v, l, enc_v'(out_{m,v,i}, \pi_{m,v,i}))$ where $end_{v'}$ refers to encrypted to a public key of $v'$. We number the winning outputs using $l$ ranging from $0$ up to $L-1$ and gossip them. If we have more than $L$ outputs below $T$, we gossip only the lowest $L$. This limitation is so that it is impossible for a validator to spam the network. 
 
-Once a valiaotr receives a messages it checks whether it has received a message with the same $v$ and $l$ and if so it discards the new message. Otherwise, the validator forwards (gossips) the message and decrypts it to find out whether the validator is the intended proxy. Validators gossip messages that are intended for them further to be secure against traffic corrlation. 
+Once a valiaotr receives a messages it checks whether it has received a message with the same $v$ and $l$ and if so it discards the new message. Otherwise, the validator forwards (gossips) the message and decrypts it to find out whether the validator is the intended proxy. Validators gossip messages that are intended for them further to be secure against traffic correlation. 
 
 Once a validator decrypts a message with their private key they verify that they were the correct proxy, i.e. that $out_{m,v,i} \textrm{mod} |V|$ corresponds to them. If so, then at some fixed block number, they send a transaction including $(out_{m,v,i}, \pi_{m,v,i}))$ for inclusion on-chain. Note that the validator might have been proxy for a number of tickets, in that case, it sends a number of transaction on designated block number. 
 
@@ -117,4 +117,25 @@ calls that are basically Schnorr knowledge of exponent proofs (PoKE).
 When validating the block nodes verify these proofs.
 
 The validator must also include a never before seen VRF output, called the BABE VRF above. This may be done with the existing (non-jubjub) key on the same input (r_m || i).
+
+## Probabilities and parameters.
+
+The first parameter we consider is $x$. We need that there is a very small probability of their being less than $s$ winning tickets, even if up to $1/3$ of validators are offline. The probability of a ticket winning is $T=xs/a|V|$. 
+Let $n$ be the number of validators who actually participate and so $2|V|/3 \leq n \leq |V|$. These $n$ validators make $a$ attempts each for a total of $an$ attempts.
+Let $X$ be the nimber of winning tickets.
+
+Then it's expectation has $E[X] = Tan = xsn/|V|$. If we set $x=2$, this is $ \geq 4s/3$. In this case, $Var[X] = anT(1-T) \leq anT = xsn/|V| = 2sn/|V| \leq 2s$. Using Bernstein's inequality:
+\begin{align*}
+\Pr[X < s] & \leq \Pr[X < E[X]-s/3] \\
+& \leq exp(-\frac{(s/3)^2}{(Var[X]+s/3)}) \\
+& \leq exp(-s/(9(2+1/3))) \\
+& \leq exp(-s/21)
+\end{align*}
+
+For $s=600$, this gives under $4 * 10^{-13}$, which is certainly small enough. We only need the Aura fallback to deal with censorship. On the other hand, we couldn't make $x$ smaller than $3/2$ and still have tolerance against validators going offline. So $x=2$ is a sensible choice, and we should never need the Aura fallback.
+
+The next parameter we should set is $a$. The problem here is that if a validator $v$ gets $a$ winning tickets in an epoch, then when the adversary sees these, they now know that there will be no more blocks from $v$.
+
+
+
 
