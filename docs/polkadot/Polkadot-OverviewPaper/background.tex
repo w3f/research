@@ -28,7 +28,7 @@
     Relay\newline- Chain & Ensures global consensus among parachains. && \ref{sec:relaychain} \\
     Runtime & The Wasm blob which contains the state transition functions, including other core operations required by Polkadot. && \ref{par:state_transition} \\
     Sentry\newline- nodes & Specialized proxy server which forward traffic to/from the validator. && \\
-    Session & ?? && \\
+    Session & A session is a period of time that has a constant set of validators. Validators can only join or exit the validator set at a session change. && \\
     STVF & \emph{State-Transition-Validation-Function} - A function of the Runtime to verify the PoV. && \ref{sec:parachainblockproduction} \\
     Validator & The elected and highest in charge party who has a chance of being selected by BABE to produce a block. A set of candidate validators is defined as \Can . The number of validators to elect is defined as \nval . & \val (\Val)& \ref{par:validators} \\
     VRF & \emph{Verifiable-Random-Function} - Cryptographic function for determining elected validators for block production. && \ref{sec:babe} \\
