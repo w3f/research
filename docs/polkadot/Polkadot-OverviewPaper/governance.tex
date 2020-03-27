@@ -2,7 +2,7 @@
 
 Polkadot uses sophisticated mechanisms for Governance which allows it to evolve gracefully over time at the ultimate behest of its assembled stakeholders. A key and unfailing rule is that all changes to the protocol must be agreed upon by stake-weighted referendum -- the majority of stake always commands the network.
 
-In order to make any changes to the network, the idea is to compose dot holders and the Council (Section \ref{s:council}) together to administrate a network upgrade decision. No matter whether the proposal is submitted by a dot holder or by the Council, it will ultimately have to go through a referendum to let all dot holders, weighted by stake, make the decision.
+In order to make any changes to the network, the idea is to bring dot holders and administrate a network upgrade decision with the help of the Council (Section \ref{s:council}). No matter whether the proposal is submitted by a dot holder or by the Council, it will ultimately have to go through a referendum to let all dot holders, weighted by stake, make the decision.
 
 Each dot holder in Polkadot has the right to: a) submit a proposal, b) endorse a public proposal to prioritise it in the referendum timetable, c) vote on all active referenda, d) become a candidate for a seat in the Council, and e) vote on candidates for the Council. In addition, any dot holder may become a nominator or a validator candidate to participate in NPoS (see Section \ref{sec:validators}).
 
@@ -24,7 +24,7 @@ Any stakeholder can submit a \emph{public proposal} by depositing a fixed minimu
 
 \emph{Council proposals} are submitted by the Council, and are stored in a separate priority queue where the priorities are set at the Council's discretion.
 
-\alfonso{}{What happens with automatic proposals -- do they go to the public-proposal queue or the Council-proposal queue, or a different queue? I don't know, we should ask Gavin.}
+\alfonso{}{What happens with proposals automatically submitted by the enactment of a previous referendum -- do they go to the public-proposal queue or the Council-proposal queue, or a different queue? I don't know, we should ask Gavin.}
 
 A \textbf{referendum} is a simple, inclusive, staked-weighted voting scheme. It has a fixed voting period, after which votes are tallied. Referenda are always binary: voting options are "aye", "nay", or abstaining entirely.
 
@@ -38,12 +38,14 @@ For public proposals, we generalise this notion into a "positive turnout bias", 
 
 On the other hand, for proposals submitted by the Council, referenda have no turnout bias and majority-carries is observed. The reasoning here is that proposals pre-approved by the Council are deemed safer and less likely to be reverted, so the previously mentioned issues are alleviated and we can let dot holders freely decide on the matter. 
 
-\begin{figure}[h!]
+\begin{figure}[htb]
   \centering
   \includegraphics[width=1.1\textwidth]{images/Turnout-Bias.png}
   \caption{Adaptive turnout biasing}
     \label{fig:biasing}
 \end{figure}
+
+\alfonso{}{Alfonso: Bill proposes that the biasing should be less severe. In particular for turnout values close to zero (which is what we observe in real life) the required percentage of ayes to carry stay, say, within 33 to 66\%, instead of going all the way to 0 or 100\%. I agree with him.}
 
 Finally, in the exceptional case that a Council proposal receives unanimous support by all Council members, it will observe a "negative turnout bias". This is the symmetric opposite of the first case, where additional turnout always makes change less likely, we favour the yay side in case of low turnout by requiring a super-majority of nays to reject the proposal, and as turnout approaches $100\%$ the requirement dials down to majority-carries. See Figure~\ref{fig:biasing}.
 
@@ -53,6 +55,8 @@ Finally, in the exceptional case that a Council proposal receives unanimous supp
 \textbf{The Council} is an entity comprising a number of actors each represented by an on-chain account. Its goals are to represent passive stakeholders, submit sensible and important proposals, and cancel uncontroversially dangerous or malicious proposals.
 
 The Council will constantly review candidate proposals to deal with emerging issues in the system. A candidate proposal is officially backed by the Council -- and enters the queue of Council proposals -- only after it is approved by a strict majority of Council members, with no member exercising a veto. A candidate proposal can be vetoed only once; if, after a cool-down period, it is once more approved by a majority of Council members, it cannot be vetoed a second time. 
+
+\alfonso{}{The Council should have the capacity to change the bias of any proposal through majority voting or unanimity, even a public proposal. Is this the case now?}
 
 As mentioned before, in the case that all members vote in favour, a Council proposal is consider uncontroversial and enjoys a special turnout bias that makes it more likely to be approved. 
 
@@ -64,7 +68,7 @@ All dot holders are free to register their candidacy for the Council, and free t
 
 \medskip
 
-\textbf{The Technical Committee} is composed according to a single vote for each team that has successfully and independently implemented or formally specified the protocol in Polkadot, or in its canary network Kusama \footnote{http://kusama.network}. Teams may be added or removed by a simple majority of the Council. 
+\textbf{The Technical Committee} is composed according to a single vote for each team that has successfully and independently implemented or formally specified the protocol in Polkadot, or in its canary network Kusama\footnote{http://kusama.network}. Teams may be added or removed by a simple majority of the Council. 
 
 The Technical Committee is the last line of defence for the system. Its sole purpose is detecting present or imminent issues in the system such as bugs in the code or security vulnerabilities, and proposing and fast-tracking emergency referenda. An emergency proposal needs a simultaneous approval of at least three-quarters of the Council members and at least two-thirds of the Technical Committee members in order to be tabled. Once tabled, it is fast-tracked into a referendum that runs in parallel with the timetable of regular referenda, with a far shorter voting period, and a near-zero enactment period. The approval mechanics in this case are unchanged from what they would be otherwise, i.e.~either a simple majority or, in the case of a unanimous Council approval, a turnout-based bias for approval.
 
@@ -94,7 +98,7 @@ Funds for Treasury are raised in two ways:
 
 \begin{enumerate}
 \item by minting new tokens, leading to inflation, and
-\item by channeling the tokens from transaction fees and slashing.
+\item by channeling a fraction of transaction fees and of slashings.
 \end{enumerate}
 
  
