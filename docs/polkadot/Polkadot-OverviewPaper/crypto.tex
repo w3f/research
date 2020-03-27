@@ -23,7 +23,7 @@ Session keys each fill roughly one particular role in consensus or security.  As
 
 At any time, the controller key can pause or revoke this session certificate and/or issue replacement with new session keys.  All new session keys can be registered in advance, and most must be, so validators can cleanly transition to new hardware by issuing session certificates that only become valid after some future session.  We suggest using pause mechanism for emergency maintenance and using revocation if a session key might be compromised.  
 
-We prefer if session keys remain tied to one physical machine because doing so minimizes the risk of accidental equivocation.  We ask validator operators to issue session certificate using an RPC protocol, not to handle the session secret keys themselves.  
+We prefer if session keys remain tied to one physical machine because doing so minimises the risk of accidental equivocation.  We ask validator operators to issue session certificate using an RPC protocol, not to handle the session secret keys themselves.  
 
 Almost all early proof-of-stake networks have a negligent public key infrastructure that encourages duplicating session secret keys across machines, and thus reduces security and leads to pointless slashing.
 % TODO: I'd meant to cite this somewhere, but not sure where now.  It's easy to cite the slashing to part to cosmos.  Thoughts?
@@ -38,7 +38,7 @@ A VRF is the public-key analog of a pseudo-random function (PRF), aka cryptograp
 
 As in \cite{Praos}, we provide a source of randomness $r_e$ for the VRF inputs by hashing together all VRF outputs form the previous session, which requires that BABE keys be registered at least two full epochs before being used.
 
-We reduce VRF output malleability by hashing the signer's public key along side the input, which dramatically improves security when used with HDKD.  We also hash the VRF input and output together when providing output used elsewhere, which improves compossibility when used as a random oracle in security proofs.  See the 2Hash-DH construction from Theorem 2 on page 32 in appendix C of \cite{Praos}.  
+We reduce VRF output malleability by hashing the signer's public key along side the input, which dramatically improves security when used with HDKD.  We also hash the VRF input and output together when providing output used elsewhere, which improves composability when used as a random oracle in security proofs.  See the 2Hash-DH construction from Theorem 2 on page 32 in appendix C of \cite{Praos}.  
 
 In GRANDPA \ref{sec:grandpa}, validators shall vote using BLS signatures, which supports convenient signature aggregation and select ZCash's BLS12-381 curve for performance.  There is a risk that BLS12-381 might drops significantly below 128 bits of security, due to number field sieve advancements.  If and when this happens, we expect upgrading GRANDPA to another curve to be straightforward. 
 % https://mailarchive.ietf.org/arch/msg/cfrg/eAn3_8XpcG4R2VFhDtE_pomPo2Q

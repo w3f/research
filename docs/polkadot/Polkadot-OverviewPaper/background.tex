@@ -1,3 +1,25 @@
+
+\section{SPREE} \label{sec:SPREE}
+
+SPREE (Shared Protected Runtime Execution Enclaves) is a way for parachains to have shared code, and furthermore for the execution and state of that code to be sandboxed. From the paoint of view of parachain A, how much can it trust parachain B? Polkadot's shared security guarantees the correct execution of B's code with as much security as it does A's code. However, if we do not know B's code itself and even if we know the code now, maybe the governance mechanism of B can change the code and we do not trust that. This changes if we knew some of B's code, that it's governance did not have control of, and which could be sent messages by A. Then we would know how B's code would act on those messages if it was executed correctly and so shared security gives us the guarantees we need.
+
+A SPREE module is a piece of code placed in the relay chain, that parachains can opt into. This code is part of that chains state transition validation function (STVF). The execution and state of this SPREE module are sandboxed away from the rest of the STVF's execution. SPREE modules on a remote chain can be addressed by XCMP. The distribution of messages received by a parachain would itself be controlled by a SPREE module (which would be compulsory for chains that want to use any SPREE modules). 
+
+We expect that most messages sent by XCMP will be from a SPREE module on one chain to the same SPREE module on another chain. When SPREE modules are upgraded, which involves putting updated code on the relay chain and scheduling an update block number, it is upgraded on all parachains in their next blocks. This is done in such a way as to guarantee that messages sent by a version of the SPREE module one one chain to the same module on another are never received by past versions. Thus message formats for such messages do not need to be forward compatible and we do not need standards for these formats.
+
+For an example of the security guarantees we get from SPREE, if A has a native token, the A token, what we would like is to be sure that parachain B could not mint this token. We could enforce this by A keeping an account for B in A's state. However if an account on B want's to send some A token to a third parachain C, then it would need to inform A. A SPREE module for tokens would allow this kind of token transfer without this accounting. The module on A would just send a message to the same module on B, sending the tokens to some account. B could then send them on to C and C to A in a similar way. The module itself would account for tokens in accounts on chain B, and Polkadot's shared security and the module's code would enforce that B could never mint A tokens. XCMP's guarantee that messages will be delivered and SPREE'S guarantee that they will be interpreted correctly mean that this can be done by just sending one message per transfer and is trust free. This has applications far beyond token transfer and means that trust minimising protocols are far easier to design.
+
+Parts of SPREEs design and implementation have yet to be fully designed. Credit goes to the reddit user u/Tawaren for the initial idea behind SPREE.
+
+\section{Interoperability with External Chains}\label{sec:bridge}
+
+Polkadot is going to host a number of bridge components to other chains. This section will be focused on bridging to BTC and ETH (1.x) and hence will mostly be reviewing bridging proof of work chains. Our bridge design is inspired by XClaim \cite{Zamyatin:2019:XClaim}.
+The bridge logic will have two important parts: a bridge relay, which understands as much as possible the consensus of the bridged chain, and a bank (name change possible for PR reasons), which involves staked actors owning bridged chain tokens on behalf of Polkadot.
+The bridge relay needs to be able to carry out consensus verification of the bridged chain and verify transaction inclusion proofs there. On the one hand, the bank can be used by users on the bridged chain to lock tokens as backing for the corresponding asset they want to receive on Polkadot, e.g., PolkaETH or PolkaBTC. On the other hand, users can use the bank to redeem these assets into the bridged chain tokens.
+The bridge relay aims to put as much of the logic of a light/thin client of a bridged chain on a bridge parachain as is feasible – think BTC-Relay. However, crypto and storage are much cheaper on a parachain than in an ETH smart contract. We aim to put all block headers and proofs-of-inclusion of certain transactions of the bridged chain in the blocks of the bridge parachain. This is enough to decide whether a transaction is in a chain which is probably final. The idea for the bridge relay for BItcoin and ETH1.0 is to have a longest-chain bridge chain where conflicts are resolved with a voting/attestation scheme. 
+
+\input{comparison}
+
 \section{Glossary}
 
 
@@ -39,27 +61,3 @@
 
 %\alfonso{}{I think the table should contain more information. I would add a) possibly longer descriptions, b) a reference to the section that introduces them (and where we give an even longer description + its reason of being), and c) their lengths in seconds/minutes/hours, where we put a big note saying all lengths are tentative and subject to change considerably.}
 %\alfonso{}{Also, we should either add "session" to the table, or remove all mentions of sessions. Simplifying could be a good idea, so maybe the latter?}
-\input{comparison}
-
-\section{SPREE} \label{sec:SPREE}
-
-SPREE (Shared Protected Runtime Execution Enclaves) is a way for parachains to have shared code, and furthermore for the execution and state of that code to be sandboxed. From the paoint of view of parachain A, how much can it trust parachain B? Polkadot's shared security guarantees the correct execution of B's code with as much security as it does A's code. However, if we do not know B's code itself and even if we know the code now, maybe the governance mechanism of B can change the code and we do not trust that. This changes if we knew some of B's code, that it's governance did not have control of, and which could be sent messages by A. Then we would know how B's code would act on those messages if it was executed correctly and so shared security gives us the guarantees we need.
-
-A SPREE module is a piece of code placed in the relay chain, that parachains can opt into. This code is part of that chains state transition validation function (STVF). The execution and state of this SPREE module are sandboxed away from the rest of the STVF's execution. SPREE modules on a remote chain can be addressed by XCMP. The distribution of messages received by a parachain would itself be controlled by a SPREE module (which would be compulsory for chains that want to use any SPREE modules). 
-
-We expect that most messages sent by XCMP will be from a SPREE module on one chain to the same SPREE module on another chain. When SPREE modules are upgraded, which involves putting updated code on the relay chain and scheduling an update block number, it is upgraded on all parachains in their next blocks. This is done in such a way as to guarantee that messages sent by a version of the SPREE module one one chain to the same module on another are never received by past versions. Thus message formats for such messages do not need to be forward compatible and we do not need standards for these formats.
-
-For an example of the security guarantees we get from SPREE, if A has a native token, the A token, what we would like is to be sure that parachain B could not mint this token. We could enforce this by A keeping an account for B in A's state. However if an account on B want's to send some A token to a third parachain C, then it would need to inform A. A SPREE module for tokens would allow this kind of token transfer without this accounting. The module on A would just send a message to the same module on B, sending the tokens to some account. B could then send them on to C and C to A in a similar way. The module itself would account for tokens in accounts on chain B, and Polkadot's shared security and the module's code would enforce that B could never mint A tokens. XCMP's guarantee that messages will be delivered and SPREE'S guarantee that they will be interpreted correctly mean that this can be done by just sending one message per transfer and is trust free. This has applications far beyond token transfer and means that trust minimising protocols are far easier to design.
-
-Parts of SPREEs design and implementation have yet to be fully designed. Credit goes to the reddit user u/Tawaren for the initial idea behind SPREE.
-
-\section{Interoperability with External Chains}\label{sec:bridge}
-
-Polkadot is going to host a number of bridge components to other chains. This section will be focused on bridging to BTC and ETH (1.x) and hence will mostly be reviewing bridging proof of work chains. 
-The bridge logic will have two important parts: a bridge relay, which understands as much as possible the consensus of the bridged chain, and a bank (name change possible for PR reasons), which involves staked actors owning bridged chain tokens on behalf of Polkadot.
-The bridge relay needs to be able to carry out consensus verification of the bridged chain and verify transaction inclusion proofs there. On the one hand, the bank can be used by users on the bridged chain to lock tokens as backing for the corresponding asset they want to receive on Polkadot, e.g., PolkaETH or PolkaBTC. On the other hand, users can use the bank to redeem these assets into the bridged chain tokens.
-XClaim \cite{Zamyatin:2019:XClaim} is the only existing design similar to this as far as we know.
-The bridge relay aims to put as much of the logic of a light/thin client of a bridged chain on a bridge parachain as is feasible – think BTC-Relay. However, crypto and storage are much cheaper on a parachain than in an ETH smart contract. We aim to put all block headers and proofs-of-inclusion of certain transactions of the bridged chain in the blocks of the bridge parachain. This is enough to decide whether a transaction is in a chain which is probably final.
-Generally, the idea for the bridge relay is to have a longest-chain bridge chain where conflicts are resolved with a voting/attestation scheme.
-
-
