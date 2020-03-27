@@ -78,7 +78,8 @@ Broadly speaking, parties interested in receiving a parachain slot participate i
 Since implementing seal-bid auctions is difficult and in order to avoid bid sniping, we adopt a Candle auction \cite{Fuellbrunn:2012:CandleAuction} mechanism with a retroactively determined close. 
 Going into detail, we plan to have an auction every few weeks, where in each auction four contiguous six-month slots are offered for lease. A bid can be made for any combination of one, two, three or four contiguous slots, for a total of ten possible time periods lasting 6, 12, 18 or 24 months. Once the auction starts, parties can post bids as transactions for any one of these ten periods, within a fixed window of time lasting several hours. A party is allowed to submit multiple bids, where a bid is registered only if a) it beats the current highest bid for the corresponding period, and b) the party does not become the provisional winner of two or more periods with gaps in between. For example, the winner of period $(1,2)$ -- constituted of the first two slots -- cannot bid on period $(4)$ -- the fourth slot -- until someone else overbids the former period. 
 
-A special data structure which allows us to keep track of the provisional winners of all 10 periods at each point in time throughout the bidding time-window. Once this window is over, a public random number retroactively establishes a closing time within this window, thus also establishing a winner for each period.%
+%A special data structure which allows us to 
+We keep track of the provisional winners of all 10 periods at each point in time throughout the bidding time-window. Once this window is over, a public random number retroactively establishes a closing time within this window, thus also establishing a winner for each period.%
 \footnote{More precisely, one of the blocks produced during the bidding time-window is selected by a public pseudo-random function, and all bids processes after that block are ignored. A cryptographic guarantee ensures that the pseudo-random function cannot be biased by any minority controlling less than 1/3 of the block production, with overwhelming probability.} %
 The final winners correspond to the subset of non-overlapping periods with highest average bid per slot. For example, let us assume that at closing time we have the following winning bids: 75 dots for period $(1,4)$, 30 dots for period $(1,2)$, 90 dots for period $(3,4)$, and 100 dots for period $(2,3)$. In this example, set $[(1,2), (3,4)]$ has an average bid per slot of $(2\times 30 + 2\times 90)/4 = 60$, set $[(1,4)]$ has an average of $(4\times 75)/4 = 75$, and set $[(2,3)]$ has an average of $(0+2\times 100+0)/4=50$, so the final winner is set $[(1,4)]$. 
 
@@ -93,7 +94,7 @@ Funds for Treasury are raised in two ways:
 
 \begin{enumerate}
 \item by minting new tokens, leading to inflation, and
-\item by channeling the tokens set for burning from transaction fees and slashing.
+\item by channeling the tokens from transaction fees and slashing.
 \end{enumerate}
 
  
