@@ -42,7 +42,7 @@ p_{V,e, L, i} \leq \begin{cases}
 where  $ \ell_V $ is the number of slots that $ V $ was the slot leader so far in $ e $. We want to make sure that $ p_{V,e,L,i} < \thweak$. Here, $ \thweak $ is a threshold for the adversary. If $ p_{V,e,L} \geq \thweak $, the adversary weakly corrupts validators . We do the analysis of having $ p_{V,e,L} \geq \thweak $ for $ c =1 $ and when $ 0 < c < 1 $:
 
 \begin{itemize}
-	\item $ c = 1: $ When $ c =1 $, $ \frac{|\vrfwinninglist_V|- \ell_V}{\numanom-(L-1)} = \frac{\vrfaattemptsbound - \ell_V}{n_H*\vrfaattemptsbound -  \Psi \frac{f}{n} (1+ \delta)- (L-1)} $.
+	\item $ c = 1: $ When $ c =1 $, $ \frac{|\vrfwinninglist_V|- \ell_V}{\numanom-(L-1)} \leq \frac{\vrfaattemptsbound - \ell_V}{n_H*\vrfaattemptsbound -  \Psi \frac{f}{n} (1+ \delta)- (L-1)} $.
 	\begin{align}\label{cond:eq1}
 	\frac{\vrfaattemptsbound - \ell_V}{n_H*\vrfaattemptsbound(1-\frac{f(1+\delta)}{n}) - (L-1)} < \thweak &\implies \frac{(L-1)\thweak - \ell_V}{n_H\thweak(1-\frac{f(1+\delta)}{n})-1} < \vrfaattemptsbound \nonumber \\
 	&\implies \max(\frac{(L-1)\thweak - \ell_V}{n_H\thweak(1-\frac{f(1+\delta)}{n})-1}) < \vrfaattemptsbound \nonumber\\
@@ -177,13 +177,16 @@ We also define a new property which is necessary for our protocol.
 We prove the chain growth of the best chain assuming that the weakly corrupted validators do not produce the block. We assume that the adversary can weakly corrupt validators whose chance to produce the next block is less than $ \thweak' $.
 
 
-\begin{theorem}
+
+%TODO more formal reduction and Lemma X. 
+%TODO proof of Pr[one validator selected] = 1/n after VRF pseuodrandomness def.
+\begin{theorem}[Honest Chain Growth]
 	Sassafras satisfies HCG property with parameters $\tau_{hcg} = p_h(1-\omega)$ where $0 < \omega < 1$ and $s_{hcg} > 0$ in $s_{hcg}$ slots  with probability $1-\exp(-\frac{ p_h s_{hcg} \omega^2}{2}) - p_{anom}$ where $ p_h = \frac{n - f - f_w}{n} $.
 \end{theorem}
 \begin{proof}
 	As proven in  Appendix E.5. in \cite{genesis} honest chain growth is at least equal to the number of honest validators selected as a block producer.
 	
-	From Lemma X (TODO), we know that the adversary cannot corrupt (weakly or strong) more than $f + f_w $ validators where $ f_w  =  \Psi\frac{fc}{n}(1+\delta])$.
+	From Lemma X (TODO), we know that the adversary cannot corrupt (weakly or strong) more than $f + f_w $ validators where $ f_w  =  \Psi\frac{fc}{n}(1+\delta])$ except with probability $ p_{anom} $(TODO).
 	Therefore, the probability that an honest party is a block producer is at least $ \frac{n - f - f_w}{n} $.
 	
 	If the total number of honest slots in $ s_{hcg} $ slots are less than  $s_{hcg}\tau_{hcg}$, then HCG property is violated. 
@@ -194,3 +197,9 @@ We prove the chain growth of the best chain assuming that the weakly corrupted v
 	$$\Pr[\sum \text{honest slots} \leq  (1-\omega) p_h s_{hcg}] \leq \exp(-\frac{p_h s_{hcg} \omega^2}{2})$$
 	
 \end{proof}
+
+
+\begin{theorem}[Honest Chain Quality]
+\end{theorem}
+
+
