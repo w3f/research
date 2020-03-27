@@ -6,7 +6,10 @@
 An alternative way to scale blockchain technologies are using side-chains \footnote{that allow tokens from one blockchain to be considered valid on an independent blockchain and be used there}. These solutions are also addressing interoperability, in that they enabling bridging side chains to the main chain. For example, for Eth1.0 many side-chains were introduced that contributed to scalability such as Plasma Cash and Loom \footnote{https://loomx.io}.
 A prominent solution that is solely based on bridging independent chains to each other is Cosmos \footnote{https://cosmos.network} that is reviewed and compared to Polkadot next.
 
-\paragraph{Cosmos}
+\paragraph{ETH1.0 Sidechains, e.g., Plasma Cash}
+TODO
+
+\subsection{Cosmos}
 
 Cosmos is a system designed to solve the blockchain interoperability problem that is fundamental to improve the scalability for the decentralised web. In this sense, there are surface similarities between the two systems. Hence, Cosmos consists of components which play similar roles and resemble the sub-components of Polkadot. For example, the Cosmos Hub is used to transfer messages between Comos' zones similarly to how the Polkadot Relay Chain oversees the passing of messages among Polkadot parachains.
 
@@ -18,5 +21,3 @@ When a parachain signs up for a SPREE module, Polkadot guarantees that certain X
 
 Another significant difference between Cosmos and Polkadot consists in the way the blocks are produced and finalised. In Polkadot, because all parachain states are strongly connected to relay chain states, the parachain can temporarily fork alongside the relay chain. This allows the block production to decouple from the finality logic. In this sense, the Polkadot blocks can be produced over unfinalised blocks and multiple blocks can be finalised at once. On the other hand, the Cosmos zone depends on the instant finality of the Hub's state to perform a cross-chain operation and therefore a delayed finalisation halts the cross-zone operations.
 
-\paragraph{Plasma Cash}
-TODO
