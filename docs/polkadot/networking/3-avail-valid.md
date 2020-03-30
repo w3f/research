@@ -21,6 +21,16 @@ Every parachain produces 1 block in the period, for a total of C blocks.
 
 Every block is erasure coded across N pieces with a threshold of ceil(N/3).
 
+### High-level requirements
+
+At the start of the period, for every parachain, its N/C parachain validators each have all of the N pieces. In this role we call them the "preliminary checkers". The high-level purpose of A&V networking is to:
+
+1. Distribute the pieces of all C blocks to all other validators
+
+2. Ensure that ceil(N/3) of the pieces of all C blocks remains available and retrievable for a reasonable amount of time, across the N validators.
+
+Near the end of the period, for every parachain, a set of approval checkers of size > N/C will be chosen from the N validators, to actually retrieve at least ceil(N/3) pieces of the block.
+
 ### Timing model
 
 Let T_l represent the average latency (single trip) between two peers, i.e. RTT is twice this.
@@ -35,15 +45,11 @@ Let T_L represent the standard deviation of the distribution of when validators 
 
 In practise based on some crude real-world measurements, we guess that T_l is about 150ms, T_b is about 3s, and T_L is about 750ms. In other words, T_b ~= 20 * T_l ~= 4 * T_L.
 
-## High-level requirements
-
-Ensure that ceil(N/3) of the pieces of all C blocks remains available and retrievable for a reasonable amount of time, across the N validators.
-
 ## Design considerations
 
 ### General aims
 
-A1: Reduced redundancy & latency: pieces should (mostly) only be sent to the nodes that need it, i.e. its main storer, and the secondary checkers.
+A1: Reduced redundancy & latency: pieces should (mostly) only be sent to the nodes that need it, i.e. its main storer, and the approval checkers.
 
 A2: Constrain the use of shared OS resources, so the protocol does not interfere with other programs running at the same site.
 
@@ -75,7 +81,7 @@ Let's say we have 20 validators `[a, b, c, ..., t]` and 5 parachains. The co-ord
 
 A validator ring is mostly-connected as permitted by the physical topology. Nodes within this ring talk to each other periodically via short-term and low-cost QUIC connections.
 
-For a given parachain, the primary checkers are also mostly-connected, as permitted by the physical topology. Likewise the secondary checkers are also mostly-connected.
+For a given parachain, the preliminary checkers are also mostly-connected, as permitted by the physical topology. Likewise the approval checkers are also mostly-connected.
 
 These connections represent the vast majority of traffic flow in our A&V networking protocol; to improve reliability and availability there are also other lines of communication as described below.
 
@@ -128,9 +134,9 @@ For distributors (c, i) when distributing to another ring i' that is missing too
 
 For example, with C = 100 and N/C = 10, a distributor (57, 3) who has finished distributing to (\*, 3) and observes that rings 2, 4 and 7 are missing too many receipts, would proceed to distribute to (67, 4), (68, 4), (69, 4) and so on, skipping anyone whose receipts have already been received.
 
-## Protocol phase 2: secondary checking
+## Protocol phase 2: approval checking
 
-In phase 2, a higher layer defines a set of secondary checkers for every parachain. The size of the set starts at a given baseline N/C, the same as the parachain validators, but may be increased dynamically after the initial selection, up to potentially several times the baseline. At least ceil(N/3) of the pieces of that parachain's block must be distributed to these secondary checkers.
+In phase 2, a higher layer defines a set of approval checkers for every parachain. The size of the set starts at a given baseline N/C, the same as the parachain validators, but may be increased dynamically after the initial selection, up to potentially several times the baseline. At least ceil(N/3) of the pieces of that parachain's block must be distributed to these approval checkers.
 
 As in phase 1, this happens in two stages. Additionally, and throughout the whole phase including both stages, checkers should connect to each other and distribute the pieces to each other via these connections. They may use the gossip protocol for this purpose, including any set reconciliation protocols. However these connections (and the bandwidth associated with them) are not intended for other uses of the main gossip protocol and are not intended to be considered "connected" to the main gossip topology, one of the reasons being that this allows us to analyse the resource usages of each subprotocol separately.
 
@@ -141,7 +147,7 @@ Unlike phase 1, distributees do not need to broadcast receipts for every individ
 Stage A of phase 2 proceeds similarly to stage A of phase 1, except that:
 
 - Each distributor only needs to distribute to the half-ring in front of it, instead of the whole ring. This is 3/2 of the minimum ceil(N/3) required, which should give a generous margin for success.
-- Each distributor (c, i), when sending to target (c', i) for some given c' != c, does not send piece (c, (c', i)) as they would in phase 1, but rather the pieces (c, (v, i)) for all parachains v that c' is a secondary checker for, and for which c has not received a gossiped receipt from c' for.
+- Each distributor (c, i), when sending to target (c', i) for some given c' != c, does not send piece (c, (c', i)) as they would in phase 1, but rather the pieces (c, (v, i)) for all parachains v that c' is a approval checker for, and for which c has not received a gossiped receipt from c' for.
 
 By re-using the basic structure from phase 1, we also automatically gain its other nice properties such as load-balancing.
 
@@ -149,11 +155,11 @@ By re-using the basic structure from phase 1, we also automatically gain its oth
 
 Stage B of phase 2 is morally similar to stage B of phase 1, but ends up being structurally quite different, due to the different high-level requirements.
 
-Each distributee (c, i) is not expecting any specific pieces from anyone, but rather ceil(N/3) pieces of the block from every parachain v for which it is a secondary checker. After a grace period of 2 * T_L, if they have not received enough pieces for any v, they will begin querying other validators for their pieces for these blocks.
+Each distributee (c, i) is not expecting any specific pieces from anyone, but rather ceil(N/3) pieces of the block from every parachain v for which it is a approval checker. After a grace period of 2 * T_L, if they have not received enough pieces for any v, they will begin querying other validators for their pieces for these blocks.
 
 For load-balancing, this querying of other validators (c', i') begins at c' = c + 1, i' = i, increasing c' then increasing i'. This means that the last validators to be queried will be (c, i - i/2) to (c, i - 1) which precisely are the ones that (are supposed to) have sent us pieces already in stage A, so we avoid duplication.
 
-At any time, if the distributee receives ceil(N/3) or more pieces of the blocks of every parachain v for which they are a secondary checker for, they can cancel the above process with success.
+At any time, if the distributee receives ceil(N/3) or more pieces of the blocks of every parachain v for which they are a approval checker for, they can cancel the above process with success.
 
 Each distributor is responsible for a smaller fraction of the required pieces for each block, by design. Therefore, we don't need a separate follow-up part for distributors.
 
@@ -163,9 +169,9 @@ We directly use the underlying network (i.e. the internet) for transport, and no
 
 1. Each piece is sent to a small set of specific people, rather than everyone.
 
-2. a. People that want a specific piece of data, know where to get it - i.e. validators, for their own piece, i.e. the primary validators.
+2. a. People that want a specific piece of data, know where to get it - i.e. validators, for their own piece, get each piece from the preliminary checkers for that piece.
 
-   b. Other people want non-specific pieces - i.e. secondary validators, want any 1/3 of all pieces to be able to reconstruct.
+   b. Other people want non-specific pieces - i.e. approval validators, want any 1/3 of all pieces to be able to reconstruct.
 
 Overlay topologies are generally more useful for the exact opposite of the above:
 
