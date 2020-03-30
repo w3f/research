@@ -25,7 +25,9 @@ Every block is erasure coded across N pieces with a threshold of ceil(N/3).
 
 Let T_l represent the average latency (single trip) between two peers, i.e. RTT is twice this.
 
-Let T_B represent the average time it takes for a distributor to transfer all pieces of a block, i.e. a single piece takes roughly T_B/N. This is only the bandwidth and not latency, so only if T_B/N is negligible then the successful direct transfer of a single piece including acknowledge takes about 1 RTT.
+Let T_B represent the average time it takes for a distributor to transfer all N pieces of a block, i.e. a single piece takes roughly T_B/N. This definition only refers to the transmission time (that uses bandwidth) and does not include the latency.
+
+So for example, the successful direct transfer of a single piece including acknowledgement, in the context of no other transfers, takes roughly 2 * T_l (1 RTT of latency) + T_B/N (transmission time), assuming that network conditions are good and that we don't need to retransmit lost IP packets.
 
 Let T_b be T_B divided by the number of validators per parachain, i.e. T_b = T_B/(N/C). This represents the average time it takes for a distributor to transfer the pieces of a block if this responsibility was shared equally across all validators of a parachain.
 
@@ -102,7 +104,7 @@ In more detail:
 
 Each distributor (c, i) will, with parallelism = C / 4, for s in [0..C), try to send the relevant piece to target t = ((c+s) mod C, i) [TBX S1 #2]. C / 4 comes from our estimate that T_b ~= 4 * T_L.
 
-Trials are done with a timeout, slightly larger than T_l. Sending is via QUIC. In order for it to be treated as a success, it should include an acknowledgement of receipt. Note this is orthogonal from the gossiped receipts which include a validator signature; by contrast this transport-level receipt can be assumed to be already protected by QUIC transport authentication.
+Trials are done with a timeout, slightly larger than T_l. Sending is via QUIC. In order for it to be treated as a success, it should include an acknowledgement of receipt. Note this is orthogonal from the gossiped receipts which include a validator signature; by contrast this transport-level receipt can be assumed to be already protected by QUIC [transport authentication](6-authentication.html).
 
 If a gossiped receipt is received at any point during the whole process, for a target for a piece, then we can interpret that to mean that the target obtained the piece from a different sender in the meantime, and we should cancel the sending attempt with success.
 
