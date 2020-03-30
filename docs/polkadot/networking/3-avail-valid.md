@@ -75,6 +75,8 @@ This metadata should be gossiped every few seconds. The data of the actual piece
 
 Recall that we have a disjoint partition of N validators into C sets of parachain validators, each set having size N/C. For our purposes for this subprotocol, we will randomly assign a co-ordinate (c, i) to every validator, with c in [0, C) and i in [0, N/C). Fixing c and varying i defines a particular parachain validator set; varying c and fixing i defines what we'll call a particular validator "ring". This name is only meant to be very slightly suggestive, the precise structure and its justification will be described below.
 
+The random assignment must be a deterministic assignment that every validator can calculate in the same way. For this purpose, we can use some entropy extracted from the chain at a position (height) determined by the current period, to seed a deterministic shuffle algorithm across the entire set of validators. The actual input seed must be pre-processed from the on-chain entropy, e.g. via HKDF, such that it is not re-used in any other security context.
+
 Example:
 
 Let's say we have 20 validators `[a, b, c, ..., t]` and 5 parachains. The co-ordinates of the validators could look like such `[a: (0, 0), b: (0, 1), c: (0, 2), d: (0, 3), e: (1, 0), ..., t: (4, 3)]`. The validator set of the first parachain would be `[a, b, c, d]`. The first validator ring would be `[a, e, i, m, q]`, the second `[b, f, j, n, r]`.
