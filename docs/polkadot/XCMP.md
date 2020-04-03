@@ -9,15 +9,17 @@
 
 In this document, we describe how messages are stored and retrieved for XCMP. This write up does not cover ICMP networking, but rather the emphasis is on what data is on-chain such that parachains and parathreads can be sure about which messages they have been received.
 
+## Motivation
+Add motivation/examples (like sending transactions/contracts from one parachain to another)?
+
 ## Problem
-To build a new parablock (parachain block) we need to be aware of any sending chains who have sent the receiving chain messages since the relay chain block we have already acted on messages up to. 
+The problem is that parachain collators need to be aware of messages they have received from sending parachains. In particular, they need to be aware of messages they have not acted on yet. In order to do so, and to avoid too much parachain-parachain traffic, the relay chain needs to store both the messages and the information on which messages a parachain has acted on. 
 
 However, to keep all the hashes of these messages on the relay chain is a lot of data and may require looking for that data in many places. 
 
-The period since we have acted on messages might be long and parachain validators might have been reassigned or not be validators at all anymore.
+Furthermore, the period since the parachain has acted on messages might be long and parachain validators might have been reassigned already or not be validators at all anymore.
 
-All this is especially true for parathreads, who might have long gaps between parablocks.
-
+This latter problem is especially true for parathreads, that might have long gaps between parablocks.
 
 ## Goals
 (1) We want to be always able to validate PoVs for as long as possible, at least a day after a parablock has been produced. To do this, we need to check that the right incoming messages were acted on. 
