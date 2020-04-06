@@ -22,28 +22,29 @@ Furthermore, the period since the parachain has acted on messages might be long 
 This latter problem is especially true for parathreads, that might have long gaps between parablocks.
 
 ## Goals
-(1) We want to be always able to validate PoVs for as long as possible, at least a day after a parablock has been produced. To do this, we need to check that the right incoming messages were acted on. 
+XCMP should accomodate for the following:
+(1) Parachain validators should be able to validate PoVs for as long as possible, at least a day after a parablock has been produced. To do this, the validators need to check that the right incoming messages were acted on. 
 
-(2) Also, we want to use minimal relay chain state. Relay chain processing and state access per block also needs to be feasible.
+(2) A minimal relay chain state storage should be used. Relay chain processing and state access per block also needs to be feasible.
 
-(3) If we are a full node of receiving parachain or parathread we want to know whether we have a new message sent to us from a parachain since the last relay chain block that we acted on messages on. 
+(3) A full node of a receiving parachain or parathread needs to know whether it has a new message from any parachain since the last relay chain block that it acted on messages. 
 
-(4) In particular, if another parachain that could send a receiving parachain a message, produces blocks that do not send any messages to that receiver, then a collator of the receiving parachain does not need any data from full nodes or parachain validators of the non-sending parachain.
+(4) If a particular sending parachain sends a receiving parachain a message, and then this sending parachain produces blocks that do not send any messages to that receiver, then a collator of the receiving parachain does not need any data from full nodes or parachain validators of that particular sending parachain. In particular, this means that there is only parachain-parachain traffic when a receiver needs to act on new messages from a sender.
 
 ## Assumptions 
 
-A receiving para acts on messages in order of the relay chain block that includes the header of the parablocks that iniated that message. If multiple sending paras have sent a receiving para messages in the same relay chain block then the  order of messages that the receiving para will act on is according to a rule such as increasing paraid, or alternatively a deterministic shuffle based block number. It is reasonable to assume that a para can act on at least all messages sent by another single para in a single parablock. Hence, we can always assume once a receiving para has acted on a parablock in the relay chain it has acted on all messages associated to that parablock. 
+A receiving parachain acts on messages in order of the relay chain block that includes the header of the parablocks that iniated that message. If multiple sending parachains have sent a receiving parachain messages in the same relay chain block then the order of messages that the receiving para will act on is according to a rule such as increasing parachain id, or alternatively a deterministic shuffle based the relay chain block number. It is reasonable to assume that a parachain can act on at least all messages sent by another single parachain in a single parablock. Hence, we can always assume once a receiving parachain has acted on a parablock in the relay chain it has acted on all messages associated to that parablock. 
 Thus there is well-defined *watermark=(relay chain block number, paraid)* that indicates the last parachain block whose messages the receiving para has acted on. 
 
 The parablock's watermark should be in the parachain header that goes into a relay chain block and the last watermark needs to be stored in the relay chain state associated with the para.
 
-Each parachain can talk to every other parachain, however, since there may be a very large number of parathreads we want to limit the places we have to query every time we want to build a block. Hence, we need to limit the amount of metadata we have to store messages sent from parathreads.
+By construction each parachain can talk to every other parachain. However, since there may be a very large number of parathreads, there should be a limited number of places a parachain collator has to query every time it wants to build a block. Hence, there should be a limit to the amount of data the relay chain has to store for messages sent from parathreads.
 
-Either we have to query the relay chain in lots of places or else the relay chain logic (and so all full nodes of the relay chain) has to query lots of places in the relay chain. To limit this, we want to limit the number of chains the parathread can communicate with to 100 and refer to those as *channels*. A parachain can communicate to all other parachains (up to a 100) and also have channels to a known number of parathreads (possibly more than 100). The list of channels is stored on the relay chain state. Both chains need to agree to set up a channel, and while it is open, both need to have the other as one of their channels.
+Either parachain collators have to query the relay chain in lots of places or else the relay chain logic (and so all full nodes of the relay chain) has to query lots of places in the relay chain. To limit this, we limit the number of chains the parathread can communicate with to 100 and refer to those as *channels*. This means a parachain can communicate to all other parachains (also up to a 100) and also have channels to a known number of parathreads (possibly more than 100). The list of channels is stored on the relay chain state. Both parachains of a channel need to agree to set up such a channel, and while it is open, both need to have the other as one of their channels.
 
-We assume here that channels are one directional, but they may be implemented as bidirectional.
+Note that we assume here that channels are one directional, but they may be implemented as bidirectional.
 
-We will also have a limitation on the number of unreceived messages one chain can send to the other.
+There also needs to be a limitation on the number of unreceived messages one parachain can send to the other.
 
 ## Solution Overview
 
