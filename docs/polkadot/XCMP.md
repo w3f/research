@@ -10,7 +10,7 @@
 In this document, we describe how messages are stored and retrieved for XCMP. This write up does not cover ICMP networking, but rather the emphasis is on what data is on-chain such that parachains and parathreads can be sure about which messages they have been received.
 
 ## Motivation
-Add motivation/examples (like sending transactions/contracts from one parachain to another)?
+Parachains and parathreads can have various reasons to send messages. To name a few examples: there can be a need for a token transfer, sharing/transferring smart contracts or providing a service by a parachain to another. This should all be accomodated for by XCMP. 
 
 ## Problem
 The problem is that parachain collators need to be aware of messages they have received from sending parachains. In particular, they need to be aware of messages they have not acted on yet. In order to do so, and to avoid too much parachain-parachain traffic, the relay chain needs to store both the messages and the information on which messages a parachain has acted on. 
@@ -48,13 +48,14 @@ There also needs to be a limitation on the number of unreceived messages one par
 
 ## Solution Overview
 
-We want to have a data structure that is more compressed and also ensures receiving para can still find messages sent to them. Next, we describe how to construct such a data structure. 
+We want to have a data structure that is compressed, but also ensures receiving parachains can still find the messages sent to them. Next, we describe how to construct such a data structure. 
 
 ### Data Structure: Merkle Tree and Bitfield
 
-We want to build a data structure that allows having a small amount of data on the relay chain blocks and relay chain state, but want to enable verfication of all received messages in the PoV block. 
+We want to build a data structure that allows having a small amount of data on the relay chain blocks and relay chain state, but enabling verfication of all received messages in a PoV block. 
 
 **Message Queue Chain**: 
+
 Is a hash chain defined as follows. We have a $H(Head_{HC})$: $Head_{HC}$ $=H(m)|| b || H(\text{ previous } Head_{HC}))$, 
 
 where *m* is a message, *H()* is a hash function, and *b* is the block number we last sent a message (not $m$, but the previous message). 
