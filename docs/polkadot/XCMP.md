@@ -34,7 +34,7 @@ XCMP should accomodate for the following:
 ## Assumptions 
 
 A receiving parachain acts on messages in order of the relay chain block that includes the header of the parablocks that iniated that message. If multiple sending parachains have sent a receiving parachain messages in the same relay chain block then the order of messages that the receiving para will act on is according to a rule such as increasing parachain id, or alternatively a deterministic shuffle based the relay chain block number. It is reasonable to assume that a parachain can act on at least all messages sent by another single parachain in a single parablock. Hence, we can always assume once a receiving parachain has acted on a parablock in the relay chain it has acted on all messages associated to that parablock. 
-Thus there is well-defined *watermark=(relay chain block number, paraid)* that indicates the last parachain block whose messages the receiving para has acted on. 
+Thus there is well-defined *watermark=(relay chain block number, paraid)* that indicates the last parablock whose messages the receiving para has acted on. 
 
 The parablock's watermark should be in the parachain header that goes into a relay chain block and the last watermark needs to be stored in the relay chain state associated with the para.
 
@@ -55,72 +55,73 @@ We want to have a data structure that is compressed, but also ensures receiving 
 We want to build a data structure that allows having a small amount of data on the relay chain blocks and relay chain state, but enabling verfication of all received messages in a PoV block. 
 
 **Message Queue Chain**: 
+To keep a minimal amount of data for messages on the relay chain, messages are chained in a message queue chain where only the head of the chain is stored. This also ensures that messages have an order in which the receiver should act on it. 
 
-Is a hash chain defined as follows. We have a $H(Head_{HC})$: $Head_{HC}$ $=H(m)|| b || H(\text{ previous } Head_{HC}))$, 
+We define the message queue hash chain as follows. We have a $H(Head_{HC})$: $Head_{HC}$ $=H(m)|| b || H(\text{ previous } Head_{HC}))$, 
 
-where *m* is a message, *H()* is a hash function, and *b* is the block number we last sent a message (not $m$, but the previous message). 
+where *m* is a message, *H()* is a hash function, and *b* is the relay chain block number we last sent a message (not $m$, but the previous message). 
 
 See [here](https://github.com/paritytech/polkadot/issues/597) for more details. 
 
-For each parablock we have a tuple that consists of the parablock *message root* (sender_message_queue_merkle_root) and a *bitfield* in the parablock header in the relay chain block.
+For each parablock there is a tuple that consists of the parablock *message root* (that is the sender_message_queue_merkle_root) and a *bitfield*, which are stored in the parablock header of the relay chain block.
 
-The message root is the root of a *Merkle tree* that can be used to look up the $head_{HC}$ from the receiving paraid. The bitfield has one bit for each channel and indicates which receiving paras this parablock sent messages to. The message root and bitfield will be in the sending para header and will be used t update the relay chain state.  
+The message root is the root of a *Merkle tree* that can be used to look up the $head_{HC}$ from the receiving paraid. The bitfield has one bit for each channel and indicates which receiving parachains this parachain block sent messages to. The message root and bitfield will be in the sending parachain header and will be used to update the relay chain state.  
 
-When a receiving para is building a PoV block it is going to include the latest of these message roots from the paras that have channels open to this para. Using the message root, the receiving para needs to prove that it got all the messages from the last watermark up to the current watermark. This it can do by giving the message root and Merkle proof and revealing the hash chain back to the earliest message that came after the last watermark. This contains the hashes of all the current messages which can be used to verify that all the received message were correct. Moreover, the message hash chain that is revealed also can be used to verify that the last message before the ones we acted on had a block number that is lower than the last watermark.
+When a receiving parachain is building a PoV block it includes the latest of these message roots from the parachains that have channels open to this parachain. Using the message root, the receiving parachain needs to prove that it got all the messages from the last watermark up to the current watermark. This can be done by giving the message root and a Merkle proof to the head of the sending parachain message queue and revealing the hash chain back to the earliest message that came after the last watermark. This contains the hashes of all the current messages which can be used to verify that all the received messages were correct. Moreover, the message hash chain that is revealed also can be used to verify that the last message before the ones we acted on had a block number that is lower than the last watermark.
 
-**Creating a Block PoV block**:Thus there are two things that need to work to produce a parablock. Firstly, we need to get all the messages and the corresponding Merkle proofs. Secondly, to produce a PoV block, we need to be able to query the relay chain for the latest message root with the corresponding block number, for the last message received in each channel. 
+**Creating a Block PoV block**: Thus there are two things that collators need to work to produce a parablock. First, collators need to get all the messages and the corresponding Merkle proofs. Second, to produce a PoV block, they need to be able to query the relay chain for the latest message root with the corresponding block number, for the last message received in each channel. 
 
-To validate a PoV block we will need to be able to find these message roots for at least a day after. This has a potentially large  relay chain storage requirement if these are still on-chain. It would also be nice for light clients of the relay chain to be fishermen, and so be able to validate relay chain-blocks. For this reason, we will use relay chain light client state proofs for these message roots.
+To validate a PoV block the parachain validators need to be able to find these message roots for at least a day after. This has a potentially large relay chain storage requirement if these are still on-chain. It would also be nice for light clients of the relay chain to be fishermen, and so be able to validate relay-chain blocks. For this reason, we will use relay chain light client state proofs for these message roots.
 
-That is, for each channel, in the PoV block we will have a chain of hashes, starting at a relay chain state root, that consists of 3 parts:
+That is, for each channel, in the PoV block there will be a chain of hashes, starting at a relay chain state root, that consists of 3 parts:
 - a relay chain light client proof of the message root,
 - the Merkle proof of the head of the hash chain, and
-- the hash chain expanded back to the point where the previous block number is before the previous watermark. This has the hashes of all messages we need to act on in that channel.
+- the hash chain expanded back to the point where the previous block number is before the previous watermark. This has the hashes of all messages the parachain need to act on in that channel.
 
 
 ### Implementation details about Relay-chain egress data
-The Channel State Table (CST) is a construct that exists within the Relay-chain's state and tracks the latest sender message queue roots. The CST items are stored in rows, where all items share the same sender. They are paired with the target's ParaId into a storage map. A second storage item contains a Merkle root of each row.
+The Channel State Table (CST) is a construct that exists within the relay-chain's state and tracks the latest sender message queue roots. The CST items are stored in rows, where all items share the same sender. They are paired with the target's ParaId into a storage map. A second storage item contains a Merkle root of each row.
 
 See [here](https://github.com/paritytech/polkadot/issues/597) for more details.
 
-When the relay chain processes a parablock header, which includes a message root and bitfield, we update a row of the CST corresponding to the sending para and the Merkle root of this row. The row contains the latest message root and block numbers for each para that has a channel from the chain that this parablock belongs to.
+When the relay chain processes a parablock header, which includes the message root and bitfield, the relay chain nodes update a row of the CST corresponding to the sending parachain and the Merkle root of this row. The row contains the latest message root and block numbers for each parachain that has a channel from the chain that this parablock belongs to.
 
-This row may be quite large, but we can update it with a single storage write as it is in one place.
+This row may be quite large, but it can be updated with a single storage write as it is in one place.
 
 In principle, if we use this design, along with the bitfield, we can have a large number of outgoing channels, at the cost of more data in this single write opration. In particular, parachains will be allowed to connect to many more than 100 parathreads.
 
-Optionally, parachains could have ingress queues that consist of (paraid, last message root, block number) for all  incoming channels.  The relay chain could updates this every block. This would make it possible to have 10,000 channels for one chain and not to have to look up 10,000 places on the relay chain.
+Optionally, parachains could have ingress queues that consist of (paraid, last message root, block number) for all  incoming channels.  The relay chain could update this every block. This would make it possible to have 10,000 channels for one chain and not to have to look up 10,000 places on the relay chain.
 
 ### Which Data is Stored Where? 
 
-**Parachain-header/candidate_receipt in the relay chain block**: the message root and a bitfield that refer to receiving paras. Since we have a limited number of known channels this bitfield could be 128  bits for parathreads but for parachains it might need to be variably sized. It also needs the watermark (relay chain block number and paraid). Also it includes a relay chain state root and corresponding block number for which all relay light client proofs in the PoV block are based on.
+**Parachain-header/candidate_receipt in the relay chain block**: the message root and a bitfield that refer to receiving paras. Since we have a limited number of known channels this bitfield could be 128 bits for parathreads but for parachains it might need to be variably sized. It also needs the watermark (relay chain block number and paraid) to indicate whose messages the receiving para has acted on and the relay chain state root plus corresponding block number for which all relay light client proofs in the PoV block are based on.
 
-**Sending parachain state**: the sending parachain state stores the hash chain back to the last watermark it saw for the receiving para on the relay chain. It also stores the merkle proofs for each message root for all links in the hash chain (not just the head of the hash chain). Link refers to the triple which is hash of message, previous block number, and hash of previous link. 
+**Sending parachain state**: the sending parachain state stores the hash chain back to the last watermark it has seen for the receiving para on the relay chain. It also stores the merkle proofs for each message root for all links in the hash chain (not just the head of the hash chain). Link refers to the triple which is hash of message, previous block number, and hash of previous link. 
 
-The size of the hash chain determines how full the channel is. We will drop old messages on receiving evidence (via more relay chain light client proofs) that the watermark of the receiving chain has been updated.
+The size of the hash chain determines how full the channel is. Old messages can be dropped on receiving evidence (via relay chain light client proofs) that the watermark of the receiving chain has been updated.
 
 **Sending para validators**: they keep the message that has been sent at parablocks that they attested to, the full Merkle tree and the latest head of hash chain $Head_{HC}$. This data is stored for a day. 
  
-**Relay chain state on-chain**: we have CST that was described in the previous section.
+**Relay chain state on-chain**: that is the CST that was described in the previous section.
 
 ### Producing a PoV block
 A PoV block needs to include a nested Merkle proof and hash chain expansion thats starts at the light client state root and ends at each incoming message that needs to be acted on. The Merkle proofs will have a lot of parts in common and can be optimized by sharing the common parts (future work). 
 
-Consider a collator $C_A$ that wants to produce a PoV block for para $A$. We assume para B has a channel to para A (can send messages to A) and para A has a channel to para D (can send messages to D). Note that if channels are unidirectional then A might not be able to  send messages to B and D not to A. 
+Consider a collator $C_A$ that wants to produce a PoV block for para $A$. We assume para B has a channel to para A (can send messages to A) and para A has a channel to para D (can send messages to D). Note that if channels are unidirectional then A might not be able to send messages to B and D not to A. 
 
-The collator $C_A$ ask some full node of the relay chain needs to construct a light client proof of what the message roots for all channel that are open to para $A$ (e.g., para B). Note that $C_A$ and the full node might be running on the same machine. 
+The collator $C_A$ asks some full node of the relay chain to construct a light client proof of what the message roots for all channel that are open to para $A$ (e.g., para B). Note that $C_A$ and the full node might be running on the same machine. 
 
-$C_A$ also needs light client proofs for the watermarks of paras, para A has channels to (e.g., para D). All these light client proofs should be constructed simultaneously from the relay chain state so they all start with the same relay chain state root. This relay chain state root and corresponding block number will be in the parachain header (candidate_receipt). 
+$C_A$ also needs light client proofs for the watermarks of paras that para A has channels to (e.g., para D). All these light client proofs should be constructed simultaneously from the relay chain state, which means they all start with the same relay chain state root. This relay chain state root and corresponding block number will be in the parachain header (candidate_receipt). 
 
 **Optional**: For parachains, if we are going with ingress queues for them, we maintain a list of (paraid, last message root, block number) for all incoming channels that the relay chain updates every block. Thus the relay chain light client proof is just this list and a Merkle proof. 
 
-For parathreads or parachains if we do not special case them, the full node needs to look at egress data in the CST for up to 100 rows (or more for parachains) corresponding to paras that have incoming channels with para $A$ (i.e., para B). For each of these channels, we give a Merkle proof that starts at the relay chain state root and ends at the (message root, block number) pair. That is, for each channel there is a nested Merkle proof, where first we need a Merkle proof of the CST row hash and secondly need to construct a Merkle tree for the row and Merkle proof for the entry corresponding to para A. 
+If there is no special distinction between parathreads and parachains, the full node needs to look at egress data in the CST for up to 100 rows (or more for parachains) corresponding to paras that the sending para has channels with (i.e., all channels of para B). For each of these channels, a Merkle proof is needed that starts at the relay chain state root and ends at the (message root, block number) pair of the receiving para (i.e., para A). That is, for each channel there is a nested Merkle proof, where the first Merkle proof refers to the complete CST row and the second Merkle proof (of the nested Merkle tree) refers to the entry corresponding to receiving para (i.e., para A). 
 
 We include all 100+ of these channel Merkle proofs in the relay chain light client proof.
 
 After the full node has given the collater, $C_A$, all the light client proofs, $C_A$ has the block number and message root of all latest messages. Thus it can verify if para A has correctly received any particular message's content (payload) already. 
 
-In case a message say from para B has not been acted on by para A, then $C_A$ needs that message and its proof from the message root. $C_A$ may have this message and proof already, if $C_A$ does not, then it needs to ask any full node of the para B that it happens to be connected to or para A's para validators or the para validators of B at the block number of the message. If the messages from para B are coming from its para validators, this may mean asking many validators who were para validators of B at different times, since the para validators of paras rotate as a function of block number. Note that full nodes of para B would know all of these messages and should be asked first.
+In case a message, say from para B, has not been acted on by para A, then $C_A$ needs that message and its proof from the message root. $C_A$ may have this message and proof already, but if $C_A$ does not, it needs to ask either any full node of para B that it happens to be connected to, or the para validators of A or B at the corresponding block number of the message. If the messages from para B are coming from its para validators, this may mean asking many validators who were para validators of B at different times, since the para validators of paras rotate as a function of block number. Note that full nodes of para B would know all of these messages and should be asked first.
 
 Along with the latest message from B, $C_A$ should receive the proof that links the latest message to the message root and also the block number of the previous message, so it knows if it needs to ask for earlier messages as well. 
 
@@ -145,13 +146,13 @@ It is likely that the parachain block, that full nodes of the parachain use to u
 ### Validating a PoV block
 
 
-Given the scheme above, we can make anyone who knows three things able to validate a PoV block: 
+Given the scheme above, anyone who knows these three things are able to validate a PoV block: 
 - The PoV block itself, 
 - the state-transition-validation-funtion (STVF) 
 - the parachain block header. 
 This would enable fishermen who are not clients of either or both the parachain and the relay chain to validate PoV blocks.
 
-However there is a downside to the scheme if we cannot *trust the STVF*. (Once we have SPREE, which we'll talk about below, this will not be an issue anymore.) The downside  when we have a malicous STVF is that the relay chain does not verify the hash chain updates, and they are left in parachain state. If this parachain state was changed by the STVF, it would be possible to require a sending para to receive a message with a hash for which no message has ever been sent and so eventually stalling the receiving para.
+However there is a downside to the scheme if we cannot *trust the STVF*. (Once we have SPREE, which we'll talk about below, this will not be an issue anymore.) The downside when we have a malicous STVF is that the relay chain does not verify the hash chain updates, and they are left in parachain state. If this parachain state was changed by the STVF, it would be possible to require a sending para to receive a message with a hash for which no message has ever been sent and so eventually stalling the receiving para.
 
 Before SPREE, we should require that the parachain validators verify the hash chain update independently of the STVF verification. The parachain validators would need to check the 1) Merkle proof of the new message and hash chain head from the relay chain root, and 2) the Merkle proof from the last message root, which is currently in  the relay chain. Checking (1) and (2) satisfy that the previous hash and block number in the new hash chain head indeed corresponds to the previous hash chain head.
 
