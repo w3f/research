@@ -6,17 +6,17 @@
 We now describe the subprotocols that provide the approval validity checks required before finality.  
 
 
-We preserve the previous notation from \S\ref{sec:availability_n_backing}:  
+We preserve the previous notation from \S\ref{sec:backing} and \S\ref{sec:availability}:  
 
 Any parachains block $B$ on a parachain $\rho$ has a candidate proof-of-validity blob $\blobB$ that contains the witness proofs for any parachain state interactions, as well as an associated candidate receipt $\receipt_B$ that contains the Merkle root $\merkleroot_B$ for the Merkle tree with leaves consisting of the erasure coded pieces $\prepieces_B$ of $\blobB$.  We distributed the authenticated pieces $\pieces_B$ that consist of one piece from $\prepieces_B$ and its witness copath for $\merkleroot_B$.  
 
-All validators accumulate the attested candidate receipts $\receipt_{B,S}$ that consist of its inner candidate receipt $\receipt_B$ and validity attestations.  We also accumulate availability attestations for individual $\receipt_B$ or full relay chain blocks as chosen in \S\ref{sec:availability}.  In all designs, each validator $V$ winds up with availability and unavailability attestations applicable to candidates $B$ in relay chain blocks $R$.  After $V$ observe $2f+1$ availability claims for all candidates $B$ in some relay chain block $R$, then $V$ considers $R$ to be {\em weakly available} and enters the approval phase for $R$.  
+All validators accumulate the attested candidate receipts $\receipt_{B,S}$ that consist of its inner candidate receipt $\receipt_B$ and validity attestations.  We also accumulate availability attestations for individual $\receipt_B$ or full relay chain blocks as chosen in \S\ref{subsec:availability}.  In all designs, each validator $V$ winds up with availability and unavailability attestations applicable to candidates $B$ in relay chain blocks $R$.  After $V$ observe $2f+1$ availability claims for all candidates $B$ in some relay chain block $R$, then $V$ considers $R$ to be {\em weakly available} and enters the approval phase for $R$.  
 
 In this section, we assume that all mentioned validators consider the relay chain block $R$ to be available, but implementations must obviously support candidate validity attestations arriving before other attestations make them valid. 
 
 In spirit, candidate validity attestations could come from any validator, and should ideally be saved due to being slashable, but we only interpret these signatures as relevant towards specific goals, like backing or approval, when they come from nodes with the appropriate role assigned.
 
-In the previous section (\S\ref{sec:availability}), we previously only saw candidate validity attestations interpreted as initial sponsoring or backing before, both by validators assigned to the parachain $\rho$, but approval checks discussed here provide attestations by other validators, and the next section discusses invalidity and unavailability attestations by non-validators (i.e., collators and fishermen).
+In the previous section (\S\ref{subsec:availability}), we previously only saw candidate validity attestations interpreted as initial sponsoring or backing before, both by validators assigned to the parachain $\rho$, but approval checks discussed here provide attestations by other validators, and the next section discusses invalidity and unavailability attestations by non-validators (i.e., collators and fishermen).
 
 
 The approval phase for $R$ has two components, approval checker assignments and actually performing the checks.  We have three flavours of approval checker assignments, which all roughly follow the pattern of
