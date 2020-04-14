@@ -1,0 +1,68 @@
+\section{Summary}\label{sec:summary}
+
+% Please keep this 2 pages or less.
+
+The Polkadot system consists of a single open collaborative decentralised network called the relay chain, that interacts with many other external chains run in parallel called \emph{parachains}. From a high-level perspective, parachains are clients of the relay chain, which provides a security service to these clients, including secure communication. That is the sole purpose of the relay chain; parachains are the entities providing application-level functionality, such as cryptocurrencies etc.
+
+The internal details of parachains are not a concern of the relay chain; parachains must only adhere to the interface specified by the relay chain. Some of these expectations are natural components of blockchains, hence the naming. However, other non-blockchain systems may also run as a Polkadot parachain as long as they satisfy the interface. This is described below: relevant parts are \uline{underlined}.
+
+These aspects may be abbreviated as, \emph{Polkadot is a scalable heterogeneous multi-chain}.
+
+\subsection{Security model}
+
+We assume that parachains are running as external untrusted clients of the relay chain. As mentioned, it only deals with them via an interface and does not make assumptions about their internals. For example, internally they may be permissioned or open; if some internal users subvert the parachain, from Polkadot's viewpoint the entire parachain (as a single client entity) is malicious.
+
+The Polkadot relay chain is designed to deal with a level of malicious behaviour internally, as a requirement of being an open decentralised network. Specific individual nodes are untrusted, but an indeterminable subset of nodes lower-bounded in size are trusted, and the protocol works to ensure that the relay chain externally as a whole is trustable. The details of these assumptions are covered in \nameref{sec:security_model}.
+
+\subsection{Nodes and roles}
+
+The Polkadot relay chain network consists of nodes and roles. Nodes are the network-level entities physically executing the Polkadot software, and roles are protocol-level entities performing a particular purpose. Nodes may have multiple roles.
+
+On the network level, Polkadot is open. Any node may run the software and participate as any of these types of nodes:
+
+\begin{enumerate}
+\item Light client - retrieves certain user-relevant data from the network. Availability is irrelevant - they don't perform a service for others.
+\item Full node - retrieves all types of data and propagates it to others, and must be highly available.
+\item Sentry node - TODO
+\end{enumerate}
+
+Beyond distributing data, nodes may perform certain protocol-level roles listed next. Some of these roles have restrictions and conditions associated with them:
+
+\begin{enumerate}
+\item Validator - performs the bulk of the security work. This must be done from a full-node.
+\item Nominator - stakeholder who uses this stake to select validators. This can be done from a light client.
+\item Fishermen - performs additional self-directed reward-incentized security work. This must be done from a full-node.
+\end{enumerate}
+
+\uline{Parachains are expected to interact with Polkadot as follows}. They define the following roles:
+
+\begin{enumerate}
+\item Collator - collects and submits parachain data to the relay chain, subject to protocol rules depending on the current state of the relay chain. To do this, they should either be a full-node of the relay chain or somehow receive the same information another way.
+\end{enumerate}
+
+Note that validators are in some sense a collator of the relay chain network, in that they collect transactions within the relay chain network. However we typically only refer to them as validators even when performing these tasks, and the term \emph{collator} is reserved for parachain collators only.
+
+\subsection{Protocol}
+
+The Polkadot relay chain protocol, including interaction with parachains, works as follows. The protocol proceeds in rounds, and for each round:
+
+\begin{enumerate}
+\item For each parachain:
+
+  \begin{enumerate}
+    \item \uline{Collators submit information for that round}, to the validators assigned to their parachain (\emph{parachain validators} for short), for inclusion in the relay chain. Ideally they should submit a unique one, to help performance.
+    \item The parachain validators decide which information to support, and present this as a \emph{candidate} to the relay chain.
+  \end{enumerate}
+
+\item The relay chain collects candidates from all parachains, and proposes this collection as a block. For performance, this block does not contain the full data from all parachains, but only metadata and partial data, including security-related metadata.
+
+\item A subprotocol is run to ensure that the full data is indeed available, including \uline{retrieving it from the collators} and distributing it to various other relay-chain nodes.
+
+\item The relay chain votes on the block and finalises it. Note that this is not explicitly communicated back to the parachains; we expect that \uline{parachains run full-nodes on the relay chain} to receive this information, e.g. collators could do this as well.
+\end{enumerate}
+
+TODO: how XCMP fits into this.
+
+% There is a small section on bridges in the Appendix, suggesting that it is just initial ideas at the moment. It can be summarised here later, once we turn it into a proper first-level section.
+
+The rest of the paper expands on the above - roles next in \nameref{sec:preliminaries}, and protocol subcomponents in \nameref{sec:components}.
