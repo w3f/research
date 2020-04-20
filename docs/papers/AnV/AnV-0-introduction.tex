@@ -1,7 +1,29 @@
 
 % \section{Introduction sectrions should never be numbered unless journal style demands}
 
-...
+... openning paragraph ..
+
+All existing sharded blockchain designs choose the validators assigned to each shard {\em before} the shards produce blocks, which gives adversaries advance knowledge of when they could approve invalid blocks, and perhaps manipulate shard assignments.  In practice, real adversaries would behave somewhat adaptively to disrupt connectivity for some additional validators too, with disruption costs varying among validators.  
+% .. hypergeometric distribution for heterogeneous, but actually homogeneous so ?? .. 
+Adversaries wait until an entire shard consists of their corrupted validators plus some disruptable validators.  We must therefore choose security paramaters to make these odds negligible, and their waiting time astronomical.
+
+Instead, we make adversaries first commit to their blocks' correctness and availability before we select which validators check their block, so aversaries cannot simply wait until they control enough assigned validators.  We achieve their commitment to availability using erasure coding ..
+
+... \cite{FraudProofs} ... 
+
+
+% \subsection{Protocol stages}
+
+
+% We outline the protocol 
+
+% \begin{enumerate}
+% \item 
+% \end{enumerate}
+
+
+OLDER
+
 
 
 TODO: Into giving main idea
