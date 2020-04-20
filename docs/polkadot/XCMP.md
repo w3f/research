@@ -13,7 +13,7 @@ In this document, we describe how messages are stored and retrieved for XCMP. Th
 Parachains and parathreads can have various reasons to send messages. To name a few examples: there can be a need for a token transfer, sharing/transferring smart contracts or providing a service by a parachain to another. This should all be accomodated for by XCMP. 
 
 ## Problem
-The problem is that parachain collators need to be aware of messages they have received from sending parachains. In particular, they need to be aware of messages they have not acted on yet. In order to do so, and to avoid too much parachain-parachain traffic, the relay chain needs to store both the messages and the information on which messages a parachain has acted on. 
+The problem is that parachain collators need to be aware of messages they have received from sending parachains. In particular, they need to be aware of messages they have not acted on yet. In order to do so, and to avoid too much parachain-parachain traffic, the relay chain needs to be able to authenticate both the messages and the information on which messages a parachain has acted on. 
 
 However, to keep all the hashes of these messages on the relay chain is a lot of data and may require looking for that data in many places. 
 
@@ -23,7 +23,7 @@ This latter problem is especially true for parathreads, that might have long gap
 
 ## Goals
 XCMP should accomodate for the following:
-(1) Parachain validators should be able to validate PoVs for as long as possible, at least a day after a parablock has been produced. To do this, the validators need to check that the right incoming messages were acted on. 
+(1) All validators should be able to validate PoVs for as long as possible, at least a day after a parablock has been produced. To do this, the validators need to check that the right incoming messages were acted on. 
 
 (2) A minimal relay chain state storage should be used. Relay chain processing and state access per block also needs to be feasible.
 
