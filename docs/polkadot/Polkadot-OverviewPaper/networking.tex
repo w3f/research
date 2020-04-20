@@ -159,6 +159,41 @@ distribution.
 
 \subsubsection{Sentry nodes} \label{sec:net_sentry}
 
+Sometimes, network operators want to arrange aspects of their physical network
+for various operational security related reasons. Some of these arrangements
+are independent and compatible with the design of any decentralised protocol,
+which typically works in the layer above. However some other arrangements need
+special treatment by the decentralised protocol, in particular arrangements
+affecting the reachability of nodes.
+
+We don't believe that a public address is itself a security liability when the
+serving code is written well. However another benefit of a restricted physical
+topology, is to support load-balancing and DoS protection across a number of
+gateway proxies. The indirection can help to protect the private node if there
+are exploits in the software - although note this does not help for the most
+severe exploits that give arbitrary execution rights on the sentry node, which
+can then be used as a launching pad for attacks on the private node.
+
+For such use-cases, Polkadot supports running full-nodes as the sentry nodes of
+another full-node that is only reachable by these sentry nodes. This works best
+when one runs several sentry nodes for a single private full-node. Protocol
+wise, this requires some additional metadata to be stored in the address book,
+and for additional proxying protocols to be used when we need to send data
+directly between validators instead of over the gossip broadcast network. These
+additions are fairly straightforward and are documented elsewhere.
+
+It is not required to run sentry nodes, for example if you believe the
+aforementioned security benefits are not worth the added latency cost.
+
+(An alternative possibility is for the network operator to run lower-level
+proxies, such as IP or TCP proxies, for their private node. This certainly can
+be done without any protocol support from Polkadot. One advantage of sentry
+nodes compared to this scenario is that the traffic coming from a sentry node
+has been through some level of verification and sanitization as part of the
+Polkadot protocol, which would be missing for a lower-level proxy. Of course
+there can be exploits against this, but these are dealt with with high priority
+since they are amplification vectors usable against the whole network.)
+
 \subsubsection{Authentication, transport, and discovery} \label{sec:net_lowlevel}
 
 In secure protocols in general, and likewise with Polkadot, entities refer to each other by their cryptographic public keys. There is no strong security association with weak references such as IP addresses since those are typically controlled not by the entities themselves but by their communications provider.
