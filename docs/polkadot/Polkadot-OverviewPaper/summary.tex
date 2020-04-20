@@ -18,12 +18,14 @@ The Polkadot relay chain is designed to deal with a level of malicious behaviour
 
 The Polkadot relay chain network consists of nodes and roles. Nodes are the network-level entities physically executing the Polkadot software, and roles are protocol-level entities performing a particular purpose. Nodes may have multiple roles.
 
-On the network level, Polkadot is open. Any node may run the software and participate as any of these types of nodes:
+On the network level, the relay chain is open. Any node may run the software and participate as any of these types of nodes:
 
 \begin{enumerate}
 \item Light client - retrieves certain user-relevant data from the network. Availability is irrelevant - they don't perform a service for others.
-\item Full node - retrieves all types of data and propagates it to others, and must be highly available.
-\item Sentry node - TODO
+\item Full node - retrieves all types of data, stores it long-term, and propagates it to others. Must be highly available.
+  \begin{enumerate}
+  \item \hyperref[sec:net_sentry]{Sentry node} - publicly-reachable full nodes that perform trusted proxying services for a private full node, run by the same operator.
+  \end{enumerate}
 \end{enumerate}
 
 Beyond distributing data, nodes may perform certain protocol-level roles listed next. Some of these roles have restrictions and conditions associated with them:
@@ -40,7 +42,7 @@ Beyond distributing data, nodes may perform certain protocol-level roles listed 
 \item Collator - collects and submits parachain data to the relay chain, subject to protocol rules depending on the current state of the relay chain. To do this, they should either be a full-node of the relay chain or somehow receive the same information another way.
 \end{enumerate}
 
-Note that validators are in some sense a collator of the relay chain network, in that they collect transactions within the relay chain network. However we typically only refer to them as validators even when performing these tasks, and the term \emph{collator} is reserved for parachain collators only.
+Note that validators are in some sense a collator of the relay chain network, in that they collect extrinsics (e.g. transactions) within the relay chain network. However we typically only refer to them as validators even when performing these tasks, and the term \emph{collator} is reserved for parachain collators only.
 
 \subsection{Protocol}
 
@@ -59,9 +61,9 @@ The Polkadot relay chain protocol, including interaction with parachains, works 
 \item A subprotocol is run to ensure that the full data is indeed available, including \uline{retrieving it from the collators} and distributing it to various other relay-chain nodes.
 
 \item The relay chain votes on the block and finalises it. Note that this is not explicitly communicated back to the parachains; we expect that \uline{parachains run full-nodes on the relay chain} to receive this information, e.g. collators could do this as well.
-\end{enumerate}
 
-TODO: how XCMP fits into this.
+\item Information submitted from a parachain might include indications that they are sending messages to another parachain, including metadata to facilitate this. This metadata is now finalised as part of the relay chain, so parachains are aware of which new messages have been sent to them. They now retrieve the message bodies from the sending parachains.
+\end{enumerate}
 
 % There is a small section on bridges in the Appendix, suggesting that it is just initial ideas at the moment. It can be summarised here later, once we turn it into a proper first-level section.
 
