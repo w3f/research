@@ -65,6 +65,7 @@ Now any {\em parachain validator} $V \in \vals_\para$ runs $\encode_{f+1,\nvals}
 We next define an {\em abridged candidate candidate receipt} that consists of 
 \begin{itemize}
 \item the parachain id $\para.\mathsf{id}$,
+\item a (micro)epoch, which helps identify $\vals_\para$,
 \item the relay chain parent(s) hashes $H(R^0_B)$, 
 \item the Merkle root, $\merkleroot_B$,
 \item some some block header that contains $H(B)$, $H(M)$, and references the parachain parent,
@@ -112,3 +113,12 @@ We leave the expiration conditions to future work, but one example would be $R''
 Importantly, $U$ need not validate $B$ itself unless $U \in \vals_\para$.
 
 
+\smallskip
+\paragraph{Role churn:}
+
+We caution that parachain validator assignments $\vals_\rho$ change somewhat frequently and worse our entire validator set $\vals$ changes periodically too.  We place no future demands upon the collators or relay chain block producer after block creation, so their churn creates no problems.  We shall require that backing attesters in $\vals_\rho$ continue to share $\blobB$, both in its entirety and in smaller pieces described next in \S\ref{sec:availability}, which makes churn problematic.  
+
+Any candidate receipt $\receipt_{B,S}$ uniquely identifies $\vals_\para$ because it includes both $\para.\mathsf{id}$ and a (micro)epoch, which should resolve churn in both $\vals_\para$.  
+It addresses churn in $\vals$ too because the nothing-at-stake problem imposes a long unbonding period, during which time we may continue rewarding outgoing validators for work, even if they lie in the old $\vals_\para$ but not the new $\vals$.   
+% TODO: Cite unbonding period?
+An implementations should end (micro)epoch gently with heuristics that permit gossip somewhat after the (micro)epoch and even last minute backing attestations by validators in $\vals_\para \setminus S$.
