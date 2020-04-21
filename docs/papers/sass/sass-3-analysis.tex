@@ -1,22 +1,29 @@
 \newcommand{\nweak}{\ensuremath{w}}
-\newcommand{\strongperiod}{\ensuremath{\mathsf{\Gamma_S}}}
+\newcommand{\weakperiod}{\ensuremath{\mathsf{\Gamma_\nweak}}}
 \newcommand{\thweak}{\ensuremath{\tau_w}}
 \newcommand{\numleak}{\ensuremath{\mathsf{leak}}}
 \newcommand{\numanom}{\ensuremath{\mathtt{num\_anon}}}
-\newcommand{\vrfwinners}{\ensuremath{\mathtt{all\_winners}}}
+\newcommand{\thpassers}{\ensuremath{\mathtt{th\_passers}}}
+\newcommand{\ub}{\ensuremath{\mathsf{ub}}}
+\newcommand{\lb}{\ensuremath{\mathsf{lb}}}
+\newcommand{\lbsumL}{\ensuremath{\underline{ \vrfwinninglist}^{\mathsf{sum}}}}
+\newcommand{\ubL}{\ensuremath{\bar{\vrfwinninglist}}}
 \section{Analysis}
 
-\paragraph{Adversarial Model:} In our model, we assume that there exists $ n $ validators.  We consider two type of corruption in our model. We call the first corruption model \emph{strong corruption} and the second one \emph{weak corruption}. When a validator is strongly corrupted, it means that the current state (non-volatile memory) of the validator is shared with the adversary . We assume that the adversary can strongly corrupt up to $ f $ validators in a certain period $\strongperiod$.  We denote honest validators set by $ \mathcal{H} $ where $ |\mathcal{H}| = n_H = n-f $. 
-When a validator is weakly corrupted, it means that the validator is not able to participate the protocol. The weak corruption basically silence the validator as if it does not exists. The adversary can weakly corrupt up to $ \nweak $ validators at the same time. 
+\paragraph{Adversarial Model:} In our model, we assume that there exists $ n $ validators.  We consider two type of corruption in our model. We call the first corruption model \emph{strong corruption} and the second one \emph{weak corruption}. When a validator is strongly corrupted, it means that the current state (non-volatile memory) of the validator is shared with the adversary. We assume that every validator starts a new era with a freshly generated keys and erases the old keys. The adversary can strongly corrupt up to $ f $ validators in one era.  
+When a validator is weakly corrupted, it means that the validator is not able to participate the protocol. The weak corruption basically silence the validator as if she does not exists. The adversary can weakly corrupt up to $ \nweak $ validators at the same time. The adversary can weakly corrupt a validator constantly at most  $ \weakperiod $ slots. A weakly corrupted validator is considered as malicious if she does not contribute the protocol as she is supposed to do because of the weakly corruption.  In another words, if the view of the protocol at the time that the validator is weakly corrupted is different than the view of the protocol without the corruption, then we assume this validator malicious.  We denote honest validators set in one sortition and one block production phase by $ \mathcal{H} $ where $ |\mathcal{H}| = n_H = n-f - f_\nweak$ where $ f_\nweak $ is the number of malicious validators because of the weakly corruption.  Therefore, in our analysis below, we consider the security of Sassafras with $ f + f_{\nweak}$ malicious validators out of $ n $ validators. 
 
+We analyze the number $ f_{\nweak} $ considering that the adversary can corrupt at most $ w $ validators at the same time. We find out what is the best strategy for an adversary to obtain the maximum $ f_{\nweak} $ in Sassafras.
+
+%Remark that the adversary needs to weakly corrupt constantly a validator to make this validator malicious because in this case the validator will not have any chance to submit her VRF values. 
+
+Why do we need this separation: We can ignore the malicious validators who are weakly corrupted in the common prefix property.
 
 \paragraph{Leakage of the Block Producer's Identity:}
 
-TODO: VRF anonymity reduction
-
 
 \begin{lemma}
-Assume that the number of honest validators' VRFs published by all repeaters is $ \vrfwinners =  \sum_{k \in \mathcal{H}} |\vrfwinninglist_{V_k}| $ and the ring VRF is anonymous according to Definition X (TODO), the owner of at most $ \mu_{b} (1+\delta_b) $ VRFs out of $ \vrfwinners $ is leaked to the adversary except with the probability  $  \exp(-\frac{\mu_b\delta_b^2}{(2+\delta_b)}) $ where $ \delta_b > 0$ and $ \mu_b = n_H \vrfaattemptsbound \frac{fc}{n} $ is the expected number of the leakage.
+Assume that the number of honest validators' VRFs published by all repeaters is $ \thpassers =  \sum_{k \in \mathcal{H}} |\vrfwinninglist_{V_k}| $ and the ring VRF is anonymous according to Definition X (TODO), the owner of at most $ \mu_{b} (1+\delta_b) $ VRFs out of $ \thpassers $ is leaked to the adversary except with the probability  $  \exp(-\frac{\mu_b\delta_b^2}{(2+\delta_b)}) $ where $ \delta_b > 0$ and $ \mu_b = n_H \vrfaattemptsbound \frac{fc}{n} $ is the expected number of the leakage.
 \end{lemma}
 
 \begin{proof}
@@ -31,27 +38,91 @@ Assume that the number of honest validators' VRFs published by all repeaters is 
 	the expected number of $ R_{V,e,i}  = 0$ is  $ \mu_b = n_H \vrfaattemptsbound \frac{fc}{n} $. We can bound the probability of having the leakage more than some value with the Chernoff bound as follows for all $ \delta_b > 0 	 $:
 	
 	\begin{equation}\label{eq:beforeepcoh}
-	\pr[\numleak = \sum_{\substack{ \forall V \in \mathcal{H} \\0\leq i < \vrfaattemptsbound}} R_{V,e,i} \geq \mu_b (1+ \delta_b)] < \exp(-\frac{\mu_b\delta_b^2}{(2+\delta_b)}) \nonumber
+	\pr[ \sum_{\substack{ \forall V \in \mathcal{H} \\0\leq i < \vrfaattemptsbound}} R_{V,e,i} \geq \mu_b (1+ \delta_b)] < \exp(-\frac{\mu_b\delta_b^2}{(2+\delta_b)}) \nonumber
 	\end{equation}
 	
 	
 \end{proof}
 
 
-This lemma helps us to find the upper bound of VRF values whose anonymity is compromised by the adversary before starting an epoch i.e., $ \numleak < \mu_b (1+ \delta_b) $ with probability $ 1- \exp(-\frac{\mu_b\delta_b^2}{(2+\delta_b)}) $. In this case the total number of anonymous VRF values before starting the epoch is $  \numanom < \vrfwinners - \mu_b (1+\delta_b)$.
+This lemma helps us to find the upper bound of VRF values whose anonymity is compromised by the adversary before starting an epoch i.e., $ \numleak < \mu_b (1+ \delta_b) $ with probability $ 1- \exp(-\frac{\mu_b\delta_b^2}{(2+\delta_b)}) $. In this case the total number of anonymous VRF values before starting the epoch is $  \numanom < \thpassers - \mu_b (1+\delta_b)$.
 
-Now, we need to find the leaked information related to block producers' identity during an epoch. 
-Since input $ (r_e||i) $ of the winner VRF value of a slot $ L $ is already known, the adversary can eliminate validators for this slot $ L $ who have already produced a block on a slot with the VRF input-index $ i $ and leaked validators who will produce with VRF input-index $ i $ in next slots. Let's call such validators \emph{inactive} for slot $ L $ and assume that their number is $ n_i $. Considering this the probability of a validator $ V $ being a block producer in slot $ L $ with VRF input-index $ i $ of an epoch $ e $ ($ p_{V,e, L, i} $)  is as follows:
+Now, we need to find the leaked information related to block producers' identity during an epoch.
+Since the input $ (r_e||i) $ of the winner VRF value of a slot $ s $ is already known, the adversary can eliminate validators for this slot $ s $ who have already produced a block on a slot with the VRF input-index $ i $ and leaked validators who will produce with VRF input-index $ i $ in next slots. Let's call such validators \emph{inactive} for slot $ s $ and assume that their number is $ n_i $. After eliminating the inactive validators, the adversary can compute the probability that an active validator $ V $ is selected in slot $ s $ based on the number of blocks that she produced so far $ (\ell_V) $ and . So, this probability is
 
-\begin{equation*}
-p_{V,e, L, i} \leq \begin{cases}
-0 &\text{if } V \text{ is inactive in slot } L\\
-\max(\frac{1}{n_H - n_i},\frac{|\vrfwinninglist_V|- \ell_V}{\numanom-(L-1)})&\text{if } |\vrfwinninglist_V| \text{ is public} \\
-\frac{1}{n_H - n_i} & \text{ otherwise}
-\end{cases}
-\end{equation*}
+%$$p_{V,s} = \frac{|\vrfwinninglist_V|- \ell_V}{\sum_{V' \in \mathcal{H}_a}|\vrfwinninglist_{V'}| -\ell_{V'}-\numleak} \leq \frac{\vrfaattemptsbound - \ell_V}{\numanom - (s-1)}$$
 
-where  $ \ell_V $ is the number of slots that $ V $ was the slot leader so far in $ e $. We want to make sure that $ p_{V,e,L,i} < \thweak$. Here, $ \thweak $ is a threshold for the adversary. If $ p_{V,e,L} \geq \thweak $, the adversary weakly corrupts validators . We do the analysis of having $ p_{V,e,L} \geq \thweak $ for $ c =1 $ and when $ 0 < c < 1 $:
+$$p_{V,s} = \frac{|\vrfwinninglist_V|- \ell_V}{\sum_{V' \in \mathcal{H}_a}|\vrfwinninglist_{V'}| -\ell_{V'}-\numleak}$$
+
+In this case the best strategy for the adversary to weakly corrupt the validators whose probability is in the greatest first $ w $ probabilities since it maximizes its chance to corrupt the validator who is going produce block in slot $ s $ so that the view of the protocol changes.
+
+
+
+%We would like to upper bound $ p_{V,s} $ with $ \frac{1}{n-n_i} $ so that the number of blocks ($ \ell_{V} $) produced so far by an active validator $ V $ does not leak any information to the adversary that who could be the block producer of slot $ s $.
+%
+%\begin{definition}[Ring VRF Security]
+%	Let (Eval, Prove, Verify) be a ring VRF. We call that a ring VRF is secure if the followings are satisfied:
+%	
+%	\begin{itemize}
+%		\item (Pseudo-randomness) For all $ (\sk, \pk, \mathsf{PK}) $ and for all $ x $, probability that $ \Out(sk, pk, .)\rightarrow \omega $ is $ \frac{1}{2^{\ell_{VRF}}} + \mathsf{neg}(\ell_{VRF}) $.
+%		\item (Anonymity)	
+%	\end{itemize}
+%	
+%\end{definition}
+
+%TODO Does current design give the simulatability
+%TODO think if we need simulatability for the normal VRF
+
+\subsection{Security Definitions}
+
+\begin{definition}[Chain Growth (CG) Property \cite{backbone}] \label{def:cg}
+	The CG  property with parameters $ \tau \in (0,1] $ and $ s_{cg}\in \mathbb{N} $ ensures that if the length of a blockchain owned by an honest party at the onset of a round $ C_u $ is $ \ell_u $ and the length of the same blockchain at round $ C_v  $ where $ C_v \leq C_u - s_{cg}  $ is $\ell_v$, then the $ \ell_u  - \ell_v \geq  \tau s_{cg} $.
+\end{definition}
+
+In other words, the CG property guarantees if a chain is owned by an honest party at a round, then this chain has grown $ \tau s_{cg}$ blocks in every $ s_{cg} $ rounds. 
+
+\begin{definition}[Chain Quality (CQ) Property \cite{backbone}]\label{def:cq}
+	The CQ property with parameters $ \mu \in (0,1]  $ and $ k \in \mathbb{N} $ ensures that the ratio of honest blocks in any $ k $ length portion of a blockchain owned by an honest party is at least $ \mu $.
+\end{definition} 
+
+The CQ property ensures the existence of sufficient honest blocks on  any blockchain owned by an honest party.
+
+We also define a new property which is necessary for our protocol.
+\begin{definition}[Chain Density (CD) Property]
+	\label{def:cd}
+	The CD property with parameters $s_{cd} \in \mathbb{N}$ ensures that  if a blockchain owned by an honest party at the onset of a round $ C_u $ is $ B $ then any portion of  $B$ spanning $s_{cd}$ prior rounds with $n$ blocks  contains  number of $n_h$ honest blocks  where $\frac{n_h}{n}> \frac{1}{2}$.
+\end{definition}
+
+
+We prove the chain growth of the best chain assuming that the weakly corrupted validators do not produce the block. We assume that the adversary can weakly corrupt validators whose chance to produce the next block is less than $ \thweak' $.
+
+
+
+%TODO more formal reduction and Lemma X. 
+%TODO proof of Pr[one validator selected] = 1/n after VRF pseuodrandomness def.
+\begin{theorem}[Honest Chain Growth]
+	Sassafras satisfies HCG property with parameters $\tau_{hcg} = p_h(1-\omega)$ where $0 < \omega < 1$ and $s_{hcg} > 0$ in $s_{hcg}$ slots  with probability $1-\exp(-\frac{ p_h s_{hcg} \omega^2}{2}) - p_{anom}$ where $ p_h = \frac{n - f - f_w}{n} $.
+\end{theorem}
+\begin{proof}
+	As proven in  Appendix E.5. in \cite{genesis} honest chain growth is at least equal to the number of honest validators selected as a block producer.
+	
+	From Lemma X (TODO), we know that the adversary cannot corrupt (weakly or strong) more than $f + f_w $ validators where $ f_w  =  \Psi\frac{fc}{n}(1+\delta])$ except with probability $ p_{anom} $(TODO).
+	Therefore, the probability that an honest party is a block producer is at least $ \frac{n - f - f_w}{n} $.
+	
+	If the total number of honest slots in $ s_{hcg} $ slots are less than  $s_{hcg}\tau_{hcg}$, then HCG property is violated. 
+	We find below the probability of this violation. 
+	
+	From Chernoff bound we know that
+	
+	$$\Pr[\sum \text{honest slots} \leq  (1-\omega) p_h s_{hcg}] \leq \exp(-\frac{p_h s_{hcg} \omega^2}{2})$$
+	
+\end{proof}
+
+
+\begin{theorem}[Honest Chain Quality]
+\end{theorem}
+
+
 
 \begin{itemize}
 	\item $ c = 1: $ When $ c =1 $, $ \frac{|\vrfwinninglist_V|- \ell_V}{\numanom-(L-1)} \leq \frac{\vrfaattemptsbound - \ell_V}{n_H*\vrfaattemptsbound -  \Psi \frac{f}{n} (1+ \delta)- (L-1)} $.
@@ -135,83 +206,3 @@ This shows us that with the same parameters in both cases, we have smaller lower
 	\includegraphics[scale = 0.5]{th-val-graph.png}
 \end{figure}
 Classical VRF security definitions do not capture the notion of unpredictability under malicious key generations. In Sassafras, we need this notion because we do not have any control on how the adversarial keys are generated. David et al. \cite{praos} defined a UC definition for VRF's that capture this notion. We consider this definition in the standard model with the   
-
-\begin{definition}[Ring VRF Security]
-	Let (Eval, Prove, Verify) be a ring VRF. We call that a ring VRF is secure if the followings are satisfied:
-	
-	\begin{itemize}
-		\item (Pseudo-randomness) For all $ (\sk, \pk, \mathsf{PK}) $ and for all $ x $, probability that $ \Out(sk, pk, .)\rightarrow \omega $ is $ \frac{1}{2^{\ell_{VRF}}} + \mathsf{neg}(\ell_{VRF}) $.
-		\item (Anonymity)	
-	\end{itemize}
-	
-\end{definition}
-
-%TODO Does current design give the simulatability
-%TODO think if we need simulatability for the normal VRF
-
-
-
-\begin{theorem}
-	The shuffle algorithm is indistinguishable from a random shuffle assuming that ring VRF is simulatable and pseudo random.
-\end{theorem}
-
-\begin{proof}
-	Without loss of generality, we assume that the first $ m = n - f$ validators $ V_1, V_2,...,V_m $ are honest. 
-	
-	Imagine an adversary $ \mathcal{A} $ that receives the slot assignments of validators. Assume that $ \mathcal{A} $ distinguishes this assignment from the random assignment with probability $ p_0 $.
-	
-	Now we reduce the Sassafras slot assignment to another protocol where we replace the VRF outputs with the random numbers and simulate the proof.
-	We show that these two assignments are indistinguishable.
-	
-	We construct an adversary $ \mathcal{B} $ to break the ring VRF's pseudo-randomness property.  VRF game gives $ \pk $.  $ \mathcal{B} $ queries $ r_e||i $ to the VRF game. Then, VRF game gives $ \omega, \pi $. Let's define a hybrid game $ H_{i} $. When we compute the VRF values of first $ i-1 $ validators as described in Sassafras. We compute the VRF outputs of the validators $ V_{i+1},...,V_m $ by replacing the VRF outputs with a random number and simulate the prove.
-\end{proof}
-
-
-\begin{definition}[Chain Growth (CG) Property \cite{backbone}] \label{def:cg}
-	The CG  property with parameters $ \tau \in (0,1] $ and $ s_{cg}\in \mathbb{N} $ ensures that if the length of a blockchain owned by an honest party at the onset of a round $ C_u $ is $ \ell_u $ and the length of the same blockchain at round $ C_v  $ where $ C_v \leq C_u - s_{cg}  $ is $\ell_v$, then the $ \ell_u  - \ell_v \geq  \tau s_{cg} $.
-\end{definition}
-
-In other words, the CG property guarantees if a chain is owned by an honest party at a round, then this chain has grown $ \tau s_{cg}$ blocks in every $ s_{cg} $ rounds. 
-
-\begin{definition}[Chain Quality (CQ) Property \cite{backbone}]\label{def:cq}
-	The CQ property with parameters $ \mu \in (0,1]  $ and $ k \in \mathbb{N} $ ensures that the ratio of honest blocks in any $ k $ length portion of a blockchain owned by an honest party is at least $ \mu $.
-\end{definition} 
-
-The CQ property ensures the existence of sufficient honest blocks on  any blockchain owned by an honest party.
-
-We also define a new property which is necessary for our protocol.
-\begin{definition}[Chain Density (CD) Property]
-	\label{def:cd}
-	The CD property with parameters $s_{cd} \in \mathbb{N}$ ensures that  if a blockchain owned by an honest party at the onset of a round $ C_u $ is $ B $ then any portion of  $B$ spanning $s_{cd}$ prior rounds with $n$ blocks  contains  number of $n_h$ honest blocks  where $\frac{n_h}{n}> \frac{1}{2}$.
-\end{definition}
-
-
-We prove the chain growth of the best chain assuming that the weakly corrupted validators do not produce the block. We assume that the adversary can weakly corrupt validators whose chance to produce the next block is less than $ \thweak' $.
-
-
-
-%TODO more formal reduction and Lemma X. 
-%TODO proof of Pr[one validator selected] = 1/n after VRF pseuodrandomness def.
-\begin{theorem}[Honest Chain Growth]
-	Sassafras satisfies HCG property with parameters $\tau_{hcg} = p_h(1-\omega)$ where $0 < \omega < 1$ and $s_{hcg} > 0$ in $s_{hcg}$ slots  with probability $1-\exp(-\frac{ p_h s_{hcg} \omega^2}{2}) - p_{anom}$ where $ p_h = \frac{n - f - f_w}{n} $.
-\end{theorem}
-\begin{proof}
-	As proven in  Appendix E.5. in \cite{genesis} honest chain growth is at least equal to the number of honest validators selected as a block producer.
-	
-	From Lemma X (TODO), we know that the adversary cannot corrupt (weakly or strong) more than $f + f_w $ validators where $ f_w  =  \Psi\frac{fc}{n}(1+\delta])$ except with probability $ p_{anom} $(TODO).
-	Therefore, the probability that an honest party is a block producer is at least $ \frac{n - f - f_w}{n} $.
-	
-	If the total number of honest slots in $ s_{hcg} $ slots are less than  $s_{hcg}\tau_{hcg}$, then HCG property is violated. 
-	We find below the probability of this violation. 
-	
-	From Chernoff bound we know that
-	
-	$$\Pr[\sum \text{honest slots} \leq  (1-\omega) p_h s_{hcg}] \leq \exp(-\frac{p_h s_{hcg} \omega^2}{2})$$
-	
-\end{proof}
-
-
-\begin{theorem}[Honest Chain Quality]
-\end{theorem}
-
-
