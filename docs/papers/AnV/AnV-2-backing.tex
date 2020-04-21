@@ -122,3 +122,6 @@ Any candidate receipt $\receipt_{B,S}$ uniquely identifies $\vals_\para$ because
 It addresses churn in $\vals$ too because the nothing-at-stake problem imposes a long unbonding period, during which time we may continue rewarding outgoing validators for work, even if they lie in the old $\vals_\para$ but not the new $\vals$.   
 % TODO: Cite unbonding period?
 An implementations should end (micro)epoch gently with heuristics that permit gossip somewhat after the (micro)epoch and even last minute backing attestations by validators in $\vals_\para \setminus S$.
+
+As an aside, one could consider backing attesters $\vals_\para$ coming form outside the validator set $\vals$, but doing so more requires more complex staking logic. 
+
