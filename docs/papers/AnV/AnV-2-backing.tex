@@ -76,23 +76,24 @@ We also define an {\em (inner) candidate receipt} $\receipt_B$ that consists of 
 % TODO: Improve explicit state root commitments maybe?
 % Also Joe asks if we should talk about parachain block headers
 % Improve if handling?
+% Any more detail about prioritization of candidates?
 % Anything else?
 
-TODO: Address liveness for candidate receipt $\receipt_{B,S}$
+We gossip abridged candidate receipts, along with their attestations signature sets $S$, among the parachain validators $\vals_\para$, so they obtain the full attested candidate receipts $\receipt_{B,S}$.  We define more roles for attestations $(V',\sigma') \in S$ below, but we say $(V',\sigma')$ is a {\em backing attestation} for $V \in \vals_\para$.
+%
+Any parachain validators $V' \in \vals_\para$ who receives a $\receipt_{B,S}$ downloads $\blobB$ from $C$ or another validator who attests in $S$.  After receiving $\blobB$, then they gossip with their own backing attestation $(V',\sigma')$ as $S := S \cup \{ (V',\sigma') \}$
 
-We gossip an abridged candidate receipts, along with their attestations signature set $S$, among the parachain validators $\vals_\para$, so they obtain the full attested candidate receipts $\receipt_{B,S}$.  Any parachain validators $V'$ in $\vals_\para$ who receives a live $\receipt_{B,S}$ downloads $\blobB$ from $C$ or another validator who attests in $S$.  After receiving $\blobB$, then they gossip with their own attestation $S := S \cup \{ (V',\sigma') \}$
-
-In gossiping $\receipt_{B,S}$, we further aggregate these attestations signature set $S$.\footnote{We envision $\vals_\para$ being small enough that BLS signatures do not improve verification time over Schnorr signatures, although BLS might reduce the candidate receipt's signature from 640 bytes down to 50 bytes.}  
-If $S$ accumulates at least $\primarychecks$ attestations from distinct validators in $\vals_\rho$, then  we publish $\receipt_{B,S}$ for relay chain block producers using relay chain gossip (mempool).
+In gossiping $\receipt_{B,S}$, we further aggregate these attestation signature sets $S$.\footnote{We envision $\vals_\para$ being small enough that BLS signatures do not improve verification time over Schnorr signatures, although BLS might reduce the candidate receipt's signature from 640 bytes down to 50 bytes.}  
+If $S$ accumulates at least $\primarychecks$ backing attestations from distinct validators in $\vals_\rho$, then we publish $\receipt_{B,S}$ for relay chain block producers using relay chain gossip (mempool).
 If however $S$ remains too small too long, then validators in $\vals \setminus \vals_\rho$ ignore $\receipt_{B,S}$.
 We think $\primarychecks = {1\over2} \npvals$ gives a reasonable choice, but our security analysis only requires that enough stake back $B$, so even $\primarychecks = 1$ suffices provided each backing validator possesses enough stake.
 
-We archive $B$ if another conflicting blocks gets finalised by GRANDPA, eventually deleting it.  We archive but probably do not delete $B$ if GRANDPA is stalled, probably even when the fork choice rule favours other forks.  
+We archive $B$ if another conflicting blocks gets finalised by GRANDPA, eventually deleting it.  We archive but probably do not delete $B$ if GRANDPA is stalled, probably even when the fork choice rule favours other forks. 
 
 \smallskip
 \paragraph{Relay chain block producer:}
 
-Any {\bf relay chain block producer} $U \in \vals$ with an upcoming relay chain block production slot enqueues any attested candidate receipts $\receipt_{B,S}$ with sufficient $S$ received for possible inclusion in some future relay chain block that $U$ creates.  
+Any {\bf relay chain block producer} $U \in \vals$ with an upcoming relay chain block production slot enqueues any attested candidate receipts $\receipt_{B,S}$ with sufficient attestations $S$ received for possible inclusion in some future relay chain block that $U$ creates.  
 
 We now suppose $U$ makes a relay chain block $R$ that includes $\receipt_{B,S}$.  We of course need $R$ to have an ancestor $R'$ that includes the candidate receipts $\receipt_{B',S'}$ for the parent parachain block $B'$ of our candidate $\receipt_{B,S}$, and that no $R''$ between $R$ and $R'$ include any block from $\para$.  Ideally $U$ continues collecting the signatures $S$ on $\receipt_{B,S}$ while waiting its turn too.  See \href{http://research.web3.foundation/en/latest/polkadot/BABE/Babe/}{BABE} for more details on block production.
 % TODO: Any specific comments on relay chain block headers $\bh$
