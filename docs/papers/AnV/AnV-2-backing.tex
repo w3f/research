@@ -25,7 +25,7 @@ We now describe and instantiate our {\em availability and validity protocol} tha
 We first describe the protocol by which collators of a parachain $\para$ submit a candidate block to the parachain validators $\vals_\para$ assigned to $\para$.
 
 \smallskip
-% \paragraph{Collator subphase:} 
+\paragraph{Collator subphase:} 
 
 Initially, some {\bf collator} $C$ of a parachain $\para$ must propose some candidate block $B$ for $\para$.  We let $B'$ denotes the parent of $B$.  As above, let $\rin$ and $\rout$ denote state root before and after executing $B$.  
 
@@ -38,7 +38,7 @@ First, $C$ constructs the witness data $\pi$ by evaluating the block with $\prov
 As $\prove$ is a randomized algorithm, $C$ must next reevaluate the block with $\verify_{\hat{\para}}(\blobB,M)$.  We shall assume verification succeeds, but if this verification fails then $C$ reports invalid parachain code for $\para$, and discards $B$ or possibly shuts down.  Assuming no errors, $C$ sends the candidate blob $\blobB$ to the corresponding parachain validators $\vals_\para$, along with any block metadata $(\para.\mathsf{id},H(B'),H(R^0_B),\rin,\rout,q,\ldots)$. 
 
 \smallskip
-% \paragraph{Parachain validator:}
+\paragraph{Parachain validator subphase:}
 
 We shall expect the parachain validator $V$ that processes candidate blob $\blobB$ to update $\blobB$'s associated metadata to reference the most recent relay chain block $R^1_B > R^0_B$, so long as $R^1_B$ still contains the same state root $q$ for $\rho$,
 i.e.\ $(H(B'),\rin,\rout,H(R^1_B),$\vect{R^1_B q}$,\ldots)$.
@@ -53,8 +53,10 @@ At any time, if any two validators disagree about a parachain block's validity t
 \subsection{Relay chain authorship} % Relay chain phase I: Block production 
 \label{sec:backing}
 
-% \smallskip
-% \paragraph{Parachain validator:}
+We next describe the protocol by which the parachain validators $\vals_\para$ assigned to $\para$ announce parachain candidates to the full validator set $V$ for including in a relay chain block.
+
+\smallskip
+\paragraph{Parachain validator subphase:}
 
 We require at least $\primarychecks$ of the parachain validators $\vals_\para$ sign preliminary backing validity checks for $B$ before continuing, so we assume this going forward.
 
@@ -76,15 +78,19 @@ We also define an {\em (inner) candidate receipt} $\receipt_B$ that consists of 
 % Improve if handling?
 % Anything else?
 
-We gossip an abridged candidate receipts, along with their attestations, among the parachain validators $\vals_\para$, so they obtain the full attested candidate receipts $\receipt_{B,S}$   
-%
-In doing so, we further aggregate the signature set $S$.\footnote{We envision $\vals_\para$ being small enough that BLS signatures do not improve verification time over Schnorr signatures, although BLS might reduce the candidate receipt's signature from 640 bytes down to 50 bytes.}  We publish $\receipt_{B,S}$ for relay chain block producers using relay chain gossip (mempool) whenever $S$ restricted to $\vals_\rho$ has attestations from at least $\primarychecks$ validators, assuming this happens eventually.  If $S$ remains too small, then validators in $\vals \setminus \vals_\rho$ ignore $\receipt_{B,S}$.
-We think $\primarychecks = {1\over2} \npvals$ gives a reasonable choice, but our security analysis only requires enough stake back $B$, so $\primarychecks = 1$ suffices provided the backing validator possesses enough stake.
+TODO: Address liveness for candidate receipt $\receipt_{B,S}$
+
+We gossip an abridged candidate receipts, along with their attestations signature set $S$, among the parachain validators $\vals_\para$, so they obtain the full attested candidate receipts $\receipt_{B,S}$.  Any parachain validators $V'$ in $\vals_\para$ who receives a live $\receipt_{B,S}$ downloads $\blobB$ from $C$ or another validator who attests in $S$.  After receiving $\blobB$, then they gossip with their own attestation $S := S \cup \{ (V',\sigma') \}$
+
+In gossiping $\receipt_{B,S}$, we further aggregate these attestations signature set $S$.\footnote{We envision $\vals_\para$ being small enough that BLS signatures do not improve verification time over Schnorr signatures, although BLS might reduce the candidate receipt's signature from 640 bytes down to 50 bytes.}  
+If $S$ accumulates at least $\primarychecks$ attestations from distinct validators in $\vals_\rho$, then  we publish $\receipt_{B,S}$ for relay chain block producers using relay chain gossip (mempool).
+If however $S$ remains too small too long, then validators in $\vals \setminus \vals_\rho$ ignore $\receipt_{B,S}$.
+We think $\primarychecks = {1\over2} \npvals$ gives a reasonable choice, but our security analysis only requires that enough stake back $B$, so even $\primarychecks = 1$ suffices provided each backing validator possesses enough stake.
 
 We archive $B$ if another conflicting blocks gets finalised by GRANDPA, eventually deleting it.  We archive but probably do not delete $B$ if GRANDPA is stalled, probably even when the fork choice rule favours other forks.  
 
-% \smallskip
-% \paragraph{Relay chain block producer:}
+\smallskip
+\paragraph{Relay chain block producer:}
 
 Any {\bf relay chain block producer} $U \in \vals$ with an upcoming relay chain block production slot enqueues any attested candidate receipts $\receipt_{B,S}$ with sufficient $S$ received for possible inclusion in some future relay chain block that $U$ creates.  
 
