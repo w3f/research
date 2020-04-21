@@ -22,18 +22,20 @@ We now describe and instantiate our {\em availability and validity protocol} tha
 \subsection{Parachain phase} 
 \label{sec:parachain}
 
-We first describe the protocol by which collators of a parachain $\para$ submit a candidate block to the parachain validators assigned to $\vals_\para$.
+We first describe the protocol by which collators of a parachain $\para$ submit a candidate block to the parachain validators $\vals_\para$ assigned to $\para$.
 
 \smallskip
 % \paragraph{Collator subphase:} 
 
-Initially, a {\bf collator} $C$ of a parachain $\para$ must propose some candidate block $B$ for $\para$.  We let $B'$ denotes the parent of $B$.  As above, let $\rin$ and $\rout$ denote state root before and after executing $B$.  
+Initially, some {\bf collator} $C$ of a parachain $\para$ must propose some candidate block $B$ for $\para$.  We let $B'$ denotes the parent of $B$.  As above, let $\rin$ and $\rout$ denote state root before and after executing $B$.  
 
-In practice, we want shared security so that parachains can communicate, so $B$ should reference some relay chain block(s) $R^0_B$ that distinguish any state $\rho$ maintains on the relay chain, such as the incoming messages accumulated for $\rho$ to be processed by $B$.  We let $q$ denote the Merkle root of this state $\rho$ maintains on the relay chain in $R^0_B$.
- 
-First, $C$ constructs the witness data $\pi$ by evaluating the block with $\prove_{\hat{\para}}(B,M)$, so they can build the {\em candidate proof-of-validity blob} $\blobB = (B,\pi,M)$, and also obtain the block metadata $(H(B'),\rin,\rout,H(R^0_B),q,\ldots)$. 
+In practice, we want shared security, among other reasons so that parachains can communicate easily.  As such, $B$ should reference some relay chain block(s) $R^0_B$ that distinguish any state $\rho$ maintains on the relay chain, such as the incoming messages accumulated for $\rho$ to be processed by $B$.  We let $q$ denote the Merkle root of this state $\rho$ maintains on the relay chain in $R^0_B$.  
 
-As $\prove$ is a randomized algorithm, $C$ must next reevaluate the block with $\verify_{\hat{\para}}(\blobB)$.  We shall assume verification succeeds, but if this verification fails then $C$ reports invalid parachain code for $\para$, and discards $B$ or possibly shuts down.  Assuming no errors, $C$ sends the candidate blob $\blobB$ to the corresponding parachain validators $\vals_\para$, along with any block metadata $(H(B'),\rin,\rout,H(R^0_B),q,\ldots)$. 
+In principle, $B$ could reference extra data $M$ determined by $R^0_B$ and supplied by the relay chain, but not actually included inside the relay chain state.  We envision $M = \emptyset$ for the foreseeable future however. 
+
+First, $C$ constructs the witness data $\pi$ by evaluating the block with $\prove_{\hat{\para}}(B,M)$, so they can build the {\em candidate proof-of-validity blob} $\blobB = (B,\pi)$, and also obtain the block metadata $(\para.\mathsf{id},H(B'),H(R^0_B),\rin,\rout,q,\ldots)$.
+
+As $\prove$ is a randomized algorithm, $C$ must next reevaluate the block with $\verify_{\hat{\para}}(\blobB,M)$.  We shall assume verification succeeds, but if this verification fails then $C$ reports invalid parachain code for $\para$, and discards $B$ or possibly shuts down.  Assuming no errors, $C$ sends the candidate blob $\blobB$ to the corresponding parachain validators $\vals_\para$, along with any block metadata $(\para.\mathsf{id},H(B'),H(R^0_B),\rin,\rout,q,\ldots)$. 
 
 \smallskip
 % \paragraph{Parachain validator:}
@@ -41,7 +43,7 @@ As $\prove$ is a randomized algorithm, $C$ must next reevaluate the block with $
 We shall expect the parachain validator $V$ that processes candidate blob $\blobB$ to update $\blobB$'s associated metadata to reference the most recent relay chain block $R^1_B > R^0_B$, so long as $R^1_B$ still contains the same state root $q$ for $\rho$,
 i.e.\ $(H(B'),\rin,\rout,H(R^1_B),$\vect{R^1_B q}$,\ldots)$.
 
-Next each {\em parachain validator} $V \in \vals_\para$ should checks the validity of the block by evaluating the block with $\verify_\para(\blobB)$, which we term the {\em preliminary backing validity checks}.  If verification succeeds, then $V$ gossips $\blobB$ among the parachain validators $\vals_\para$ after checking $\blobB$ itself, and we continue below.
+Next each {\em parachain validator} $V \in \vals_\para$ should checks the validity of the block by evaluating the block with $\verify_\para(\blobB,M)$, which we term the {\em preliminary backing validity checks}.  If verification succeeds, then $V$ gossips $\blobB$ among the parachain validators $\vals_\para$ after checking $\blobB$ itself, and we continue below.
 
 If however verification fails, the parachain validator rejects the candidate $\blobB$ and report it as invalid.  We abandon $B$ if no validators sign it, but invalidity claims cannot necessarily result in penalties for either $\para$ or $C$.  
 
@@ -54,16 +56,29 @@ At any time, if any two validators disagree about a parachain block's validity t
 % \smallskip
 % \paragraph{Parachain validator:}
 
-We require at least $\primarychecks$ of the parachain validator $\vals_\para$ sign preliminary backing validity checks for $B$ before continuing, so we assume this going forward.
+We require at least $\primarychecks$ of the parachain validators $\vals_\para$ sign preliminary backing validity checks for $B$ before continuing, so we assume this going forward.
 
-Now any {\em parachain validator} $V \in \vals_\para$ runs $\encode_{f+1,\nvals}(\blobB)$ to obtain the {\em unauthenticated pieces} list $\prepieces_B$ of $\nvals$ erasure code symbols aka pieces of $\blobB$.  Next $V$ computes a Merkle root $\merkleroot_B$ for the Merkle tree with leaves $\prepieces_B$.  $V$ constructs the attested candidate receipt $\receipt_{B,\{(V,\sigma)\}} := (\receipt_{B},\{V\})$ for $B$ by signing an (inner) candidate receipt $\receipt_B = (\para.\mathsf{id},H(\receipt_{B'}),\merkleroot_B,H(B),\rin,\rout)$ where $B'$ denotes the parent of $B$, and attaching its signature\handan{}{ and where id is ...}.  
+Now any {\em parachain validator} $V \in \vals_\para$ runs $\encode_{f+1,\nvals}(\blobB)$ to obtain the {\em unauthenticated pieces} list $\prepieces_B$ of $\nvals$ distinct erasure code symbols aka pieces for $\blobB$.  $V$ computes a Merkle root $\merkleroot_B$ for the Merkle tree with leaves $\prepieces_B$.  
+
+We next define an {\em abridged candidate candidate receipt} that consists of 
+\begin{itemize}
+\item the parachain id $\para.\mathsf{id}$,
+\item the relay chain parent(s) hashes $H(R^0_B)$, 
+\item the Merkle root, $\merkleroot_B$,
+\item some some block header that contains $H(B)$, $H(M)$, and references the parachain parent,
+ or perhaps even like $H(\receipt_{B'})$, 
+\item state commitments $\rin,\rout,q$, and
+\item the collator's id $C.\mathsf{id}$ and signature $C.\mathsf{sig})$. 
+\end{itemize}
+We also define an {\em (inner) candidate receipt} $\receipt_B$ that consists of this abridged candidate candidate receipt and specific data computable by relay chain validators.  Now $V$ creates a signature $\sigma$ for the candidate receipt and constructs the {\em attested candidate receipt} $\receipt_{B,S} := (\receipt_B,S)$ for $B$ by attaching an initial attestation set $S = \{ (V,\sigma) \}$.
 % TODO: Improve explicit state root commitments maybe?
 % Also Joe asks if we should talk about parachain block headers
+% Improve if handling?
 % Anything else?
 
-We gossip these attested candidate receipts $\receipt_{B,S}$ among the parachain validators $\vals_\para$.  
+We gossip an abridged candidate receipts, along with their attestations, among the parachain validators $\vals_\para$, so they obtain the full attested candidate receipts $\receipt_{B,S}$   
 %
-In doing so, we improve them by further aggregating the signature set $S$.\footnote{We envision $\vals_\para$ being small enough that BLS signatures do not improve verification time over Schnorr signatures, although BLS might reduce the candidate receipt's signature from 640 bytes down to 50 bytes.}  We publish $\receipt_{B,S}$ for relay chain block producers using relay chain gossip (mempool) whenever $S$ restricted to $\vals_\rho$ has attestations from at least $\primarychecks$ validators, assuming this happens eventually.  If $S$ remains too small, then validators in $\vals \setminus \vals_\rho$ ignore $\receipt_{B,S}$.
+In doing so, we further aggregate the signature set $S$.\footnote{We envision $\vals_\para$ being small enough that BLS signatures do not improve verification time over Schnorr signatures, although BLS might reduce the candidate receipt's signature from 640 bytes down to 50 bytes.}  We publish $\receipt_{B,S}$ for relay chain block producers using relay chain gossip (mempool) whenever $S$ restricted to $\vals_\rho$ has attestations from at least $\primarychecks$ validators, assuming this happens eventually.  If $S$ remains too small, then validators in $\vals \setminus \vals_\rho$ ignore $\receipt_{B,S}$.
 We think $\primarychecks = {1\over2} \npvals$ gives a reasonable choice, but our security analysis only requires enough stake back $B$, so $\primarychecks = 1$ suffices provided the backing validator possesses enough stake.
 
 We archive $B$ if another conflicting blocks gets finalised by GRANDPA, eventually deleting it.  We archive but probably do not delete $B$ if GRANDPA is stalled, probably even when the fork choice rule favours other forks.  
