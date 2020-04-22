@@ -1,15 +1,4 @@
-\section{Preliminaries}\label{sec:preliminiary}
-
-Polkadot was first introduced in 2016 by Gavin Wood \cite{2016:Wood:Polkadot} that is the basis for the following role definitions.
-
-%Polkadot network consists of a large number of validatable, globally-coherent dynamic “parallelised” data-structures called  \emph{parachains} and the bedrock upon which those parachains are interacting, are known as \emph{the relay chains}. %Figure \ref{fig:roles} shows these subcomponents alongside the sub-actors of the system which are in play to deliver the Polkadot scalable heterogeneous multi-chain system.
-
-
-%\subsection{Structural elements of Polkadot}
-
-Polkadot is a scalable heterogeneous multi-chain. This means that unlike previous blockchain implementations which have focused on providing a single chain of varying degrees of generality over potential applications, Polkadot itself is designed to provide no inherent application functionality at all. Rather, Polkadot provides the bedrock “relay-chain” upon which a large number of validatable, globally-coherent dynamic data-structures may be hosted side-by-side.
-We call these data-structures “parallelised” chains or parachains, though there is no specific need for them to be blockchain in nature. %Next, we review roles of Polkadot's participants.
-
+\section{Preliminaries}\label{sec:preliminaries}
 
 %In other words, Polkadot may be considered equivalent to a set of independent chains (e.g. the set containing Ethereum, Ethereum Classic, Namecoin and Bitcoin) except for two very important points:
 %\%begin{itemize}
@@ -18,11 +7,11 @@ We call these data-structures “parallelised” chains or parachains, though th
 %\end{itemize}
 %These points are why we consider Polkadot to be “scalable”. In principle, a problem to be deployed on Polka- dot may be substantially parallelised—scaled out—over a large number of parachains. Since all aspects of each parachain may be conducted in parallel by a different segment of the Polkadot network, the system has some ability to scale. Polkadot provides a rather bare-bones piece of infrastructure leaving much of the complexity to be ad- dressed at the middleware level. This is a conscious decision intended to reduce development risk, enabling the requisite software to be developed within a short time span and with a good level of confidence over its security and robustness.
 
+In this section we describe in more detail the different entities involving in the running of Polkadot, as well as our security model of these entities. This forms the design context for understanding the protocol design described later, including how it works and why it is designed that way.
 
 %\syed{}{perhaps we should use more technical language in this section. I'll try to do so in my review.}
 
 %\paragraph{Chain} (or a blockchain) broadly refers to a state machine which possibly replicated in a decentralized environment. By a block we refer to a recorded list of transactions which have been applied to change the state of a chain.
-
 
 %\paragraph{Relay Chain:} is the Polkadot central state machine which keeps references to the current states of all parachains and to the cross parachain transactions. Thus the relay chain works as a single source of truth across Polkadot network.
 %\syed{It also keeps references of all cross-parachain messages}{-remove- mentioned above as cross parachain transaction, what is a message otherwise? we need to define it first}.
@@ -31,7 +20,7 @@ We call these data-structures “parallelised” chains or parachains, though th
 Nodes which run Polkadot network assume different roles and functions that we introduce next.
 
 %I'm looking at the definition of these roles in the original paper and in many case they look more comprehensive than what we have here. Perhaps, we could incorporate more of the original white paper here.
-  
+
 \paragraph{Validators:}\label{par:validators} A validator is the highest in charge and helps seal new blocks on the Polkadot network. The validator’s role is contingent upon a sufficiently high bond being deposited, though we allow other bonded parties to nominate one or more validators to act for them and as such some portion of the validator’s bond may not necessarily be owned by the validator itself but rather by these nominators.
 A validator must run a relay-chain client implementation with high availability and bandwidth. At each block the node must be ready to accept the role of ratifying a new block on some parachain, and may be required to double check a few more. This process involves receiving, validating and republishing candidate blocks. The parachain assignment is random and changes frequently. Since the validator cannot reasonably be expected to maintain a fully-synchronised database of all parachains, the task of devising a suggested new parachain block will be delegated to a third-party, known as a collator.
 Once all new parachain blocks have been properly ratified by their appointed validator subgroups, validators must then ratify the relay-chain block itself. This involves updating the state of the transaction queues (essentially moving data from a parachain’s output queue to another parachain’s input queue), processing the transactions of the ratified relay-chain transaction set and ratifying the final block, including the final parachain changes.
@@ -41,8 +30,8 @@ In some sense, validators are similar to the mining pools of current PoW blockch
 \paragraph{Nominators:}\label{par:nominators} A nominator is a stake-holding party who contributes to the security bond of a validator. They have no additional role except to place risk capital and as such to signal that they trust a particular validator (or set thereof) to act responsibly in their maintenance of the network. They receive a pro-rata increase or reduction in their deposit according to the bond’s growth to which they contribute. Together with collators, next, nominators are in some sense similar to the miners of the present-day PoW networks.
 
 \paragraph{Collators: }\label{par:collators} Transaction collators (collators for short) are parties who assist validators in producing valid parachain blocks. They maintain a “full-node” for a particular parachain; meaning that they retain all necessary information to be able to author new blocks and execute transactions in much the same way as block producers do on current blockchains. Under normal circumstances, they will collate and execute transactions to create an unsealed block, and provide it, together with a proof of validity, to one or more validators presently responsible for proposing a parachain block.
- 
-%The initial client implementation will include RPCs to allow a parachain collator node to unconditionally supply a (relay-chain) validator node with a provably valid parachain block. 
+
+%The initial client implementation will include RPCs to allow a parachain collator node to unconditionally supply a (relay-chain) validator node with a provably valid parachain block.
 %As the cost of maintaining a synced version of all such parachains increases, we expect to see additional infrastructure in place which will help separate out the duties to independent, economically-motivated, parties.
 %Eventually, we expect to see collator pools who vie to collect the most transaction fees. Such collators may become contracted to serve particular validators over a period of time for an on-going share in the reward proceeds. Alternatively, “freelance” collators may simply create a market offering valid parachain blocks in return for a competitive share of the reward payable immediately. %Similarly, decentralised nominator pools would allow multiple bonded participants to coordinate and share the duty of a validator. This ability to pool ensures open participation leading to a more decentralised system.
 
@@ -68,17 +57,17 @@ The structural elements and different roles defined in the Polkadot protocol are
 	\label{fig:relaychain}
 \end{figure}
 
-\subsection{Adversarial Model of Polkadot}
+\subsection{Adversarial Model of Polkadot}\label{sec:security_model}
 
 %The adversarial assumption on collators depends on the parachain type. If the parachain is private,
 %we assume that there is at least one honest collator.
 %Otherwise, we assume that at least the majority of collators are honest.
-\paragraph{Roles:} In general, we assume that honest parties follow the protocol while malicious ones can follow any arbitrary algorithm. We assume that three quarters of nominators' stake belong to honest ones. As a result of this assumption, more than two third of validators who are elected by nominators are honest. We do not have any limit on number of malicious fishermen since their malicious behaviours are detectable and punishable.  
+\paragraph{Roles:} In general, we assume that honest parties follow the protocol while malicious ones can follow any arbitrary algorithm. We assume that three quarters of nominators' stake belong to honest ones. As a result of this assumption, more than two third of validators who are elected by nominators are honest. We do not have any limit on number of malicious fishermen since their malicious behaviours are detectable and punishable.
 
 \paragraph{Parachains:} We do not have any security assumption on block production mechanism for parachains. On the other hand, we assume that a significant amount of collators are honest. The security of Polkadot does not depend on any precise honest fraction of collators but it requires existence of some honest collators.
 
 \paragraph{Keys:} We assume that malicious parties generate their keys with an arbitrary algorithm
-while honest ones always generate their keys securely. 
+while honest ones always generate their keys securely.
 
 \paragraph{Network and Communication:} \label{par:network_coms} All validators have their own local clock and their clocks do not rely on any central clock.
 We assume that  validators and collators are in a partially synchronous network.
