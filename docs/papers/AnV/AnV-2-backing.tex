@@ -65,14 +65,14 @@ Now any {\em parachain validator} $V \in \vals_\para$ runs $\encode_{f+1,\nvals}
 We next define an {\em abridged candidate candidate receipt} that consists of 
 \begin{itemize}
 \item the parachain id $\para.\mathsf{id}$,
-\item a (micro)epoch, which helps identify $\vals_\para$,
 \item the relay chain parent(s) hashes $H(R^0_B)$, 
 \item the Merkle root, $\merkleroot_B$,
-\item some some block header that contains $H(B)$, $H(M)$, and references the parachain parent,
- or perhaps even like $H(\receipt_{B'})$, 
+\item some some block header that contains $H(B)$, $H(M)$, and references the parachain parent $B'$,
 \item state commitments $\rin,\rout,q$, and
 \item the collator's id $C.\mathsf{id}$ and signature $C.\mathsf{sig})$. 
 \end{itemize}
+We caution the parachain validator sets $\vals_\para$ rotate, so an abridged candidate candidate receipt must uniquely identify $\vals_\para$.  We achieve this by using $H(R^0_B)$ to determine the assignment $\para.\mathsf{id} \mapsto \vals_\para$, which requires that $R^0_B$ be quite recent.  We could store $\receipt_{B'}$ in the parachain state if required. 
+
 We also define an {\em (inner) candidate receipt} $\receipt_B$ that consists of this abridged candidate candidate receipt and specific data computable by relay chain validators.  Now $V$ creates a signature $\sigma$ for the candidate receipt and constructs the {\em attested candidate receipt} $\receipt_{B,S} := (\receipt_B,S)$ for $B$ by attaching an initial attestation set $S = \{ (V,\sigma) \}$.
 % TODO: Improve explicit state root commitments maybe?
 % Also Joe asks if we should talk about parachain block headers
@@ -116,9 +116,9 @@ Importantly, $U$ need not validate $B$ itself unless $U \in \vals_\para$.
 \smallskip
 \paragraph{Role churn:}
 
-We caution that parachain validator assignments $\vals_\rho$ change somewhat frequently and worse our entire validator set $\vals$ changes periodically too.  We place no future demands upon the collators or relay chain block producer after block creation, so their churn creates no problems.  We shall require that backing attesters in $\vals_\rho$ continue to share $\blobB$, both in its entirety and in smaller pieces described next in \S\ref{sec:availability}, which makes churn problematic.  
+We again caution that parachain validator assignments $\vals_\rho$ change somewhat frequently and worse our entire validator set $\vals$ changes periodically too.  We place no future demands upon the collators or relay chain block producer after block creation, so their churn creates no problems.  We shall require that backing attesters in $\vals_\rho$ continue to share $\blobB$, both in its entirety and in smaller pieces described next in \S\ref{sec:availability}, which makes churn problematic.  
 
-Any candidate receipt $\receipt_{B,S}$ uniquely identifies $\vals_\para$ because it includes both $\para.\mathsf{id}$ and a (micro)epoch, which should resolve churn in both $\vals_\para$.  
+As noted above, any candidate receipt $\receipt_{B,S}$ uniquely identifies $\vals_\para$ because it includes $\para.\mathsf{id}$ while the recent relay chain parent $H(R^0_B)$ determines the assignment $\para.\mathsf{id} \mapsto \vals_\para$.
 It addresses churn in $\vals$ too because the nothing-at-stake problem imposes a long unbonding period, during which time we may continue rewarding outgoing validators for work, even if they lie in the old $\vals_\para$ but not the new $\vals$.   
 % TODO: Cite unbonding period?
 An implementations should end (micro)epoch gently with heuristics that permit gossip somewhat after the (micro)epoch and even last minute backing attestations by validators in $\vals_\para \setminus S$.
