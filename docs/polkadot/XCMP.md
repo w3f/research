@@ -104,6 +104,8 @@ The size of the hash chain determines how full the channel is. Old messages can 
  
 **Relay chain state on-chain**: that is the CST that was described in the previous section.
 
+![Testing a figure](https://github.com/w3f/research/blob/xcmp-suggestions-leon/docs/polkadot/images/XCMP_clean.png)
+
 ### Producing a PoV block
 A PoV block needs to include a nested Merkle proof and hash chain expansion thats starts at the light client state root and ends at each incoming message that needs to be acted on. The Merkle proofs will have a lot of parts in common and can be optimized by sharing the common parts (future work). 
 
