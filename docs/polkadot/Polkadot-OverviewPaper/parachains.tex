@@ -63,7 +63,8 @@ The security of our availability and validity scheme is based on the security of
 
 \subsubsection{Cross Chain Messaging Protocol (XCMP)} \label{sec:XCMP}
 XCMP is the protocol that parachains use to send messages to each other. It aims to guarantee that messages arrive quickly, that messages from one parachain arrive to another in order,
-and that messages that arrive were indeed sent in the finalised history of the chain.
+that messages that arrive were indeed sent in the finalised history of the chain,
+and that messages are processed fairly across recipients.
 
 As a result of these properties, we will need to require that a parachain accepts all incoming messages.
 The way relay chain blocks include headers of parachain blocks gives a synchronous notion of time for parachain blocks, just by relay chain block numbers. Additionally it allows us to authenticate messages as being sent in the history given by the relay chain i.e. it is impossible that one parachain sends a message, then reorgs \footnote{reorganisation of the chain} so that that message was not sent, but has been received. This holds even though the system may not have reached finality over whether the message was sent, because any relay chain provides a consistent history.
