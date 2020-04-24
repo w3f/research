@@ -1,0 +1,462 @@
+
+
+\documentclass{beamer}
+% \documentclass{article}
+
+% \usefonttheme[onlymath]{serif}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+\usepackage{graphicx} % http://ctan.org/pkg/graphicx
+\usepackage{booktabs} % http://ctan.org/pkg/booktabs
+\usepackage{xparse}   % http://ctan.org/pkg/xparse
+% Rotation: \rot[<angle>][<width>]{<stuff>}
+\NewDocumentCommand{\rot}{O{45} O{1em} m}{\makebox[#2][l]{\rotatebox{#1}{#3}}}%
+% \renewcommand{\arraystretch}{1.2} % (or 1.3)
+
+\usepackage{fancyvrb}
+\usepackage{stackengine}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+% \usetikzlibrary{matrix,positioning}
+
+\tikzstyle{every picture}+=[remember picture]
+
+% Define block styles
+\tikzstyle{module} = [rounded rectangle, fill=blue!10, node distance=3cm, minimum height=2em]
+
+
+\begin{document}
+
+
+\begin{frame}[t]
+
+{\bf Sharding:}  Convince $n$ parties some state evolved correctly, while revealing each update to only $k<n$ checking parties.
+
+\bigskip\bigskip
+These $k$ checkers are trusted authorities in more centralised designs, but..
+
+\medskip
+
+% As power corrupts
+We keep ``authority'' more narrowly prescribed, ala slsahable stake,
+by treat everyone relatively adversarially. 
+
+\pause
+\bigskip\bigskip
+
+{\bf Naive Answer:}   
+Select the $k$ checkers randomly, but make $k$ large
+\hspace*{3pt} ByzCoin ($k=300$ or $500$?), ETH2 ($k=100$?)
+
+\medskip
+
+Those $k$ checkers know themselves in advance, which increases their authority.
+It still works for $k$ large enough but..
+
+\end{frame}
+
+
+\begin{frame}[t]
+
+{\bf Sharding:}  Convince $n$ parties some state evolved correctly, while revealing each update to only $k<n$ checking parties.
+
+\bigskip\bigskip
+
+{\bf Shared Randomness Problem:}  \\
+Can anyone manipulate who becomes a checker?
+
+\bigskip\bigskip
+
+{\bf Adaptivity Problem:}  \\
+Can anyone interfear with the checkers operation?
+
+\bigskip
+We cannot observe when the network behaves adversarially, so one critical case is:
+
+{\bf Availability Problem:}  \\
+Can honest checkers obtain the update/block?  
+
+\pause
+\bigskip\bigskip
+
+Could we avoid the $k$ checkers even knowing themelves in advance? 
+
+\end{frame}
+
+
+\begin{frame}
+
+{\bf Problem:}  \\
+How would you convince $n$ people that you would give them data without actually sending them the data?
+
+\bigskip
+
+{\bf Answer:}  \\
+Reed-Solomon erasure codes represent your data by the coefficients of a polynomial $p(x)$ of degree $d$ over some finite field and produces code symbols by evaluating $p(0),p(1),\ldots,p(d n / f)$.  You give symbols $p(i d/f),\ldots,p((i+1) d/f - 1)$ to the $i$th person. 
+
+Any $f$ people could now recompute $p(x)$, and hence your data, by doing Lagrange interpolation with their combined pieces, so they can merely vote.
+
+\end{frame}
+
+
+% 0. Collation 
+% 1. Backing
+% 2. Availability
+% 3. Approval
+% 4. Finality 
+%
+%
+% 1. Role assignment
+% 2. Transport & Topology
+% 3. Attestation
+
+
+\begin{frame}[shrink=15]
+
+\vspace*{1cm}
+% ===== DEFAULT ROTATION PARAMETERS
+\begin{tabular}{ccrccc}
+ \tikz\node (C) { \stackanchor{Collation}{\vphantom{\Big(} (Cumulus)} }; & &
+ %   $\overset{\textrm{\normalsize }}{\scriptscriptstyle \vdots}$
+    & \rot{Role assignment}
+    & \rot{Transport \& Topology}
+    & \rot{Attestation} \\
+    \cmidrule{4-6}
+ \multicolumn{1}{l}{ \tikz\node (CB) {\small \textcolor{brown}{\texttt{CandidateBacked}}}; }
+ & & \tikz\node (B) {Backing};      &\tikz\node (epoch) {epoch};        &  \tikz\node {C$\to$V};  &  \tikz\node {Check};  \\
+ \multicolumn{1}{l}{ \tikz\node (CA) {\small \textcolor{brown}{\texttt{CandidateAvailable}}}; }
+ & & \tikz\node (A) {Availability}; &\tikz\node {*};            &  \tikz\node {$\mu$TP};  &  \tikz\node {RS};  \\
+ & & \tikz\node (V) {Approval};     &\tikz\node (VRF) {VRF$(\cdot)$}; &  \tikz\node {$\mu$TP}; &  \tikz\node {Check};  \\
+
+    \cmidrule{4-6} 
+ & \\
+ \tikz\node (F) { \stackanchor{Finality}{(GRANDPA)} }; \\
+ & & \multicolumn{2}{c}{ \tikz\node (BP) { \stackanchor{ Block production }{ (BABE/Sassafras) } }; }  \\
+ %    $\overset{\scriptscriptstyle \vdots}{\textrm{\normalsize }}$ & & & \\ 
+     % & \multicolumn{3}{c}{--- GRANDPA ---} \\
+\begin{tikzpicture}[overlay] % remember picture
+        \path[->,blue] (C) edge [bend left] node [above] {$B,\pi$} (B);
+        \path[->,green,dashed,thick] (B) edge [bend right=20]  (CB);
+        \path[->,green,dashed,thick] (CB) edge [bend left=5] (A);
+        \path[-,white,opacity=0.8] (B) edge node {\textcolor{blue}{$\swarrow \downarrow \searrow$}} (A); 
+        \path[-,white,opacity=0.8] (A) edge node {\textcolor{blue}{$\searrow \downarrow \swarrow$}} (V); 
+        \path[->,green,dashed,thick] (A) edge [bend left=5] (CA);
+        \path[->,green,dashed,thick] (CA) edge [bend right=15] (V);
+        \path[->,green,dashed,thick] (V) edge [bend left] (F);
+
+        \path[->,red,dashed,thick] (BP) edge [bend left=15] (epoch);
+        \path[->,red,dashed,thick] (BP) edge [bend right] (VRF);
+
+\end{tikzpicture}
+\end{tabular}
+
+\end{frame}
+
+%\begin{tabular}{rccc}
+%     & \rot[50]{Role assignment}
+%     & \rot[50]{Transport \& Topology}
+%     & \rot[50]{Attestation} \\
+%     \cmidrule{2-4}
+%  {Backing}      & {epoch}       & {C$\to$V}  & {Check}  \\
+%  {Availability} & {*}            & {$\mu$TP}  & {Piece}  \\
+%  {Approval}     & {VRF$(\cdot)$} & {$\mu$TP} & {Check}  \\
+%     \cmidrule{2-4}
+%\end{tabular}
+
+\begin{frame}[t,fragile]{Backing Checks}
+
+Roughly like ByzCoin or ETH2, except small groups.
+
+\bigskip
+
+{\bf Group assignment:} \\ \smallskip
+% Use {\tt rand\_chacha} plus {\tt rand::seq::SliceRandom::shuffle}
+% \vspace{-3pt} % \vspace{-10pt}
+\begin{Verbatim}[commandchars=\\\{\}]
+use rand::\{SeedableRng, seq::SliceRandom\};
+let seed = \dots \textcolor{red}{epoch.randomness} \dots;
+let mut indexes = (0..num_validators).collect::<Vec<_>>();
+indexes.shuffle(rand_chacha::ChaChaRng::from_seed(seed));
+indexes.chunks(num_backing_per_parachain)
+\end{Verbatim}
+
+\bigskip
+
+{\bf Transport \& Topology:} \\ \smallskip
+Collator selects relay chain parent, makes the PoV block $B$ by attaching witness data, and sends it to assigned validators.
+% validators assigned to that parachain or parathread slot.  
+
+\bigskip
+
+
+\end{frame}
+
+
+\begin{frame}[t]{Backing Checks}
+
+% {\em Secret Reed-Solomon Sause:}
+Assume $3f+1$ validators.  Reed-Solomon erasure code the PoV block $B$ into $3f+1$ pieces aka ``symbols'' so $f+1$ pieces suffices for reconstruction.  Compute the Merklee root $m_B$ of the pieces and make authenticated pieces with attached witness for $m_B$.
+
+\bigskip
+
+{\bf Attestation:} \\ \smallskip
+Assigned validators check.  If okay, they create and sign the candidate receipt, which contains $m_B$, and gossip everything among themselves.  \\ \smallskip
+If enough backers, they gossip {\em only} the candidate receipt to all validators.
+
+\bigskip
+
+We'd love the relay chain to avoid working on conflicting candidates, so any further work depends on the attested candidate receipt being included in a \texttt{CandidateBacked} transaction.
+
+\end{frame}
+
+
+\begin{frame}[t]{Availability}
+
+{\bf Assignment:}  \\ \smallskip
+Send for blocks you backed.  Receive for everything else.
+
+\bigskip
+
+{\bf Transport \& Topology:} \\ \smallskip
+We've one unique erasure coded piece for each validator, so send the $i$th piece to the $i$th validator, assuming a \texttt{CandidateBacked}.  \\ \smallskip
+
+% Actually doing this requires reinventing
+\hspace*{10pt} Reinvent BitTorrent but sans tracker!  
+
+\bigskip
+
+{\bf Attestation:}  \\ \smallskip
+Attest on-chain with \texttt{HaveCandidatePiece} for pieces you receive:  Sign $(H(R),X)$ where $X$ is a bitfield over \texttt{CandidateBacked} in $R$. 
+
+\bigskip
+
+We declare \texttt{CandidateAvailable} once $2f+1$ validators say so. \\
+In fact, parachain candidates ``run'' in the block $R$ where they reach this goal, so they receive and send XCMP messages here.
+
+\end{frame}
+
+
+\begin{frame}[t]{Approval}
+
+{\bf Assignment:}  \\ \smallskip
+All validators assign themselves with \textcolor{violet}{\em VRFs conditions}, which
+only they know until they announce themselves.
+% necessarily announced before checking.
+
+\bigskip
+
+{\bf Transport \& Topology:} \\ \smallskip
+If assigned, you fetch erasure coded pieces of $f$ish other validators. \\ \smallskip
+
+\hspace*{5pt} Increases our BitTorrent resemblance, but still without tracker.
+
+\bigskip
+
+{\bf Attestation:}  \\ \smallskip
+If block passes then gossip attestation for inclusion on on-chain.
+
+Grandpa only votes for forks with \textcolor{violet}{\em enough} attestations in children.
+
+\bigskip\bigskip
+
+\textcolor{red}{\bf Rule:}  If validators disagree on validity then all validators check it.
+
+
+\end{frame}
+
+
+\begin{frame}[t]{Approval assignment VRF conditions and sufficiency}
+
+Consider the \texttt{CandidateAvailable} $\mathcal{B} = \{ B_1,\ldots,B_n \}$ announced in a relay chain block $R$.  \\ \smallskip
+
+We gossip VRF signatures $\pi := \mathsf{VRF}_{V.\mathsf{sk}}(\mathtt{input})$ with three different inputs types that each determine an assignment $\mathcal{V} \times \mathcal{B} \to \mathbb{N}$ of a delay for which a validator $V$ should wait before checking $B_i$. 
+\vspace{-2pt}
+\begin{align*} 
+\mathtt{relay\_input}  &:= R.\mathtt{vrf\_inout}.\mathtt{make\_bytes}() \\
+\mathtt{para\_input}_i &:= \mathtt{input\_seed} +\!\!\!\!+\, B_i.\mathtt{paraid} \\
+\mathtt{equiv\_input}_i &:= H(B_i) 
+\end{align*}
+Although $\mathtt{equiv\_input}_i$ only become valid if $R$ has an equivocation $R'$ with $R.\mathtt{vrf\_inout} = R'.\mathtt{vrf\_inout}$
+
+$V$ has delay 0 for $B_i$ if $i = \pi.\mathtt{make\_bytes}() \bmod n$, but the other two sample the delay uniformly using $\pi.\mathtt{make\_bytes}() \bmod \mathtt{max\_delay}$.
+
+Avoid gossiping these before its delay makes an assignment valid.
+
+
+\end{frame}
+
+
+\end{document}
+\endinput
+
+
+\bigskip\bigskip
+
+
+
+ $\pi$ associate a delay $\pi.\mathtt{delay}$ with a validator $V$
+
+Any  associates a delay $t_$ $B_i$ 
+
+At any time $t$ after $R$, 
+
+We track these values associated to each
+Associated to each $B_i$ 
+\begin{itemize}
+\item target number of checkers $\ell_{B_i}$,
+\item announced checker assignments $A_{B_i,t}$,
+\item attestations $S_{B_i}$ 
+\end{itemize}
+
+assignment seed
+
+
+
+% All validators track the set $A_z$ of valid announced checker claims, as well as the subset $S_z$ of all validity claims $S_B$ for $B$ generated by nodes in $A_z$.  We identify here the generic one-shot protocol run by $z$ because multiple $z$ may imply the same $B$, except we emphasise that messages exist only for $S_B$ not $S_z$, and that our protocol run ends by considering $S_z$ sufficient.  
+
+% We uniformly sample time delays from the interval $[0,\netdelay {n' \over \ell}]$, so that an expected $\ell$ land in $[0,\netdelay]$.  We use verifiable sampling here of course, meaning we compute this delay $d_{V,z}$ from $\tilde{\omega}_{V,z}$.  
+
+
+
+
+
+
+
+\begin{frame}[t]{}
+
+\textcolor{red}{\bf Anti-DoS Rule:}  Anyone who announces their assignment by some VRF condition must attest or be replaced by someone unforeseeable.
+
+\end{frame}
+
+
+
+
+
+
+
+
+\begin{frame}{}
+.
+\end{frame}
+
+
+
+
+% $\mathtt{let\ } 
+\hspace*{5pt}  
+\hspace*{5pt}  $\mathtt{check\_paraid} := \mathsf{VRF}_{\mathsf{sk}}(\mathtt{seed}) \,\bmod\, \mathtt{num\_parachains}$
+
+
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+
+VRF
+
+use rand::{SeedableRng, seq::SliceRandom};
+let seed = .. \textcolor{red}{epoch.randomness} ..;
+let mut indexes = (0..num_validators).collect::<Vec<_>>();
+indexes.shuffle(rand_chacha::ChaChaRng::from_seed(seed));
+indexes.chunks(num_backing_per_parachain)
+\end{Verbatim}
+
+
+
+
+
+
+
+
+
+
+
+\documentclass{beamer}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{amsmath}
+\usepackage{graphicx} % http://ctan.org/pkg/graphicx
+\usepackage{stackengine}
+
+\usepackage{booktabs} % http://ctan.org/pkg/booktabs
+\usepackage{xparse}   % http://ctan.org/pkg/xparse
+% Rotation: \rot[<angle>][<width>]{<stuff>}
+\NewDocumentCommand{\rot}{O{45} O{1em} m}{\makebox[#2][l]{\rotatebox{#1}{#3}}}%
+% \renewcommand{\arraystretch}{1.2} % (or 1.3)
+
+
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,matrix}
+
+% \tikzstyle[every matrix/.style]+={ampersand replacement=\&,column sep=2cm,row sep=2cm}
+
+% Define block styles
+\tikzstyle{module} = [rounded rectangle, fill=blue!10, node distance=3cm, minimum height=2em]
+
+\begin{document}
+
+% 0. Collation 
+% 1. Backing
+% 2. Availability
+% 3. Approval
+% 4. Finality 
+%
+%
+% 1. Role assignment
+% 2. Transport & Topology
+% 3. Attestation
+
+\begin{frame}[fragile,shrink=15]
+\vspace*{1cm}
+\begin{tikzpicture}[auto,node distance=7cm] % row sep=3em,column sep=4em,minimum width=2em
+    % node distance = 1cm
+     % every matrix/.style={column sep=2cm,row sep=2cm}]
+ \node [module] (C) { \stackanchor{Collation}{(Cumulus)} }; 
+ \node [module,below of=C] (BP) { \stackanchor{Block production\vphantom{)}}{(BABE/Sassafras)} };
+ \node [module,below of=BP] (F) { \stackanchor{Finality}{(GRANDPA)} };
+ 
+ \node [right of=BP] {
+\begin{tabular}{rccc}
+     & \rot[50]{Role assignment}
+     & \rot[50]{Transport \& Topology}
+     & \rot[50]{Attestation} \\
+     \cmidrule{2-4}
+   \tikz\node (B) {Backing};      &\tikz\node {epoch};        &  \tikz\node {C$\to$V};  &  \tikz\node {Check};  \\
+   \tikz\node (A) {Availability}; &\tikz\node {*};            &  \tikz\node {$\mu$TP};  &  \tikz\node {Piece};  \\
+   \tikz\node (V) {Approval};     &\tikz\node {VRF$(\cdot)$}; &  \tikz\node {$\mu$TP}; &  \tikz\node {Check};  \\
+     \cmidrule{2-4}
+   \vphantom{\rot[50]{Transport \& Topology}} & & & \\
+\end{tabular}
+ };
+
+ % \path[->] (C) edge [bend left] (B);
+ % \path[->] (B) edge [bend right] (BP);
+     %   \path[->] (BP) edge [out=0, in=-90] (A);
+
+\end{tikzpicture}
+
+\end{frame}
+
+\end{document}
+
+
+
+
+\endinput
+
+
+
+
+
+
+
+\makeatletter
+\newcommand{\superimpose}[2]{%
+  {\ooalign{$#1\@firstoftwo#2$\cr\hfil$#1\@secondoftwo#2$\hfil\cr}}}
+\makeatother
+
+\newcommand{\veewedge}{\mathpalette\superimpose{{\swarrow}{\searrow}}}
