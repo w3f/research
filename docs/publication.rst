@@ -3,8 +3,10 @@
 Publications
 ===========
 
-**Papers**
+**Papers:**
 
-**Presentations**
+**Posters:**
+
+**Presentations:**
 
 **Blog Posts:**
