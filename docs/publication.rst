@@ -24,7 +24,7 @@ Incentivised Mixing
 **Blog Posts:**
 
 Fatemeh Shirazi, Logan Saether, Alistair Stewart, Rob Habermeier, Gavin Wood,
-"Polkadot’s Messaging Scheme",
+`Polkadot’s Messaging Scheme <https://medium.com/web3foundation/polkadots-messaging-scheme-b1ec560908b7>` ,
 Medium, Web3 Foundation, 14/01/2020. 
 
 Alfonso Cevallos,
