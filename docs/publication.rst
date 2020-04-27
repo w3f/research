@@ -7,7 +7,9 @@ Publications and Outreach
 
 GRANDPA paper
 
-Overview paper
+Consensus on Clocks
+
+Polkadot's Overview aper
 
 NPoS paper
 
