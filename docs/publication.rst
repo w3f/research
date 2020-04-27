@@ -7,6 +7,8 @@ Publications and Outreach
 
 AnV: Availability and Validty of Polkadot
 
+Sassafras paper
+
 GRANDPA paper
 
 Consensus on Clocks
