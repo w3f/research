@@ -5,6 +5,10 @@ Publications
 
 **Papers:**
 
+GRANDPA paper
+
+Overview paper
+
 NPoS paper
 
 **Posters:**
