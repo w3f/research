@@ -31,15 +31,15 @@ On the network level, the relay chain is open. Any node may run the software and
 Beyond distributing data, nodes may perform certain protocol-level roles listed next. Some of these roles have restrictions and conditions associated with them:
 
 \begin{enumerate}
-\item Validator - performs the bulk of the security work. This must be done from a full-node.
+\item Validator - performs the bulk of the security work. This must be done from a full node of the relay chain, but they need not be full nodes of any parachain.
 \item Nominator - stakeholder who uses this stake to select validators. This can be done from a light client.
-\item Fishermen - performs additional self-directed reward-incentized security work. This must be done from a full-node.
 \end{enumerate}
 
 \uline{Parachains are expected to interact with Polkadot as follows}. They define the following roles:
 
 \begin{enumerate}
-\item Collator - collects and submits parachain data to the relay chain, subject to protocol rules depending on the current state of the relay chain. To do this, they should either be a full-node of the relay chain or somehow receive the same information another way.
+\item Collator - collects and submits parachain data to the relay chain, subject to protocol rules depending on the current state of the relay chain. To do this, they should either be a full-node of the relay chain or somehow receive the same information another way. Collators must also be full nodes of their parachain.
+\item Fishermen - performs additional self-directed reward-incentized security work.
 \end{enumerate}
 
 Note that validators are in some sense a collator of the relay chain network, in that they collect extrinsics (e.g. transactions) within the relay chain network. However we typically only refer to them as validators even when performing these tasks, and the term \emph{collator} is reserved for parachain collators only.
@@ -55,14 +55,18 @@ The Polkadot relay chain protocol, including interaction with parachains, works 
     \item \uline{Collators submit information for that round}, to the validators assigned to their parachain (\emph{parachain validators} for short), for inclusion in the relay chain. Ideally they should submit a unique one, to help performance.
     \item The parachain validators decide which information to support, and present this as a \emph{candidate} to the relay chain.
   \end{enumerate}
+  
 
 \item The relay chain collects candidates from all parachains, and proposes this collection as a block. For performance, this block does not contain the full data from all parachains, but only metadata and partial data, including security-related metadata.
 
 \item A subprotocol is run to ensure that the full data is indeed available, including \uline{retrieving it from the collators} and distributing it to various other relay-chain nodes.
 
-\item The relay chain votes on the block and finalises it. Note that this is not explicitly communicated back to the parachains; we expect that \uline{parachains run full-nodes on the relay chain} to receive this information, e.g. collators could do this as well.
 
-\item Information submitted from a parachain might include indications that they are sending messages to another parachain, including metadata to facilitate this. This metadata is now finalised as part of the relay chain, so parachains are aware of which new messages have been sent to them. They now retrieve the message bodies from the sending parachains.
+
+\item Information submitted from a parachain might include indications that they are sending messages to another parachain, including metadata to facilitate this. This metadata is now included on the relay chain, so parachains are aware of which new messages have been sent to them. They now retrieve the message bodies from the sending parachains.
+
+\item The relay chain votes on the block and finalises it. % Note that this is not explicitly communicated back to the parachains; we expect that \uline{parachains run full-nodes on the relay chain} to receive this information, e.g. collators could do this as well.
+
 \end{enumerate}
 
 % There is a small section on bridges in the Appendix, suggesting that it is just initial ideas at the moment. It can be summarised here later, once we turn it into a proper first-level section.
