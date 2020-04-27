@@ -57,9 +57,9 @@ The Polkadot relay chain protocol, including interaction with parachains, works 
   \end{enumerate}
   
 
-\item The relay chain collects candidates from all parachains, and proposes this collection as a block. For performance, this block does not contain the full data from all parachains, but only metadata and partial data, including security-related metadata.
+\item A validator collects candidates from all parachains, and puts this collection, along with relay chain transactions into a relay chain block. For performance, this block does not contain the full data from all parachains, but only metadata and partial data, including security-related metadata.
 
-\item A subprotocol is run to ensure that the full data is indeed available, including \uline{retrieving it from the collators} and distributing it to various other relay-chain nodes.
+\item A subprotocol is run to ensure that the full data is indeed available, including and distributing it to various other relay-chain nodes.
 
 
 
