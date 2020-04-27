@@ -1,4 +1,10 @@
 
 ===========
-Publication
+Publications
 ===========
+
+**Papers**
+
+**Presentations**
+
+**Blog Posts:**
