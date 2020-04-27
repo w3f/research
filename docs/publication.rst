@@ -28,7 +28,7 @@ Fatemeh Shirazi, Logan Saether, Alistair Stewart, Rob Habermeier, Gavin Wood,
 Medium, Web3 Foundation, 14/01/2020. 
 
 Alfonso Cevallos,
-"How Nominated Proof-of-Stake will work in Polkadot",
+`How Nominated Proof-of-Stake will work in Polkadot <https://medium.com/web3foundation/how-nominated-proof-of-stake-will-work-in-polkadot-377d70c6bd43>`_, 
 Medium, Web3 Foundation, 12/04/2019.
 
 Fatemeh Shirazi, Jeffrey Burdges, Edward Thomson, and Ignasio Albero
