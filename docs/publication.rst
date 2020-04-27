@@ -9,9 +9,9 @@ AnV: Availability and Validity of Polkadot
 
 Sassafras paper
 
-GRANDPA paper
+alistair Stewart and Lefteris Kokoris Kogias, GRANDPA: A finality Gadget, in progress. 
 
-Handan Kılınç Alper, `Consensus on Clock in Universally Composable Timing Model <https://eprint.iacr.org/2019/1348>`_
+Handan Kılınç Alper, `Consensus on Clock in Universally Composable Timing Model <https://eprint.iacr.org/2019/1348>`_, in progress. 
 
 Polkadot's Overview paper
 
