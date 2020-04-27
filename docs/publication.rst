@@ -13,11 +13,11 @@ NPoS paper
 
 **Posters:**
 
-GRANDPA
+Jeff Burdges, Handan Kılınç Alper, Alistair Stewart, "Availability and Validity", Financial Cryptography and Data Security 2020. 
 
-AnV
+Jeff Burdges, "Assessing or incentivising correct mixing without authorities", Financial Cryptography and Data Security 2020. 
 
-Incentivised Mixing
+Alistair Stewart, "GRANDPA: A Finality Gadget", CCS 2019.
 
 **Presentations:**
 
