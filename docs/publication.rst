@@ -9,7 +9,7 @@ GRANDPA paper
 
 Consensus on Clocks
 
-Polkadot's Overview aper
+Polkadot's Overview paper
 
 NPoS paper
 
@@ -22,6 +22,8 @@ Jeff Burdges, "Assessing or incentivising correct mixing without authorities", F
 Alistair Stewart, "GRANDPA: A Finality Gadget", CCS 2019.
 
 **Presentations:**
+
+
 
 **Blog Posts:**
 
