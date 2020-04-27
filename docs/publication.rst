@@ -5,13 +5,13 @@ Publications and Outreach
 
 **Papers:**
 
-AnV: Availability and Validty of Polkadot
+AnV: Availability and Validity of Polkadot
 
 Sassafras paper
 
 GRANDPA paper
 
-Consensus on Clocks
+Handan Kılınç Alper, `Consensus on Clock in Universally Composable Timing Model <https://eprint.iacr.org/2019/1348>`_
 
 Polkadot's Overview paper
 
@@ -19,7 +19,7 @@ NPoS paper
 
 **Posters:**
 
-Jeff Burdges, Handan Kılınç Alper, Alistair Stewart, "Availability and Validity", Financial Cryptography and Data Security 2020. 
+Jeff Burdges, Handan Kılınç Alper, Alistair Stewart, `Availability and Validity <https://github.com/w3f/research/blob/master/docs/papers/AVAILABILITY%20AND%20VALIDITY%20OF%20DATA%20IN%20SHARDED%20BLOCKCHAINS_low.pdf>`_, Financial Cryptography and Data Security 2020. 
 
 Jeff Burdges, "Assessing or incentivising correct mixing without authorities", Financial Cryptography and Data Security 2020. 
 
