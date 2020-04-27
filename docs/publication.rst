@@ -5,6 +5,8 @@ Publications and Outreach
 
 **Papers:**
 
+AnV: Availability and Validty of Polkadot
+
 GRANDPA paper
 
 Consensus on Clocks
