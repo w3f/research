@@ -5,17 +5,13 @@ Publications
 
 **Papers:**
 
-AnV: Availability and Validity of Polkadot
+Jeff Burdges, Alfonso Cevallos, Peter Czaban, Rob Habermeier, Syed Hosseini, Fabio Lama, Handan Kılınç Alper, Ximin Luo, Fatemeh Shirazi, Alistair Stewart, Gavin Wood, Overview of Polkadot and its Design Considerations, first draft (30 April 2020). 
 
-Sassafras paper
-
-alistair Stewart and Lefteris Kokoris Kogias, GRANDPA: A finality Gadget, in progress. 
+Alfonso Cevallos and Alistair Stewart, `Validator election in nominated proof-of-stake <https://arxiv.org/abs/2004.12990>`_, in progress.
 
 Handan Kılınç Alper, `Consensus on Clock in Universally Composable Timing Model <https://eprint.iacr.org/2019/1348>`_, in progress. 
 
-Polkadot's Overview paper
-
-NPoS paper
+Alistair Stewart and Lefteris Kokoris Kogias, GRANDPA: A finality Gadget, in progress. 
 
 **Posters:**
 
