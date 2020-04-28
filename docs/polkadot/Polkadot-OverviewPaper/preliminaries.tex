@@ -67,6 +67,8 @@ The structural elements and different roles defined in the Polkadot protocol are
 
 \paragraph{Parachains:} We do not have any security assumption on block production mechanism for parachains. On the other hand, we assume that a significant amount of collators are honest. The security of Polkadot does not depend on any precise honest fraction of collators but it requires existence of some honest collators.
 
+Parts of the protocol assume that every parachain has at least one reachable honest member; where this is not feasible or not realistic, we do not follow through on this assumption and instead have additional checks against a totally-malicious membership.
+
 \paragraph{Keys:} We assume that malicious parties generate their keys with an arbitrary algorithm
 while honest ones always generate their keys securely.
 
