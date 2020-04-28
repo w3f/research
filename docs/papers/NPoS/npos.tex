@@ -1,0 +1,22 @@
+
+\section{Application of results to validator election in NPoS}\label{s:objectives}
+
+The Polkadot network will select a new validator committee in every era, where an era lasts roughly one day, in order to adapt to the ever evolving sets of validator candidates and nominators, as well as nominators' preferences and stake. 
+In order to ensure decentralization and security, the stated goal of the validator election protocol is to simultaneously ensure the PJR property and achieve a constant-factor approximation guarantee for the maximin support objective. 
+
+Our results make this goal possible in theory. However, such a protocol still faces many technical challenges:
+
+\begin{itemize}
+    \item As stated before, a typical instance will be very large in Polkadot, potentially having thousands of candidates and a massive number of nominators. In contrast, on-chain computations are very expensive for the network. Therefore, there is a need to shift this task to off-chain workers that perform computations privately. 
+    \item As the decentralized and trustless nature of the network must be maintained, any results computed off-chain must be efficiently verifiable on-chain, with minimal assumptions on the adversarial model.
+    \item Finally, any on-chain computation must observe stringent resource limitations. For simplicity, we consider a model that limits any on-chain computation per block to be linear in the size of the instance, $O(|E|)$, both in terms of time and space complexity.
+\end{itemize}
+
+
+We propose the following protocol. 
+Towards the end of the current era, there is a window of time where each current validator must privately run a constant-factor approximation algorithm for the maximin support objective (e.g. Algorithm \ref{alg:lazy} or \ref{alg:balanced}) on the instance corresponding to the next era, followed by the PJR enabler (Algorithm~\ref{alg:localpjr}), and submit their resulting tentative solution on-chain as a transaction. 
+
+On the on-chain side, at most one submission is processed per block, and a tentative solution is accepted only if it is feasible and observes PJR, as verified by the test described in Lemma~\ref{lem:locality} which runs in linear time $O(|E|)$. 
+Furthermore, a new submission is considered valid only if it is better than the current best submission in terms of the maximin support objective. This last condition is verified off-chain by the block producer, and in case of simultaneous submissions only the one with highest objective value is included. After the window of submissions is over, the current best submission is declared winner and used to define the validator committee and the stake distribution between nominators and validators for the next era. On-chain computations thus remain linear, $O(|E|)$, in each block throughout the solution submission period.
+
+This process guarantees that, although validators are mutually untrusting and compute solutions privately, as long as at least one of them is honest, does their prescribed job correctly, and is not censored, the network will pick a solution that simultaneously achieves a constant-factor approximation for the maximin support objective and satisfies the PJR property, thus ensuring decentralization and security. Furthermore, any validator can individually check that the winning solution satisfies the PJR property and has a higher objective value for maximin support than their own submission. Finally, if validators run distinct algorithms off-chain, or use different sources of randomness or tie-breaking rules, this may benefit the system as the search space is increased and the selected solution is likely to be of higher quality. 
