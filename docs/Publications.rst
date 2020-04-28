@@ -5,7 +5,7 @@ Publications
 
 **Papers:**
 
-Polkadot's Overview paper
+Jeff Burdges, Alfonso Cevallos, Peter Czaban, Rob Habermeier, Syed Hosseini, Fabio Lama, Handan Kılınç Alper, Ximin Luo, Fatemeh Shirazi, Alistair Stewart, Gavin Wood, Overview of Polkadot and its Design Considerations, first draft (30 April 2020). 
 
 Alfonso Cevallos and Alistair Stewart, `Validator election in nominated proof-of-stake <https://arxiv.org/abs/2004.12990>`_, in progress.
 
