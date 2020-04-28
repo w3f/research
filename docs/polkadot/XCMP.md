@@ -1,6 +1,6 @@
 ====================================================================
 
-**Author**: Alistair Stewart, Fatemeh Shirazi (minor)
+**Author**: Alistair Stewart, Fatemeh Shirazi (minor), and Leon Groot Bruinderink (minor)
 
 **Last update**: 20.12.2019
 
