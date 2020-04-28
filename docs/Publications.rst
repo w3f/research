@@ -13,7 +13,6 @@ Handan Kılınç Alper, `Consensus on Clock in Universally Composable Timing Mod
 
 Alistair Stewart and Lefteris Kokoris Kogias, GRANDPA: A finality Gadget, in progress. 
 
-U+000B 
 
 **Posters:**
 
