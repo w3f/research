@@ -25,7 +25,7 @@ Talk to us on Riot at #w3f:matrix.org or on our `forum <https://forum.web3.found
 
    polkadot
    news
-   publication
+   Publications
    research_team_members
    
 
