@@ -9,30 +9,30 @@ Before joining Web3 Foundation, Leon was a PhD student working on post-quantum c
 
 **Publications:**
 
-• Differential Fault Attacks on Deterministic Lattice Signatures
-Leon Groot Bruinderink and Peter Pessl
+• Differential Fault Attacks on Deterministic Lattice Signatures\
+Leon Groot Bruinderink and Peter Pessl\
 TCHES 2018-3 ([IACR ePrint](https://eprint.iacr.org/2018/355))
 
-• "HILA5 Pindakaas": On the CCA security of lattice-based encryption with error correction
-Daniel J. Bernstein, Leon Groot Bruinderink, Tanja Lange and Lorenz Panny
+• "HILA5 Pindakaas": On the CCA security of lattice-based encryption with error correction\
+Daniel J. Bernstein, Leon Groot Bruinderink, Tanja Lange and Lorenz Panny\
 AFRICACRYPT 2018 ([IACR ePrint](https://eprint.iacr.org/2017/1214))
 
-• Post-quantum security of the sponge construction
-Jan Czajkowski, Leon Groot Bruinderink, Andreas Hülsing, Christian Schaffner and Dominique Unruh
+• Post-quantum security of the sponge construction\
+Jan Czajkowski, Leon Groot Bruinderink, Andreas Hülsing, Christian Schaffner and Dominique Unruh\
 QCRYPT 2017, PQCrypto 2018 ([IACR ePrint](https://eprint.iacr.org/2017/771))
 
-• To BLISS-B or not to be - Attacking strongSwan's Implementation of Post-Quantum Signatures
-Peter Pessl, Leon Groot Bruinderink and Yuval Yarom
+• To BLISS-B or not to be - Attacking strongSwan's Implementation of Post-Quantum Signatures\
+Peter Pessl, Leon Groot Bruinderink and Yuval Yarom\
 CCS 2017 ([IACR ePrint](https://eprint.iacr.org/2017/490))
 
-• Sliding right into disaster - Left-to-right sliding windows leak 
-Daniel J. Bernstein, Joachim Breitner, Daniel Genkin, Leon Groot Bruinderink, Nadia Heninger, Tanja Lange, Christine van Vredendaal and Yuval Yarom
+• Sliding right into disaster - Left-to-right sliding windows leak \
+Daniel J. Bernstein, Joachim Breitner, Daniel Genkin, Leon Groot Bruinderink, Nadia Heninger, Tanja Lange, Christine van Vredendaal and Yuval Yarom\
 CHES 2017 ([IACR ePrint](https://eprint.iacr.org/2017/627))
 
-• "Oops, I did it again" - Security of One-Time Signatures under Two-Message Attacks
-Leon Groot Bruinderink and Andreas Hülsing
+• "Oops, I did it again" - Security of One-Time Signatures under Two-Message Attacks\
+Leon Groot Bruinderink and Andreas Hülsing\
 SAC 2017 ([IACR ePrint](https://eprint.iacr.org/2016/1042))
 
-• Flush, Gauss, and Reload - A Cache Attack on the BLISS Lattice-Based Signature Scheme
-Leon Groot Bruinderink, Andreas Hülsing, Tanja Lange and Yuval Yarom
+• Flush, Gauss, and Reload - A Cache Attack on the BLISS Lattice-Based Signature Scheme\
+Leon Groot Bruinderink, Andreas Hülsing, Tanja Lange and Yuval Yarom\
 CHES 2016 ([IACR ePrint](https://eprint.iacr.org/2016/300))
