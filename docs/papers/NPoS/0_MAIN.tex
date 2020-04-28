@@ -1,0 +1,107 @@
+\documentclass{article}
+
+\usepackage{arxiv}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc} %\usepackage{ae} \usepackage{aecompl} % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{lipsum}
+
+\usepackage{bbm}           % allows to write the "blackboard 1" symbol \mathbbm{1}
+\usepackage{amsthm}
+\usepackage{amsmath,amssymb}
+\usepackage[]{algorithm2e}
+
+\usepackage{xfrac}
+\usepackage{pgf,tikz,pgfplots}
+\pgfplotsset{compat=1.14}
+\usepackage{mathrsfs}
+\usetikzlibrary{arrows}
+
+\newcommand{\R}{\mathbb{R}_{\geq 0}}
+\newcommand{\eps}{\varepsilon}
+\DeclareMathOperator{\ins}{Insert}
+\DeclareMathOperator{\maxprescore}{MaxPrescore}
+\DeclareMathOperator{\maxscore}{MaxScore}
+\DeclareMathOperator{\interval}{FindInterval}
+\DeclareMathOperator{\LSPJR}{PJRenabler}
+\DeclareMathOperator{\MMS}{MMS}
+\DeclareMathOperator{\lazy}{LazyMMS}
+\DeclareMathOperator{\phragmen}{seqPhragmen}
+\DeclareMathOperator{\maxphragmen}{maxPhragmen}
+\DeclareMathOperator{\balanced}{BalancedHeuristic}
+
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}{Definition}
+\newtheorem*{remark}{Remark}
+\newtheorem*{heuristic}{Heuristic}
+
+%\title{Validator Selection in Nominated Proof of Stake}
+\title{Validator Election in Nominated Proof-of-Stake}
+\author{
+  Alfonso Cevallos \\
+  Web 3.0 Technologies Foundation\\
+  Zug, Switzerland \\
+  \texttt{alfonso@web3.foundation} \\
+  %% examples of more authors
+   \And
+ Alistair Stewart \\
+  Web 3.0 Technologies Foundation\\
+  Zug, Switzerland \\
+  \texttt{alistair@web3.foundation} \\
+  %% \AND
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+}
+
+\begin{document}
+\maketitle
+
+\input{abstract.tex}
+
+\keywords{social choice \and multiwinner election \and approximation algorithms \and proof-of-stake \and blockchain}
+
+\input{intro.tex}
+
+\input{preliminaries.tex}
+
+\input{complexity.tex}
+
+\input{heuristic.tex}
+
+\input{localSearch.tex}
+
+\input{npos.tex}
+
+\appendix
+
+\input{balanced.tex}
+
+\input{proofs.tex}
+
+\bibliographystyle{abbrv}  
+\bibliography{references} 
+
+\end{document}
+
+TO DO:
+
+- Intro, motivation, presentation of results, relevant work.
+- Besides a quick explanation of NPoS in the intro, I think we can have a concluding section where we give further details on NPoS, further explanations for our choice of objectives, and our precise protocol with off-chain computations + submissions, where we exploit the results in the paper.
+- A section (probably in the appendix) about balanced weight vectors: why they make sense as an objective for us, algorithms for it, the notion of eps-balanced vectores, and a proof of Lemma 1. Adapting our current algorithm for a balanced weight vector, which is probabilistic and gives a guarantee on the approximation factor for the sum-of-squares objective, into a deterministic algorithm which gives a guarantee that, if $w_{nc}>0$ and edge $nc'$ exists, then 4supp_w(c)/supp_w(c') <= 1+eps4. Once we have it, we can compare our running time with the state of the art for star balancing: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.122.7945&rep=rep1&type=pdf (See theorem 1). Hopefully we have an algorithm that is faster, at least for bipartite graphs with one partition much smaller than the other.
+- A generalization of the 3.15 approximation that deals with eps-balanced weight vectors. The current analysis considers that the weight vector is truly balanced. 
+- A proof that the 3.15 approximation algorithm achieves PJR. However this result is hard to motivate since we have the PJR-enabler as a main result.
+- Throughout the paper we're assuming that all operations take constant time (see our remark at the end of the preliminaries section). Maybe we should change this. In particular, the authors of the seq-Phragmen method (Brill et al.) warn that the denominators of the load function grow exponentially. Do our other algorithms have the same problem? Hopefully the don't.
+- An analysis of a greedy algorithm that executes our heuristic iteratively, without ever balancing the weight vector. We know it achieves PJR. It would be great if we can also prove it achieves a constant factor approximation, or more generally any other property that makes it better than seq-Phragmen and can be used as a selling point. It probably beats seq-Phragmen numerically, so we could add some tests. 
+- Possibly a generalization of the problem with operators and multiplicities instead of validators. For more generality we can talk about political parties, but we should also mention the convenience for Polkadot in terms of network resilience in case some nodes drop out abruptly. 
+- Possibly some results about how to reduce and encode solutions compactly for submission, and how to simultaneously get a reduced and verifiably PJR solution.
