@@ -13,6 +13,8 @@ Handan Kılınç Alper, `Consensus on Clock in Universally Composable Timing Mod
 
 Alistair Stewart and Lefteris Kokoris Kogias, GRANDPA: A finality Gadget, in progress. 
 
+U+000B 
+
 **Posters:**
 
 Jeff Burdges, Handan Kılınç Alper, Alistair Stewart, `Availability and Validity <https://github.com/w3f/research/blob/master/docs/papers/AVAILABILITY%20AND%20VALIDITY%20OF%20DATA%20IN%20SHARDED%20BLOCKCHAINS_low.pdf>`_, Financial Cryptography and Data Security 2020. 
