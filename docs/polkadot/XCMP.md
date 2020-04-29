@@ -104,9 +104,6 @@ The size of the hash chain determines how full the channel is. Old messages can 
  
 **Relay chain state on-chain**: that is the CST that was described in the previous section.
 
-![XCMP_CST](https://raw.githubusercontent.com/w3f/research/master/docs/polkadot/images/XCMP_clean.png)
-This is an example of a Channel State Tables for paras A,B,C,D,E, that have nine channels in total amongst the paras. The Relay Chain State can help authenticate XCMP messages by storing the XCMP_root, which is the root of the Trie that contains all channel watermarks (i.e. *(relay chain block number, paraid)'s*). In this example, para A last acted on messages in relay chain block rc_1, para B last acted on messages in relay chain block rc_2, etc. The envelopes at the bottom correspond to the actual message content in the Message Queue Chain's for the channels. Only the head of these chains is used to construct the sending message roots. 
-
 ### Producing a PoV block
 A PoV block needs to include a nested Merkle proof and hash chain expansion thats starts at the light client state root and ends at each incoming message that needs to be acted on. The Merkle proofs will have a lot of parts in common and can be optimized by sharing the common parts (future work). 
 
@@ -144,9 +141,6 @@ For example, if para A has received many messages from para B since its last wat
 Note that if the relay chain state root is correct and it is for a block number no ealier than the new watermark, then this proof shows that these are exactly the messages from B that A should be acting on.
 
 It is likely that the parachain block, that full nodes of the parachain use to update their state, will contain unproven assertions about the received messages, watermark updates etc.
-
-![XCMP_POV](https://raw.githubusercontent.com/w3f/research/master/docs/polkadot/images/XCMP_clean_PoV.png)
-In this example, para A needs to show it acted on the last two messages that para B sent to A, i.e. those are the new messages. To prove this, collator C_A includes the following proofs in the PoV block. 1) the Merkle proof (the red nodes in the figure) from the relay chain state root to the CST row hash of B. 2) the Merkle proof (the blue nodes) of the message root and block number corresponding to the last messager from B to A at the block height (rc_1) of the relay chain state root from the CST row hash. 3) the Merkle proof (the orange nodes) of the head of the hash chain of messages from B to A. 4) The expansion of the hash chain (the triples) plus the messages from B to A from A's previous watermark up to its new watermark (the nodes + envelopes in green).
 
 ### Validating a PoV block
 
