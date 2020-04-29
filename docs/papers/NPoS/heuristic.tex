@@ -85,7 +85,7 @@ Hence, one can approximate the highest score by running several trials of Algori
 However, in Appendix~\ref{s:maxscore} we present a more sophisticated algorithm that can find the highest score exactly, by running $O(\log k)$ trials of $\maxprescore$, where we exploit the fact that the pre-scores are piece-wise linear functions in $t$.  
 
 \begin{lemma}\label{lem:maxscore2}
-There is an algorithm $\maxscore(A,w)$ that runs in time $O(|E|\cdot \log k)$ and for a partial solution $(A,w)$ as input returns a tuple $(c_{\max}, t_{\max})$ such that $t_{\max}=score_w(c_{\max})=\max_{c'\in C\setminus A} score_w(c')$.
+There is an algorithm $\maxscore(A,w)$ that, for a partial solution $(A,w)$ given as input, runs in time $O(|E|\cdot \log k)$ and returns a tuple $(c_{\max}, t_{\max})$ such that $t_{\max}=score_w(c_{\max})=\max_{c'\in C\setminus A} score_w(c')$.
 \end{lemma}
 
 To conclude the section we remark that our full heuristic, which finds a candidate with highest score and adds it to the current partial solution (Algorithms $\maxscore$ followed by $\ins$) executes in time $O(|E|\cdot \log k)$. It thus matches the running time of the heuristic in $\phragmen$ up to a logarithmic term.

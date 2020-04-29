@@ -19,7 +19,7 @@ In words, if there is a group $N'$ of voters with at least $r$ commonly approved
 
 
 \paragraph{The maximin support objective.} 
-For the given instance, we consider a solution consisting of a tuple $(A,w)$, where $A\subseteq C$ is a committee of $k$ elected candidates, and $w\in\R^E$ is a vector of non-negative edge weights that represents a fractional distribution of each nominator's vote among her approved candidates. Vector $w$ is considered \emph{feasible} if  % 
+For the given instance, we consider a solution consisting of a tuple $(A,w)$, where $A\subseteq C$ is a committee of $k$ elected candidates, and $w\in\R^E$ is a vector of non-negative edge weights that represents a fractional distribution of each voter's vote among her approved candidates. Vector $w$ is considered \emph{feasible} if  % 
 %
 \begin{equation}
     \sum_{c\in C_n} w_{nc}\leq s_n \quad \text{ for each voter } n\in N.%
@@ -63,7 +63,7 @@ The third point is a consequence of having the candidate supports as evenly dist
 
 We delay the proof of Lemma~\ref{lem:balanced} to Appendix~\ref{s:balanced}. 
 In that appendix we also present new algorithms for computing a balanced weight vector for a given committee $A$. 
-In particular, we prove that one can be found in time $O(|E|\cdot k + k^3)$ using techniques for parametric flow problems, which to the best of our knowledge is the current fastest algorithm in the literature even for the simpler problem of just maximizing $supp_w(A)$.
+In particular, we prove that one can be found in time $O(|E|\cdot k + k^3)$ using techniques for parametric flow problems, which to the best of our knowledge is the current fastest algorithm in the literature even for the simpler problem of maximizing $supp_w(A)$.
 In the remainder of the paper, we denote by $B$ the time complexity of finding a balanced weight vector, which will depend on the precise algorithm used.
 
 \paragraph{Equivalence of objectives.} 
