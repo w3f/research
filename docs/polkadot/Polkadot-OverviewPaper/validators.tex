@@ -9,7 +9,7 @@ require a set of registered validators of bounded size.
 Polkadot will maintain a number $\nval$ of validators, in the order of hundreds or thousands.
 This number will be ultimately decided by governance, and is intended to grow linearly with the number of parachains;
 yet it will be independent of the number of users in the network, thus ensuring scalability.
-However, NPoS allows for an unlimited number of DOT holders to participate as \emph{nominators},
+However, NPoS allows for an unlimited number of dot token holders to participate as \emph{nominators},
 who help maintain high levels of security by putting more value at stake.
 As such, NPoS is not only much more efficient than proof-of-work (PoW),
 but also considerably more secure than standard PoS.
@@ -23,7 +23,7 @@ In turn, each nominator locks some stake and publishes a list with any number of
 Then a public protocol, discussed below, takes these lists as input and elects the candidates
 with the most backing to serve as validators for the next era.
 
-Nominators share the rewards, or eventual slashings, with the validators they nominated, on a per-staked-dot basis; 
+Nominators share the rewards, or eventual slashings, with the validators they nominated on a per-staked-dot basis; 
 see Section~\ref{sec:economics} for more details. 
 Nominators are thus economically incentivised to act as watchdogs for the system, and they will base their preferences 
 on parameters such as validators' staking levels, commission fees, past performance, and security practices.
@@ -40,22 +40,14 @@ taking the nominators' lists of trusted candidates as input. Formally, the proto
 problem based on approval ballots, where nominators have voting power proportional to their stake,
 and where the goals are decentralisation and security.
 
-\paragraph{Decentralisation:} \label{par:decentralization} In the late 19th century, Swedish mathematician Edvard Phragm\'{e}n
-proposed a method for electing members to his country’s parliament~\cite{brill2017phragmen}.
-He noticed that the election methods at the time tended to give a disproportionately large number of seats 
-to the most popular political party; in contrast, his new method ensured that the number of seats
-assigned to each party was proportional to the votes given to them, so it gave more representation to minorities.
+\paragraph{Decentralisation:}  
+Our decentralization objective translates into the classical notion of proportional representation in voting theory.
+That is, a committee should represent each minority in the electorate proportional to their aggregate vote strength (in this case, their stake), with no minority being under-represented. 
+We highlight here that nominators -- and their lists of trusted candidates -- constitute a valuable gauge for the preferences of the general community, and that diverse preferences and factions will naturally arise not only due to economical and security-related reasons, but also political, geographical, etc. Such diversity of points of view is expected and welcome in a decentralized community, and it is important to engage all minorities in decision-making processes to ensure user satisfaction. 
 
-In the literature of computational social choice, Phragm\'{e}n's method has been recently revisited, 
-algorithmically optimised, and shown to achieve a property called \emph{proportional justified representation} (PJR), 
-see \cite{sanchez2017proportional, brill2017phragmen}.
-In the context of NPoS, this property turns out to be ideal to guarantee decentralisation.
-It ensures that the set of selected validators represents as many nominator minorities as possible,
-proportional to their stake, and that no minority is unjustly under-represented.
-Such minorities may naturally form due to political views, economic interests, geographical locations, etc.
-
-Our validator selection protocol is an adaptation of Phragm\'{e}n's method and is guaranteed 
-to observe the property of proportional justified representation. 
+The goal of designing an electoral system that achieves proportional representation has been present in the literature for a very long time. Of special note is the work of Scandinavian mathematicians Edvard Phragm\'{e}n and Thorvald Thiele in the late nineteenth century. Very recently, there has been considerable effort in the research community to formalize the notion of proportional representation, and revisit the methods by Phragm\'{e}n and Thiele and optimise them algorithmically. 
+Our validator selection protocol is an adaptation of Phragm\'{e}n's methods and is guaranteed 
+to observe the technical property of \emph{proportional justified representation} (PJR)~\cite{sanchez2017proportional, brill2017phragmen}. 
 Formally, this means that if each nominator $\nom \in \Nom$ has stake $stake_\nom$ 
 and backs a subset $\Can_\nom\subseteq \Can$ of candidates,%
 %
