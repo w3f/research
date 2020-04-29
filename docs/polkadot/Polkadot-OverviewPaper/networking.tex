@@ -28,34 +28,50 @@ production system.
 
 \subsubsection{Networking overview}
 
-Polkadot needs networking subprotocols for a number of its components as follows.
-\begin{enumerate}
-\item synchronising newer state for (a) parachains and (b) the relay chain
-\item accepting transactions from users for (a) parachains and (b) the relay chain
-\item collation protocol for parachain blocks, including distributing transactions
-\item accepting collated parachain blocks from parachain collators
-\item distributing parachain blocks and validity attestations, and making these available for a time \ref{sec:validity-and-availability} for auditing purposes
-\item collation protocol for relay chain blocks \ref{sec:relaychainblockproduction}, including distributing transactions
-\item finalisation protocol for relay chain blocks \ref{sec:grandpa}, including distributing relay chain blocks
-\item passing messages between different parachains \ref{sec:XCMP}
-\end{enumerate}
-
-1(a), 2(a) and 3 are conceptually external to Polkadot, being chosen by each parachain for themselves as their own responsibility. However, schemes similar to the ones described below for the relay chain, may also be used by parachains if they decide they are suitable. Additionally, (3) is expected to require information about the relay chain to work. This is public information, and the collators should get it simply by being part of the relay chain gossip network, as an untrusted non-validator full-node.
-
-For the remaining components, the following subprotocols are used:
+As discussed above, Polkadot consists of a central relay chain interacting with
+many different parachains and providing them with security services. These
+require the following network-level functionality, generally for distribution
+and availability:
 
 \begin{enumerate}
-\item (a) N/A - external to Polkadot, (b) Performed with one's \hyperref[sec:gossiping]{gossip neighbours}
-\item (a) N/A - external to Polkadot, (b) Sender \hyperref[sec:net_service]{sends non-specifically}
-\item N/A - external to Polkadot
-\item Sender \hyperref[sec:net_service]{sends non-specifically}
-\item Special case, see \hyperref[sec:net_storage]{below}
-\item Broadcast via \hyperref[sec:gossiping]{gossip}
-\item Broadcast via \hyperref[sec:gossiping]{gossip}
-\item Special case, see \hyperref[sec:net_crosschain]{below}
+
+\item As with all blockchain-like protocols, the relay chain requires:
+  \begin{enumerate}
+    \item accepting \emph{extrinsics} (transactions) from users, and distributing them
+    \item distributing artifacts of the collation subprotocol \ref{sec:relaychainblockproduction}
+    \item distributing artifacts of the finalisation subprotocol \ref{sec:grandpa}
+    \item synchronising previously-finalised state
+  \end{enumerate}
+
+As an important special case, parachains may choose to implement themselves
+according to the above structure, perhaps even re-using the same subprotocols.
+Part of the Polkadot implementation is architected as a separate library called
+\texttt{substrate} for them to do just this.
+
+\item For interaction between the relay chain and the parachains, we require:
+  \begin{enumerate}
+    \item accepting parachain blocks from parachain collators
+    \item distributing parachain block metadata including validity attestations
+    \item distributing parachain block data and making these available for a time \ref{sec:validity-and-availability}, for auditing purposes
+  \end{enumerate}
+
+\item For interaction between parachains, we require:
+  \begin{enumerate}
+    \item distributing messages between parachains \ref{sec:XCMP}, specifically from the relevant senders to the relevant recipients
+  \end{enumerate}
 \end{enumerate}
 
-We talk about these in more detail in the next few sections. Finally, we talk about the lower layers underpinning all of these subprotocols, namely \nameref{sec:net_lowlevel}.
+For each of the above functionality requirements, we satify them with the
+following:
+
+\begin{itemize}
+\item 1(b), 1(c), 2(b) - artifacts are broadcast as-is (i.e. without further coding) via \hyperref[sec:gossiping]{gossip}.
+\item 1(a), 1(d), 2(a) - effectively, a set of nodes are provide the same \hyperref[sec:net_service]{distributed service} to clients. For accepting extrinsics or blocks, clients send these directly to the serving node; for synchronisation, clients receive verifiable data directly from the serving node.
+\item 2(c) - special case, \hyperref[sec:net_storage]{below}. Briefly, data is erasure-encoded so that different recipients receive a small part; pieces are sent directly via QUIC.
+\item 3(a) - special case, \hyperref[sec:net_crosschain]{below}. Briefly, messages are sent directly via QUIC; in the process outboxes are reassembled into inboxes and the latter can be transferred as a batch to recipients.
+\end{itemize}
+
+We go into these in more detail in the next few sections. Finally, we talk about the lower layers underpinning all of these subprotocols, namely \nameref{sec:net_lowlevel}.
 
 \subsubsection{Gossiping} \label{sec:gossiping}
 
