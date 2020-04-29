@@ -2,7 +2,7 @@
 
 Polkadot uses sophisticated mechanisms for Governance which allows it to evolve gracefully over time at the ultimate behest of its assembled stakeholders. A key and unfailing rule is that all changes to the protocol must be agreed upon by stake-weighted referendum -- the majority of stake always commands the network.
 
-In order to make any changes to the network, the idea is to bring dot holders and administrate a network upgrade decision with the help of the Council (Section \ref{s:council}). No matter whether the proposal is submitted by a dot holder or by the Council, it will ultimately have to go through a referendum to let all dot holders, weighted by stake, make the decision.
+In order to make any changes to the network, the idea is to bring dot holders together and administrate a network upgrade decision with the help of the Council (Section \ref{s:council}). No matter whether the proposal is submitted by a dot holder or by the Council, it will ultimately have to go through a referendum to let all dot holders, weighted by stake, make the decision.
 
 Each dot holder in Polkadot has the right to: a) submit a proposal, b) endorse a public proposal to prioritise it in the referendum timetable, c) vote on all active referenda, d) become a candidate for a seat in the Council, and e) vote on candidates for the Council. In addition, any dot holder may become a nominator or a validator candidate to participate in NPoS (see Section \ref{sec:validators}).
 
@@ -24,13 +24,13 @@ Any stakeholder can submit a \emph{public proposal} by depositing a fixed minimu
 
 \emph{Council proposals} are submitted by the Council, and are stored in a separate priority queue where the priorities are set at the Council's discretion.
 
-\alfonso{}{What happens with proposals automatically submitted by the enactment of a previous referendum -- do they go to the public-proposal queue or the Council-proposal queue, or a different queue? I don't know, we should ask Gavin.}
+%\alfonso{}{What happens with proposals automatically submitted by the enactment of a previous referendum -- do they go to the public-proposal queue or the Council-proposal queue, or a different queue? I don't know, we should ask Gavin.}
 
 A \textbf{referendum} is a simple, inclusive, staked-weighted voting scheme. It has a fixed voting period, after which votes are tallied. Referenda are always binary: voting options are "aye", "nay", or abstaining entirely.
 
 \paragraph{Timetables:} Every thirty days, a new proposal will be tabled and a referendum will come up for a vote. The proposal to be tabled is the top proposal from either the public-proposal queue or the Council-proposal queue, alternating between the two queues if both are non-empty. If both queues are empty, the slot is skipped in the referendum timetable. Multiple referenda cannot be active simultaneously, except for emergency referenda which follow a parallel timetable.
 
-\paragraph{Vote counting:} Voting on referenda is open to all dot holders with a voting power proportional to their stake, up to a possible vote multiplier which is awarded to some parties depending on their level of commitment to the system, as we explain now. A party must generally lock their tokens used for voting until at least the enactment delay period beyond the end of the referendum. This is in order to ensure that some minimal economic buy-in to the result is needed and to dissuade vote selling. It is possible to vote without locking at all, but in that case the voting power is a small fraction of a normal vote for the given stake. Conversely, Polkadot will offer \emph{voluntary extended locking}, that allows any party to increase their voting power by extending the period of time they are willing to lock up their tokens. This ensures that voters committed to the system long term, who are willing to increase their exposure to the decision of a referendum, have a greater say in the matter. In particular parachains, who lock dots when they join the network (Section~\ref{s:pAllocation}), as well as validators and nominators, who lock their stake to participate in NPoS (Section~\ref{sec:validators}), automatically benefit from a vote multiplier when they vote with their locked tokens.
+\paragraph{Vote counting:} Voting on referenda is open to all dot holders with a voting power proportional to their stake, up to a possible vote multiplier which is awarded to some parties depending on their level of commitment to the system, as we explain now. A party must generally lock their tokens used for voting until at least the enactment delay period beyond the end of the referendum. This is in order to ensure that some minimal economic buy-in to the result is needed and to dissuade vote selling. It is possible to vote without locking at all, but in that case the voting power is a small fraction of a normal vote for the given stake. Conversely, Polkadot will offer \emph{voluntary extended locking}, that allows any party to increase their voting power by extending the period of time they are willing to lock up their tokens. This ensures that voters committed to the system long term, who are willing to increase their exposure to the decision of a referendum, have a greater say in the matter. 
 
 \paragraph{Turnout biasing:} It may seem restrictive to force a full stakeholder-based process to do something as little as, say, nudging the block time down by $5\%$. However, without this rule the network would likely be unstable, as placing its control outside of the hands of stakeholders would create a misalignment that may lead to inaction or worse. However, by taking advantage of the fact that turnout is rarely $100\%$, we can effect different outcomes depending on the circumstances, crafting a balance of power between active and passive stakeholders. For example, simple voting systems typically introduce a notion of quorum, whereby a minimum amount of turnout must be reached before a change is passed. 
 
@@ -45,7 +45,7 @@ On the other hand, for proposals submitted by the Council, referenda have no tur
     \label{fig:biasing}
 \end{figure}
 
-\alfonso{}{Alfonso: Bill proposes that the biasing should be less severe. In particular for turnout values close to zero (which is what we observe in real life) the required percentage of ayes to carry stay, say, within 33 to 66\%, instead of going all the way to 0 or 100\%. I agree with him.}
+%\alfonso{}{Alfonso: Bill proposes that the biasing should be less severe. In particular for turnout values close to zero (which is what we observe in real life) the required percentage of ayes to carry stay, say, within 33 to 66\%, instead of going all the way to 0 or 100\%. I agree with him.}
 
 Finally, in the exceptional case that a Council proposal receives unanimous support by all Council members, it will observe a "negative turnout bias". This is the symmetric opposite of the first case, where additional turnout always makes change less likely, we favour the yay side in case of low turnout by requiring a super-majority of nays to reject the proposal, and as turnout approaches $100\%$ the requirement dials down to majority-carries. See Figure~\ref{fig:biasing}.
 
@@ -56,7 +56,7 @@ Finally, in the exceptional case that a Council proposal receives unanimous supp
 
 The Council will constantly review candidate proposals to deal with emerging issues in the system. A candidate proposal is officially backed by the Council -- and enters the queue of Council proposals -- only after it is approved by a strict majority of Council members, with no member exercising a veto. A candidate proposal can be vetoed only once; if, after a cool-down period, it is once more approved by a majority of Council members, it cannot be vetoed a second time. 
 
-\alfonso{}{The Council should have the capacity to change the bias of any proposal through majority voting or unanimity, even a public proposal. Is this the case now?}
+%\alfonso{}{The Council should have the capacity to change the bias of any proposal through majority voting or unanimity, even a public proposal. Is this the case now?}
 
 As mentioned before, in the case that all members vote in favour, a Council proposal is consider uncontroversial and enjoys a special turnout bias that makes it more likely to be approved. 
 
