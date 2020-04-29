@@ -104,7 +104,7 @@ The size of the hash chain determines how full the channel is. Old messages can 
  
 **Relay chain state on-chain**: that is the CST that was described in the previous section.
 
-![XCMP_CST](/https://raw.githubusercontent.com/w3f/research/master/docs/polkadot/images/XCMP_clean.png)
+![XCMP_CST](https://raw.githubusercontent.com/w3f/research/master/docs/polkadot/images/XCMP_clean.png)
 This is an example of a Channel State Tables for paras A,B,C,D,E, that have nine channels in total amongst the paras. The Relay Chain State can help authenticate XCMP messages by storing the XCMP_root, which is the root of the Trie that contains all channel watermarks (i.e. *(relay chain block number, paraid)'s*). In this example, para A last acted on messages in relay chain block rc_1, para B last acted on messages in relay chain block rc_2, etc. The envelopes at the bottom correspond to the actual message content in the Message Queue Chain's for the channels. Only the head of these chains is used to construct the sending message roots. 
 
 ### Producing a PoV block
