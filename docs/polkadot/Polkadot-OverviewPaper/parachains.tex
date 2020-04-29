@@ -15,12 +15,8 @@ and the {\em Proof of Validity(PoV)} block $B_{PoV}$, which a validator who does
 
 Any validator should be able to verify $B_{PoV}$ given the relay chain state using the parachain's {\em state transition validation function} (STVF),
 the Web assembly code for which is stored on the relay chain in a similar way to the relay chain's runtime.
-The STVF takes as an input the PoV block,
-\begin{itemize}
-	\item  the header of the last parachain block from this parachain and,
-	\item the message roots of all parachain blocks that have sent messages to this parachain since the last parachain block
-	(see Section \ref{sec:XCMP} for details such as the range needed)
-\end{itemize}
+The STVF takes as an input the PoV block, the header of the last parachain block from this parachain and a small amount of data from the relay chain state.
+	
 The STVF outputs the validity of the block, the header of this block and its outgoing messages.
 The PoV block contains any outgoing messages and the parachain block $B$. The parachain validators should gossip the parachain block to the parachain network, as a back up to the collator itself doing so.
 
@@ -67,7 +63,7 @@ XCMP is the protocol that parachains use to send messages to each other. It aims
 that messages that arrive were indeed sent in the finalised history of the chain,
 and that recipients process messages fairly across senders - roughly, that senders never wait indefinitely for their messages to be processed. As a result of these properties, we require that a parachain accepts all incoming messages.
 
-There are two parts to XCMP. (1) Metadata about outgoing messages are included in a block via the normal submission process. Later, after integrity and validity checks are performed, this metadata may be read as incoming messages. (2) The message bodies corresponding to this metadata need to be actually distributed from the senders to the recipients, together with a proof that the message body is actually associated with the relevant metadata. The details of distribution are covered as a networking protocol in \nameref{sec:net_crosschain}; the remainder is covered below.
+There are two parts to XCMP. (1) Metadata about outgoing messages for a parachain block are included on the relay chain and later this metadata is used to authenticate messages by the receiving parachain. (2) The message bodies corresponding to this metadata need to be actually distributed from the senders to the recipients, together with a proof that the message body is actually associated with the relevant metadata. The details of distribution are covered as a networking protocol in \nameref{sec:net_crosschain}; the remainder is covered below.
 
 The way relay chain blocks include headers of parachain blocks gives a synchronous notion of time for parachain blocks, just by relay chain block numbers. Additionally it allows us to authenticate messages as being sent in the history given by the relay chain i.e. it is impossible that one parachain sends a message, then reorgs \footnote{reorganisation of the chain} so that that message was not sent, but has been received. This holds even though the system may not have reached finality over whether the message was sent, because any relay chain provides a consistent history.
 
