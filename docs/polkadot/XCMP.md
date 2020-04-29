@@ -104,7 +104,7 @@ The size of the hash chain determines how full the channel is. Old messages can 
  
 **Relay chain state on-chain**: that is the CST that was described in the previous section.
 
-![XCMP_CST](/docs/polkadot/images/XCMP_clean.png)
+![XCMP_CST](/https://raw.githubusercontent.com/w3f/research/master/docs/polkadot/images/XCMP_clean.png)
 This is an example of a Channel State Tables for paras A,B,C,D,E, that have nine channels in total amongst the paras. The Relay Chain State can help authenticate XCMP messages by storing the XCMP_root, which is the root of the Trie that contains all channel watermarks (i.e. *(relay chain block number, paraid)'s*). In this example, para A last acted on messages in relay chain block rc_1, para B last acted on messages in relay chain block rc_2, etc. The envelopes at the bottom correspond to the actual message content in the Message Queue Chain's for the channels. Only the head of these chains is used to construct the sending message roots. 
 
 ### Producing a PoV block
@@ -145,7 +145,7 @@ Note that if the relay chain state root is correct and it is for a block number 
 
 It is likely that the parachain block, that full nodes of the parachain use to update their state, will contain unproven assertions about the received messages, watermark updates etc.
 
-![XCMP_POV](/docs/polkadot/images/XCMP_clean_PoV.png)
+![XCMP_POV](https://raw.githubusercontent.com/w3f/research/master/docs/polkadot/images/XCMP_clean_PoV.png)
 In this example, para A needs to show it acted on the last two messages that para B sent to A, i.e. those are the new messages. To prove this, collator C_A includes the following proofs in the PoV block. 1) the Merkle proof (the red nodes in the figure) from the relay chain state root to the CST row hash of B. 2) the Merkle proof (the blue nodes) of the message root and block number corresponding to the last messager from B to A at the block height (rc_1) of the relay chain state root from the CST row hash. 3) the Merkle proof (the orange nodes) of the head of the hash chain of messages from B to A. 4) The expansion of the hash chain (the triples) plus the messages from B to A from A's previous watermark up to its new watermark (the nodes + envelopes in green).
 
 ### Validating a PoV block
