@@ -25,25 +25,24 @@ On the network level, the relay chain is open. Any node may run the software and
   \begin{enumerate}
   \item \hyperref[sec:net_sentry]{Sentry node} - publicly-reachable full nodes that perform trusted proxying services for a private full node, run by the same operator.
   \end{enumerate}
+Sometimes we refer to a \emph{full node} of a parachain. In the abstract sense for non-blockchain parachains, this means that they participate in it to a sufficient degree that they can verify all data passing through it.
 \end{enumerate}
 
-Beyond distributing data, nodes may perform certain protocol-level roles listed next. Some of these roles have restrictions and conditions associated with them:
+Beyond distributing data, relay-chain nodes may perform certain protocol-level roles listed next. Some of these roles have restrictions and conditions associated with them:
 
 \begin{enumerate}
-\item Validator - performs the bulk of the security work. Must be a full node of the relay chain.
-\item Nominator - stakeholder who uses this to select validators. Can be done from a light client.
+\item Validator - performs the bulk of the security work. Must be a full node of the relay chain. Interacts with parachain collators, but need not participate in a parachain as a full node.
+\item Nominator - stakeholder who uses this to select validators. Can be done from a light client. Need not have any awareness of parachains.
 \end{enumerate}
 
 Parachains may decide their own internal network structure, \uline{but are expected to interact with Polkadot via the following roles}:
 
 \begin{enumerate}
-\item Collator\footnotemark[1] - collects and submits parachain data to the relay chain, subject to protocol rules depending on the current state of the relay chain, described below. They are chosen in a way defined by the parachain, and must be full nodes\footnotemark[2] of it.
+\item Collator\footnotemark[1] - collects and submits parachain data to the relay chain, subject to protocol rules described below. They are chosen as defined by the parachain, and must be full nodes of it.
 \item Fishermen - performs additional security checks on the correct operation of the parachain, on behalf of the relay chain who supplies a reward. This role is self-assigned and reward-incentized, and must be a full node of the parachain.
 \end{enumerate}
 
 \footnotetext[1]{Validators are in some sense a collator of the relay chain network, in that they collect extrinsics (e.g. transactions) within the relay chain network. However we typically only refer to them as validators even when performing these tasks, and the term \emph{collator} is reserved for parachain collators only.}
-
-\footnotetext[2]{A \emph{full node} of a parachain in the abstract sense for non-blockchain parachains, means that they participate in it to a sufficient degree that they can verify all data passing through it.}
 
 \subsection{Protocol}
 
