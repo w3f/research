@@ -112,7 +112,7 @@ Further work will consider the issue of load-balancing the transport-layer conne
 
 \subsubsection{Storage and availability} \label{sec:net_storage}
 
-This subprotocol is for \nameref{sec:validity-and-availability}.
+This subprotocol addresses the networking used for the Availability and Validity sub-protocl described in Section \ref{sec:validity-and-availability}.
 
 Recall that for scalability, Polkadot does not require everyone to store the state of the whole system, namely all of the state pointed to by all of the blocks. Instead, every parachain block is split into pieces by erasure-coding, such that there is 1 piece for every validator for a total of $N$ piecese, the erasure threshold being $ceil(N/3)$ blocks for security reasons explained elsewhere. All the pieces are available initially at the relevant parachain validators, having been submitted by some of the collators. (In this role, the parachain validators are also called the \emph{preliminary checkers}.) The pieces are then selectively distributed in the following phases:
 
@@ -161,7 +161,7 @@ overlay - the peers there connect to other peers on a by-need basis.
 
 \subsubsection{Cross-chain messaging} \label{sec:net_crosschain}
 
-This subprotocol is for \nameref{sec:XCMP}.
+This subprotocol address the networking scheme used for the XCMP messaging sub-protocol described in Section \ref{sec:XCMP}.
 
 To recap that section, parachains can send messages to each other. The contents
 of outgoing messages are part of the parachain PoV blocks submitted by the
