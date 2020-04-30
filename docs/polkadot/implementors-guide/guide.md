@@ -9,6 +9,11 @@ There are a number of other documents describing the research in more detail. Al
 ## Table of Contents
 * [Origins](#Origins)
 * [Parachains: Basic Functionality](#Parachains-Basic-Functionality)
+* [Architecture](#Architecture)
+  * [Node-side](#Architecture-Node-side)
+  * [Runtime](#Architecture-Runtime)
+* [Processes](#Processes)
+* [Data Structures and Formats](#Data-Structures-and-Formats)
 * [Glossary / Jargon](#Glossary)
 
 
@@ -30,18 +35,18 @@ It became clear a few years ago that the transaction throughput of simple Proof-
 Having recognized these issues, we set out to find a solution to these problems, which could allow developers to create and deploy purpose-built blockchains unified under a common source of security, with the capability of message-passing between them; a _heterogeneous sharding solution_, which we have come to know as **Parachains**.
 
 
----
+----
 
 ## Parachains: Basic Functionality
 
-This section aims to describe, at a high level, the architecture, actors, and processes involved in the implementation of parachains. It also illuminates certain subtleties and challenges faces in the design and implementation of those processes.
+This section aims to describe, at a high level, the architecture, actors, and processes involved in the implementation of parachains. It also illuminates certain subtleties and challenges faces in the design and implementation of those processes. Our goal is to carry a parachain block from authoring to secure inclusion, and define a process which can be carried out repeatedly and in parallel for many different parachains to extend them over time. Understanding of the high-level approach taken here is important to provide context for the proposed architecture further on.
 
 First, it's important to go over the main actors we have involved in the Polkadot network.
 1. Validators. These nodes are responsible for validating proposed parachain blocks. They do so by checking a Proof-of-Validity (PoV) of the block and ensuring that the PoV remains available. They put financial capital down as "skin in the game" which can be revoked if they are proven to have misvalidated.
 2. Collators. These nodes are responsible for creating the Proofs-of-Validity that validators know how to check. Creating a PoV typically requires familiarity with the transaction format and block authoring rules of the parachain, as well as having access to the full state of the parachain.
 3. Fishermen. These are user-operated, permissionless nodes whose goal is to catch out misbehaving validators in exchange for a bounty. Collators and validators can behave as Fishermen too.
 
-This alludes to a simple pipeline where collators send validators parachain blocks and their requisite PoV to check. Then, validators validate the block using the PoV, signing statements to that effect, and then the block can be included. If a fisherman detects that a validator or group of validators incorrectly signed a statement claiming a block was valid, then those validators will be _slashed_, with the fisherman receiving a bounty.
+This alludes to a simple pipeline where collators send validators parachain blocks and their requisite PoV to check. Then, validators validate the block using the PoV, signing statements which describe either the positive or negative outcome, and with enough positive statements, the block can be included. If a fisherman detects that a validator or group of validators incorrectly signed a statement claiming a block was valid, then those validators will be _slashed_, with the fisherman receiving a bounty.
 
 However, there is a problem with this formulation. In order for a fisherman to check the validators' work after the fact, the PoV must remain _available_ so a fisherman can fetch it in order to check the work. The PoVs are expected to be too large to include in the blockchain directly, so we require an alternate _data availability_ scheme which requires validators to prove that the inputs to their work will remain available, and so their work can be checked.
 
@@ -66,7 +71,7 @@ This process can be divided further down. Steps 2 & 3 relate to the work of the 
 This brings us to the second part of the process. Once a parablock is "fully included", it is still "pending approval". At this stage in the pipeline, the parablock has been backed by a majority of validators in the group assigned to that parachain, and its data has been guaranteed available by the set of validators as a whole. However, the validators in the parachain-group (known as the "Parachain Validators" for that parachain) are sampled from a validator set which contains some proportion of byzantine, or arbitrarily malicious members. This implies that the Parachain Validators for some parachain may be majority-dishonest, which means that secondary checks must be done on the block before it can be considered approved.
 
 The Approval Process looks like this:
-1. Parablocks are pending approval for a time-window known as the secondary checking window.
+1. Parablocks that have been included by the Inclusion Pipeline are pending approval for a time-window known as the secondary checking window.
 1. During the secondary-checking window, validators randomly self-select to perform secondary checks on the parablock.
 1. These validators, known in this context as secondary checkers, acquire the parablock and its PoV, and re-run the validation function.
 1. The secondary checkers submit the result of their checks to the relay chain. Contradictory results lead to escalation, where even more secondary checkers are selected and the secondary-checking window is extended.
@@ -79,6 +84,50 @@ These two pipelines sum up the sequence of events necessary to extend and acquir
 It is also important to take note of the fact that the relay-chain is extended by BABE, which is a forkful algorithm. That means that different block authors can be chosen at the same time, and may not be building on the same block parent. Furthermore, the set of validators is not fixed, nor is the set of parachains. And even with the same set of validators and parachains, the validators' assignments to parachains is flexible. This means that the architecture proposed in the next chapters must deal with the variability and multiplicity of the network state.
 
 [TODO Diagram: Forkfulness]
+
+----
+
+## Architecture
+
+Our Parachain Host is a blockchain. A blockchain is a Directed Acyclic Graph (DAG) of state transitions, where every block can be considered to be the head of a linked-list (known as a "chain" or "fork") with a cumulative state which is determined by applying the state transition of each block in turn. All paths through the DAG terminate at the Genesis Block.
+
+[TODO Diagram: Blockchain / Block-DAG]
+
+A blockchain network is comprised of nodes. These nodes each have a view of many different forks of a blockchain and must decide which forks to follow and what actions to take based on the forks of the chain that they are aware of.
+
+So in specifying an architecture to carry out the functionality of a Parachain Host, we have to answer two categories of questions:
+1. What is the state-transition function of the blockchain? What is necessary for a transition to be considered valid, and what information is carried within the implicit state of a block?
+2. Being aware of various forks of the blockchain as well as global private state such as a view of the current time, what behaviors should a node undertake? What information should a node extract from the state of which forks, and how should that information be used?
+
+The first category of questions will be addressed by the Runtime, which defines the state-transition logic of the chain. Runtime logic only has to focus on the perspective of one chain, as each state has only a single parent state.
+
+The second category of questions addressed by Node-side behavior. Node-side behavior defines all activities that a node undertakes, given its view of the blockchain/block-DAG. Node-side behavior can take into account all or many of the forks of the blockchain, and only conditionally undertake certain activities based on which forks it is aware of, as well as the state of the head of those forks.
+
+[TODO Diagram: Runtime vs. Node-side]
+
+It is also helpful to divide Node-side behavior into two further categories: Networking and Core. Networking behaviors relate to how information is distributed between nodes. Core behaviors relate to internal work that a specific node does. These two categories of behavior often interact, but can be heavily abstracted from each other. Core behaviors care that information is distributed and received, but not the internal details of how distribution and receipt function. Networking behaviors act on requests for distribution or fetching of information, but are not concerned with how the information is used afterwards. This allows us to create clean boundaries between Core and Networking activities, improving the modularity of the code.
+
+[TODO Diagram: Node-side divided into Networking and Core]
+
+Node-side behavior is split up into various Processes. These processes may be long-running or short-lived. They may communicate with each other.
+
+Runtime logic is divided up into Modules and APIs. Modules encapsulate particular behavior of the system. Modules consist of storage, routines, and entry-points. Routines are invoked by entry points, by other modules, upon block initialization or closing. Routines can read and alter the storage of the module. Entry-points are the means by which new information is introduced to a module. Each block in the blockchain contains a set of Extrinsics. Each extrinsic targets a a specific entry point to trigger and which data should be passed to it. Runtime APIs provide a means for Node-side behavior to extract meaningful information from the state of a fork.
+
+These two aspects of the implementation are heavily dependent on each other. The Runtime depends on Node-side behavior to author blocks, and to include Extrinsics which trigger the correct entry points. The Node-side behavior relies on Runtime APIs to extract information necessary to determine which actions to take.
+
+### Architecture: Node-side
+
+[TODO]
+
+### Architecture: Runtime
+
+[TODO]
+
+----
+
+## Processes
+
+----
 
 ## Secondary Checking
 
@@ -100,6 +149,19 @@ It is also important to take note of the fact that the relay-chain is extended b
 
 [TODO]
 
+----
+
+## Data Structures and Formats
+
+[TODO]
+* CandidateReceipt
+* CandidateCommitments
+* AbridgedCandidateReceipt
+* GlobalValidationSchedule
+* LocalValidationData
+
+----
+
 ## Glossary
 
 Here you can find definitions of a bunch of jargon, usually specific to the Polkadot project.
@@ -108,7 +170,12 @@ Here you can find definitions of a bunch of jargon, usually specific to the Polk
 - Backed Candidate: A Parachain Candidate which is backed by a majority of validators assigned to a given parachain.
 - Backing: A set of statements proving that a Parachain Candidate is backed.
 - Collator: A node who generates Proofs-of-Validity (PoV) for blocks of a specific parachain.
+- Extrinsic: An element of a relay-chain block which triggers a specific entry-point of a runtime module with given arguments. 
 - GRANDPA: (Ghost-based Recursive ANcestor Deriving Prefix Agreement). The algorithm validators use to guarantee finality of the Relay Chain.
+- Inclusion Pipeline: The set of steps taken to carry a Parachain Candidate from authoring, to backing, to availability and full inclusion in an active fork of its parachain.
+- Module: A component of the Runtime logic, encapsulating storage, routines, and entry-points.
+- Module Entry Point: A recipient of new information presented to the Runtime. This may trigger routines.
+- Module Routine: A piece of code executed within a module by block initialization, closing, or upon an entry point being triggered. This may execute computation, and read or write storage.
 - Node: A participant in the Polkadot network, who follows the protocols of communication and connection to other nodes. Nodes form a peer-to-peer network topology without a central authority.
 - Parachain Candidate, or Candidate: A proposed block for inclusion into a parachain.
 - Parablock: A block in a parachain.
@@ -117,6 +184,8 @@ Here you can find definitions of a bunch of jargon, usually specific to the Polk
 - Parathread: A parachain which is scheduled on a pay-as-you-go basis.
 - Proof-of-Validity: A stateless-client proof that a parachain block is valid, with respect to some validation function.
 - Runtime: The relay-chain state machine.
+- Runtime Module: See Module.
+- Runtime API: A means for the node-side behavior to access structured information based on the state of a fork of the blockchain.
 - Secondary Checker: A validator who has been randomly selected to perform secondary checks on a parablock which is pending approval.
 - Validator: Specially-selected node in the network who is responsible for validating parachain blocks and issuing attestations about their validity.
 - Validation Function: A piece of Wasm code that describes the state-transition function of a parachain.
