@@ -7,7 +7,7 @@ We will discuss block production for a general parachain. At the end of the sect
 In outline, a collator produces a parachain block, sends it to the parachain validators,
 who sign its header as valid, and the header with enough signatures is placed on the relay chain.
 At this point, the parachain block is as canonical as the relay chain block its header appeared in.
-If this relay cahin block is in the best chain according to BABE (See Section \ref{sec:babe}), so is the parachain block and when this relay chain block is finalised, so is the parachain block.
+If this relay chain block is in the best chain according to BABE (See Section \ref{sec:babe}), so is the parachain block and when this relay chain block is finalised, so is the parachain block.
 
 Because the parachain validators switch parachains frequently, they are stateless clients of the parachain.
 Thus we distinguish between the parachain block $B$, which is normally enough for full nodes of the parachain such as collators to update the parachain state,
