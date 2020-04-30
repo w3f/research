@@ -45,7 +45,7 @@ This alludes to a simple pipeline where collators send validators parachain bloc
 
 However, there is a problem with this formulation. In order for a fisherman to check the validators' work after the fact, the PoV must remain _available_ so a fisherman can fetch it in order to check the work. The PoVs are expected to be too large to include in the blockchain directly, so we require an alternate _data availability_ scheme which requires validators to prove that the inputs to their work will remain available, and so their work can be checked.
 
-Here is a description of the path a parachain block (or parablock, for short) takes from creation to inclusion:
+Here is a description of the Inclusion Pipeline: the path a parachain block (or parablock, for short) takes from creation to inclusion:
 1. Validators are selected and assigned to parachains by the Validator Assignment Process.
 1. A collator produces the parachain block, which is known as a parachain candidate or candidate, along with a PoV for the candidate.
 1. The collator forwards the candidate and PoV to validators assigned to the same parachain via the Collation Distribution Process.
@@ -63,7 +63,22 @@ Note that the candidate can fail to be included in any of the following ways:
 
 This process can be divided further down. Steps 2 & 3 relate to the work of the collator in collating and distributing the candidate to validators via the Collation Distribution Process. Steps 3 & 4 relate to the work of the validators in the Candidate Backing Process and the block author (itself a validator) to include the block into the relay chain. Steps 6, 7, and 8 correspond to the logic of the relay-chain state-machine (otherwise known as the Runtime) used to fully incorporate the block into the chain. Step 7 requires further work on the validators' parts to participate in the Availability Distribution process and include that information into the relay chain for step 8 to be fully realized.
 
-It is also important to take note of the fact that the relay-chain is extended by BABE, which is a forkful algorithm. That means that different block authors can be chosen at the same time, and may not be building on the same block parent. Furthermore, the set of validators is not fixed, nor is the set of parachains. And even with the same set of validators and parachains, the validators' assignments to parachains is flexible. This means that the architecture proposed in the next chapters must deal with the variability and multiplicity of the network state. Nodes may take actions for more than one relay-chain head at a time, 
+This brings us to the second part of the process. Once a parablock is "fully included", it is still "pending approval". At this stage in the pipeline, the parablock has been backed by a majority of validators in the group assigned to that parachain, and its data has been guaranteed available by the set of validators as a whole. However, the validators in the parachain-group (known as the "Parachain Validators" for that parachain) are sampled from a validator set which contains some proportion of byzantine, or arbitrarily malicious members. This implies that the Parachain Validators for some parachain may be majority-dishonest, which means that secondary checks must be done on the block before it can be considered approved.
+
+The Approval Process looks like this:
+1. Parablocks are pending approval for a time-window known as the secondary checking window.
+1. During the secondary-checking window, validators randomly self-select to perform secondary checks on the parablock.
+1. These validators, known in this context as secondary checkers, acquire the parablock and its PoV, and re-run the validation function.
+1. The secondary checkers submit the result of their checks to the relay chain. Contradictory results lead to escalation, where even more secondary checkers are selected and the secondary-checking window is extended.
+1. At the end of the Approval Process, the parablock is either Approved or it is rejected. More on the rejection process later.
+
+These two pipelines sum up the sequence of events necessary to extend and acquire full security on a Parablock. Note that the Inclusion Pipeline must conclude for a specific parachain before a new block can be accepted on that parachain. After inclusion, the Approval Process kicks off, and can be running for many parachain blocks at once.
+
+[TODO Diagram: Inclusion Pipeline & Approval Processes interaction]
+
+It is also important to take note of the fact that the relay-chain is extended by BABE, which is a forkful algorithm. That means that different block authors can be chosen at the same time, and may not be building on the same block parent. Furthermore, the set of validators is not fixed, nor is the set of parachains. And even with the same set of validators and parachains, the validators' assignments to parachains is flexible. This means that the architecture proposed in the next chapters must deal with the variability and multiplicity of the network state.
+
+[TODO Diagram: Forkfulness]
 
 ## Secondary Checking
 
@@ -98,9 +113,11 @@ Here you can find definitions of a bunch of jargon, usually specific to the Polk
 - Parachain Candidate, or Candidate: A proposed block for inclusion into a parachain.
 - Parablock: A block in a parachain.
 - Parachain: A constituent chain secured by the Relay Chain's validators.
+- Parachain Validators: A subset of validators assigned during a period of time to back candidates for a specific parachain
 - Parathread: A parachain which is scheduled on a pay-as-you-go basis.
 - Proof-of-Validity: A stateless-client proof that a parachain block is valid, with respect to some validation function.
 - Runtime: The relay-chain state machine.
+- Secondary Checker: A validator who has been randomly selected to perform secondary checks on a parablock which is pending approval.
 - Validator: Specially-selected node in the network who is responsible for validating parachain blocks and issuing attestations about their validity.
 - Validation Function: A piece of Wasm code that describes the state-transition function of a parachain.
 
