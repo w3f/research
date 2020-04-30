@@ -24,10 +24,6 @@ Jeff Burdges, "Assessing or incentivising correct mixing without authorities", F
 
 Alistair Stewart, "GRANDPA: A Finality Gadget", CCS 2019.
 
-**Presentations:**
-
-
-
 **Blog Posts:**
 
 Fatemeh Shirazi, Logan Saether, Alistair Stewart, Rob Habermeier, Gavin Wood,
