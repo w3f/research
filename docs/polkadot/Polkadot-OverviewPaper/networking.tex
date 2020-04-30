@@ -38,8 +38,8 @@ and availability:
 \item As with all blockchain-like protocols, the relay chain requires:
   \begin{enumerate}
     \item accepting \emph{extrinsics} (transactions / commands) from users, and distributing them
-    \item distributing artifacts of the collation subprotocol \ref{sec:relaychainblockproduction}
-    \item distributing artifacts of the finalisation subprotocol \ref{sec:grandpa}
+    \item distributing artefacts of the collation subprotocol \ref{sec:relaychainblockproduction}
+    \item distributing artefacts of the finalisation subprotocol \ref{sec:grandpa}
     \item synchronising previously-finalised state
   \end{enumerate}
 
@@ -61,11 +61,11 @@ Part of the Polkadot implementation is architected as a separate library called
   \end{enumerate}
 \end{enumerate}
 
-For each of the above functionality requirements, we satify them with the
+For each of the above functionality requirements, we satisfy them with the
 following:
 
 \begin{itemize}
-\item 1(b), 1(c), 2(b) - artifacts are broadcast as-is (i.e. without further coding) via \hyperref[sec:gossiping]{gossip}.
+\item 1(b), 1(c), 2(b) - artefacts are broadcast as-is (i.e. without further coding) via \hyperref[sec:gossiping]{gossip}.
 \item 1(a), 1(d), 2(a) - effectively, a set of nodes provide the same \hyperref[sec:net_service]{distributed service} to clients. For accepting extrinsics or blocks, clients send these directly to the serving node; for synchronisation, clients receive verifiable data directly from the serving node.
 \item 2(c) - special case, \hyperref[sec:net_storage]{below}. Briefly, data is erasure-encoded so that different recipients receive a small part; pieces are sent directly via QUIC.
 \item 3(a) - special case, \hyperref[sec:net_crosschain]{below}. Briefly, messages are sent directly via QUIC; in the process outboxes are reassembled into inboxes and the latter can be transferred as a batch to recipients.
@@ -75,25 +75,25 @@ We go into these in more detail in the next few sections. Finally, we talk about
 
 \subsubsection{Gossiping} \label{sec:gossiping}
 
-This subprotocol is used for most relay-chain artifacts, where everyone needs to see more-or-less the same public information. Part of its structure is also used for when a node goes offline for a long time and needs to synchronise any newer data it hasn't seen before.
+This subprotocol is used for most relay-chain artefacts, where everyone needs to see more-or-less the same public information. Part of its structure is also used for when a node goes offline for a long time and needs to synchronise any newer data it hasn't seen before.
 
 The Polkadot relay chain network forms a gossip overlay network on top of the physical communications network, as an efficient way to provide a decentralised broadcast medium. The network consists of a known number of trusted nodes (validators) who have been permissioned via staking, and an unknown number of untrusted nodes (full nodes that don't perform validation) from the permissionless open internet. (As an aside, recall that some of the untrusted nodes may have other roles as defined earlier, e.g. parachain collator, fishermen, etc.)
 
 A simple push-based approach is implemented currently, with hash-based tracker caches to avoid sending duplicates to peers, and a few restrictions to avoid the most common spam attacks:
 
 \begin{itemize}
-\item Artifacts may only be received in dependency order; peers are not allowed to send them out-of-order. Though this decreases network-level efficiency, it is straightforward to implement and provides a healthy level of security.
+\item Artefacts may only be received in dependency order; peers are not allowed to send them out-of-order. Though this decreases network-level efficiency, it is straightforward to implement and provides a healthy level of security.
 \item To efficiently communicate to sending peers what they are allowed to send in dependency order, periodically peers update each other with their view of the latest heads of the chain.
 \end{itemize}
 
-There are also more specific constraint rules applied to artifacts belonging to the various higher-level subprotocols using the gossip protocol, to avoid broadcasting obsolete or otherwise unneeded artifacts. For example, for GRANDPA we only allow two votes being received for each type of vote, round number, and voter; any further votes will be ignored. For block production only valid block producers are allowed to produce one block per round; any further blocks will be ignored.
+There are also more specific constraint rules applied to artefacts belonging to the various higher-level subprotocols using the gossip protocol, to avoid broadcasting obsolete or otherwise unneeded artefacts. For example, for GRANDPA we only allow two votes being received for each type of vote, round number, and voter; any further votes will be ignored. For block production only valid block producers are allowed to produce one block per round; any further blocks will be ignored.
 
 There is basic support for \emph{sentry nodes}, proxy servers that are essentially the only neighbour of a private server, running more security-critical operations such the validator role.
 
 The network topology is a weak point currently; nodes connect to each other on an ad-hoc basis by performing random lookups in the \hyperref[sec:net_lowlevel]{address book}. Further work will proceed along two fronts:
 
 \begin{enumerate}
-\item Trusted nodes will reserve a portion of their bandwidth and connection resources, to form a structured overlay with a deterministic but unpredictible topology that rotates every era. For nodes running behind sentries, this effectively means that their sentry nodes instead participate in this topology.
+\item Trusted nodes will reserve a portion of their bandwidth and connection resources, to form a structured overlay with a deterministic but unpredictable topology that rotates every era. For nodes running behind sentries, this effectively means that their sentry nodes instead participate in this topology.
 
 \item For the remainder of trusted nodes' resource capacity, and for the whole of untrusted nodes' resource capacity, they will select neighbours via a scheme based on latency measurements, with the details to be decided. Notably, for good security properties we want a scheme that does not simply choose "closest first", but also some far links as well.
 \end{enumerate}
@@ -104,7 +104,7 @@ Further work will also include some sort of set reconciliation protocol, to furt
 
 \subsubsection{Distributed service} \label{sec:net_service}
 
-This subprotocol is used when some part of Polkadot is providing a service to some external entity, namely 1(a) accepting relay chain transactions, 1(d) sychronising relay chain state, and 2(a) accepting collated blocks in the list above.
+This subprotocol is used when some part of Polkadot is providing a service to some external entity, namely 1(a) accepting relay chain transactions, 1(d) synchronising relay chain state, and 2(a) accepting collated blocks in the list above.
 
 In our initial implementation, this simply involves looking up a particular target set in the address book, selecting a few nodes from this set, and connecting to them. For 1(a) and 1(d) the target set is the whole set of validators, and for 2(a) the target set is the set of parachain validators for the client collator's parachain. Both of these can be retrieved straightforwardly from the chain state, and indeed for 1(a) this is simply the same process as joining the gossip network.
 
@@ -112,9 +112,9 @@ Further work will consider the issue of load-balancing the transport-layer conne
 
 \subsubsection{Storage and availability} \label{sec:net_storage}
 
-This subprotocol addresses the networking used for the Availability and Validity sub-protocl described in Section \ref{sec:validity-and-availability}.
+This subprotocol addresses the networking used for the Availability and Validity subprotocol described in Section \ref{sec:validity-and-availability}.
 
-Recall that for scalability, Polkadot does not require everyone to store the state of the whole system, namely all of the state pointed to by all of the blocks. Instead, every parachain block is split into pieces by erasure-coding, such that there is 1 piece for every validator for a total of $N$ piecese, the erasure threshold being $ceil(N/3)$ blocks for security reasons explained elsewhere. All the pieces are available initially at the relevant parachain validators, having been submitted by some of the collators. (In this role, the parachain validators are also called the \emph{preliminary checkers}.) The pieces are then selectively distributed in the following phases:
+Recall that for scalability, Polkadot does not require everyone to store the state of the whole system, namely all of the state pointed to by all of the blocks. Instead, every parachain block is split into pieces by erasure-coding, such that there is 1 piece for every validator for a total of $N$ pieces, the erasure threshold being $ceil(N/3)$ blocks for security reasons explained elsewhere. All the pieces are available initially at the relevant parachain validators, having been submitted by some of the collators. (In this role, the parachain validators are also called the \emph{preliminary checkers}.) The pieces are then selectively distributed in the following phases:
 
 \begin{enumerate}
 \item Distribution - every validator initially wants 1 of these pieces, and the parachain validators must distribute them as such.
@@ -232,7 +232,7 @@ nodes can help to mitigate these other scenarios.
 proxies, such as IP or TCP proxies, for their private node. This certainly can
 be done without any protocol support from Polkadot. One advantage of sentry
 nodes compared to this scenario is that the traffic coming from a sentry node
-has been through some level of verification and sanitization as part of the
+has been through some level of verification and sanitisation as part of the
 Polkadot protocol, which would be missing for a lower-level proxy. Of course
 there can be exploits against this, but these are dealt with with high priority
 since they are amplification vectors usable against the whole network.)
@@ -247,4 +247,4 @@ Currently, this \emph{address book} service is also used as the primary discover
 
 Further work will decouple the discovery mechanism from the address book, as described in \nameref{sec:gossiping}, resulting in a more security network topology. Part of this will require some fraction of transport-level connections be authenticated against the currently-trusted validator set. However we also require to retain the ability to accept incoming connections from unauthenticated entities, and this needs to be restricted on a resource basis, without starving the authenticated entities.
 
-Further work will also decouple the implementation of the address book from its interface, so that e.g. we can put part of in on-chain. This has different security tradeoffs from a Kademlia-based addressbook, some of which is outside of the current scope of Polkadot, such as location privacy. By offering different possibilities, we hope to satisfy a diverse set of nodes having different security requirements.
+Further work will also decouple the implementation of the address book from its interface, so that e.g. we can put part of in on-chain. This has different security tradeoffs from a Kademlia-based address book, some of which is outside of the current scope of Polkadot, such as location privacy. By offering different possibilities, we hope to satisfy a diverse set of nodes having different security requirements.
