@@ -2,13 +2,13 @@
 
 Polkadot uses sophisticated mechanisms for Governance which allows it to evolve gracefully over time at the ultimate behest of its assembled stakeholders. A key and unfailing rule is that all changes to the protocol must be agreed upon by stake-weighted referendum -- the majority of stake always commands the network.
 
-In order to make any changes to the network, the idea is to bring dot holders together and administrate a network upgrade decision with the help of the Council (Section \ref{s:council}). No matter whether the proposal is submitted by a dot holder or by the Council, it will ultimately have to go through a referendum to let all dot holders, weighted by stake, make the decision.
+In order to make any changes to the network, the idea is to bring dot holders together and administrate a network upgrade decision with the help of the Council (see Section \ref{s:council}). No matter whether the proposal is submitted by a dot holder or by the Council, it will ultimately have to go through a referendum to let all dot holders, weighted by stake, make the decision.
 
 Each dot holder in Polkadot has the right to: a) submit a proposal, b) endorse a public proposal to prioritise it in the referendum timetable, c) vote on all active referenda, d) become a candidate for a seat in the Council, and e) vote on candidates for the Council. In addition, any dot holder may become a nominator or a validator candidate to participate in NPoS (see Section \ref{sec:validators}).
 
 \subsubsection{Proposals and Referenda}
 
-The core of the Polkadot logic is stored on-chain in an amorphous state-transition function and defined in a platform-neutral language: WebAssembly. Each \textbf{proposal} takes the form of a privileged function call in the runtime, that is able to modify the runtime code itself, achieving what would otherwise require a "hard fork". A proposal is then tabled and voted upon via referendum. 
+The core of the Polkadot logic is stored on-chain in an amorphous state-transition function and defined in a platform-neutral language: WebAssembly. Each proposal takes the form of a privileged function call in the runtime, that is able to modify the runtime code itself, achieving what would otherwise require a "hard fork". A proposal is then tabled and voted upon via referendum. 
 
 Proposals can be started in one of several ways:
 \begin{itemize}

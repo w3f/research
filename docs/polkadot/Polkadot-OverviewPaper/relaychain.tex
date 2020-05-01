@@ -8,7 +8,7 @@ A Merkle radix-16 tree keeps the Merkle hashes corresponding to the $(key, value
 
 \paragraph{State transition: } \label{par:state_transition} Like any transaction-based transition system, Polkadot state changes via an executing ordered set of instructions. These instructions, traditionally known as transactions, are referred as extrinsics in Polkadot jargon. They cover any data provided from ``outside'' of the machine's state which can affect state transition. Polkadot relay chain is divided into two major components, namely the ``Runtime'' and the ``Runtime environment''. The execution logic of the state-transition function is mainly encapsulated in the Runtime while all other generic operations, commonly shared among modern blockchain-based replicated state machines, are embedded into the Runtime environment. In particular, the latter is in charge of network communication, block production and consensus engines.
 
-Runtime functions are compiled into a Web assembly module and are stored as part of the state. The Runtime environment communicates the extrinsics with the Runtime and interacts with it to execute the state transition. In this way, the state transition logic itself can be upgraded as a part of the state transition.
+Runtime functions are compiled into a WebAssembly module and are stored as part of the state. The Runtime environment communicates the extrinsics to the Runtime and interacts with it to execute the state transition. In this way, the state transition logic itself can be upgraded as a part of the state transition.
 
 \paragraph{Extrinsics:} \label{par:extrinsics}
 
