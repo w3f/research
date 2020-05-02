@@ -19,7 +19,7 @@ We first describe the protocol by which collators of a parachain $\para$ submit 
 
 Initially, some {\bf collator} $C$ of a parachain $\para$ must propose some candidate block $B$ for $\para$.  We let $B'$ denotes the parent of $B$.  As above, let $\rin$ and $\rout$ denote state root before and after executing $B$.  
 
-In practice, we want shared security, among other reasons so that parachains can communicate easily.  As such, $B$ should reference some relay chain block(s) $R^0_B$ that distinguish any state $\rho$ maintains on the relay chain, such as the incoming messages accumulated for $\rho$ to be processed by $B$.  We let $q$ denote the Merkle root of this state $\rho$ maintains on the relay chain in $R^0_B$.  
+In practice, we want shared security, among other reasons so that parachains can communicate easily.  As such, $B$ should reference some relay chain block(s) $R^0_B$ that distinguish any state $\para$ maintains on the relay chain, such as the incoming messages accumulated for $\para$ to be processed by $B$.  We let $q$ denote the Merkle root of this state $\para$ maintains on the relay chain in $R^0_B$.  
 
 In principle, $B$ could reference extra data $M$ determined by $R^0_B$ and supplied by the relay chain, but not actually included inside the relay chain state.  We envision $M = \emptyset$ for the foreseeable future however. 
 
@@ -30,7 +30,7 @@ As $\prove$ is a randomized algorithm, $C$ must next reevaluate the block with $
 \smallskip
 \paragraph{Parachain validator subphase:}
 
-We shall expect the parachain validator $V$ that processes candidate blob $\blobB$ to update $\blobB$'s associated metadata to reference the most recent relay chain block $R^1_B > R^0_B$, so long as $R^1_B$ still contains the same state root $q$ for $\rho$,
+We shall expect the parachain validator $V$ that processes candidate blob $\blobB$ to update $\blobB$'s associated metadata to reference the most recent relay chain block $R^1_B > R^0_B$, so long as $R^1_B$ still contains the same state root $q$ for $\para$,
 i.e.\ $(H(B'),\rin,\rout,H(R^1_B),$\vect{R^1_B q}$,\ldots)$.
 
 Next each {\em parachain validator} $V \in \vals_\para$ should checks the validity of the block by evaluating the block with $\verify_\para(\blobB,M)$, which we term the {\em preliminary backing validity checks}.  If verification succeeds, then $V$ gossips $\blobB$ among the parachain validators $\vals_\para$ after checking $\blobB$ itself, and we continue below.
@@ -75,8 +75,8 @@ We gossip abridged candidate receipts, along with their attestations signature s
 Any parachain validators $V' \in \vals_\para$ who receives a $\receipt_{B,S}$ downloads $\blobB$ from $C$ or another validator who attests in $S$.  After receiving $\blobB$, then they gossip with their own backing attestation $(V',\sigma')$ as $S := S \cup \{ (V',\sigma') \}$
 
 In gossiping $\receipt_{B,S}$, we further aggregate these attestation signature sets $S$.\footnote{We envision $\vals_\para$ being small enough that BLS signatures do not improve verification time over Schnorr signatures, although BLS might reduce the candidate receipt's signature from 640 bytes down to 50 bytes.}  
-If $S$ accumulates at least $\primarychecks$ backing attestations from distinct validators in $\vals_\rho$, then we publish $\receipt_{B,S}$ for relay chain block producers using relay chain gossip (mempool).
-If however $S$ remains too small too long, then validators in $\vals \setminus \vals_\rho$ ignore $\receipt_{B,S}$.
+If $S$ accumulates at least $\primarychecks$ backing attestations from distinct validators in $\vals_\para$, then we publish $\receipt_{B,S}$ for relay chain block producers using relay chain gossip (mempool).
+If however $S$ remains too small too long, then validators in $\vals \setminus \vals_\para$ ignore $\receipt_{B,S}$.
 We think $\primarychecks = {1\over2} \npvals$ gives a reasonable choice, but our security analysis only requires that enough stake back $B$, so even $\primarychecks = 1$ suffices provided each backing validator possesses enough stake.
 
 We archive $B$ if another conflicting blocks gets finalised by GRANDPA, eventually deleting it.  We archive but probably do not delete $B$ if GRANDPA is stalled, probably even when the fork choice rule favours other forks. 
@@ -103,15 +103,25 @@ We leave the expiration conditions to future work, but one example would be $R''
 Importantly, $U$ need not validate $B$ itself unless $U \in \vals_\para$.
 
 
+\subsection{Notes}
+
+...
+
+We already handle candidate receipts off-chain among $\vas_\para$, although perhaps their votes could be collected on-chain too.  We therefore doubt further significant optimisations exist for this subprotocol.
+
 \smallskip
 \paragraph{Role churn:}
 
-We again caution that parachain validator assignments $\vals_\rho$ change somewhat frequently and worse our entire validator set $\vals$ changes periodically too.  We place no future demands upon the collators or relay chain block producer after block creation, so their churn creates no problems.  We shall require that backing attesters in $\vals_\rho$ continue to share $\blobB$, both in its entirety and in smaller pieces described next in \S\ref{sec:availability}, which makes churn problematic.  
+We again caution that parachain validator assignments $\vals_\para$ change somewhat frequently and worse our entire validator set $\vals$ changes periodically too.  We place no future demands upon the collators or relay chain block producer after block creation, so their churn creates no problems.  We shall require that backing attesters in $\vals_\para$ continue to share $\blobB$, both in its entirety and in smaller pieces described next in \S\ref{sec:availability}, which makes churn problematic.  
 
 As noted above, any candidate receipt $\receipt_{B,S}$ uniquely identifies $\vals_\para$ because it includes $\para.\mathsf{id}$ while the recent relay chain parent $H(R^0_B)$ determines the assignment $\para.\mathsf{id} \mapsto \vals_\para$.
 It addresses churn in $\vals$ too because the nothing-at-stake problem imposes a long unbonding period, during which time we may continue rewarding outgoing validators for work, even if they lie in the old $\vals_\para$ but not the new $\vals$.   
 % TODO: Cite unbonding period?
-An implementations should end (micro)epoch gently with heuristics that permit gossip somewhat after the (micro)epoch and even last minute backing attestations by validators in $\vals_\para \setminus S$.
+An implementations should rotate parachain validator assignments gently with heuristics that permit gossip somewhat after the assignments and even last minute backing attestations by validators in $\vals_\para \setminus S$.
 
 As an aside, one could consider backing attesters $\vals_\para$ coming form outside the validator set $\vals$, but doing so more requires more complex staking logic. 
 
+\smallskip
+\paragraph{Para-threads:}
+
+...
