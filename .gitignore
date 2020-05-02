@@ -16,6 +16,7 @@ bin/
 *.snm
 *.nav
 *.toc
+*.vrb
 *.pdf
 
 # don't ignore pdfs in here, they are published online

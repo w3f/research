@@ -1,3 +1,4 @@
 #exclude generated files
 *.aux
 *.log
+*.vrb
