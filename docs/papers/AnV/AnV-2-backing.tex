@@ -2,19 +2,9 @@
 \section{Backing}
 \label{sec:backing}
 
-We now describe the subprotocols that provide the preliminary financial backing checks from parachain validators and that ensure availability for our later approval validity checks.
+We now describe the subprotocols that provide the preliminary financial backing checks from parachain validators with which Polkadot begins processing parachain candidate blocks.  After parachain candidates have enough backing, we shall next proceed to ensure their availability in \S\ref{sec:availability} and only lastly perform the final approval validity checks in \S\ref{sec:approval}.
 
-
-We now describe and instantiate our {\em availability and validity protocol} that provides efficient sharding.  It consists of 
-\begin{itemize}
-\item a parachain phase that prepares the candidate block and performs preliminary backing validity checks,
-\item a relay chain submission phase that distributes candidate parachain blocks and produces relay chain blocks,
-\item availability and unavailability subprotocols that enforce availability in GRANDPA and BABE respectively,
-\item fuller approval validity checks for GRANDPA,
-\item objection procedures for fishermen, and
-\item invokation of a Byzantine fault tolerant ``finality gadget'' that gives us finality.
-\end{itemize}
-
+Our backing protocol has nodes play three roles, a parachain collator, validators assigned to the same parachain, and the relay chain block producer, who actions subdivide roughly into parachain and relay chain phases.  
 
 % TODO: Anything more worth saying here?  Maybe extract from:  The parachain phase is executed between collators and parachain validators. In the end of this phase, the parachain validators validate the block and provide its erasure code pieces to the validators. Then, the relay chain phase begins. If the parachain phase is executed correctly, then the relay chain phase includes extra validation of a parachain block, adding the block header to the relay chain and finalizing that relay chain block. Otherwise, unavailability protocol is run between validators. The details are as follows: 
 
@@ -51,7 +41,7 @@ At any time, if any two validators disagree about a parachain block's validity t
 
 
 \subsection{Relay chain authorship} % Relay chain phase I: Block production 
-\label{sec:backing}
+\label{sec:authorship}
 
 We next describe the protocol by which the parachain validators $\vals_\para$ assigned to $\para$ announce parachain candidates to the full validator set $V$ for announcement in a candidate backed transaction in a relay chain block.
 
