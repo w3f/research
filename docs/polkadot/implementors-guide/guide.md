@@ -13,6 +13,8 @@ There are a number of other documents describing the research in more detail. Al
   * [Node-side](#Architecture-Node-side)
   * [Runtime](#Architecture-Runtime)
 * [Processes](#Processes)
+  * [Overseer](#Overseer-Process)
+  * [Candidate Backing](#Candidate-Backing)
 * [Data Structures and Formats](#Data-Structures-and-Formats)
 * [Glossary / Jargon](#Glossary)
 
@@ -44,11 +46,11 @@ This section aims to describe, at a high level, the architecture, actors, and pr
 First, it's important to go over the main actors we have involved in the Polkadot network.
 1. Validators. These nodes are responsible for validating proposed parachain blocks. They do so by checking a Proof-of-Validity (PoV) of the block and ensuring that the PoV remains available. They put financial capital down as "skin in the game" which can be revoked if they are proven to have misvalidated.
 2. Collators. These nodes are responsible for creating the Proofs-of-Validity that validators know how to check. Creating a PoV typically requires familiarity with the transaction format and block authoring rules of the parachain, as well as having access to the full state of the parachain.
-3. Fishermen. These are user-operated, permissionless nodes whose goal is to catch out misbehaving validators in exchange for a bounty. Collators and validators can behave as Fishermen too.
+3. Fishermen. These are user-operated, permissionless nodes whose goal is to catch out misbehaving validators in exchange for a bounty. Collators and validators can behave as Fishermen too. Fishermen aren't necessary for security, and aren't covered in-depth by this document.
 
-This alludes to a simple pipeline where collators send validators parachain blocks and their requisite PoV to check. Then, validators validate the block using the PoV, signing statements which describe either the positive or negative outcome, and with enough positive statements, the block can be included. If a fisherman detects that a validator or group of validators incorrectly signed a statement claiming a block was valid, then those validators will be _slashed_, with the fisherman receiving a bounty.
+This alludes to a simple pipeline where collators send validators parachain blocks and their requisite PoV to check. Then, validators validate the block using the PoV, signing statements which describe either the positive or negative outcome, and with enough positive statements, the block can be included. If another validator later detects that a validator or group of validators incorrectly signed a statement claiming a block was valid, then those validators will be _slashed_, with the checker receiving a bounty.
 
-However, there is a problem with this formulation. In order for a fisherman to check the validators' work after the fact, the PoV must remain _available_ so a fisherman can fetch it in order to check the work. The PoVs are expected to be too large to include in the blockchain directly, so we require an alternate _data availability_ scheme which requires validators to prove that the inputs to their work will remain available, and so their work can be checked.
+However, there is a problem with this formulation. In order for another validator to check the previous group of validators' work after the fact, the PoV must remain _available_ so the other validator can fetch it in order to check the work. The PoVs are expected to be too large to include in the blockchain directly, so we require an alternate _data availability_ scheme which requires validators to prove that the inputs to their work will remain available, and so their work can be checked.
 
 Here is a description of the Inclusion Pipeline: the path a parachain block (or parablock, for short) takes from creation to inclusion:
 1. Validators are selected and assigned to parachains by the Validator Assignment Process.
@@ -117,6 +119,11 @@ These two aspects of the implementation are heavily dependent on each other. The
 
 ### Architecture: Node-side
 
+**Design Goals**
+
+* Modularity: Components of the system should be as self-contained as possible. Communication boundaries between components should be well-defined and mockable. This is key to creating testable, easily reviewable code.
+* [TODO] anything else?
+
 [TODO]
 
 ### Architecture: Runtime
@@ -127,31 +134,113 @@ These two aspects of the implementation are heavily dependent on each other. The
 
 ## Processes
 
+
+### Overseer Process
+
+This process oversees the scheduling of, communication between, and teardown of other sub-processes.
+Most new work for validators to do is scheduled upon the import of a new block. This is the component that listens to block import events and schedules work to be done. At the same time, it can also decide that other work has become obsolete and should be unscheduled.
+
+```
++--------------+      +------------------+    +------------------+    
+|              |      |                  |----> Subprocess A     |    
+| Block Import |      |                  |    +------------------+    
+|    Events    |------+   Overseer       |    +------------------+    
++--------------+      |                  |----> Subprocess B     |    
+                      |                  |    +------------------+    
++--------------+      |                  |    +------------------+    
+|              |      |   Process        |----> Subprocess C     |    
+| Finalization |------+                  |    +------------------+    
+|    Events    |      |                  |---->------------------+    
++--------------+      +------------------+    | Subprocess D     |    
+                                              +------------------+    
+```
+
+[TODO: specific conditions under which new processes are created]
+---
+
+### Candidate Backing Process
+
+The Candidate Backing Process is the process that a validator engages in to contribute to the backing of parachain candidates submitted by other validators.
+
+Many instances of this process may be live at the same time. Each instance is scoped to a particular relay-chain block, known contextually as the _relay parent_.
+
+The goal of the Candidate Backing Process is to produce as many backed candidates as possible. This is done via signed [Statements](#Statement-type) by validators. If a candidate receives a majority of supporting Statements from the Parachain Validators currently assigned, then that candidate is considered backed.
+
+The Candidate Backing Process is straightforward and consists of 3 tasks:
+* Fetching new Statements about candidates from a network interface
+* Performing work based on those Statements. Either validating new candidates that the process was previously unaware of, keeping track of which candidates have received backing, or submitting misbehavior reports.
+* Issuing new Statements based on work done.
+
+In order to carry out its operations, this process depends on input parameters. In practice, this will be fetched from the state of the relay parent using Runtime APIs.
+
+**Parameters**
+* The current Validator set.
+* Validator -> Parachain Assignments
+* Local Key - the current node' validation key, if any.
+* Local Assignment - the parachain the current node is assigned to, as a validator.
+* Local Assignment parachain head - what to treat as the head of the parachain
+* Local Assignment parachain code - the validation function of the parachain
+* Network - a mockable interface for receiving and submitting signed statements about candidates.
+
+If the local key is not present or there is no local assignment, the candidate process will run in an observer mode where it will witness candidates that other validators backs without participating in the process itself.
+
+**Operation**
+
+Pseudocode:
+```rust
+loop {
+  let signed: SignedStatement = network_statements.next()?;
+  if let Statement::Seconded(candidate) = signed.statement {
+    if candidate is unknown and in local assignment {
+      spawn_validation_work(candidate);
+    }
+  }
+
+  // Track which candidates are now backed and watch out for double-voting misbehavior.
+  track_statement(signed);
+}
+```
+
+```rust
+fn spawn_validation_work(candidate) {
+  asynchronously {
+    let pov = network.fetch_pov(candidate).await;
+    let valid = validate_candidate(candidate, validation_function, parachain_head, pov);
+    if valid {
+      // make PoV available for later distribution.
+      // sign and dispatch `valid` statement to network.
+    } else {
+      // sign and dispatch `invalid` statement to network.
+    }
+  }
+}
+```
+
+[TODO: how to dispatch `Seconded` message. Kind of hard - note that dispatching a `Seconded` and `Valid` message is illegal so this is racy]
+
+### Candidate Proposal Process
+
+[TODO: get candidate from collator, feed to candidate backing process. ]
+
+### Secondary Checking
+
+[TODO]
+
+### Validator Assignment Process
+
+[TODO]
+
+### Collation Distribution Process
+
+[TODO]
+
+### Availability Distribution Process
+
+[TODO]
+
 ----
 
-## Secondary Checking
-
-[TODO]
-
-## Validator Assignment Process
-
-[TODO]
-
-## Collation Distribution Process
-
-[TODO]
-
-## Candidate Backing Process
-
-[TODO]
-
-## Availability Distribution Process
-
-[TODO]
-
-----
-
-## Data Structures and Formats
+## Data Structures and Types
 
 [TODO]
 * CandidateReceipt
@@ -159,6 +248,59 @@ These two aspects of the implementation are heavily dependent on each other. The
 * AbridgedCandidateReceipt
 * GlobalValidationSchedule
 * LocalValidationData
+
+#### Block Import Event
+```rust
+/// Indicates that a new block has been added to the blockchain.
+struct BlockImportEvent {
+  /// The block header-hash.
+  hash: Hash,
+  /// The header itself.
+  header: Header,
+  /// Whether this block is considered the head of the best chain according to the 
+  /// event emitter's fork-choice rule.
+  new_best: bool,
+}
+```
+
+#### Block Finalization Event
+```rust
+/// Indicates that a new block has been finalized.
+struct BlockFinalizationEvent {
+  /// The block header-hash.
+  hash: Hash,
+  /// The header of the finalized block.
+  header: Header,
+}
+```
+
+#### Statement Type
+```rust
+/// A statement about the validity of a parachain candidate.
+enum Statement {
+  /// A statement about a new candidate.
+  Seconded(CandidateReceipt),
+  /// A statement about the validity of a candidate, based on candidate's hash.
+  Valid(Hash),
+  /// A statement about the invalidity of a candidate.
+  Invalid(Hash),
+}
+```
+
+#### Signed Statement Type
+
+This is a signed statement. The actual signed payload should reference only the hash of the CandidateReceipt and should include
+a relay parent which provides context to the signature. This prevents against replay attacks and allows the candidate receipt itself
+to be omitted when checking a signature on a `Seconded` statement.
+
+```rust
+/// A signed statement.
+struct SignedStatement {
+  statement: Statement,
+  signed: ValidatorId,
+  signature: Signature
+}
+```
 
 ----
 
