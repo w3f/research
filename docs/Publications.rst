@@ -18,11 +18,11 @@ Alistair Stewart and Lefteris Kokoris Kogias, `GRANDPA: A finality Gadget <https
 
 **Posters:**
 
-Jeff Burdges, Handan Kılınç Alper, Alistair Stewart, `Availability and Validity <https://github.com/w3f/research/blob/master/docs/papers/AVAILABILITY%20AND%20VALIDITY%20OF%20DATA%20IN%20SHARDED%20BLOCKCHAINS_low.pdf>`_, Financial Cryptography and Data Security 2020. 
+Jeff Burdges, Handan Kılınç Alper, Alistair Stewart, `Availability and Validity <https://github.com/w3f/research/blob/master/docs/papers/AVAILABILITY%20AND%20VALIDITY%20OF%20DATA%20IN%20SHARDED%20BLOCKCHAINS_low.pdf>`_, Financial Cryptography and Data Security (FC), February 2020. 
 
-Jeff Burdges, "Assessing or incentivising correct mixing without authorities", Financial Cryptography and Data Security 2020. 
+Jeff Burdges, "Assessing or incentivising correct mixing without authorities", Financial Cryptography and Data Security (FC), February 2020. 
 
-Alistair Stewart, "GRANDPA: A Finality Gadget", CCS 2019.
+Alistair Stewart, "GRANDPA: A Finality Gadget", ACM Computer and Communications Security (CCS), Npvember 2019.
 
 **Blog Posts:**
 
