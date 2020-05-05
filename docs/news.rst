@@ -1,6 +1,21 @@
 ====
 News
 ====
+**09.05.20**: 
+    Fatemeh is giving guest lecture on Interoperability at CAS courses organised by University of Applied Science of Zurich (ZHAW).
+
+**04.05.20**: 
+    Jeff gave a talk at Layer One online conference titled “Availability & Validity on Polkadot”. 
+
+**06.05.20**:
+    Al will give a talk at Layer One online conference titled “Polkadot’s cross-chain Messaging Protocol”. 
+
+**02.05.20**:
+    The first version of the `Polkadot Overview paper <https://github.com/w3f/research/blob/master/docs/papers/OverviewPaper-V1.pdf>`_is ready. Have a look!
+
+**27.04.20**:
+    Alfonso and Alistair prepared the first draft of the `NPoS paper <https://arxiv.org/abs/2004.12990>`_. Have a look!
+
 **27.03.20**:
     Fatemeh is programm committee member of IWPE 2020. 
     
