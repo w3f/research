@@ -11,7 +11,7 @@ News
     Al will give a talk at Layer One online conference titled “Polkadot’s cross-chain Messaging Protocol”. 
 
 **02.05.20**:
-    The first version of the `Polkadot Overview paper <https://github.com/w3f/research/blob/master/docs/papers/OverviewPaper-V1.pdf>`_is ready. Have a look!
+    The first version of the `Polkadot Overview paper <https://github.com/w3f/research/blob/master/docs/papers/OverviewPaper-V1.pdf>`_ is ready. Have a look!
 
 **27.04.20**:
     Alfonso and Alistair prepared the first draft of the `NPoS paper <https://arxiv.org/abs/2004.12990>`_. Have a look!
