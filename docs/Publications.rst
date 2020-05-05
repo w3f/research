@@ -13,7 +13,7 @@ Alfonso Cevallos and Alistair Stewart, `Validator election in nominated proof-of
 
 Handan Kılınç Alper, `Consensus on Clock in Universally Composable Timing Model <https://eprint.iacr.org/2019/1348>`_, in progress. 
 
-Alistair Stewart and Lefteris Kokoris Kogias, `GRANDPA: A finality Gadget <https://github.com/w3f/research/blob/master/docs/_static/pdf/grandpa.pdf>`_`, in progress. 
+Alistair Stewart and Lefteris Kokoris Kogias, `<GRANDPA: A finality Gadget https://github.com/w3f/research/blob/master/docs/_static/pdf/grandpa.pdf>`_`, in progress. 
 
 
 **Posters:**
