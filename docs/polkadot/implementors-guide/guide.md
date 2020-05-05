@@ -121,7 +121,7 @@ It is also helpful to divide Node-side behavior into two further categories: Net
 
 [TODO Diagram: Node-side divided into Networking and Core]
 
-Node-side behavior is split up into various Processes. These processes may be long-running or short-lived. They may communicate with each other.
+Node-side behavior is split up into various Processes. Processes are long-lived workers that perform a particular category of work. Processes can communicate with each other, and typically do so via an Overseer that prevents race conditions.
 
 Runtime logic is divided up into Modules and APIs. Modules encapsulate particular behavior of the system. Modules consist of storage, routines, and entry-points. Routines are invoked by entry points, by other modules, upon block initialization or closing. Routines can read and alter the storage of the module. Entry-points are the means by which new information is introduced to a module. Each block in the blockchain contains a set of Extrinsics. Each extrinsic targets a a specific entry point to trigger and which data should be passed to it. Runtime APIs provide a means for Node-side behavior to extract meaningful information from the state of a fork.
 
@@ -144,26 +144,66 @@ These two aspects of the implementation are heavily dependent on each other. The
 
 ## Processes
 
+### Processes and Jobs
 
-### Overseer Process
+Processes are long-lived worker tasks that are in charge of performing some particular kind of work. All processes can communicate with each other via a well-defined protocol. Processes can't communicate directly, but must communicate through an Overseer, which is responsible for relaying messages, handling process failures, and dispatching work signals.
 
-This process oversees the scheduling of, communication between, and teardown of other sub-processes.
-Most new work for validators to do is scheduled upon the import of a new block. This is the component that listens to block import events and schedules work to be done. At the same time, it can also decide that other work has become obsolete and should be unscheduled.
+Most work that happens on the Node-side is related to building on top of a specific relay-chain block, which is contextually known as the "relay parent". We call it the relay parent to explicitly denote that it is a block in the relay chain and not on a parachain. We refer to the parent because when we are in the process of building a new block, we don't know what that new block is going to be. The parent block is our only stable point of reference, even though it is usually only useful when it is not yet a parent but in fact a leaf of the block-DAG expected to soon become a parent (because validators are authoring on top of it). Furthermore, we are assuming a forkful blockchain-extension protocol, which means that there may be multiple possible children of the relay-parent. Even if the relay parent has multiple children blocks, the parent of those children is the same, and the context in which those children is authored should be the same. The parent block is the best and most stable reference to use for defining the scope of work items and messages, and is typically referred to by its cryptographic hash.
 
+Since this goal of determining when to start and conclude work relative to a specific relay-parent is common to most, if not all processes, it is logically the job of the Overseer to distribute those signals as opposed to each process duplicating that effort, potentially being out of synchronization with each other. Process A should be able to expect that Process B is working on the same relay-parents as it is. One of the Overseer's tasks is to provide this heartbeat, or synchronized rhythm, to the system.
+
+The work that Processes spawn to be done on a specific relay-parent is known as a job. Processes should set up and tear down jobs according to the signals received from the overseer. Processes may share or cache state between jobs.
+
+### Overseer
+
+The overseer is responsible for these tasks:
+1. Setting up, monitoring, and handing failure for overseen processes.
+2. Providing a "heartbeat" of which relay-parents processes should be working on.
+3. Acting as a message bus between processes.
+
+
+The hierarchy of processes:
 ```
 +--------------+      +------------------+    +------------------+    
-|              |      |                  |----> Subprocess A     |    
+|              |      |                  |---->   Process A      |    
 | Block Import |      |                  |    +------------------+    
-|    Events    |------+   Overseer       |    +------------------+    
-+--------------+      |                  |----> Subprocess B     |    
-                      |                  |    +------------------+    
+|    Events    |------>                  |    +------------------+    
++--------------+      |                  |---->   Process B      |    
+                      |   Overseer       |    +------------------+    
 +--------------+      |                  |    +------------------+    
-|              |      |   Process        |----> Subprocess C     |    
-| Finalization |------+                  |    +------------------+    
-|    Events    |      |                  |---->------------------+    
-+--------------+      +------------------+    | Subprocess D     |    
-                                              +------------------+    
+|              |      |                  |---->   Process C      |    
+| Finalization |------>                  |    +------------------+    
+|    Events    |      |                  |    +------------------+
+|              |      |                  |---->   Process D      |
++--------------+      +------------------+    +------------------+   
+                                                  
 ```
+
+When a process wants to communicate with another process, or, more typically, a job within a process wants to communicate with its counterpart under another process, that communication must happen via the overseer. Consider this example where a job on Process A wants to send a message to its counterpart under Process B. This is a realistic scenario, where you can imagine that both jobs correspond to work under the same relay-parent.
+
+```                                  
+     +--------+                                                           +--------+      
+     |        |                                                           |        |      
+     |Job A-1 | (sends message)                                           |Job B-1 | (receives message)
+     |        |                                                           |        |      
+     +----|---+                                                           +----^---+      
+          |                  +------------------------------+                  ^          
+          v                  |                              |                  |          
++---------v---------+        |                              |        +---------|---------+
+|                   |        |                              |        |                   |
+| Process A         |        |       Overseer / Message     |        | Process B         |
+|                   -------->>                  Bus         -------->>                   |
+|                   |        |                              |        |                   |
++-------------------+        |                              |        +-------------------+
+                             |                              |                             
+                             +------------------------------+                             
+```
+
+This communication prevents a certain class of race conditions. When the Overseer determines that it is time for processes to begin working on top of a particular relay-parent, it will dispatch a `StartWork` message to all processes to do so, and those messages will be handled asynchronously by those processes. Some processes will receive those messsages before others, and it is important that a message sent by Process A after receiving `StartWork` message will arrive at Process B after its `StartWork` message. If Process A maintaned an independent channel with Process B to communicate, it would be possible for Process B to handle the side message before the `StartWork` message, but it wouldn't have any logical course of action to take with the side message - leading to it being discarded or improperly handled.
+
+It's important to note that the overseer is not aware of the internals of processes, and this extends to the jobs that they spawn. The overseer isn't aware of the existence or definition of those jobs, and is only aware of the outer processes with which it interacts. This gives process implementations leeway to define internal jobs as they see fit.
+
+Futhermore, the protocols by which processes communicate with each other should be well-defined irrespective of the implementation of the process. In other words, their interface should be distinct from their implementation. This will prevent processes from accessing aspects of each other that are beyond the scope of the communication boundary.
 
 [TODO: specific conditions under which new processes are created]
 ---
@@ -199,7 +239,7 @@ If the local key is not present or there is no local assignment, the candidate p
 Pseudocode:
 ```rust
 loop {
-  let signed: SignedStatement = network_statements.next()?;
+  let signed: SignedStatement = network_statements.next().await?;
   if let Statement::Seconded(candidate) = signed.statement {
     if candidate is unknown and in local assignment {
       spawn_validation_work(candidate);
@@ -334,6 +374,7 @@ Here you can find definitions of a bunch of jargon, usually specific to the Polk
 - Parachain: A constituent chain secured by the Relay Chain's validators.
 - Parachain Validators: A subset of validators assigned during a period of time to back candidates for a specific parachain
 - Parathread: A parachain which is scheduled on a pay-as-you-go basis.
+- Process: A long-running task which is responsible for carrying out a particular category of work.
 - Proof-of-Validity: A stateless-client proof that a parachain block is valid, with respect to some validation function.
 - Runtime: The relay-chain state machine.
 - Runtime Module: See Module.
