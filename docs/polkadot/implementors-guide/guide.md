@@ -15,7 +15,7 @@ There are a number of other documents describing the research in more detail. Al
 * [Processes](#Processes)
   * [Overseer](#Overseer-Process)
   * [Candidate Backing](#Candidate-Backing)
-* [Data Structures and Formats](#Data-Structures-and-Formats)
+* [Data Structures and Types](#Data-Structures-and-Types)
 * [Glossary / Jargon](#Glossary)
 
 
@@ -179,12 +179,33 @@ The hierarchy of processes:
                                                   
 ```
 
+The overseer determines work to do based on block import events and block finalization events (TODO: are finalization events needed?). It does this by keeping track of the set of relay-parents for which work is currently being done. This is known as the "active leaves" set. It determines an initial set of active leaves on startup based on the data on-disk, and uses events about blockchain import to update the active leaves. Updates lead to `OverseerSignal::StartWork` and `OverseerSignal::StopWork` being sent according to new relay-parents, as well as relay-parents to stop considering.
+
+The overseer's logic can be described with these functions:
+
+**On Startup**
+* Start all Processes
+* Determine all blocks of the blockchain that should be built on. This should typically be the head of the best fork of the chain we are aware of. Sometimes add recent forks as well.
+* For each of these blocks, send an `OverseerSignal::StartWork` to all processes.
+* Begin listening for block import events.
+
+**On Block Import Event**
+* Apply the block import event to the active leaves. A new block should lead to its addition to the active leaves set and its parent being deactivated.
+* For any deactivated leaves send an `OverseerSignal::StopWork` message to all processes.
+* For any activated leaves send an `OverseerSignal::StartWork` message to all processes.
+
+(TODO: in the future, we may want to avoid building on too many sibling blocks at once. the notion of a "preferred head" among many competing sibling blocks would imply changes in our "active set" update rules here)
+
+**On Message Send Failure**
+* If sending a message to a process fails, that process should be restarted and the error logged.
+
+
 When a process wants to communicate with another process, or, more typically, a job within a process wants to communicate with its counterpart under another process, that communication must happen via the overseer. Consider this example where a job on Process A wants to send a message to its counterpart under Process B. This is a realistic scenario, where you can imagine that both jobs correspond to work under the same relay-parent.
 
 ```                                  
      +--------+                                                           +--------+      
      |        |                                                           |        |      
-     |Job A-1 | (sends message)                                           |Job B-1 | (receives message)
+     |Job A-1 | (sends message)                       (receives message)  |Job B-1 | 
      |        |                                                           |        |      
      +----|---+                                                           +----^---+      
           |                  +------------------------------+                  ^          
@@ -205,7 +226,6 @@ It's important to note that the overseer is not aware of the internals of proces
 
 Futhermore, the protocols by which processes communicate with each other should be well-defined irrespective of the implementation of the process. In other words, their interface should be distinct from their implementation. This will prevent processes from accessing aspects of each other that are beyond the scope of the communication boundary.
 
-[TODO: specific conditions under which new processes are created]
 ---
 
 ### Candidate Backing Process
@@ -349,6 +369,20 @@ struct SignedStatement {
   statement: Statement,
   signed: ValidatorId,
   signature: Signature
+}
+```
+
+
+#### Overseer Signal
+
+Signals from the overseer to a process.
+
+```rust
+enum OverseerSignal {
+  /// Signal to start work localized to the relay-parent hash H.
+  StartWork(H),
+  /// Signal to stop (or phase down) work localized to the relay-parent hash H.
+  StopWork(H),
 }
 ```
 
