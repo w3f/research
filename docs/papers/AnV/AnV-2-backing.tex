@@ -105,10 +105,10 @@ We now define an {\em (inner) candidate receipt} $\receipt_B$ that consists of t
 
 \smallskip\paragraph{Attestation:}
 
-We define an {\em attestation} $(V,\sigma)$ for a candidate receipts to be a validator identity $V$ together with a signature $\sigma$ on the (inner) candidate receipt.  We define an {\em attested candidate receipts} $\receipt_{B,S} := (\receipt_B,S)$ for $B$ to be the abridged candidate receipt or inner candidate receipt once deserialised, along with an set $S$ of attestations on $\receipt_B$.  We shall define more roles for attestations $(V',\sigma') \in S$ below in \S\ref{sec:approval}, but we say $(V',\sigma')$ is a {\em preliminary backing attestation} for $V \in \vals_\para$. 
+We define an {\em attestation} $(V,\sigma)$ for a candidate receipts to be a validator identity $V$ together with a signature $\sigma$ on the (inner) candidate receipt.  We define an {\em attested candidate receipts} $\receipt_{B,S} := (\receipt_B,S)$ for $B$ to be the abridged candidate receipt or inner candidate receipt once deserialised, along with an set $S$ of attestations on $\receipt_B$.  We shall define more roles for attestations $(V',\sigma') \in S$ below in \S\ref{sec:approval}, but we say $(V',\sigma')$ is a {\em preliminary backing attestation} when $V \in \vals_\para$. 
 
-We expect validators attesting in $\receipt_{B,S}$ to provide $\blobB$ to other validator in $\vals_\para$ upon request, but not yet outside $\vals_\para$.
-%
+We expect validators attesting in $\receipt_{B,S}$ to provide $\blobB$ to other validator in $\vals_\para$ upon request.  We shall define additional validator roles related to $\receipt_{B,S}$ below in \S\ref{sec:approval}, but so far we need not provide $\blobB$ to validators in $\vals \setminus \vals_\para$.
+
 There are also outgoing XCMP message data produced by $\verify_\para(\blobB,M)$ but required by their receiving parachains, so validator attesting in $\receipt_{B,S}$ should upon request similarly provide these outgoing messages to appropriate collators associated to the messages' receiving parachains. 
 
 \smallskip\paragraph{Initial backing:}
@@ -148,14 +148,14 @@ At any time, if any two validators disagree about a parachain block's validity t
 \subsection{Relay chain authorship} % Relay chain phase I: Block production 
 \label{sec:authorship}
 
-We announce attested candidate receipts $\receipt_{B,S}$ in two relay chain transaction types.  We first provide a {\em candidate backed transaction} that merely demonstrates enough backing attestations $\receipt_{B,S}$ so that availability work begins, as described below in \S\ref{sec:availability}.  We then later post a {\em candidate available transaction} that begins the approval checks and attestations, as described below in \S\ref{sec:approval}.
+We announce attested (abridged) candidate receipts $\receipt_{B,S}$ in two relay chain transaction types.  We first provide a {\em candidate backed transaction} that merely demonstrates enough backing attestations $\receipt_{B,S}$ so that availability work begins, as described below in \S\ref{sec:availability}.  AT the end of this, we post a {\em candidate available transaction} that begins the approval checks and attestations, as described below in \S\ref{sec:approval}.
 
 \smallskip
 
-We consider a {\bf relay chain block producer} $U \in \vals$ has an upcoming relay chain block production slot in which $U$ shall make a relay chain block $R$.  If the following two condition hold, then $U$ considers inclusion in $R$ a {\em candidate backed transaction} announcing our attested candidate receipt $\receipt_{B,S}$.
+We consider a {\bf relay chain block producer} $U \in \vals$ has an upcoming relay chain block production slot in which $U$ shall make a relay chain block $R$.  If the following two condition hold, then $U$ considers adding a {\em candidate backed transaction} to $R$ announcing our attested candidate receipt $\receipt_{B,S}$.
 \begin{itemize}
 %
-\item $\receipt_{B,S}$ has at least $\primarychecks$ backing attestations in $S$.  We note that $U$ should continues collecting the signatures $S$ on $\receipt_{B,S}$ while waiting its block production slot.\footnote{See \href{http://research.web3.foundation/en/latest/polkadot/BABE/Babe/}{BABE} for more details on block production.}
+\item $\receipt_{B,S}$ has at least $\primarychecks$ backing attestations in $S$.  We note that $U$ should continue collecting the signatures $S$ on $\receipt_{B,S}$ while waiting its block production slot.\footnote{See \href{http://research.web3.foundation/en/latest/polkadot/BABE/Babe/}{BABE} for more details on block production.}
 % TODO: Any specific comments on relay chain block headers $\bh$
 %
 \item Some ancestor $R' \le R$ contains a candidate available transaction with candidate receipts $\receipt_{B',S'}$ for the parent parachain block $B'$ of our candidate $\receipt_{B,S}$
@@ -164,7 +164,7 @@ We consider a {\bf relay chain block producer} $U \in \vals$ has an upcoming rel
 We leave the expiration conditions to future work, but one example would be $R''$ being 64 blocks before $R$.
 %
 \end{itemize}
-Importantly, $U$ need not validate $B$ itself unless $U \in \vals_\para$.
+Importantly, $U$ need not validate $B$ itself unless $U \in \vals_\para$.  In principle, we could make $U$ check the RW state commitments $\qin,\qout$ for $\para$ and RO state commitments $\{ q_{\rho'} \}$ for other parachains, but doing so seemingly adds nothing.
 
 
 \subsection{Notes}
@@ -176,10 +176,10 @@ We already handle candidate receipts off-chain among $\vas_\para$, although perh
 \smallskip
 \paragraph{Role churn:}
 
-We again caution that parachain validator assignments $\vals_\para$ change somewhat frequently and worse our entire validator set $\vals$ changes periodically too.  We place no future demands upon the collators or relay chain block producer after block creation, so their churn creates no problems.  We shall require that backing attesters in $\vals_\para$ continue to share $\blobB$, both in its entirety and in smaller pieces described next in \S\ref{sec:availability}, which makes churn problematic.  
+We again caution that parachain validator assignments $\vals_\para$ change somewhat frequently and worse our entire validator set $\vals$ changes periodically too.  We place no future demands upon the collators or relay chain block producer after block creation, so their churn creates no problems.  We shall require that backing attesters in $\vals_\para$ continue to share $\blobB$, both in its entirety and in smaller pieces described next in \S\ref{sec:availability}, which makes churn problematic.  Above in \S\ref{sec:backing_checks}, we also suggested that backing attesters in $\vals_\para$ continue to share the outgoing XCMP messages.
 
 As noted above, any candidate receipt $\receipt_{B,S}$ uniquely identifies $\vals_\para$ because it includes $\para.\mathsf{id}$ while the recent relay chain parent $H(R^0_B)$ determines the assignment $\para.\mathsf{id} \mapsto \vals_\para$.
-It addresses churn in $\vals$ too because the nothing-at-stake problem imposes a long unbonding period, during which time we may continue rewarding outgoing validators for work, even if they lie in the old $\vals_\para$ but not the new $\vals$.   
+We expect this addresses churn in $\vals$ too because the nothing-at-stake problem imposes a long unbonding period, during which time we may continue rewarding outgoing validators for work, even if they lie in the old $\vals_\para$ but not the new $\vals$.   
 % TODO: Cite unbonding period?
 An implementations should rotate parachain validator assignments gently with heuristics that permit gossip somewhat after the assignments and even last minute backing attestations by validators in $\vals_\para \setminus S$.
 
