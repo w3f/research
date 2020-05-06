@@ -132,9 +132,14 @@ These two aspects of the implementation are heavily dependent on each other. The
 **Design Goals**
 
 * Modularity: Components of the system should be as self-contained as possible. Communication boundaries between components should be well-defined and mockable. This is key to creating testable, easily reviewable code.
+* Minimizing side effects: Components of the system should aim to minimize side effects and to communicate with other components via message-passing.
 * [TODO] anything else?
 
-[TODO]
+The architecture of the node-side behavior aims to embody the Rust principles of ownership and message-passing to create clean, isolatable code. Each resource should have a single owner, with minimal sharing where unavoidable.
+
+Many operations that need to be carried out involve the network, which is asynchronous. This asynchrony affects all core processes that rely on the network as well. The approach of hierarchical state machines is well-suited to this kind of environment.
+
+We introduce a hierarchy of state machines consisting of an overseer supervising processes, where processes can contain their own internal hierarchy of jobs. This is elaborated on in the [Processes](#Processes) section.
 
 ---
 
@@ -175,6 +180,8 @@ parachain inputs:
 ## Processes
 
 ### Processes and Jobs
+
+In this section we define the notions of Processes and Jobs. These are guidelines for how we will employ an architecture of hierarchical state machines. We'll have a top-level state machine which oversees the next level of state machines which oversee another layer of state machines and so on. The next sections will lay out these guidelines for what we've called Processes and Jobs, since this model applies to many of the tasks that the Node-side behavior needs to encompass, but these are only guidelines and some processes may have deeper hierarchies internally.
 
 Processes are long-lived worker tasks that are in charge of performing some particular kind of work. All processes can communicate with each other via a well-defined protocol. Processes can't communicate directly, but must communicate through an Overseer, which is responsible for relaying messages, handling process failures, and dispatching work signals.
 
