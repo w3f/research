@@ -183,20 +183,20 @@ The overseer determines work to do based on block import events and block finali
 
 The overseer's logic can be described with these functions:
 
-**On Startup**
+*On Startup*
 * Start all Processes
 * Determine all blocks of the blockchain that should be built on. This should typically be the head of the best fork of the chain we are aware of. Sometimes add recent forks as well.
 * For each of these blocks, send an `OverseerSignal::StartWork` to all processes.
 * Begin listening for block import events.
 
-**On Block Import Event**
+*On Block Import Event*
 * Apply the block import event to the active leaves. A new block should lead to its addition to the active leaves set and its parent being deactivated.
 * For any deactivated leaves send an `OverseerSignal::StopWork` message to all processes.
 * For any activated leaves send an `OverseerSignal::StartWork` message to all processes.
 
 (TODO: in the future, we may want to avoid building on too many sibling blocks at once. the notion of a "preferred head" among many competing sibling blocks would imply changes in our "active set" update rules here)
 
-**On Message Send Failure**
+*On Message Send Failure*
 * If sending a message to a process fails, that process should be restarted and the error logged.
 
 
@@ -230,55 +230,71 @@ Futhermore, the protocols by which processes communicate with each other should 
 
 ### Candidate Backing Process
 
+#### Description
+
 The Candidate Backing Process is the process that a validator engages in to contribute to the backing of parachain candidates submitted by other validators.
 
-Many instances of this process may be live at the same time. Each instance is scoped to a particular relay-chain block, known contextually as the _relay parent_.
+Its role is to produce backed candidates for inclusion in new relay-chain blocks. It does so by issuing signed [Statements](#Statement-type) and tracking received statements signed by other validators. Once enough statements are received, they can be combined into backing for specific candidates.
 
-The goal of the Candidate Backing Process is to produce as many backed candidates as possible. This is done via signed [Statements](#Statement-type) by validators. If a candidate receives a majority of supporting Statements from the Parachain Validators currently assigned, then that candidate is considered backed.
+It also detects double-vote misbehavior by validators as it imports votes, passing on the misbehavior to the correct reporter and handler.
 
-The Candidate Backing Process is straightforward and consists of 3 tasks:
-* Fetching new Statements about candidates from a network interface
-* Performing work based on those Statements. Either validating new candidates that the process was previously unaware of, keeping track of which candidates have received backing, or submitting misbehavior reports.
-* Issuing new Statements based on work done.
+When run as a validator, this is the process which actually validates incoming candidates.
 
-In order to carry out its operations, this process depends on input parameters. In practice, this will be fetched from the state of the relay parent using Runtime APIs.
+#### Protocol
 
-**Parameters**
-* The current Validator set.
-* Validator -> Parachain Assignments
-* Local Key - the current node' validation key, if any.
-* Local Assignment - the parachain the current node is assigned to, as a validator.
-* Local Assignment parachain head - what to treat as the head of the parachain
-* Local Assignment parachain code - the validation function of the parachain
-* Network - a mockable interface for receiving and submitting signed statements about candidates.
+This process receives messages of the type [CandidateBackingProcessMessage](#Candidate-Backing-Process-Message).
 
-If the local key is not present or there is no local assignment, the candidate process will run in an observer mode where it will witness candidates that other validators backs without participating in the process itself.
+#### Functionality
 
-**Operation**
+The process should maintain a set of handles to Candidate Backing Jobs that are currently live, as well as the relay-parent to which they correspond.
 
-Pseudocode:
+*On Overseer Signal*
+* If the signal is an `OverseerSignal::StartWork(relay_parent)`, spawn a Candidate Backing Job with the given relay parent, storing a bidirectional channel with the Candidate Backing Job in the set of handles.
+* If the signal is an `OverseerSignal::StopWork(relay_parent), cease the Candidate Backing Job under that relay parent, if any.
+
+*On CandidateBackingProcessMessage*
+* If the message corresponds to a particular relay-parent, forward the message to the Candidate Backing Job for that relay-parent, if any is live.
+
+
+(big TODO: "contextual execution"
+* At the moment we only allow inclusion of _new_ parachain candidates validated by _current_ validators.
+* Allow inclusion of _old_ parachain candidates validated by _current_ validators.
+* Allow inclusion of _old_ parachain candidates validated by _old_ validators.
+
+This will probably blur the lines between jobs, will probably require inter-job communcation and a short-term memory of recently backed, but not included candidates.
+)
+
+#### Candidate Backing Job
+
+The Candidate Backing Job represents the work a node does for backing candidates with respect to a particular relay-parent.
+
+The goal of a Candidate Backing Job is to produce as many backed candidates as possible. This is done via signed [Statements](#Statement-type) by validators. If a candidate receives a majority of supporting Statements from the Parachain Validators currently assigned, then that candidate is considered backed.
+
+*on startup*
+* Fetch current validator set, validator -> parachain assignments from runtime API.
+* Determine if the node controls a key in the current validator set. Call this the local key if so.
+* If the local key exists, extract the parachain head and validation function for the parachain the local key is assigned to.
+
+*on receiving new signed Statement*
 ```rust
-loop {
-  let signed: SignedStatement = network_statements.next().await?;
-  if let Statement::Seconded(candidate) = signed.statement {
-    if candidate is unknown and in local assignment {
-      spawn_validation_work(candidate);
-    }
+if let Statement::Seconded(candidate) = signed.statement {
+  if candidate is unknown and in local assignment {
+    spawn_validation_work(candidate, parachain head, validation function)
   }
-
-  // Track which candidates are now backed and watch out for double-voting misbehavior.
-  track_statement(signed);
 }
 ```
 
+*spawning validation work*
 ```rust
-fn spawn_validation_work(candidate) {
+fn spawn_validation_work(candidate, parachain head, validation function) {
   asynchronously {
-    let pov = network.fetch_pov(candidate).await;
-    let valid = validate_candidate(candidate, validation_function, parachain_head, pov);
+    let pov = (fetch pov block).await
+
+    // dispatched to sub-process (OS process) pool.
+    let valid = validate_candidate(candidate, validation function, parachain head, pov).await;
     if valid {
       // make PoV available for later distribution.
-      // sign and dispatch `valid` statement to network.
+      // sign and dispatch `valid` statement to network if we have not seconded the given candidate.
     } else {
       // sign and dispatch `invalid` statement to network.
     }
@@ -286,7 +302,18 @@ fn spawn_validation_work(candidate) {
 }
 ```
 
-[TODO: how to dispatch `Seconded` message. Kind of hard - note that dispatching a `Seconded` and `Valid` message is illegal so this is racy]
+*fetch pov block*
+
+Create a `(sender, receiver)` pair.
+Dispatch a `PovFetchProcessMessage(relay_parent, candidate_hash, sender)` and listen on the receiver for a response.
+
+*on receiving CandidateBackingProcessMessage*
+* If the message is a `CandidateBackingProcessMessage::RegisterBackingWatcher`, register the watcher and trigger it each time a new candidate is backed. Also trigger it once initially if there are any backed candidates at the time of receipt.
+* If the message is a `CandidateBackingProcessMessage::Second`, sign and dispatch a `Seconded` statement only if we have not seconded any other candidate and have not signed a `Valid` statement for the requested candidate. Signing both a `Seconded` and `Valid` message is a double-voting misbehavior with a heavy penalty, and this could occur if another validator has seconded the same candidate and we've received their message before the internal seconding request.
+
+(TODO: send statements to Statement Distribution Process, handle shutdown signal from parent process)
+
+---
 
 ### Candidate Proposal Process
 
@@ -383,6 +410,20 @@ enum OverseerSignal {
   StartWork(H),
   /// Signal to stop (or phase down) work localized to the relay-parent hash H.
   StopWork(H),
+}
+```
+
+
+#### Candidate Backing Process Message
+
+```rust
+enum CandidateBackingProcessMessage {
+  /// Registers a stream listener for updates to the set of backed candidates that could be included
+  /// in a child of the given relay-parent, referenced by its hash H
+  RegisterBackingWatcher(H, TODO),
+  /// Note that the Candidate Backing Process should second the given candidate in the context of the 
+  /// given relay-parent (ref. by hash H). This candidate must be validated.
+  Second(H, CandidateReceipt)
 }
 ```
 
