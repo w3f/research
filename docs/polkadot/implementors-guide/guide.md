@@ -73,7 +73,7 @@ Here is a description of the Inclusion Pipeline: the path a parachain block (or 
 1. Once the relay-chain state machine has enough information to consider the candidate's PoV as being available, the candidate is considered fully included and is graduated to being a full parachain block, or parablock for short.
 
 Note that the candidate can fail to be included in any of the following ways:
-  - The collator is not able to propagate the candidate to any validators.
+  - The collator is not able to propagate the candidate to any validators assigned to the parachain.
   - The candidate is not fully backed by validators participating in the Candidate Backing Process.
   - The candidate is not selected by a relay-chain block author to be included in the relay chain
   - The candidate's PoV is not considered as available within a timeout and is discarded from the relay chain.
@@ -287,7 +287,7 @@ The process should maintain a set of handles to Candidate Backing Jobs that are 
 
 *On Overseer Signal*
 * If the signal is an `OverseerSignal::StartWork(relay_parent)`, spawn a Candidate Backing Job with the given relay parent, storing a bidirectional channel with the Candidate Backing Job in the set of handles.
-* If the signal is an `OverseerSignal::StopWork(relay_parent), cease the Candidate Backing Job under that relay parent, if any.
+* If the signal is an `OverseerSignal::StopWork(relay_parent)`, cease the Candidate Backing Job under that relay parent, if any.
 
 *On CandidateBackingProcessMessage*
 * If the message corresponds to a particular relay-parent, forward the message to the Candidate Backing Job for that relay-parent, if any is live.
@@ -487,7 +487,7 @@ Here you can find definitions of a bunch of jargon, usually specific to the Polk
 - Parachain Validators: A subset of validators assigned during a period of time to back candidates for a specific parachain
 - Parathread: A parachain which is scheduled on a pay-as-you-go basis.
 - Process: A long-running task which is responsible for carrying out a particular category of work.
-- Proof-of-Validity: A stateless-client proof that a parachain block is valid, with respect to some validation function.
+- Proof-of-Validity (PoV): A stateless-client proof that a parachain candidate is valid, with respect to some validation function.
 - Relay Parent: A block in the relay chain, referred to in a context where work is being done in the context of the state at this block.
 - Runtime: The relay-chain state machine.
 - Runtime Module: See Module.
