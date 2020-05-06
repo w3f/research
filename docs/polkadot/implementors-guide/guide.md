@@ -136,9 +136,39 @@ These two aspects of the implementation are heavily dependent on each other. The
 
 [TODO]
 
+---
+
 ### Architecture: Runtime
 
-[TODO]
+The best architecture at this time is unclear. Let's start by setting down the requirements of the runtime and then trying to come up with an architecture that encompasses all of them.
+
+There are three key points during the execution of a block that we are generally interested in:
+  * initialization: beginning the block and doing set up works. Runtime APIs draw information from the state directly after initialization.
+  * inclusion of new parachain information
+  * finalization: final checks and clean-up work before completing the block.
+
+In order to import parachains, handle misbehavior reports, and keep data accessible, we need to keep this data in the storage/state:
+  * All currently registered parachains.
+  * All currently registered parathreads.
+  * The head of each registered para.
+  * The validation code of each registered para.
+  * Historical validation code for each registered para.
+  * Historical, but not yet expired validation code for paras that were previously registered but are now not. (old code must remain available so secondary checkers can check after-the-fact yadda yadda in this case we do that by keeping it in the runtime state.)
+  * Configuration: number of parathread cores, number of parachain slots. Length of scheduled parathread "lookahead". Length of parachain slashing period. How long to keep old validation code for. etc.
+
+This information should not change at any point between block initialization and inclusion of new parachain information. The reason for that is that the inclusoin of new parachain information will be checked against these values in the storage, but the new parachain information is produced by Node-side processes which draw information from Runtime APIs. Runtime APIs execute on top of the state directly after the initialization, so a divergence from that state would lead to validators producing unacceptable inputs.
+
+In the Substrate implementation, we may also have to worry about state changing due to other modules invoking `Call`s that change storage during initialization, but after the point at which parachain-specific modules run their initialization procedures. This could cause problems: parachain-specific modules could compute scheduling, parachain assignments, etc. during its initialization procedure, which would then become inconsistent afterwards. Other modules that might realistically cause such race conditions are Governance modules (which execute arbitrary `Call`s, or the `Scheduler` module). This implies that the runtime design should ensure that no racy entry points can affect storage that is used during parachain-specific module initialization. One way to accomplish this is to separate active storage items from pending storage updates. Other modules can add pending updates, but only the initialization or finalization logic can apply those to the active state. (of course, governance can reach in and break anything by mangling storage, but this is more about exposing a preventative API than a bulletproof one).
+
+Here is an attempted-exhaustive list of tasks the runtime is expected to carry out in each phase.
+
+initialization:
+  * determine scheduled parachains and parathreads for the upcoming block or blocks.
+  * determine validator assignments to scheduled paras for the upcoming block or blocks.
+
+parachain inputs:
+  * TODO
+
 
 ----
 
@@ -451,6 +481,7 @@ Here you can find definitions of a bunch of jargon, usually specific to the Polk
 - Parathread: A parachain which is scheduled on a pay-as-you-go basis.
 - Process: A long-running task which is responsible for carrying out a particular category of work.
 - Proof-of-Validity: A stateless-client proof that a parachain block is valid, with respect to some validation function.
+- Relay Parent: A block in the relay chain, referred to in a context where work is being done in the context of the state at this block.
 - Runtime: The relay-chain state machine.
 - Runtime Module: See Module.
 - Runtime API: A means for the node-side behavior to access structured information based on the state of a fork of the blockchain.
@@ -458,6 +489,7 @@ Here you can find definitions of a bunch of jargon, usually specific to the Polk
 - Validator: Specially-selected node in the network who is responsible for validating parachain blocks and issuing attestations about their validity.
 - Validation Function: A piece of Wasm code that describes the state-transition function of a parachain.
 
+Also of use is the [Substrate Glossary](https://substrate.dev/docs/en/overview/glossary).
 
 ## Index
 
