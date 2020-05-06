@@ -133,7 +133,7 @@ These two aspects of the implementation are heavily dependent on each other. The
 
 * Modularity: Components of the system should be as self-contained as possible. Communication boundaries between components should be well-defined and mockable. This is key to creating testable, easily reviewable code.
 * Minimizing side effects: Components of the system should aim to minimize side effects and to communicate with other components via message-passing.
-* [TODO] anything else?
+* Operational Safety: The software will be managing signing keys where conflicting messages can lead to large amounts of value to be slashed. Care should be taken to ensure that no messages are signed incorrectly or in conflict with each other.
 
 The architecture of the node-side behavior aims to embody the Rust principles of ownership and message-passing to create clean, isolatable code. Each resource should have a single owner, with minimal sharing where unavoidable.
 
