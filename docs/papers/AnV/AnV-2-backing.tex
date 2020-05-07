@@ -29,9 +29,9 @@ We let $q$ denote the Merkle root of this state $\para$ maintains on the relay c
 
 In principle, $B$ could reference extra data $M$ determined by $R^0_B$ and supplied by the relay chain, but not actually included inside the relay chain state.  We envision $M = \emptyset$ for the foreseeable future however. 
 
-First, $C$ constructs the witness data $\pi$ by evaluating the block with $\prove_{\hat{\para}}(B,M)$, so they can build the {\em candidate proof-of-validity blob} $\blobB = (B,\pi)$, and also obtain the block metadata $(\para.\mathsf{id},H(B'),H(R^0_B),\rin,\rout,\ldots)$.  
+First, $C$ constructs the witness data $\pi$ by evaluating the block with $\prove_{\hat{\para}}(B,M)$, so they can build the {\em candidate proof-of-validity blob} $\blobB_0 = (B,\pi)$, and also obtain the block metadata $(\para.\mathsf{id},H(B'),H(R^0_B),\rin,\rout,\ldots)$.  
 
-As $\prove$ is a randomized algorithm, $C$ must next reevaluate the block with $\verify_{\hat{\para}}(\blobB,M)$.  We shall assume verification succeeds, but if this verification fails then $C$ reports invalid parachain code for $\para$, and discards $B$ or possibly shuts down.  Assuming no errors, $C$ sends the candidate blob $\blobB$ to the corresponding parachain validators $\vals_\para$, along with any block metadata $(\para.\mathsf{id},H(B'),H(R^0_B),\rin,\rout,\ldots)$. 
+As $\prove$ is a randomized algorithm, $C$ must next reevaluate the block with $\verify_{\hat{\para}}(\blobB_0,M)$.  We shall assume verification succeeds, but if this verification fails then $C$ reports invalid parachain code for $\para$, and discards $B$ or possibly shuts down.  Assuming no errors, $C$ sends the candidate blob $\blobB_0$ to the corresponding parachain validators $\vals_\para$, along with any block metadata $(\para.\mathsf{id},H(B'),H(R^0_B),\rin,\rout,\ldots)$. 
 
 
 \subsection{Backing checkers} % preliminary backing validity checks
@@ -43,20 +43,21 @@ In essence, we shall construct a {\em candidate receipt} that describes $B$ to
 
 \smallskip\paragraph{Assignment:}
 
-Initially, our collator $C$ sends the candidate's proof-of-validity blob $\blobB$ to some {\em parachain validator} $V_0 \in \vals_\para$, along with any metadata.  We expect header data for $\blobB$ justifies $C$ producing $B$, such as a VRF seal valid for this slot in $\rho$.
+Initially, our collator $C$ sends the candidate's proof-of-validity blob $\blobB_0$ to some {\em parachain validator} $V_0 \in \vals_\para$, along with any metadata.  We expect header data for $\blobB_0$ justifies $C$ producing $B$, such as a VRF seal valid for this slot in $\rho$.
 
 We caution the parachain backing validator sets $\vals_\para$ rotate.  We determine the current assignment $\para.\mathsf{id} \mapsto \vals_\para$ using the relay chain parent $R^0_B$ of $B$, or perhaps merely its slot and $r_e$, so our collator $C$ identifies the current $\vals_\para$.  We permit slightly outdated $R^0_B$, but any $R^0_B$ expires eventually due to rotation.  In that case, $V_0$ should report failure to $C$ and provide aid in selecting a newer $R^0_B$. 
 
 \smallskip\paragraph{Candidate receipts:}
 
-Any {\em parachain validator} $V \in \vals_\para$ who obtains $\blobB$, including our initial $V_0$, should first validate $B$ by evaluating the block with $\verify_\para(\blobB,M)$, which checks the internal state of $\para$ witnessed by $\blobB$ of course.  
+Any {\em parachain validator} $V \in \vals_\para$ who obtains $\blobB_0$, including our initial $V_0$, should first validate $B$ by evaluating the block with $\verify_\para(\blobB_0,M)$, which checks the internal state of $\para$ witnessed by $\blobB_0$ of course.  
 
 At the same time, $V$ observes the incoming and outgoing XCMP messages processed in $B$ too.  These invoke two relay state operations:
 \begin{itemize}
 \item[RW] $V$ computes the new relay chain state root $\qout$ for $\para$ into which executing $B$ transforms its old relay chain state root $\qin$ of $\para$.  We cannot modify $q$ except by executing parachain blocks on $\para$, so this this RW transition remains valid in any $R > R^0_B$ until some parachain block acts.
 \item[RO] $V$ checks incoming messages' from outgoing message commitments in other parachains' relay chain states $\{ q_{\rho'} \}$ in some $R^1_B > R^0_B$.  These $\{ q_{\rho'} \}$ would change in $R > R^1_B$, so operations involving them must remain valid indefinitely, although our watermark prevents replays.  
 \end{itemize}
-We say these operations succeed if $V$ successfully computes witnesses in $R^1_B$ for them.  We regard this purely as a relay chain state transition that any validator checking $\blobB$ recomputes.  As future work, we might consider $V_0$ appending these to $\blobB$ for some nested parachain design, but such designs complicate the protocol significantly.  
+We say these operations succeed if $V$ successfully computes witnesses in $R^1_B$ for them.  We could regard this purely as a relay chain state transition that any validator checking $\blobB_0$ recomputes, except then (1) all relay chain validators check these operations under $q$ and (2) any read operations occur under $R^1_B$, which perhaps lags the current chain state considerably.  Instead, our initial parachain validator $V_0$ constructs copaths witnesses $\blobB_1$ for the RW transition $\qin$ to $\qout$ and for the RO operations under $\{ q_{\rho'} \}$.  $V_0$ then creates $\blobB = \blobB_0 \cup \blobB_1$ by appending $\blobB_1$ to $\blobB_0$.
+% As future work, we might consider $V_0$ appending these to $\blobB$ for some nested parachain design, but such designs complicate the protocol significantly.  
 % We reiterate that $C$ could not prepare witnesses into the relay chain state roots $\{ q_{\rho'} \}$ of parachains' sending messages to $\para$,
 
 We assume temporarily that both validation of $\blobB$ and these two RW and RO witnessing operations succeed.
