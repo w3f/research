@@ -68,9 +68,9 @@ Here is a description of the Inclusion Pipeline: the path a parachain block (or 
 1. The collator forwards the candidate and PoV to validators assigned to the same parachain via the Collation Distribution Process.
 1. The validators assigned to a parachain at a given point in time participate in the Candidate Backing Process to validate candidates that were put forward for validation. Candidates which gather enough signed validity statements from validators are considered "backed" and are called backed candidates. Their backing is the set of signed validity statements.
 1. A relay-chain block author, selected by BABE, can include up to one (1) backed candidate for each parachain to include in the relay-chain block alongside its backing.
-1. Once included, the parachain candidate is considered to be "pending availability". It is not considered fully included until it is proven available.
+1. Once included in the relay-chain, the parachain candidate is considered to be "pending availability". It is not considered to be part of the parachain until it is proven available.
 1. In the following relay-chain blocks, validators will participate in the Availability Distribution Process to ensure availability of the candidate. Information regarding the availability of the candidate will be included in the subsequent relay-chain blocks.
-1. Once the relay-chain state machine has enough information to consider the candidate's PoV as being available, the candidate is considered fully included and is graduated to being a full parachain block, or parablock for short.
+1. Once the relay-chain state machine has enough information to consider the candidate's PoV as being available, the candidate is considered to be part of the parachain and is graduated to being a full parachain block, or parablock for short.
 
 Note that the candidate can fail to be included in any of the following ways:
   - The collator is not able to propagate the candidate to any validators assigned to the parachain.
@@ -80,7 +80,7 @@ Note that the candidate can fail to be included in any of the following ways:
 
 This process can be divided further down. Steps 2 & 3 relate to the work of the collator in collating and distributing the candidate to validators via the Collation Distribution Process. Steps 3 & 4 relate to the work of the validators in the Candidate Backing Process and the block author (itself a validator) to include the block into the relay chain. Steps 6, 7, and 8 correspond to the logic of the relay-chain state-machine (otherwise known as the Runtime) used to fully incorporate the block into the chain. Step 7 requires further work on the validators' parts to participate in the Availability Distribution process and include that information into the relay chain for step 8 to be fully realized.
 
-This brings us to the second part of the process. Once a parablock is "fully included", it is still "pending approval". At this stage in the pipeline, the parablock has been backed by a majority of validators in the group assigned to that parachain, and its data has been guaranteed available by the set of validators as a whole. However, the validators in the parachain-group (known as the "Parachain Validators" for that parachain) are sampled from a validator set which contains some proportion of byzantine, or arbitrarily malicious members. This implies that the Parachain Validators for some parachain may be majority-dishonest, which means that secondary checks must be done on the block before it can be considered approved. This is necessary only because the Parachain Validators for a given parachain are sampled from an overall validator set which is assumed to be up to <1/3 dishonest - meaning that there is a chance to randomly sample Parachain Validators for a parachain that are majority or fully dishonest and can back a candidate wrongly. The Approval Process allows us to detect such misbehavior after-the-fact without allocating more Parachain Validators and reducing the throughput of the system.
+This brings us to the second part of the process. Once a parablock is considered available and part of the parachain, it is still "pending approval". At this stage in the pipeline, the parablock has been backed by a majority of validators in the group assigned to that parachain, and its data has been guaranteed available by the set of validators as a whole. However, the validators in the parachain-group (known as the "Parachain Validators" for that parachain) are sampled from a validator set which contains some proportion of byzantine, or arbitrarily malicious members. This implies that the Parachain Validators for some parachain may be majority-dishonest, which means that secondary checks must be done on the block before it can be considered approved. This is necessary only because the Parachain Validators for a given parachain are sampled from an overall validator set which is assumed to be up to <1/3 dishonest - meaning that there is a chance to randomly sample Parachain Validators for a parachain that are majority or fully dishonest and can back a candidate wrongly. The Approval Process allows us to detect such misbehavior after-the-fact without allocating more Parachain Validators and reducing the throughput of the system.
 
 The Approval Process looks like this:
 1. Parablocks that have been included by the Inclusion Pipeline are pending approval for a time-window known as the secondary checking window.
@@ -145,19 +145,19 @@ We introduce a hierarchy of state machines consisting of an overseer supervising
 
 ### Architecture: Runtime
 
-The best architecture at this time is unclear. Let's start by setting down the requirements of the runtime and then trying to come up with an architecture that encompasses all of them.
+(TODO: The best architecture at this time is unclear. This is a start by setting down the requirements of the runtime and then trying to come up with an architecture that encompasses all of them. Pretty messy right now and will be cleaned up as the architecture emerges).
 
 There are three key points during the execution of a block that we are generally interested in:
   * initialization: beginning the block and doing set up works. Runtime APIs draw information from the state directly after initialization.
-  * inclusion of new parachain information
+  * during the block; most importantly inclusion of new parachain information
   * finalization: final checks and clean-up work before completing the block.
 
 In order to import parachains, handle misbehavior reports, and keep data accessible, we need to keep this data in the storage/state:
   * All currently registered parachains.
   * All currently registered parathreads.
-  * The head of each registered para.
-  * The validation code of each registered para.
-  * Historical validation code for each registered para.
+  * The head of each registered parachain or parathread.
+  * The validation code of each registered parachain or parathread.
+  * Historical validation code for each registered parachain or parathread.
   * Historical, but not yet expired validation code for paras that were previously registered but are now not. (old code must remain available so secondary checkers can check after-the-fact yadda yadda in this case we do that by keeping it in the runtime state.)
   * Configuration: number of parathread cores, number of parachain slots. Length of scheduled parathread "lookahead". Length of parachain slashing period. How long to keep old validation code for. etc.
 
@@ -168,11 +168,48 @@ In the Substrate implementation, we may also have to worry about state changing 
 Here is an attempted-exhaustive list of tasks the runtime is expected to carry out in each phase.
 
 initialization:
+  * accept new registrations of parachains and parathreads. Probably best to do this only once a session to avoid bitfield schemas shifting often (see details on availability bitfields below)
   * determine scheduled parachains and parathreads for the upcoming block or blocks.
   * determine validator assignments to scheduled paras for the upcoming block or blocks.
+  * remove blocks which have been pending availability for too long. this is tightly coupled with scheduling.
+  * handle the start of a new session - discard all candidates pending availability and note the upcoming validator set. 
+  * apply calls from upward messages - messages from parachains to the relay chain.
 
-parachain inputs:
-  * TODO
+during the block:
+  * Receive availability bitfields and move candidates from a pending availability to included state. See subsection below
+  * Receive new backed candidates to target for availability. See subsection below.
+  * Receive updates to configuration.
+
+process availability bitfields:
+  * We will accept an optional signed bitfield from each validator in each block.
+  * We need to check the signature and length of the bitfield for validity. 
+  * We will keep the most recent bitfield for each validator in the session. Each bit corresponds to a particular parachain candidate pending availability. Parachains are scheduled on every block, so we can assign a bit to each one of those. Parathreads are not scheduled on every block, and there may be a lot of them, so we probably don't want a dedicated bit in the bitfield for those. Since we want an upper bound on the number of parathreads we have scheduled or pending availability, a concept of "execution cores" used in scheduling (TODO) should be reusable here - have a dedicated bit in the bitfield for each core, and each core will be assigned to a different parathread over time.
+  * Bits that are set to `true` denote candidate pending availability which are believed by this validator to be available.
+  * Candidates that are pending availability and have the corresponding bit set in 2/3 of validators' bitfields (only counting those submitted after the candidate was included, since some validators may not have submitted bitfields in some time) are considered available and are then moved into the "pending approval" state.
+  * Candidates that have just become available should apply any pending code upgrades based on the relay-parent they are targeting and should schedule any upcoming pending code upgrades.
+
+candidates entering the "pending approval" state:
+  * Apply fees (TODO: not sure if fees are actually used, we don't seem to need 'em for XCMP)
+  * Apply pending code upgrade, if any.
+  * Schedule a new pending code upgrade if the candidate specifies any. (there is a race condition here: part of the configuration is "how long should it take before pending code changes are applied". This value is computed based on the relay-parent that was used at the point when the candidate was about to be included in the relay chain. This is potentially a few blocks later than that, as it can take some time for a candidate to become fully available. We need to ensure that the code upgrade is scheduled with the same delay as was expected when the code upgrade was signaled. The easiest thing to do is to make sure the `pending_code_delay` is passed through the entire availability pipeline).
+  * Schedule Upwards messages - messages from the parachain to the relay chain.
+
+process new backed candidates:
+  * ensure that only one candidate is backed for each parachain or parathread
+  * ensure that the parachain or parathread of the candidate was scheduled and does not currently have a block pending availability. 
+  * check the backing of the candidate. 
+  * move to "pending approval" state. (pass along any configuration information that is liable to change)
+
+misbehavior reports and secondary checks:
+  * Secondary checks will also be submitted within the block. This may lead to slashing as a secondary check period ends.
+
+finalization: (not finality)
+  * ensure that required updates (bitfields and backed candidates) occurred within the block.
+  * update scheduling metadata based on parachains that had blocks included or not. for instance, parathreads where the auction-winning collator didn't get a chance to include its block should be allowed to retry a couple of times.
+
+Availability bitfields must go in before parachain candidates, otherwise there would be a minimum of 1 relay chain block between blocks of the same parachain. As such, it's best for them to go into the same extrinsic.
+
+Parachains and Parathreads behave exactly the same except with respect to how they are scheduled. Parathreads are scheduled dynamically in a pay-as-you-go sense, with auctions. The winner of the auction (a collator) gets multiple opportunities to include its block. Parachains are scheduled on every block.
 
 
 ----
