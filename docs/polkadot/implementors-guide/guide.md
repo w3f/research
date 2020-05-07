@@ -97,6 +97,7 @@ These two pipelines sum up the sequence of events necessary to extend and acquir
 
 It is also important to take note of the fact that the relay-chain is extended by BABE, which is a forkful algorithm. That means that different block authors can be chosen at the same time, and may not be building on the same block parent. Furthermore, the set of validators is not fixed, nor is the set of parachains. And even with the same set of validators and parachains, the validators' assignments to parachains is flexible. This means that the architecture proposed in the next chapters must deal with the variability and multiplicity of the network state.
 
+```
 
    ....... Validator Group 1 ..........
    .                                  .
@@ -104,21 +105,56 @@ It is also important to take note of the fact that the relay-chain is extended b
    .  (Validator 1) (Validator 2)     .
    .         (Validator 5)            .
    .                                  .
-   ..........Buliding on P1 ...........        ........ Validator Group 2 ...........
+   ..........Building on C  ...........        ........ Validator Group 2 ...........
             +----------------------+           .                                    .
-            |    Relay Block P1    |           .           (Validator 7)            .
+            |    Relay Block C     |           .           (Validator 7)            .
             +----------------------+           .    ( Validator 3) (Validator 6)    .
                             \                  .                                    .
-                             \                 ......... Buliding on P2 .............
+                             \                 ......... Building on B  .............
                               \
                       +----------------------+
-                      |  Relay Block P2      |
+                      |  Relay Block B       |
                       +----------------------+
 	                             |
                       +----------------------+
                       |  Relay Block A       |
                       +----------------------+
 
+```
+
+In this example, group 1 has received block C while the others have not due to network asynchrony. Now, a validator from group 2 may be able to build another block on top of B, called C'. Assume that afterwards, some validators become aware of both C and C', while others remain only aware of one.
+
+```
+   ....... Validator Group 1 ..........      ........ Validator Group 2 ...........
+   .                                  .      .                                    .
+   .  (Validator 4) (Validator 1)     .      .    (Validator 7) (Validator 6)     .
+   .                                  .      .                                    .
+   .......... Building on C  ..........      ......... Building on C' .............
+
+
+   ....... Validator Group 3 ..........
+   .                                  .
+   .   (Validator 2) (Validator 3)    .
+   .        (Validator 5)             .
+   .                                  .
+   ....... Building on C and C' .......
+           
+            +----------------------+         +----------------------+       
+            |    Relay Block C     |         |    Relay Block C'    |          
+            +----------------------+         +----------------------+
+                            \                 /
+                             \               /   
+                              \             /
+                      +----------------------+    
+                      |  Relay Block B       |
+                      +----------------------+
+	                             |
+                      +----------------------+
+                      |  Relay Block A       |
+                      +----------------------+
+```
+
+Those validators that are aware of many competing heads must be aware of the work happening on each one. They may contribute to some or a full extent on both. It is possible that due to network asynchrony two forks may grow in parallel for some time, although in the absence of an adversarial network this is unlikely in the case where there are validators who are aware of both chain heads.
 
 ----
 
@@ -126,7 +162,7 @@ It is also important to take note of the fact that the relay-chain is extended b
 
 Our Parachain Host includes a blockchain known as the relay-chain. A blockchain is a Directed Acyclic Graph (DAG) of state transitions, where every block can be considered to be the head of a linked-list (known as a "chain" or "fork") with a cumulative state which is determined by applying the state transition of each block in turn. All paths through the DAG terminate at the Genesis Block. In fact, the blockchain is a tree, since each block can have only one parent.
 
-
+```
           +----------------+     +----------------+
           |    Block 4     |     | Block 5        |
           +----------------+     +----------------+
@@ -145,6 +181,7 @@ Our Parachain Host includes a blockchain known as the relay-chain. A blockchain 
                                 +----------------+
                                 |    Genesis     |
                                 +----------------+
+```                                
 
 
 A blockchain network is comprised of nodes. These nodes each have a view of many different forks of a blockchain and must decide which forks to follow and what actions to take based on the forks of the chain that they are aware of.
@@ -179,6 +216,7 @@ The second category of questions addressed by Node-side behavior. Node-side beha
 
 It is also helpful to divide Node-side behavior into two further categories: Networking and Core. Networking behaviors relate to how information is distributed between nodes. Core behaviors relate to internal work that a specific node does. These two categories of behavior often interact, but can be heavily abstracted from each other. Core behaviors care that information is distributed and received, but not the internal details of how distribution and receipt function. Networking behaviors act on requests for distribution or fetching of information, but are not concerned with how the information is used afterwards. This allows us to create clean boundaries between Core and Networking activities, improving the modularity of the code.
 
+```
           ___________________                    ____________________
          /       Core        \                  /     Networking     \
          |                   |  Send "Hello"    |                    |
@@ -192,6 +230,8 @@ It is also helpful to divide Node-side behavior into two further categories: Net
          \___________________/                  \____________________/
                                                    ______| |______
                                                    ___Transport___
+
+```                                                   
 
 
 Node-side behavior is split up into various Processes. Processes are long-lived workers that perform a particular category of work. Processes can communicate with each other, and typically do so via an Overseer that prevents race conditions.
