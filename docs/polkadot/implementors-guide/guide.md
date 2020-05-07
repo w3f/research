@@ -97,7 +97,28 @@ These two pipelines sum up the sequence of events necessary to extend and acquir
 
 It is also important to take note of the fact that the relay-chain is extended by BABE, which is a forkful algorithm. That means that different block authors can be chosen at the same time, and may not be building on the same block parent. Furthermore, the set of validators is not fixed, nor is the set of parachains. And even with the same set of validators and parachains, the validators' assignments to parachains is flexible. This means that the architecture proposed in the next chapters must deal with the variability and multiplicity of the network state.
 
-[TODO Diagram: Forkfulness]
+
+   ....... Validator Group 1 ..........
+   .                                  .
+   .         (Validator 4)            .
+   .  (Validator 1) (Validator 2)     .
+   .         (Validator 5)            .
+   .                                  .
+   ..........Buliding on P1 ...........        ........ Validator Group 2 ...........
+            +----------------------+           .                                    .
+            |    Relay Block P1    |           .           (Validator 7)            .
+            +----------------------+           .    ( Validator 3) (Validator 6)    .
+                            \                  .                                    .
+                             \                 ......... Buliding on P2 .............
+                              \
+                      +----------------------+
+                      |  Relay Block P2      |
+                      +----------------------+
+	                             |
+                      +----------------------+
+                      |  Relay Block A       |
+                      +----------------------+
+
 
 ----
 
@@ -105,7 +126,26 @@ It is also important to take note of the fact that the relay-chain is extended b
 
 Our Parachain Host includes a blockchain known as the relay-chain. A blockchain is a Directed Acyclic Graph (DAG) of state transitions, where every block can be considered to be the head of a linked-list (known as a "chain" or "fork") with a cumulative state which is determined by applying the state transition of each block in turn. All paths through the DAG terminate at the Genesis Block. In fact, the blockchain is a tree, since each block can have only one parent.
 
-[TODO Diagram: Blockchain / Block-DAG]
+
+          +----------------+     +----------------+
+          |    Block 4     |     | Block 5        |
+          +----------------+     +----------------+
+                        \           /
+                         V         V
+                      +---------------+
+                      |    Block 3    |
+                      +---------------+
+                              |
+                              V
+                     +----------------+     +----------------+
+                     |    Block 1     |     |   Block 2      |
+                     +----------------+     +----------------+
+                                  \            /
+                                   V          V
+                                +----------------+
+                                |    Genesis     |
+                                +----------------+
+
 
 A blockchain network is comprised of nodes. These nodes each have a view of many different forks of a blockchain and must decide which forks to follow and what actions to take based on the forks of the chain that they are aware of.
 
@@ -117,11 +157,42 @@ The first category of questions will be addressed by the Runtime, which defines 
 
 The second category of questions addressed by Node-side behavior. Node-side behavior defines all activities that a node undertakes, given its view of the blockchain/block-DAG. Node-side behavior can take into account all or many of the forks of the blockchain, and only conditionally undertake certain activities based on which forks it is aware of, as well as the state of the head of those forks.
 
-[TODO Diagram: Runtime vs. Node-side]
+                     __________________________________
+                    /                                  \
+                    |            Runtime               |
+                    |                                  |
+                    \_________(Runtime API )___________/
+                                |       ^
+                                V       |
+               +----------------------------------------------+
+               |                                              |
+               |                   Node                       |
+               |                                              |
+               |                                              |
+               +----------------------------------------------+
+                                   +  +
+                                   |  |
+               --------------------+  +------------------------
+                                 Transport
+               ------------------------------------------------
+
 
 It is also helpful to divide Node-side behavior into two further categories: Networking and Core. Networking behaviors relate to how information is distributed between nodes. Core behaviors relate to internal work that a specific node does. These two categories of behavior often interact, but can be heavily abstracted from each other. Core behaviors care that information is distributed and received, but not the internal details of how distribution and receipt function. Networking behaviors act on requests for distribution or fetching of information, but are not concerned with how the information is used afterwards. This allows us to create clean boundaries between Core and Networking activities, improving the modularity of the code.
 
-[TODO Diagram: Node-side divided into Networking and Core]
+          ___________________                    ____________________
+         /       Core        \                  /     Networking     \
+         |                   |  Send "Hello"    |                    |
+         |                   |-  to "foo"   --->|                    |
+         |                   |                  |                    |
+         |                   |                  |                    |
+         |                   |                  |                    |
+         |                   |    Got "World"   |                    |
+         |                   |<--  from "bar" --|                    |
+         |                   |                  |                    |
+         \___________________/                  \____________________/
+                                                   ______| |______
+                                                   ___Transport___
+
 
 Node-side behavior is split up into various Processes. Processes are long-lived workers that perform a particular category of work. Processes can communicate with each other, and typically do so via an Overseer that prevents race conditions.
 
@@ -162,6 +233,7 @@ In order to import parachains, handle misbehavior reports, and keep data accessi
   * Historical validation code for each registered parachain or parathread.
   * Historical, but not yet expired validation code for paras that were previously registered but are now not. (old code must remain available so secondary checkers can check after-the-fact yadda yadda in this case we do that by keeping it in the runtime state.)
   * Configuration: number of parathread cores, number of parachain slots. Length of scheduled parathread "lookahead". Length of parachain slashing period. How long to keep old validation code for. etc.
+  * Historical data for validators sets at least [TODO: how many?] blocks into the past. Used when reporting equivocations to prove that the validator at question actually belonged to the validator set at the time the equivocation was commited.
 
 This information should not change at any point between block initialization and inclusion of new parachain information. The reason for that is that the inclusoin of new parachain information will be checked against these values in the storage, but the new parachain information is produced by Node-side processes which draw information from Runtime APIs. Runtime APIs execute on top of the state directly after the initialization, so a divergence from that state would lead to validators producing unacceptable inputs.
 
@@ -203,7 +275,9 @@ process new backed candidates:
   * move to "pending approval" state. (pass along any configuration information that is liable to change)
 
 misbehavior reports and secondary checks:
-  * Secondary checks will also be submitted within the block. This may lead to slashing as a secondary check period ends.
+  * Secondary checks will also be submitted within the block. This may lead to slashing as a secondary check period ends. We want to catch and punish for the cases of misbehavior that violate the protocol and put its security at risk. One of such cases is submitting conflicting votes on the same `CandidateReceipt`.Other examples include violations to AnV protocol or equivocations in finality. Misbehavior handling is implemented in
+    * Runtime as an entry point.
+    * Code in the Node that assists submitting misbehavior reports.
 
 finalization: (not finality)
   * ensure that required updates (bitfields and backed candidates) occurred within the block.
