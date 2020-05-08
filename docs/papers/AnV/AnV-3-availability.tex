@@ -3,20 +3,31 @@
 \label{sec:availability}
 
 
+In this section, we describe the subprotocols that provide and prove availability and thus enable our approval validity checks in \S\ref{sec:approval}.  
+
+We retain all definitions and notation established previously in \S\ref{sec:backing}.  In particular, we have a candidate $B$ for a parachain $\rho$ for which we defined
+\begin{itemize}
+\item its unauthenticated erasure coded pieces $\prepieces_B$,
+\item their Merklee root $\merkleroot_B$, 
+\item its attested candidate receipt $\receipt_{B,S}$ for $B$ contining $\merkleroot_B$ along with attestation signatures $S$.
+\end{itemize}
 
 
-\subsection{Foo}
-\label{sec:availability1}  % Pre-GRANDPA
+\subsection{Authenticated pieces}
+\label{sec:authenticated_pieces}
 
+We thus far in \S\ref{sec:backing} communicated only candidate receipts $\receipt_{B,S}$ and candidate blobs $\blobB$ among nodes, but availability requires sending erasure coded pieces $\prepieces_B$ too.
 
+Associated to each unauthenticated piece $d \in \prepieces_B$, there is a Merklee copath $\vect{\merkleroot_B d}$ that proves $d$ was committed to by the Merkle root $\merkleroot_B$.  
+We define {\em authenticated (erasure coded candidate) pieces} $(d,\merkleroot_B,\vect{\merkleroot_B d})$ by attaching to $d$ the Merkle root $\merkleroot_B$ and this inclusion proof $\vect{rd}$.  
+We transport only authenticated pieces between nodes throughout, or full blocks like $\blobB$, because only authenticated pieces provide an irrefutable claims about candidates. 
 
+We let $\pieces_B$ denote the list of these authenticated pieces, so
+$$ \pieces_B = Listst{ (d,\receipt_{B,S},\vect{\merkleroot_B d}) }{ d \in \prepieces_B } \mathperiod $$
+%
+We shall distribute $\pieces_B$ among the full relay chain validator set $\vals$ with $\pieces_B[i]$ going to $\vals[i]$ for $i = 1,\ldots,\nvals$.  
 
-Associated to each unauthenticated piece $d \in \prepieces_B$, we define an {\em authenticated (erasure coded candidate) piece} $(d,\merkleroot_B,\vect{\merkleroot_B d})$ by attaching the Merkle root $\merkleroot_B$ and an inclusion proof $\vect{rd}$, which authenticates $d$ as being committed to by the Merkle root $\merkleroot_B$.  Of course this expansion commutes with expanding the signer set $S$ on the attested candidate receipt $\receipt_{B,S}$.
-
-We handle only the list $\pieces_B$ of these authenticated pieces for the remainder of the protocol. 
-$$ \pieces_B = Listst{ (d,\receipt_{B,S},\vect{\merkleroot_B d}) }{ d \in \prepieces_B } $$
-
-We must distribute $\pieces_B$ among the full relay chain validator set $\vals$ with $\pieces_B[i]$ going to $\vals[i]$ for $i = 1,\ldots,\nvals$.  In so doing. we force the signer set $S$ into making $\blobB$ available for testing by random approval checkers without yet revealing those approval checkers.  This trick provides the core scalability advantage of Polkadot.
+In so doing. we force the backing checker set $S$ into making $\blobB$ available for testing by random approval checkers without yet revealing those approval checkers.  This trick provides the core scalability advantage of Polkadot.
 
 We might however see many competing parachain candidate blocks at this point, so we delay this distribution process until some relay chain block $R$ contains $\receipt_{B,S}$.  We assume such an $R$ containing $\receipt_{B,S}$ exists throughout the remainder of this section.
 
@@ -25,14 +36,16 @@ We might however see many competing parachain candidate blocks at this point, so
 \label{sec:topology}
 %TODO: "Piece distribution topology" is too long
 
-We find that scalability actually depends heavily upon the topology and routing used to distribute data, but that specifics depend upon the scale.  We briefly explain the specialised topology and routing requirements for our two phases of parachain data distribution.  We caution however that routing almost always requires some capacity for multi-hop forwarding because otherwise risks excluding some elected validators.  
+[TODO: We wrote this as if it were a separate topology section, not a subsection of availability, so maybe it should adopt that structure]
+
+We find that scalability actually depends heavily upon the topology and routing used to distribute data, but that specifics depend upon the scale.  We briefly explain the specialised topology and routing requirements for our two phases of parachain data distribution.  We caution however that routing almost always requires some capacity for multi-hop forwarding because it otherwise risks excluding some elected validators.  
 
 \smallskip
 \paragraph{Candidate blocks:}
 
-We need our network topology to permit one parachain $\para$ to distribute the authenticated erasure coded candidate pieces $\pieces_B$s relatively quickly, which amounts to a graph expansion property.  We might want a much stronger connectivity property below if doing full reconstructions turns out to be our most efficient mechanism for block retrieval, but if not then some similar expansion property permits forwarding pieces for reconstructions (see \S\ref{sec:retrieval}).
+We need our network topology to permit one parachain $\para$ to distribute the authenticated erasure coded candidate pieces $\pieces_B$s relatively quickly, which amounts to a graph expansion property (TODO:Actually??).  We might want a much stronger connectivity property below if doing full reconstructions turns out to be our most efficient mechanism for block retrieval, but if not then some similar expansion property permits forwarding pieces for reconstructions (see \S\ref{sec:retrieval}).
 
-We might also ask good collators to send the same block to several well chosen parachain validators as well.  As an example, if our parachain validators $\vals_\para$ form a cycle then $B$ reaches all parachain validators in two hops if the collators send $B$ to one third of $\vals_\para$, but adding well chosen chords reduces our connections with collators and improves our connectivity.  
+In \S\ref{sec:backing}, we could ask collators to send the same block to several well chosen parachain validators as well.  As an example, if our parachain validators $\vals_\para$ form a cycle then $B$ reaches all parachain validators in two hops if the collators send $B$ to one third of $\vals_\para$, but adding well chosen chords reduces our connections with collators and improves our connectivity.  
 
 \smallskip
 \paragraph{Candidate pieces:}
