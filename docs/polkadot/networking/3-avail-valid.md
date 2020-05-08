@@ -8,10 +8,14 @@
 
 # Availability and Validity (A&V) networking
 
-Status: draft; initial outline complete & awaiting feedback
+Status: draft; accepted with a few TODO items remaining
 
-TODO: rough performance analysis & implementation notes, at the end of the doc<br/>
-TODO: consider the pieces of relay chain blocks
+## TODO
+
+- to save time, the initial implemented version will be via gossip. Make a note of this.
+- use sentry nodes as proxies
+- rough performance analysis & implementation notes, at the end of the doc.
+- consider the pieces of relay chain blocks.
 
 ## Background
 
