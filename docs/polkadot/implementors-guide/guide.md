@@ -194,6 +194,8 @@ The first category of questions will be addressed by the Runtime, which defines 
 
 The second category of questions addressed by Node-side behavior. Node-side behavior defines all activities that a node undertakes, given its view of the blockchain/block-DAG. Node-side behavior can take into account all or many of the forks of the blockchain, and only conditionally undertake certain activities based on which forks it is aware of, as well as the state of the head of those forks.
 
+```
+
                      __________________________________
                     /                                  \
                     |            Runtime               |
@@ -212,6 +214,8 @@ The second category of questions addressed by Node-side behavior. Node-side beha
                --------------------+  +------------------------
                                  Transport
                ------------------------------------------------
+
+```
 
 
 It is also helpful to divide Node-side behavior into two further categories: Networking and Core. Networking behaviors relate to how information is distributed between nodes. Core behaviors relate to internal work that a specific node does. These two categories of behavior often interact, but can be heavily abstracted from each other. Core behaviors care that information is distributed and received, but not the internal details of how distribution and receipt function. Networking behaviors act on requests for distribution or fetching of information, but are not concerned with how the information is used afterwards. This allows us to create clean boundaries between Core and Networking activities, improving the modularity of the code.
@@ -239,6 +243,8 @@ Node-side behavior is split up into various Processes. Processes are long-lived 
 Runtime logic is divided up into Modules and APIs. Modules encapsulate particular behavior of the system. Modules consist of storage, routines, and entry-points. Routines are invoked by entry points, by other modules, upon block initialization or closing. Routines can read and alter the storage of the module. Entry-points are the means by which new information is introduced to a module. Each block in the blockchain contains a set of Extrinsics. Each extrinsic targets a a specific entry point to trigger and which data should be passed to it. Runtime APIs provide a means for Node-side behavior to extract meaningful information from the state of a single fork.
 
 These two aspects of the implementation are heavily dependent on each other. The Runtime depends on Node-side behavior to author blocks, and to include Extrinsics which trigger the correct entry points. The Node-side behavior relies on Runtime APIs to extract information necessary to determine which actions to take.
+
+---
 
 ### Architecture: Node-side
 
@@ -327,6 +333,21 @@ Availability bitfields must go in before parachain candidates, otherwise there w
 
 Parachains and Parathreads behave exactly the same except with respect to how they are scheduled. Parathreads are scheduled dynamically in a pay-as-you-go sense, with auctions. The winner of the auction (a collator) gets multiple opportunities to include its block. Parachains are scheduled on every block.
 
+-----
+
+### Runtime Architecture: A Proposal
+
+[TODO: Figure out what to do with the previous section - there's a lot of useful information. A lot of info might be beyond the scope of the document, but is still useful. Figure out which research resources we can link to and which points are new to this doc. some race condition concerns were never written down before]
+
+It's clear that we want to separate different aspects of the runtime logic into different modules.
+
+Reiterating from the [Architecture](#Architecture) section, Modules define their own storage, routines, and entry-points. They also define initialization and finalization logic.
+
+Due to the (lack of) guarantees provided by a particular blockchain-runtime framework, there is no defined or dependable order in which modules' initialization or finalization logic will run. Supporting this blockchain-runtime framework is important enough to include that same uncertainty in our model of runtime modules in this guide. Furthermore, initialization logic of modules can trigger the entry-points or routines of other modules. This is one architectural pressure against dividing the runtime logic into multiple modules. However, in this case the benefits of splitting things up outweigh the costs, provided that we take certain precautions against initialization and entry-point races.
+
+We also expect, although it's beyond the scope of this guide, that these runtime modules will exist alongside various other modules. This has two facets to consider. First, even if the modules that we describe here don't invoke each others' entry points or routines during initialization, we still have to protect against those other modules doing that. Second, some of those modules are expected to provide governance capabilities for the chain. Configuration exposed by parachain-host modules is mostly for the benefit of these governance modules, to allow the operators or community of the chain to tweak parameters.
+
+The runtime's primary roles are to manage scheduling and updating of parachains and parathreads, as well as handling misbehavior reports and slashing. This guide doesn't focus on how parachains or parathreads are registered, only that they are.
 
 ----
 
