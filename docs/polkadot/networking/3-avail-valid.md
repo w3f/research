@@ -10,7 +10,7 @@
 
 Status: draft; initial outline complete & awaiting feedback
 
-TODO: rough performance analysis & implementation notes, at the end of the doc
+TODO: rough performance analysis & implementation notes, at the end of the doc<br/>
 TODO: consider the pieces of relay chain blocks
 
 ## Background
@@ -112,7 +112,7 @@ In more detail:
 
 Each distributor (c, i) will, with parallelism = C / 4, for s in [0..C), try to send the relevant piece to target t = ((c+s) mod C, i) [TBX S1 #2]. C / 4 comes from our estimate that T_b ~= 4 * T_L.
 
-Trials are done with a timeout, slightly larger than T_l. Sending is via QUIC. In order for it to be treated as a success, it should include an acknowledgement of receipt. Note this is orthogonal from the gossiped receipts which include a validator signature; by contrast this transport-level receipt can be assumed to be already protected by QUIC [transport authentication](6-authentication.html).
+Trials are done with a timeout, slightly larger than T_l. Sending is via QUIC. In order for it to be treated as a success, it should include an acknowledgement of receipt. Note this is orthogonal from the gossiped receipts which include a validator signature; by contrast this transport-level receipt can be assumed to be already protected by QUIC [transport authentication](L-authentication.html).
 
 If a gossiped receipt is received at any point during the whole process, for a target for a piece, then we can interpret that to mean that the target obtained the piece from a different sender in the meantime, and we should cancel the sending attempt with success.
 
