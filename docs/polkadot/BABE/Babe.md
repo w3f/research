@@ -200,7 +200,21 @@ This lemma says that the block production may stop at most $\theta$ at the begin
 
 **Proof Sketch:** With the chain quality property, we can guarantee that more than half of arrival times of the blocks used in the median algorithm sent on time. Therefore, the output of all validators' median algorithm is the one which is sent on time. The details of the proof is in Theorem 1 our paper [Consensus on Clocks](https://eprint.iacr.org/2019/1348). 
 
-Having $\theta$ small enough is important not to slow down the block production mechanism a while after a sync-epoch. For example, (a very extreme example)  we do not want to end up with a new clock that says that we are in the year 2001 even if we are in 2019. In this case, honest validators may wait 18 years to execute an action that is supposed to be done in 2019. 
+Having $\theta$ small enough is important not to slow down the block production mechanism a while after a sync-epoch. For example, (a very extreme example)  we do not want to end up with a new clock that says that we are in the year 2001 even if we are in 2019. In this case, honest validators may wait 18 years to execute an action that is supposed to be done in 2019.
+
+### Temporarily Clock Adjustment
+
+For validators who were offline at some point during one synch-epoch, they can adjust their clock temporarily (till the next synch epoch) with the following algorithm. 
+
+**1. Case:** If $V$ was online at some point of a synch-epoch and when he becomes online if his clock works well, he should continue to collect the arrival time of valid blocks and produce his block according to his clock as usual. A block is considered as valid in this case if it is not equivocated, if the block is sent by the right validator and if its slot number belong to the current synch epoch. In the end of the sych-epoch, if he has collected $n$ arrival time of valid blocks he runs the median algorithm with these blocks. 
+If it has less than $n$ blocks it should wait till collecting $n$ arrival time of valid blocks.We note that he does not run with the arrival time of the finalized blocks.
+
+**2. Case:** If $V$ was online at some point of a synch-epoch and when he becomes online if his clock does not work anymore, he should continue to collect the arrival time of valid blocks. He can adjust his clock according to e.g., the arrival last finalized block to continue to produce block. He can use this clock till collecting $n$ valid blocks. After collecting $n$ valid blocks he should readjust his according to the output of the median algorithm with these $n$ valid blocks.
+
+With this algorithm, we can guarantee that the difference between his clock and an honest parties clock is at most $2\delta_{max} + |\Sigma|$. 
+
+We not that during one sync-epoch the ratio of such offline validators should not be more that 0.05 otherwise it can affect the security of the relative time algorithm. 
+
 
 ## 5. Security Analysis
 
@@ -269,7 +283,7 @@ $$\tag*{$\blacksquare$}$$
 BABE with median satisfies HCG property with parameters $\tau_{hcg} = p_hp_\bot^{D_m}(1-\omega)$ where $0 < \omega < 1$ and $s_{hcg} > 0$ in $s_{hcg}$ slots  with probability $1-\exp(-\frac{ p_hp_\bot^{\D_m} s_{hcg} \omega^2}{2})$.
 
 
-**Theorem 2 (Chain Densisty)**  Chain desisty property is satisfied with $s_{cd}$ in BABE with probability $1 - \exp(-\frac{p_H\_\mathsf{timely}p_\bot^\D s_{cd} \omega_H^2}{2}) - (1+\gamma_m) p_m\_\mathsf{timely} s_{cd} - \exp(-\ell)$ where $\omega_H \in (0,1)$ and $\gamma > 0$.
+**Theorem 2 (Chain Densisty)**  Chain desisty property is satisfied with $s_{cd}$ in BABE with probability $1 - \exp(-\frac{p_H\_\mathsf{timely}p_\bot^\D s_{cd} \omega_H^2}{2}) - \exp(-\frac{\gamma^2s_{cd}p_m\_\mathsf{timely}}{2+\gamma}) - \exp(-\ell)$ where $\omega_H \in (0,1)$ and $\gamma > 0$.
 
 **Proof:** We first find the minimum difference between the number of honest slots  and the number of malicious slots in $s_{cd}$ slots belonging the one synch-epoch. For this, we need to find the minimum number of honest slots $H$ and maximum number of honest slots $m$.
 
@@ -372,7 +386,7 @@ After finding $k_{cq}$ such that $p \leq p_{attack}$, let the epoch length $R = 
 
 The parameters below are computed with the code in https://github.com/w3f/research/blob/master/experiments/parameters/babe_NTP.py. In this code, we choose the paramter $c$ not only according to security considitions but also according to having in expectation twice more single leader than multiple leaders.
 
-################### PARAMETERS OF BABE WITH NTP $\D = 0$ ###################
+-################### PARAMETERS OF BABE WITH NTP $\D = 0$ ###################
 c = 0.52, slot time T = 6
 
 It is secure in 3 years with probability 0.99523431732
@@ -388,7 +402,7 @@ Epoch length should be at least 1440 slots,2.4 hours
 
 If we want more network resistance, $e.g.,\D = 1$, the parameters should be selected as follows:
 
-################### PARAMETERS OF BABE WITH NTP $\D = 1$ ###################
+-################### PARAMETERS OF BABE WITH NTP $\D = 1$ ###################
 c = 0.22, slot time T = 6
 
 It is secure in 3 years with probability 0.996701592969
@@ -422,7 +436,7 @@ Finding synch-epoch length
 
 The parameters below are computed with the code in https://github.com/w3f/research/blob/master/experiments/parameters/babe_median.py
 
-############## PARAMETERS OF BABE WITH THE MEDIAN ALGORITHM ##############
+-############## PARAMETERS OF BABE WITH THE MEDIAN ALGORITHM ##############
 
 c = 0.38, slot time T = 6
 
@@ -441,6 +455,11 @@ Sync-Epoch length should be at least 2857 slots, 4.76166666667 hours
 
 Epoch length should be at least 2000 slots,3.33333333333 hours
 
+-~~~~~~~~~~~~~~ Offline validators' parameters for clock adjustment ~~~~~~~~~~~~~~
+
+$n = 200$ for temporarily clock adjustment.
+
+Offline validators should collect
 
 **Some Notes about clock drifts:** 
 http://www.ntp.org/ntpfaq/NTP-s-sw-clocks-quality.htm#AEN1220
