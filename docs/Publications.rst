@@ -5,26 +5,24 @@ Publications
 
 **Papers:**
 
-Jeff Burdges, Alfonso Cevallos, Peter Czaban, Rob Habermeier, Syed Hosseini, Fabio Lama, Handan Kılınç Alper, Ximin Luo, Fatemeh Shirazi, Alistair Stewart, Gavin Wood, Overview of Polkadot and its Design Considerations, first draft (30 April 2020). 
+Jeff Burdges, Alfonso Cevallos, Peter Czaban, Rob Habermeier, Syed Hosseini, Fabio Lama, Handan Kılınç Alper, Ximin Luo, Fatemeh Shirazi, Alistair Stewart, Gavin Wood, `Overview of Polkadot and its Design Considerations <https://github.com/w3f/research/blob/master/docs/papers/OverviewPaper-V1.pdf>`_, first version, 02 May 2020. 
+
+
 
 Alfonso Cevallos and Alistair Stewart, `Validator election in nominated proof-of-stake <https://arxiv.org/abs/2004.12990>`_, in progress.
 
 Handan Kılınç Alper, `Consensus on Clock in Universally Composable Timing Model <https://eprint.iacr.org/2019/1348>`_, in progress. 
 
-Alistair Stewart and Lefteris Kokoris Kogias, GRANDPA: A finality Gadget, in progress. 
+Alistair Stewart and Lefteris Kokoris Kogias, `GRANDPA: A finality Gadget <https://github.com/w3f/research/blob/master/docs/_static/pdf/grandpa.pdf>`_, in progress. 
 
 
 **Posters:**
 
-Jeff Burdges, Handan Kılınç Alper, Alistair Stewart, `Availability and Validity <https://github.com/w3f/research/blob/master/docs/papers/AVAILABILITY%20AND%20VALIDITY%20OF%20DATA%20IN%20SHARDED%20BLOCKCHAINS_low.pdf>`_, Financial Cryptography and Data Security 2020. 
+Jeff Burdges, Handan Kılınç Alper, Alistair Stewart, `Availability and Validity <https://github.com/w3f/research/blob/master/docs/papers/AVAILABILITY%20AND%20VALIDITY%20OF%20DATA%20IN%20SHARDED%20BLOCKCHAINS_low.pdf>`_, Financial Cryptography and Data Security (FC), February 2020. 
 
-Jeff Burdges, "Assessing or incentivising correct mixing without authorities", Financial Cryptography and Data Security 2020. 
+Jeff Burdges, "Assessing or incentivising correct mixing without authorities", Financial Cryptography and Data Security (FC), February 2020. 
 
-Alistair Stewart, "GRANDPA: A Finality Gadget", CCS 2019.
-
-**Presentations:**
-
-
+Alistair Stewart, "GRANDPA: A Finality Gadget", ACM Computer and Communications Security (CCS), Npvember 2019.
 
 **Blog Posts:**
 

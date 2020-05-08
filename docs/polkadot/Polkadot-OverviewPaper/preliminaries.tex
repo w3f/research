@@ -16,7 +16,7 @@ In this section we describe in more detail the different entities involving in t
 %\paragraph{Relay Chain:} is the Polkadot central state machine which keeps references to the current states of all parachains and to the cross parachain transactions. Thus the relay chain works as a single source of truth across Polkadot network.
 %\syed{It also keeps references of all cross-parachain messages}{-remove- mentioned above as cross parachain transaction, what is a message otherwise? we need to define it first}.
 
-\subsection{Roles}
+\subsection{Roles}\label{sec:roles}
 Nodes which run Polkadot network assume different roles and functions that we introduce next.
 
 %I'm looking at the definition of these roles in the original paper and in many case they look more comprehensive than what we have here. Perhaps, we could incorporate more of the original white paper here.
@@ -41,20 +41,20 @@ Fishermen get their reward through a timely proof that at least one bonded party
 %Illegal actions include signing two blocks each with the same ratified parent or, in the case of parachains, helping ratify an invalid block. To prevent over-rewarding or the compromise and illicit use of a session’s secret key, the base reward for providing a single validator’s illegally signed message is minimal. This reward increases asymptotically as more corroborating illegal signatures from other validators are provided implying a genuine attack. The asymptote is set at 66 $\%$ following our base security assertion that at least two-thirds of the validators act benevolently.
 
 Fishermen are somewhat similar to “full nodes” in present-day blockchain systems that the resources needed are relatively small and the commitment of stable uptime and bandwidth is not necessary. Fishermen differ in so much as they must post a small bond. This bond prevents sybil attacks from wasting validators’ time and compute resources. %It is immediately withdrawable, probably no more than the equivalent of a few dollars and may lead to reaping a hefty reward from spotting a misbehaving validator.
-While fishermen are part of the security model of Polkadot, the design would be secure without them. This is mainly because of the missing incentive model for fishermen we need to keep Polkadot secure in their absence. Adding an incentive model for fishermen is part of our future work.  
+While fishermen are part of the security model of Polkadot, the design would be secure without them. Since there is no incentive model for fishermen designed yet we need to keep Polkadot secure in their absence. Adding an incentive model for fishermen is part of our future work.  
 
 
 The structural elements and different roles defined in the Polkadot protocol are shown in Figure~\ref{fig:roles}, in an example with six parachains, 18 validators, and 5 collators per parachain. Figure \ref{fig:relaychain} shows the relay chain with 5 such relay chain blocks. Note that the number of parachain validators assigned to a parachain is divided by the number of parachains, however, the number of collators is individual to parachains.  The bridge is a sub-protocol that allows external chains to interoperate with Polkadot, see \ref{sec:bridge} for more information. 
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=\textwidth]{images/Network@2x.png}
-	\caption{This figure shows a relay chain block securing six parachain blocks. Each parachain has  5 collators and 3 validators assigned to it  (Image credit: Ignasio Albero).}
+	\caption{This figure shows a relay chain block securing six parachain blocks. Each parachain has  5 collators and 3 validators assigned to it (image credit: Ignasio Albero).}
 	\label{fig:roles}
 \end{figure}
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=\textwidth]{images/Relaychain.png}
-	\caption{This figure shows the relay chain with 5 relay chain blocks. For simplicity, in this figure each relay chain block has parachain blocks from 12 parachains, however, the number of parachain blocks per relay chain block might vary (Image credit: Ignasio Albero).}
+	\caption{This figure shows the relay chain with 5 relay chain blocks. For simplicity, in this figure each relay chain block has parachain blocks from 6 parachains, however, the number of parachain blocks per relay chain block might vary (image credit: Ignasio Albero).}
 	\label{fig:relaychain}
 \end{figure}
 
@@ -66,6 +66,8 @@ The structural elements and different roles defined in the Polkadot protocol are
 \paragraph{Roles:} In general, we assume that honest parties follow the protocol while malicious ones can follow any arbitrary algorithm. We assume that three quarters of nominators' stake belong to honest ones. As a result of this assumption, more than two third of validators who are elected by nominators are honest. We do not have any limit on number of malicious fishermen since their malicious behaviours are detectable and punishable.
 
 \paragraph{Parachains:} We do not have any security assumption on block production mechanism for parachains. On the other hand, we assume that a significant amount of collators are honest. The security of Polkadot does not depend on any precise honest fraction of collators but it requires existence of some honest collators.
+
+Parts of the protocol assume that every parachain has at least one reachable honest member; where this is not feasible or not realistic, we do not follow through on this assumption and instead have additional checks against a totally-malicious membership.
 
 \paragraph{Keys:} We assume that malicious parties generate their keys with an arbitrary algorithm
 while honest ones always generate their keys securely.

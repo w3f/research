@@ -2,106 +2,135 @@
 \section{Backing}
 \label{sec:backing}
 
-We now describe the subprotocols that provide the preliminary financial backing checks from parachain validators and that ensure availability for our later approval validity checks.
+\newcommand\qin{\ensuremath{q_{\mathsf{in}}}}
+\newcommand\qout{\ensuremath{q_{\mathsf{out}}}}
 
+We now describe the subprotocols that provide the preliminary financial backing checks from parachain validators with which Polkadot begins processing parachain candidate blocks.  After parachain candidates have enough backing, we shall next proceed to ensure their availability in \S\ref{sec:availability} and only lastly perform the final approval validity checks in \S\ref{sec:approval}.
 
-We now describe and instantiate our {\em availability and validity protocol} that provides efficient sharding.  It consists of 
+Our backing protocol has nodes play three roles:
 \begin{itemize}
-\item a parachain phase that prepares the candidate block and performs preliminary backing validity checks,
-\item a relay chain submission phase that distributes candidate parachain blocks and produces relay chain blocks,
-\item availability and unavailability subprotocols that enforce availability in GRANDPA and BABE respectively,
-\item fuller approval validity checks for GRANDPA,
-\item objection procedures for fishermen, and
-\item invokation of a Byzantine fault tolerant ``finality gadget'' that gives us finality.
+\item Collators for a parachain $\para$ prepare the candidate blocks's proof-of-validity block usable with stateless validation.\footnote{TODO: Add name in previous section since state witness procedure gets too long} 
+\item Validators $\vals_\para$ assigned to back the parachain $\para$ update the block metadata and prepare the candidate receipt handled directly by the relay chain, attest to its validity, and submit it to the relay chain once it obtains sufficent backing. 
+\item Some relay chain block producer selects among any competing candidates with sufficient backing.
 \end{itemize}
-
+Intuitively, there are two distinct protocols here, one between the collators and parachain backing validators, and one between parachain backing validators and relay chain block producers.  We caution however that parachain validators must update metadata and prepare the candidate receipt before providing backing attestations.
 
 % TODO: Anything more worth saying here?  Maybe extract from:  The parachain phase is executed between collators and parachain validators. In the end of this phase, the parachain validators validate the block and provide its erasure code pieces to the validators. Then, the relay chain phase begins. If the parachain phase is executed correctly, then the relay chain phase includes extra validation of a parachain block, adding the block header to the relay chain and finalizing that relay chain block. Otherwise, unavailability protocol is run between validators. The details are as follows: 
 
 
-\subsection{Parachain phase} 
-\label{sec:parachain}
+\subsection{Collators} 
+\label{sec:collators}
 
-We first describe the protocol by which collators of a parachain $\para$ submit a candidate block to the parachain validators $\vals_\para$ assigned to $\para$.
+We begin when some {\bf collator} $C$ of a parachain $\para$ possesses some candidate block $B$ for $\para$, which $C$ should then propose for recognition by the relay chain.  We let $B'$ denotes the parent of $B$ in $\para$.  As above, let $\rin$ and $\rout$ denote state root of $\para$ before and after executing $B$.  
 
-\smallskip
-\paragraph{Collator subphase:} 
+In practice, we want shared security so that parachains can communicate among themselves easily, among other reasons.  As such, the candidate $B$ should reference some {\em relay chain parent block} $R^0_B$ that distinguishes any state $\para$ maintains on the relay chain, which contains an incoming message ``watermark'' and some commitments related to outgoing messages (see XCMP). 
 
-Initially, some {\bf collator} $C$ of a parachain $\para$ must propose some candidate block $B$ for $\para$.  We let $B'$ denotes the parent of $B$.  As above, let $\rin$ and $\rout$ denote state root before and after executing $B$.  
-
-In practice, we want shared security, among other reasons so that parachains can communicate easily.  As such, $B$ should reference some relay chain block(s) $R^0_B$ that distinguish any state $\rho$ maintains on the relay chain, such as the incoming messages accumulated for $\rho$ to be processed by $B$.  We let $q$ denote the Merkle root of this state $\rho$ maintains on the relay chain in $R^0_B$.  
+We let $q$ denote the Merkle root of this state $\para$ maintains on the relay chain in $R^0_B$.  Analogously with $r$, we shall let $\qin$ and $\qout$ denote the state $\para$ maintains on the relay chain before and after executing $B$ below.  We do not assume that $C$ can compute $\qin$ and $\qout$ however, only that operations $C$ performs transform them legally.
 
 In principle, $B$ could reference extra data $M$ determined by $R^0_B$ and supplied by the relay chain, but not actually included inside the relay chain state.  We envision $M = \emptyset$ for the foreseeable future however. 
 
-First, $C$ constructs the witness data $\pi$ by evaluating the block with $\prove_{\hat{\para}}(B,M)$, so they can build the {\em candidate proof-of-validity blob} $\blobB = (B,\pi)$, and also obtain the block metadata $(\para.\mathsf{id},H(B'),H(R^0_B),\rin,\rout,q,\ldots)$.
+First, $C$ constructs the witness data $\pi$ by evaluating the block with $\prove_{\hat{\para}}(B,M)$, so they can build the {\em candidate proof-of-validity blob} $\blobB_0 = (B,\pi)$, and also obtain the block metadata $(\para.\mathsf{id},H(B'),H(R^0_B),\rin,\rout,\ldots)$.  
 
-As $\prove$ is a randomized algorithm, $C$ must next reevaluate the block with $\verify_{\hat{\para}}(\blobB,M)$.  We shall assume verification succeeds, but if this verification fails then $C$ reports invalid parachain code for $\para$, and discards $B$ or possibly shuts down.  Assuming no errors, $C$ sends the candidate blob $\blobB$ to the corresponding parachain validators $\vals_\para$, along with any block metadata $(\para.\mathsf{id},H(B'),H(R^0_B),\rin,\rout,q,\ldots)$. 
-
-\smallskip
-\paragraph{Parachain validator subphase:}
-
-We shall expect the parachain validator $V$ that processes candidate blob $\blobB$ to update $\blobB$'s associated metadata to reference the most recent relay chain block $R^1_B > R^0_B$, so long as $R^1_B$ still contains the same state root $q$ for $\rho$,
-i.e.\ $(H(B'),\rin,\rout,H(R^1_B),$\vect{R^1_B q}$,\ldots)$.
-
-Next each {\em parachain validator} $V \in \vals_\para$ should checks the validity of the block by evaluating the block with $\verify_\para(\blobB,M)$, which we term the {\em preliminary backing validity checks}.  If verification succeeds, then $V$ gossips $\blobB$ among the parachain validators $\vals_\para$ after checking $\blobB$ itself, and we continue below.
-
-If however verification fails, the parachain validator rejects the candidate $\blobB$ and report it as invalid.  We abandon $B$ if no validators sign it, but invalidity claims cannot necessarily result in penalties for either $\para$ or $C$.  
-
-At any time, if any two validators disagree about a parachain block's validity then all validators shall check the block.  In this case, we accumulate votes until $f+1$ claim validity or invalidity, and then slash the loosing side.  We cannot slash if neither side reaches $f+1$, but we still declare the block invalid in that case.  We expect governance to identify software faults and manually revert slashes they cause, but governance can also manually institute slashes in this second case, or manually slash $\para$ for offenses like malicious code or improper non-determinism. 
+As $\prove$ is a randomized algorithm, $C$ must next reevaluate the block with $\verify_{\hat{\para}}(\blobB_0,M)$.  We shall assume verification succeeds, but if this verification fails then $C$ reports invalid parachain code for $\para$, and discards $B$ or possibly shuts down.  Assuming no errors, $C$ sends the candidate blob $\blobB_0$ to the corresponding parachain validators $\vals_\para$, along with any block metadata $(\para.\mathsf{id},H(B'),H(R^0_B),\rin,\rout,\ldots)$. 
 
 
-\subsection{Relay chain authorship} % Relay chain phase I: Block production 
-\label{sec:backing}
+\subsection{Backing checkers} % preliminary backing validity checks
+\label{sec:backing_checks}
 
-We next describe the protocol by which the parachain validators $\vals_\para$ assigned to $\para$ announce parachain candidates to the full validator set $V$ for announcement in a candidate backed transaction in a relay chain block.
+We next describe the subprotocol by which the parachain validators $\vals_\para$ assigned to $\para$ produce the {\em preliminary backing validity checks} and {\em candidate backed transaction} with which they announce parachain candidates on the relay chain.
 
-\smallskip
-\paragraph{Parachain validator subphase:}
+In essence, we shall construct a {\em candidate receipt} that describes $B$ to 
 
-We require at least $\primarychecks$ of the parachain validators $\vals_\para$ sign preliminary backing validity checks for $B$ before continuing, so we assume this going forward.
+\smallskip\paragraph{Assignment:}
 
-Now any {\em parachain validator} $V \in \vals_\para$ runs $\encode_{f+1,\nvals}(\blobB)$ to obtain the {\em unauthenticated pieces} list $\prepieces_B$ of $\nvals$ distinct erasure code symbols aka pieces for $\blobB$.  $V$ computes a Merkle root $\merkleroot_B$ for the Merkle tree with leaves $\prepieces_B$.  
+Initially, our collator $C$ sends the candidate's proof-of-validity blob $\blobB_0$ to some {\em parachain validator} $V_0 \in \vals_\para$, along with any metadata.  We expect header data for $\blobB_0$ justifies $C$ producing $B$, such as a VRF seal valid for this slot in $\rho$.
 
-We next define an {\em abridged candidate candidate receipt} that consists of 
+We caution the parachain backing validator sets $\vals_\para$ rotate.  We determine the current assignment $\para.\mathsf{id} \mapsto \vals_\para$ using the relay chain parent $R^0_B$ of $B$, or perhaps merely its slot and $r_e$, so our collator $C$ identifies the current $\vals_\para$.  We permit slightly outdated $R^0_B$, but any $R^0_B$ expires eventually due to rotation.  In that case, $V_0$ should report failure to $C$ and provide aid in selecting a newer $R^0_B$. 
+
+\smallskip\paragraph{Candidate receipts:}
+
+Any {\em parachain validator} $V \in \vals_\para$ who obtains $\blobB_0$, including our initial $V_0$, should first validate $B$ by evaluating the block with $\verify_\para(\blobB_0,M)$, which checks the internal state of $\para$ witnessed by $\blobB_0$ of course.  
+
+At the same time, $V$ observes the incoming and outgoing XCMP messages processed in $B$ too.  These invoke two relay state operations:
+\begin{itemize}
+\item[RW] $V$ computes the new relay chain state root $\qout$ for $\para$ into which executing $B$ transforms its old relay chain state root $\qin$ of $\para$.  We cannot modify $q$ except by executing parachain blocks on $\para$, so this this RW transition remains valid in any $R > R^0_B$ until some parachain block acts.
+\item[RO] $V$ checks incoming messages' from outgoing message commitments in other parachains' relay chain states $\{ q_{\rho'} \}$ in some $R^1_B > R^0_B$.  These $\{ q_{\rho'} \}$ would change in $R > R^1_B$, so operations involving them must remain valid indefinitely, although our watermark prevents replays.  
+\end{itemize}
+We say these operations succeed if $V$ successfully computes witnesses in $R^1_B$ for them.  We could regard this purely as a relay chain state transition that any validator checking $\blobB_0$ recomputes, except then (1) all relay chain validators check these operations under $q$ and (2) any read operations occur under $R^1_B$, which perhaps lags the current chain state considerably.  Instead, our initial parachain validator $V_0$ constructs copaths witnesses $\blobB_1$ for the RW transition $\qin$ to $\qout$ and for the RO operations under $\{ q_{\rho'} \}$.  $V_0$ then creates $\blobB = \blobB_0 \cup \blobB_1$ by appending $\blobB_1$ to $\blobB_0$.
+% As future work, we might consider $V_0$ appending these to $\blobB$ for some nested parachain design, but such designs complicate the protocol significantly.  
+% We reiterate that $C$ could not prepare witnesses into the relay chain state roots $\{ q_{\rho'} \}$ of parachains' sending messages to $\para$,
+
+We assume temporarily that both validation of $\blobB$ and these two RW and RO witnessing operations succeed.
+
+Next $V$ runs $\encode_{f+1,\nvals}(\blobB)$ to obtain the {\em unauthenticated pieces} list $\prepieces_B$ of $\nvals$ distinct erasure code symbols aka pieces for $\blobB$.  $V$ computes a Merkle root $\merkleroot_B$ for the Merkle tree with leaves $\prepieces_B$.  
+
+We now define an {\em abridged candidate receipt} that consists of 
 \begin{itemize}
 \item the parachain id $\para.\mathsf{id}$,
-\item the relay chain parent(s) hashes $H(R^0_B)$, 
+\item the relay chain parent hashes $H(R^1_B)$ and $H(R^0_B)$, 
 \item the Merkle root, $\merkleroot_B$,
 \item some some block header that contains $H(B)$, $H(M)$, and references the parachain parent $B'$,
-\item state commitments $\rin,\rout,q$, and
-\item the collator's id $C.\mathsf{id}$ and signature $C.\mathsf{sig})$. 
+\item parachain state commitments $\rin,\rout$, 
+\item RW state commitments $\qin,\qout$,
+\item RO state commitments $\{ q_{\rho'} \}$,
+\item the collator's id $C.\mathsf{id}$ and signature $C.\mathsf{sig})$,
 \end{itemize}
-We caution the parachain validator sets $\vals_\para$ rotate, so an abridged candidate candidate receipt must uniquely identify $\vals_\para$.  We achieve this by using $H(R^0_B)$ to determine the assignment $\para.\mathsf{id} \mapsto \vals_\para$, which requires that $R^0_B$ be quite recent.  We could store $\receipt_{B'}$ in the parachain state if required. 
 
-We also define an {\em (inner) candidate receipt} $\receipt_B$ that consists of this abridged candidate candidate receipt and specific data computable by relay chain validators.  Now $V$ creates a signature $\sigma$ for the candidate receipt and constructs the {\em attested candidate receipt} $\receipt_{B,S} := (\receipt_B,S)$ for $B$ by attaching an initial attestation set $S = \{ (V,\sigma) \}$.
-% TODO: Improve explicit state root commitments maybe?
-% Also Joe asks if we should talk about parachain block headers
-% Improve if handling?
-% Any more detail about prioritization of candidates?
-% Anything else?
+We now define an {\em (inner) candidate receipt} $\receipt_B$ that consists of this abridged candidate candidate receipt, along with the additional data computable by relay chain validators (TODO).
 
-We gossip abridged candidate receipts, along with their attestations signature sets $S$, among the parachain validators $\vals_\para$, so they obtain the full attested candidate receipts $\receipt_{B,S}$.  We define more roles for attestations $(V',\sigma') \in S$ below, but we say $(V',\sigma')$ is a {\em backing attestation} for $V \in \vals_\para$.
+\smallskip\paragraph{Attestation:}
+
+We define an {\em attestation} $(V,\sigma)$ for a candidate receipts to be a validator identity $V$ together with a signature $\sigma$ on the (inner) candidate receipt.  We define an {\em attested candidate receipts} $\receipt_{B,S} := (\receipt_B,S)$ for $B$ to be the abridged candidate receipt or inner candidate receipt once deserialised, along with an set $S$ of attestations on $\receipt_B$.  We shall define more roles for attestations $(V',\sigma') \in S$ below in \S\ref{sec:approval}, but we say $(V',\sigma')$ is a {\em preliminary backing attestation} when $V \in \vals_\para$. 
+
+We expect validators attesting in $\receipt_{B,S}$ to provide $\blobB$ to other validator in $\vals_\para$ upon request.  We shall define additional validator roles related to $\receipt_{B,S}$ below in \S\ref{sec:approval}, but so far we need not provide $\blobB$ to validators in $\vals \setminus \vals_\para$.
+
+There are also outgoing XCMP message data produced by $\verify_\para(\blobB,M)$ but required by their receiving parachains, so validator attesting in $\receipt_{B,S}$ should upon request similarly provide these outgoing messages to appropriate collators associated to the messages' receiving parachains. 
+
+\smallskip\paragraph{Initial backing:}
+
+Initially, $V_0$ should reject $\blobB$, and report it, if $\verify_\para(\blobB,M)$ fails or if witnessing fails for either the RW transition of $\qin$ to $\qout$, or for the RO checks and computation of $q_{\rho'}$ for any sending parachain $\rho'$.  We simply abandon $B$ in these case where no validators sign it because invalidity claims cannot necessarily result in penalties for either $\para$ or $C$.  
+
+Assuming verification succeeds, $V_0$ creates a signature $\sigma$ for the candidate receipt and constructs the {\em attested candidate receipt} $\receipt_{B,S} := (\receipt_B,S)$ for $B$ by attaching its initial attestation singleton set $S = \{ (V,\sigma) \}$.
+
+\smallskip\paragraph{Gossip:}
+
+We first gossip attested abridged candidate receipts for $\para$ only among the parachain backing validator group $\vals_\para$, but not yet outside.
+In gossip, we further accumulates these attestation signature sets $S$.\footnote{We envision $\vals_\para$ being small enough that BLS signatures do not improve verification time over Schnorr signatures, although BLS might reduce the candidate receipt's signature from 640 bytes down to 50 bytes.}  
+We optionally gossip attestations on known candidate receipts separately if candidate receipts grow large.  
+
+\smallskip\paragraph{Subsequent backing:}
+
+Any subsequent parachain backing validator $V \in \vals_\para$ who obtains $\receipt_{B,S}$ then downloads $\blobB$ from $C$ or another validator who attests in $S$.  After that, $V$ judges the candidate receipt $\receipt_B$ valid {\em if} validation $\verify_\para(\blobB,M)$ of $\blobB$ succeeds, our two RW and RO witnessing operations succeed on $R^0_B$, and it computes $\merkleroot_B$ correctly.  
 %
-Any parachain validators $V' \in \vals_\para$ who receives a $\receipt_{B,S}$ downloads $\blobB$ from $C$ or another validator who attests in $S$.  After receiving $\blobB$, then they gossip with their own backing attestation $(V',\sigma')$ as $S := S \cup \{ (V',\sigma') \}$
+We acknowledge that $V_0$ constructing the candidate receipt $\receipt_B$ remains technically a probabilistic algorithm like $\prove$.  We do not require that $V_0$ rerun these checks exactly how subsequent validators do currently, but active research might change this eventually.
 
-In gossiping $\receipt_{B,S}$, we further aggregate these attestation signature sets $S$.\footnote{We envision $\vals_\para$ being small enough that BLS signatures do not improve verification time over Schnorr signatures, although BLS might reduce the candidate receipt's signature from 640 bytes down to 50 bytes.}  
-If $S$ accumulates at least $\primarychecks$ backing attestations from distinct validators in $\vals_\rho$, then we publish $\receipt_{B,S}$ for relay chain block producers using relay chain gossip (mempool).
-If however $S$ remains too small too long, then validators in $\vals \setminus \vals_\rho$ ignore $\receipt_{B,S}$.
+\smallskip\paragraph{Announcement:}
+
+We expect this validation and gossip protocol to enlarge of the attestation signature sets $S$ for any valid candidate receipt $\receipt_{B,S}$, under some network assumption on $\vals_\para \cup \{C\}$.
+
+If $S$ accumulates at least $\primarychecks$ backing attestations from distinct validators in $\vals_\para$, then we publish $\receipt_{B,S}$ for relay chain block producers using relay chain gossip (mempool).
+If however $S$ remains too small too long, then validators in $\vals \setminus \vals_\para$ ignore $\receipt_{B,S}$.
+
 We think $\primarychecks = {1\over2} \npvals$ gives a reasonable choice, but our security analysis only requires that enough stake back $B$, so even $\primarychecks = 1$ suffices provided each backing validator possesses enough stake.
 
 We archive $B$ if another conflicting blocks gets finalised by GRANDPA, eventually deleting it.  We archive but probably do not delete $B$ if GRANDPA is stalled, probably even when the fork choice rule favours other forks. 
 
+\smallskip\paragraph{Slashing:}
+
+At any time, if any two validators disagree about a parachain block's validity then all validators shall check the block, which requires first gossiping some negatively attested candidate receipt.  In this case, we accumulate votes until $f+1$ claim validity or invalidity, and then slash the loosing side.  We cannot slash if neither side reaches $f+1$, but we still declare the block invalid in that case.  We expect governance to identify software faults and manually revert slashes they cause, but governance can also manually institute slashes in this second case, or manually slash $\para$ for offenses like malicious code or improper non-determinism. 
+
+
+\subsection{Relay chain authorship} % Relay chain phase I: Block production 
+\label{sec:authorship}
+
+We announce attested (abridged) candidate receipts $\receipt_{B,S}$ in two relay chain transaction types.  We first provide a {\em candidate backed transaction} that merely demonstrates enough backing attestations $\receipt_{B,S}$ so that availability work begins, as described below in \S\ref{sec:availability}.  AT the end of this, we post a {\em candidate available transaction} that begins the approval checks and attestations, as described below in \S\ref{sec:approval}.
+
 \smallskip
-\paragraph{Relay chain block producer:}
 
-We announce attested candidate receipts $\receipt_{B,S}$ in two relay chain transaction types.  We first provide a {\em candidate backed transaction} that merely demonstrates enough backing attestations $\receipt_{B,S}$ so that availability work begins, as described below in \S\ref{sec:availability}.  We then later post a {\em candidate available transaction} that begins the approval checks and attestations, as described below in \S\ref{sec:approval}.
-
-\smallskip
-
-We consider a {\bf relay chain block producer} $U \in \vals$ has an upcoming relay chain block production slot in which $U$ shall make a relay chain block $R$.  If the following two condition hold, then $U$ considers inclusion in $R$ a {\em candidate backed transaction} announcing our attested candidate receipt $\receipt_{B,S}$.
+We consider a {\bf relay chain block producer} $U \in \vals$ has an upcoming relay chain block production slot in which $U$ shall make a relay chain block $R$.  If the following two condition hold, then $U$ considers adding a {\em candidate backed transaction} to $R$ announcing our attested candidate receipt $\receipt_{B,S}$.
 \begin{itemize}
 %
-\item $\receipt_{B,S}$ has at least $\primarychecks$ backing attestations in $S$.  We note that $U$ should continues collecting the signatures $S$ on $\receipt_{B,S}$ while waiting its block production slot.\footnote{See \href{http://research.web3.foundation/en/latest/polkadot/BABE/Babe/}{BABE} for more details on block production.}
+\item $\receipt_{B,S}$ has at least $\primarychecks$ backing attestations in $S$.  We note that $U$ should continue collecting the signatures $S$ on $\receipt_{B,S}$ while waiting its block production slot.\footnote{See \href{http://research.web3.foundation/en/latest/polkadot/BABE/Babe/}{BABE} for more details on block production.}
 % TODO: Any specific comments on relay chain block headers $\bh$
 %
 \item Some ancestor $R' \le R$ contains a candidate available transaction with candidate receipts $\receipt_{B',S'}$ for the parent parachain block $B'$ of our candidate $\receipt_{B,S}$
@@ -110,18 +139,28 @@ We consider a {\bf relay chain block producer} $U \in \vals$ has an upcoming rel
 We leave the expiration conditions to future work, but one example would be $R''$ being 64 blocks before $R$.
 %
 \end{itemize}
-Importantly, $U$ need not validate $B$ itself unless $U \in \vals_\para$.
+Importantly, $U$ need not validate $B$ itself unless $U \in \vals_\para$.  In principle, we could make $U$ check the RW state commitments $\qin,\qout$ for $\para$ and RO state commitments $\{ q_{\rho'} \}$ for other parachains, but doing so seemingly adds nothing.
 
+
+\subsection{Notes}
+
+...
+
+We already handle candidate receipts off-chain among $\vals_\para$, although perhaps their votes could be collected on-chain too.  We therefore doubt further significant optimisations exist for this subprotocol.
 
 \smallskip
 \paragraph{Role churn:}
 
-We again caution that parachain validator assignments $\vals_\rho$ change somewhat frequently and worse our entire validator set $\vals$ changes periodically too.  We place no future demands upon the collators or relay chain block producer after block creation, so their churn creates no problems.  We shall require that backing attesters in $\vals_\rho$ continue to share $\blobB$, both in its entirety and in smaller pieces described next in \S\ref{sec:availability}, which makes churn problematic.  
+We again caution that parachain validator assignments $\vals_\para$ change somewhat frequently and worse our entire validator set $\vals$ changes periodically too.  We place no future demands upon the collators or relay chain block producer after block creation, so their churn creates no problems.  We shall require that backing attesters in $\vals_\para$ continue to share $\blobB$, both in its entirety and in smaller pieces described next in \S\ref{sec:availability}, which makes churn problematic.  Above in \S\ref{sec:backing_checks}, we also suggested that backing attesters in $\vals_\para$ continue to share the outgoing XCMP messages.
 
 As noted above, any candidate receipt $\receipt_{B,S}$ uniquely identifies $\vals_\para$ because it includes $\para.\mathsf{id}$ while the recent relay chain parent $H(R^0_B)$ determines the assignment $\para.\mathsf{id} \mapsto \vals_\para$.
-It addresses churn in $\vals$ too because the nothing-at-stake problem imposes a long unbonding period, during which time we may continue rewarding outgoing validators for work, even if they lie in the old $\vals_\para$ but not the new $\vals$.   
+We expect this addresses churn in $\vals$ too because the nothing-at-stake problem imposes a long unbonding period, during which time we may continue rewarding outgoing validators for work, even if they lie in the old $\vals_\para$ but not the new $\vals$.   
 % TODO: Cite unbonding period?
-An implementations should end (micro)epoch gently with heuristics that permit gossip somewhat after the (micro)epoch and even last minute backing attestations by validators in $\vals_\para \setminus S$.
+An implementations should rotate parachain validator assignments gently with heuristics that permit gossip somewhat after the assignments and even last minute backing attestations by validators in $\vals_\para \setminus S$.
 
 As an aside, one could consider backing attesters $\vals_\para$ coming form outside the validator set $\vals$, but doing so more requires more complex staking logic. 
 
+\smallskip
+\paragraph{Para-threads:}
+
+...

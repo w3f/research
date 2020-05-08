@@ -12,8 +12,8 @@ yet it will be independent of the number of users in the network, thus ensuring 
 However, NPoS allows for an unlimited number of dot token holders to participate as \emph{nominators},
 who help maintain high levels of security by putting more value at stake.
 As such, NPoS is not only much more efficient than proof-of-work (PoW),
-but also considerably more secure than standard PoS.
-Furthermore, we introduce new guarantees on decentralization hitherto unmatched by any other PoS-based blockchain.
+but also considerably more secure than conventional forms of PoS such as DPoS \ref{} and BPoS \ref{}.
+Furthermore, we introduce new guarantees on decentralisation hitherto unmatched by any other PoS-based blockchain.
 
 A new set of validators is elected at the beginning of every \emph{era} -- a period during roughly one day (see Table~\ref{t:time} in the Appendix) --
 to serve for that era, according to the nominators' preferences.
@@ -31,9 +31,8 @@ Our scheme allows for the system to elect validators with massive amounts of agg
 - much higher than any single party's dot holdings -
 and thus helps turn the validator election process into a meritocracy rather than a plutocracy.
 In fact, at any given moment we expect there to be a considerable fraction of all the dot supply be staked in NPoS.
-This makes it very difficult for an adversarial entity to get validators elected 
--- as it either needs a large amount of dots or high enough reputation to get the required nominators' backing -- 
-as well as very costly to attack the system -- as it is liable to lose all of its stake and its earned reputation.
+This makes it very difficult for an adversarial entity to get validators elected since it either needs a large amount of dots or high enough reputation to get the required nominators' backing,
+ as well as being very costly to attack because it is liable to lose all of its stake and its earned reputation.
 
 Polkadot elects validators via a decentralised protocol with carefully selected, simple and publicly known rules,
 taking the nominators' lists of trusted candidates as input. Formally, the protocol solves a multi-winner election
@@ -41,7 +40,7 @@ problem based on approval ballots, where nominators have voting power proportion
 and where the goals are decentralisation and security.
 
 \paragraph{Decentralisation:}  
-Our decentralization objective translates into the classical notion of proportional representation in voting theory.
+Our decentralisation objective translates into the classical notion of proportional representation in voting theory.
 That is, a committee should represent each minority in the electorate proportional to their aggregate vote strength (in this case, their stake), with no minority being under-represented. 
 We highlight here that nominators -- and their lists of trusted candidates -- constitute a valuable gauge for the preferences of the general community, and that diverse preferences and factions will naturally arise not only due to economical and security-related reasons, but also political, geographical, etc. Such diversity of points of view is expected and welcome in a decentralized community, and it is important to engage all minorities in decision-making processes to ensure user satisfaction. 
 

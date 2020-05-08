@@ -3,7 +3,6 @@
 Polkadot will have a native token called dot. Its various functions are described in this section.
 
 
-
 \subsubsection{Staking rewards and inflation}
 
 We start with a description of staking rewards, i.e.~payments to \emph{stakers} -- validators and nominators -- 
@@ -11,17 +10,17 @@ coming from the minting of new dots.
 Unlike other blockchain protocols, the amount of tokens in Polkadot will not be bounded by an absolute constant, but there will rather be a controlled yearly inflation rate. Indeed, recent research~\cite{chitra2019competitive} suggests that in a proof-of-stake based protocol the staking rewards must remain competitive, in order to maintain high staking rates and high security levels, so deflationary policies are advised against. 
 
 In our design, dots minted for staking rewards are the main driver of inflation in the system. 
-This is because Treasury (\autoref{sec:governance}), the only other mechanism that mints dots, 
+This is because Treasury (Section \ref{sec:governance}), the only other mechanism that mints dots, 
 is designed to closely match its expenditure to the average dot burning caused by transaction fees and slashings.
 Thus, it is convenient to introduce our inflation model in this section as well. 
 %We do not consider rewards coming from transaction fees, slashings, nor rewards to fishermen and other reporters of offenses; these will be analyzed in further sections. 
 
-Recall from the description of the NPoS protocol (\autoref{sec:validators}) that both validators and nominators stake dots. 
+Recall from the description of the NPoS protocol (Section \ref{sec:validators}) that both validators and nominators stake dots. 
 They get paid roughly proportional to their stake, but can be slashed up to $100\%$ in case of a misconduct. 
 Even though they are actively engaged for only one era%
 \footnote{Recall that an era lasts approximately one day. See Table~\ref{t:time} in the Appendix.} 
 at a time, they can continue to be engaged for an unlimited number of eras. 
-During this period their stake is locked, meaning it cannot be spent, and it remains locked for several weeks after their last active era, to keep stakers liable to slashing even if an offense is detected late.
+During this period their stake is locked, meaning it cannot be spent, and it remains locked for several weeks after their last active era, to keep stakers liable to slashing even if an offence is detected late.
 
 \paragraph{Staking rate, interest rate, inflation rate:} Let the staking rate be the total amount of dots 
 currently staked by validators and nominators, divided by the current total dot supply. 
@@ -37,7 +36,7 @@ and use it to compute the total amount of dots to be paid to stakers for that er
 
 \paragraph{Rewards across validator supports:} 
 Once the total payout for the current era is computed, we need to establish how it is distributed.
-Recall that the validator election protocol (\autoref{sec:validators}) partitions the active stake into 
+Recall that the validator election protocol (Section \ref{sec:validators}) partitions the active stake into 
 \emph{validator supports}, where each validator support is composed of the full stake of one validator 
 plus a fraction of the stake of its backing nominators, and this partition is made so as to make validator supports 
 as high and evenly distributed as possible, hence ensuring security and decentralisation. 
@@ -49,7 +48,7 @@ over time in favour of less popular validators (with good reputation nonetheless
 
 In particular, we devise a point system in which validators accumulate points for each payable action performed, 
 and at the end of each era validator slots are rewarded proportional to their points. 
-This ensures that validators are always incentivized to maintain high performance and responsiveness. 
+This ensures that validators are always incentivised to maintain high performance and responsiveness. 
 Payable actions in Polkadot include: a) validating a parachain block, 
 b) producing a relay chain block in BABE, 
 c) adding to a BABE block a reference to a previously unreferenced uncle block,%
