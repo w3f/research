@@ -5,6 +5,7 @@
 **Last updated**: 24.09.2019
 
 ====================================================================
+
 ## XCMP
 
 ### Inter-chain Message Passing: Egress Queue Data Fetching
@@ -227,4 +228,3 @@ It almost certainly will not scale beyond a small number of initial chains but w
 
  All information that the runtime has is in the form of `CandidateReceipt`s.
  The author of a block may submit up to one `CandidateReceipt` from each parachain in the block (in practice, only those which are attested by a number of validators, although this detail is not relevant here).
- ---
