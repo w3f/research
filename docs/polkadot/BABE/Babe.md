@@ -2,7 +2,7 @@
 
 Author: Handan Kilinc Alper
 
-Last updated: 26.02.2020
+Last updated: 08.05.2020
 
 Email: handan@web3.foundation
 
@@ -190,11 +190,11 @@ The following image with chains explains the algorithm with an example in the fi
 ![](https://i.imgur.com/jpiuQaM.png)
 
 
-**Lemma 1:** (The difference between outputs of median algorithms of validators) Asuming that $\delta$ is the maximum network delay, the maximum difference between start time is at most $\delta$.
+**Lemma 1:** (The difference between outputs of median algorithms of validators) Asuming that $\delta_\max$ is the maximum network delay, the maximum difference between start time is at most $\delta_\max$.
 
-**Proof Sketch:** Since all validators run the median algorithm with the arrival time of the same blocks, the difference between the output of the median algorithm of each validator differs at most $\delta$. 
+**Proof Sketch:** Since all validators run the median algorithm with the arrival time of the same blocks, the difference between the output of the median algorithm of each validator differs at most $\delta_\max$. 
 
-**Lemma 2:** (Adjustment Value) Assuming that the maximum total drift on clocks between sync-epochs is at most $\Sigma$ and $2\delta + |\Sigma| \leq \theta$, the maximum difference between the new start time of a slot $sl$ and the old start time of $sl$ is at most $\theta$.
+**Lemma 2:** (Adjustment Value) Assuming that the maximum total drift on clocks between sync-epochs is at most $\Sigma$ and $2\delta_\max + |\Sigma| \leq \theta$, the maximum difference between the new start time of a slot $sl$ and the old start time of $sl$ is at most $\theta$.
 
 This lemma says that the block production may stop at most $\theta$ at the beginning of the new synch-epoch. 
 
@@ -231,11 +231,11 @@ With using these properties, we show that BABE has the persistance and liveness 
 ### Security Proof of BABE
 We analyze BABE with the NTP protocol and with the Median algorithm. 
 
-We first prove that BABE (both versions) satisfies chain growth, chain quality and common prefix properties in one epoch. Second, we prove that BABE is secure by showing that BABE satisfies persistence and liveness in multiple epochs. 
+We first prove that BABE (both versions) satisfies chain growth, existential chain quality and common prefix properties in one epoch. We also show the chain density property for  the BABE with median. Then, we prove that BABE is secure by showing that BABE satisfies persistence and liveness in multiple epochs. 
 
-In Polkadot, all validators have equal stake (the same chance to be selected as slot leader), so the relative stake is $\alpha_i = 1/n$ for each validator where $n$ is the total number of validators. 
+In Polkadot, all validators have equal stake (the same chance to be selected as slot leader), so the relative stake is $\alpha_i = 1/n$ for each validator where $n$ is the total number of validators. We assume that the ratio of honest validators is $\alpha$ and the ratio of validators sending on time is $\alpha_{timely}$.
 
-We use notation $p_h$ (resp. $p_m$) to show the probability of an honest validator (resp. a malicious validator) is selected. Similarly, we use $p_H$ (resp. $p_M$) to show the probability of *only* an honest validator (resp. malicious validator) is selected. $p_{\bot}$ is the probability of having an emty slot (no validator selected).
+We use notation $p_h$ (resp. $p_m$) to show the probability of an honest validator (resp. a malicious validator) is selected. Similarly, we use $p_H$ (resp. $p_M$) to show the probability of *only*  honest validators (resp. malicious validators) is selected. $p_{\bot}$ is the probability of having an emty slot (no validator selected).
 
 $$p_\bot=\mathsf{Pr}[sl = \bot] = \prod_{i\in \mathcal{P}}1-\phi(\alpha_i) = \prod_{i \in \mathcal{P}} (1-c)^{\alpha_i} = 1-c$$
 
@@ -247,46 +247,65 @@ $$p_H = \prod_{i \in \mathcal{P_m}} 1- \phi(1/n) \sum_{i \in \mathcal{P}_h} \bin
 
 $$p_m = c - p_H$$
 
+The probability of having timely validator is $p_H\_\mathsf{timely} = \prod_{i \in \mathcal{P_m}} 1- \phi(1/n) \sum_{i \in \mathcal{P}_h} \binom{\alpha_{timely} n}{i}\phi(1/n)^i (1- \phi(1/n))^{\alpha_{timely} n - i}$ and probability of having non-timely validator is $p_m\_\mathsf{timely} = c - p_H\_\mathsf{timely}$.
 
 
-The validators in BABE with NTP are perfectly synchronized (i.e., the differrence between their clocks are 0). On the other hand, the validators in BABE with the median algorithm have their clocks differ at most $\D + |2\Sigma|$. In BABE with the NTP, any honest validator builds on top of an honest block generated in slot $sl$ for sure if $T> \D$. In BABE with the median algorithm, the honest validadors build on top of an honest block if $\D+ 2|\Sigma| < T - \D$.
+The validators in BABE with NTP are perfectly synchronized (i.e., the differrence between their clocks are 0). On the other hand, the validators in BABE with the median algorithm have their clocks differ at most $\delta_\max + |2\Sigma|$.
+In BABE with the NTP, any honest validator builds on top of an honest block generated in slot $sl$ for sure if the block arrives all validators before starting the next **non-empty** slot $sl_{\mathsf{next}}$. We call these slots good slots. In BABE with NTP, a slot $sl$ is good if it is assigned to only honest validators and the next $\D = \lfloor \frac{\delta_\max}{T}\rfloor$ slots are empty. However, it is different in BABE with the median algorithm because of the clock difference between validators. If a slot assigned to an honest validator that has the earliest clock, in order to make her to build on top of blocks of all previous honest slots for sure, we should make sure that this validator sees all blocks of the previous slots before generating her block. We can guarantee this if previous $\lfloor \frac{\delta_\max + |2 \Sigma|}{T}\rfloor$ slots are empty. Also, if a slot assigned to an honest validator that has the latest clock,  we should make sure that the next honest block producers see the block of the latest validator before generating her block. We can guarantee this if if the next  $\lfloor \frac{2\delta_\max + |2 \Sigma|}{T}\rfloor$ slots are empty. We use $\D_m = \lfloor \frac{2\delta_\max + |2 \Sigma|}{T}\rfloor + \lfloor \frac{\delta_\max + |2 \Sigma|}{T}\rfloor$ in our analysis below.
 
-**Theorem 1:** BABE with NTP satisfies HCG property with parameters $\tau_{hcg} = p_h(1-\omega)$ where $0 < \omega < 1$ and $s_{hcg} > 0$ in $s_{hcg}$ slots  with probability $1-\exp(-\frac{ p_h s_{hcg} \omega^2}{2})$.
 
-**Proof:** We need to count the honest slots (i.e., the slot assigned to at least one honest validator) (Def. Appendix E.5. in [[Genesis](https://eprint.iacr.org/2018/378.pdf)]) to show the HCG property. The best chain grows one block in honest slots. If honest slots out of $s_{hcg}$ slot are less than $s_{hcg}\tau_{hcg}$, the HCG property is violated. The probability of having a honest slot is $p_h$.
+**Theorem 1:** BABE with NTP satisfies HCG property with parameters $\tau_{hcg} = p_hp_\bot^\D(1-\omega)$ where $0 < \omega < 1$ and $s_{hcg} > 0$ in $s_{hcg}$ slots  with probability $1-\exp(-\frac{ p_h s_{hcg} \omega^2}{2})$.
+
+**Proof:** We need to count the honest and good slots (i.e., the slot assigned to at least one honest validator and the next $\D$ slots are empty) (Def. Appendix E.5. in [[Genesis](https://eprint.iacr.org/2018/378.pdf)]) to show the HCG property. The best chain grows one block in honest slots. If honest slots out of $s_{hcg}$ slot are less than $s_{hcg}\tau_{hcg}$, the HCG property is violated. The probability of having an honest and good slot is $p_hp_\bot^\D$.
 
 We find below the probability of less than $\tau_{hcg} s_{hcg}$ slots are honest slots. From Chernoff bound we know that
 
-$$\Pr[\sum honest \leq  (1-\omega) p_h s_{hcg}] \leq \exp(-\frac{p_h s_{hcg} \omega^2}{2})$$
+$$\Pr[\sum honest \leq  (1-\omega) p_h p_\bot s_{hcg}] \leq \exp(-\frac{p_hp_\bot^\D s_{hcg} \omega^2}{2})$$
 
 $$\tag*{$\blacksquare$}$$
 
 
 
+BABE with median satisfies HCG property with parameters $\tau_{hcg} = p_hp_\bot^{D_m}(1-\omega)$ where $0 < \omega < 1$ and $s_{hcg} > 0$ in $s_{hcg}$ slots  with probability $1-\exp(-\frac{ p_hp_\bot^{\D_m} s_{hcg} \omega^2}{2})$.
+
+
+**Theorem 2 (Chain Densisty)**  Chain desisty property is satisfied with $s_{cd}$ in BABE with probability $1 - \exp(-\frac{p_H\_\mathsf{timely}p_\bot^\D s_{cd} \omega_H^2}{2}) - (1+\gamma_m) p_m\_\mathsf{timely} s_{cd} - \exp(-\ell)$ where $\omega_H \in (0,1)$ and $\gamma > 0$.
+
+**Proof:** We first find the minimum difference between the number of honest slots  and the number of malicious slots in $s_{cd}$ slots belonging the one synch-epoch. For this, we need to find the minimum number of honest slots $H$ and maximum number of honest slots $m$.
+
+We can show with the Chernoff bound that for all $\omega \in (0,1)$
+
+$$\Pr[H <  (1-\omega_H) p_H\_\mathsf{timely} p_\bot s_{cd}] \leq \exp(-\frac{p_H\_\mathsf{timely}p_\bot^\D s_{cd} \omega^2}{2})$$
+
+
+and for all $\gamma >0$
+
+$$\Pr[m >  (1+\gamma) p_m\_\mathsf{timely} s_{cd}] \leq \exp(-\frac{\gamma^2s_{cd}p_m\_\mathsf{timely}}{2+\gamma})$$.
+
+So, $h-m \geq s_{cd}((1-\omega)p_H\_\mathsf{timely}p_\bot - (1+\gamma) p_m\_\mathsf{timely})$. Let's denote $dif = m + \ell$ where $\ell \geq dif - (1+\gamma) p_m\_\mathsf{timely} s_{cd}$
 
 
 
+Assume that the last block of the previous sync-epoch is $B$. So, we only consider the chains that are constructed on top of $B$. Consider a chain $C$ which has finalized blocks spanned in subslots $sl_u$ and $sl_v = sl_u + s_{cd}$. The longest subchain produced between $sl_u$ and $sl_v$ is $h \geq 2m + \ell$ becuase of the honest chain growth among the chains constructed on top $B$. The longest subchain with more malicious blocks than the honest blocks is possibe with $m$ malicious blocks and $m$ honest blocks. However, this chain can never beat the longest subchain produced at the end of $sl_u$ with probability $\frac{1}{2^\ell}$ because their difference is at least $\ell$ because of the comman prefix property. This means that there is not any subchain that has more malicious block and can be finalized. Therefore, all finalized chains in a synch epoch has more honest slot.
 
-**Theorem 2 (Honest Chain Quality):** Let $\D \in \mathbb{N}$ and let $\tau_{hcg}-\tau_{hcg}\mu_{hcq} > p_m (1+\gamma)$ where $\gamma > 0$, the adversary violates the honest chain quality property in $R$ slots with the probability at most $\exp(\frac{\gamma^2s_{hcq}p_m}{2+\gamma})$.
 
-**Proof:** Assume that we have the best chain $C$ by an honest validator. From honest CG, we know that $|C[sl_i:sl_j]| \geq \tau_{hcg} s_{hcq}$ for all $sl_j - sl_i \geq s_{hcq}$ where $sl_i$ and $sl_j$ assigned to some honest validators. Let us denote that the number of malicous slots between $sl_i$ and $sl_j$ is $m$. We need to show that we have $\mu_{hcq}\tau_{hcg}s_{hcq}$ honest blocks in $C[sl_i:sl_j]$.  The HCQ property is broken if $\tau_{hcg} s_{hcq} - m < s_{hcq} \tau_{hcg}\mu_{hcq}$ where $\tau_{hcg} s_{hcq} - m$ is the number of honest blocks in $C[sl_i:sl_j]$.
-
-$$\Pr[m > s_{hcg}(\tau_{hcg}-\tau_{hcg}\mu_{hcq})> (1+\gamma) p_m s_{hcq}] \leq \exp(-\frac{\gamma^2s_{hcq}p_m}{2+\gamma})$$
 
 $$\tag*{$\blacksquare$}$$
 
-We note that we need the honest chain quality property only for the BABE with the median algorithm.
+We note that we need the chain densisty property only for the BABE with the median algorithm. 
 
 
-**Theorem 3 (Existential Chain Quality):** Let $\D \in \mathbb{N}$ and let $\frac{p_h}{c} > \frac{1}{2}$. Then, the probability of an adversary $\A$ violate the ECQ property with parammeters $k_{cq}$ with probability at most $e^{-\Omega(k_{cq})}$.
+**Theorem 3 (Existential Chain Quality):** Let $\D \in \mathbb{N}$ and let $\frac{p_h\p_\bot^\D}{c} > \frac{1}{2}$. Then, the probability of an adversary $\A$ violate the ECQ property with parammeters $k_{cq}$ with probability at most $e^{-\Omega(k_{cq})}$ in BABE with NTP.
 
-**Proof (sketch):** If $k$ proportion of a chain does not include any honest blocks, it means that the bad slots are less than the good slots between the slots that spans these $k$ blocks. Since probability of having a  good slots is greater than $\frac{1}{2}$, having more bad slots falls exponentially with $k_{cq}$. Therefore, the ECQ property  is broken  in $R$ slots at most with the probability $e^{-\Omega(k_{cq})}$.
+**Proof (sketch):** If $k$ proportion of a chain does not include any honest blocks, it means that the malicious slots are more than the good and honest slots between the slots that spans these $k$ blocks. Since probability of having a  good and honest slots is greater than $\frac{1}{2}$, having more bad slots falls exponentially with $k_{cq}$. Therefore, the ECQ property  is broken  in $R$ slots at most with the probability $e^{-\Omega(k_{cq})}$.
 
 $$\tag*{$\blacksquare$}$$
 
+Let $\D_m \in \mathbb{N}$ and let $\frac{p_h\p\bot^{\D_m}{c} > \frac{1}{2}$. Then, the probability of an adversary $\A$ violate the ECQ property with parammeters $k_{cq}$ with probability at most $e^{-\Omega(k_{cq})}$ in BABE with median.
 
-**Theorem 4 (Common Prefix):** Let $k,\D \in \mathbb{N}$ and let $\frac{p_H}{c} > \frac{1}{2}$, the adversary violates the common prefix property with parammeter $k$ in $R$ slots with probability at most $\exp(− \Omega(k))$  in BABE with NTP.
-We should have the condition $\frac{p_H(1-c)^{3\D}}{c} > \frac{1}{2}$ for BABE.
+
+**Theorem 4 (Common Prefix):** Let $k,\D \in \mathbb{N}$ and let $\frac{p_H p_\bot^\D}{c} > \frac{1}{2}$, the adversary violates the common prefix property with parammeter $k$ in $R$ slots with probability at most $\exp(− \Omega(k))$  in BABE with NTP.
+We should have the condition $\frac{p_Hp_\bot^{\D_m}}{c} > \frac{1}{2}$ for BABE with median.
 
 
 
@@ -296,21 +315,19 @@ According to Lemma 10 in [[Genesis](https://eprint.iacr.org/2018/378.pdf)]) **ch
 $$s_{cg} = 2 s_{ecq} + s_{hcg} \text{ and } \tau = \tau_{hcg} \frac{s_{hcg}}{2 s_{ecq} + s_{hcg}}$$ and **chain quality** is satisfied with $$s_{cq} = 2 s_{ecq} + s_{hcq} \text{ and } \mu = \tau_{hcq}\frac{s_{hcq}}{2s_{ecq}+s_{hcq}}$$ 
 
 
-**Theorem 6 (Persistence and Liveness BABE with NTP):** Given that  $k_{cq}$ is the ECQ paramter, $k > 2k_{cq}$ is the CP parameter, $s_{hcg} = k/\tau_{hcg}$, $s_{ecq} = kcq/t$, the epoch length is $R = 2s_{ecq} + s_{hcg}$ BABE with NTP is persistent and live.
+**Theorem 6 (Persistence and Liveness BABE with NTP):** Assuming that $\frac{p_H p_\bot^\D}{c} > \frac{1}{2}$ and given that  $k_{cq}$ is the ECQ parameter, $k > 2k_{cq}$ is the CP parameter, $s_{hcg} = k/\tau_{hcg}$, $s_{ecq} = k_{cq}/\tau$, the epoch length is $R = 2s_{ecq} + s_{hcg}$ BABE with NTP is persistent and live.
 
 
 
 **Proof (Sketch):** The overall result says that $\tau = \tau_{hcg}\frac{s_{hcg}}{2s_{ecq}+s_{hcg}} = \frac{k}{s_{hcg}}\frac{s_{hcg}}{2s_{ecq}+s_{hcg}} = \frac{k}{R}$. The best chain at the end of an epoch grows at least $k$ blocks in one epoch thanks to the chain growth.
 
-This implies that at least one of the $k$ blocks is generated by an honest validator thanks to the chain growth. Since $k > 2k_{cq}$, the last $k_{cq}$ block of includes at least one honest block. Therefore, the randomness includes one honest randomness and the adversary can have at most $s_{ecq}$ slots to change the randomness. This grinding effect can be crudely upper-bounded by $s_{ecq}(1-\alpha)nq$.
-The randomness generated by an epoch is finalized at latest one epoch later thanks to the common prefix property. Similary, the session key update which is going to be used in three epochs later is finalized one epoch later before a randomness of the epoch where the new key are going to be used starts to leak.
+ Since $k > 2k_{cq}$, the last $k_{cq}$ block of includes at least one honest block. Therefore, the randomness includes one honest randomness and the adversary can have at most $s_{ecq}$ slots to change the randomness. This grinding effect can be upper-bounded by $s_{ecq}(1-\alpha)nq$ where $q$ is the hashing power [2]. The randomness generated by an epoch is finalized at latest one epoch later thanks to the common prefix property. Similary, the session key update which is going to be used in three epochs later is finalized one epoch later before a randomness of the epoch where the new key are going to be used starts to leak.
 Therefore, BABE with NTP is persistent and live.
 
 $$\tag*{$\blacksquare$}$$
 
-**Theorem 7 (Persistence and Liveness BABE with the Median Algorithm):** Given that $\tau_{hcg}-\tau_{hcg}\mu_{hcq} > p_m (1+\gamma)$ where $\tau_{hcg} = p_h (1-\omega)$, $\mu_{hcq} > 0.5$, the probability that having delay more than $2\D + \Sigma$ is $p_{delay} = \exp(-\frac{ph s_{hcq} \gamma^2}{2+\gamma})$.
+**Theorem 7 (Persistence and Liveness BABE with the Median Algorithm):** Assuming that $\frac{p_H p_\bot^{\D_m}}{c} > \frac{1}{2}$ and  $\tau_{hcg}-\tau_{hcg}\mu_{hcq} > p_m (1+\gamma)$ where $\tau_{hcg} = p_h p_\bot^{\D_m} (1-\omega)$, $s_{cd}$, the clock difference is between honest valdators is at most $\D_m$, BABE with median is persistent and live given that given that  $k_{cq}$ is the ECQ parameter, $k > 2k_{cq}$ is the CP parameter, $s_{hcg} = k/\tau_{hcg}$, $s_{ecq} = k_{cq}/\tau$.
 
-We note that we do not need to have $p_{delay}$ negligible becuase it is not related to security.
 
 
 
@@ -327,11 +344,10 @@ The life time of the protocol in terms of slots is $L = \frac{\mathcal{L}}{T}$. 
 
 ### BABE with the NTP
 
-* Define $\D$
-* Choose slot time $T >\D$.
-* Decide the parameter $c$ such that the condition $\frac{p_H}{c} > \frac{1}{2}$ is satisfied. If there is not any such $c$, then consider to increase $\alpha$ (honest validator assumption).
+* Define $\delta_\max$ and $T$. Let $\D = 0$ if $\delta_{\max} < T$. Otherwise, let $\D = \lceil \frac{\delta_\max - T}{T}\rceil$
+* Decide the parameter $c$ such that the condition $\frac{p_Hp_\bot^{\D}}{c} > \frac{1}{2}$ is satisfied. If there is not any such $c$, then consider to increase $\alpha$ (honest validator assumption) or decrease $\D$ (more optimistic network assumption).
 * Set up a security bound $p_{attack}$ to define the probability of an adversary to break BABE in e.g., 3 years. Of course, very low $p$ is better for the security of BABE but on the other hand it may cause to have very long epochs and long probabilistic finalization. Therefore, I believe that setting $p_{attack}=0.005$ is reasonable enough in terms of security and performance.
-* Set  $\omega \geq 0.5$ (e.g., 0.5) and find $s_{ecq}$ and $s_{hcq}$ to set the epoch length $R = 2 s_{ecq} + s_{hcg}$ such that $p_{attack} \leq p$. For this we need an inition value $k_{cp}$ and find $s_{ecq}, s_{hcg}$ and $\tau$ that satisfies the three equations below:
+* Set  $\omega \geq 0.5$ (e.g., 0.5) and find $s_{ecq}$ and $s_{hcq}$ to set the epoch length $R = 2 s_{ecq} + s_{hcg}$ such that $p_{attack} \leq p$. For this we need an initial value $k_{cp}$ and find $s_{ecq}, s_{hcg}$ and $\tau$ that satisfies the three equations below:
 
 From Theorem 6, we want that the best chain grows at least $k$ blocks. Therefore, we need 
 $$(2s_{ecq} + s_{hcg})\tau = k\text{ }\text{ }\text{ }\text{ }\text{ }\text{ (1)}$$
@@ -346,7 +362,7 @@ $$\tau = \tau_{hcg} \frac{s_{hcg}}{2 s_{ecq} + s_{hcg}}\text{ }\text{ }\text{ }\
 Iterate $k_{cp}$ to find $s_{hcg}, s_{ecq}, \tau$ that satisfy above conditions until $p_{attack} \leq p$:
     
 1.   Let $k = 4 k_{cp}$ (The CQ property parameter) We note that $4 k_{cp}$ is the optimal value that minimizes $R = 2 s_{ecq} + s_{hcg}$.
-1.   $t_{hcg} = p_h  (1-c)^\D  (1-\omega)$ (to satisfy the condition in Theorem 1)
+1.   $t_{hcg} = p_h  p_\bot^\D  (1-\omega)$ (to satisfy the condition in Theorem 1)
 1.   $s_{hcg} = k / t_{hcg}$ (from Equation (1) and (3))
 1.   $\tau = \frac{k - 2k_{cq}}{s_{hcg}}$ (from Equation (1) and (2))
 1.   $s_{ecq} = k_{cq}/\tau$
@@ -354,68 +370,66 @@ Iterate $k_{cp}$ to find $s_{hcg}, s_{ecq}, \tau$ that satisfy above conditions 
 
 After finding $k_{cq}$ such that $p \leq p_{attack}$, let the epoch length $R = 2s_{ecq}+s_{hcg}$.
 
-The parameters below are computed with the code in https://github.com/w3f/research/blob/master/experiments/parameters/babe_NTP.py
-#### PARAMETERS OF BABE WITH NTP 
-c = 0.42, slot time T = 6
+The parameters below are computed with the code in https://github.com/w3f/research/blob/master/experiments/parameters/babe_NTP.py. In this code, we choose the paramter $c$ not only according to security considitions but also according to having in expectation twice more single leader than multiple leaders.
 
-It is secure in 3 years with probability 0.996248075142
+################### PARAMETERS OF BABE WITH NTP $\D = 0$ ###################
+c = 0.52, slot time T = 6
 
-It is resistant to 5.9 second network delay
+It is secure in 3 years with probability 0.99523431732
 
+It is resistant to (6 - block generation time) second network delay
 -~~~~~~~~~~~~~~ Common Prefix Property ~~~~~~~~~~~~~~
-
 k = 140
 
 It means: Prun the last 140 blocks of the best chain. All the remaining ones are probabilistically finalized
+-~~~~~~~~~~~~~~ Epoch Length ~~~~~~~~~~~~~~
+Epoch length should be at least 1440 slots,2.4 hours
+
+
+If we want more network resistance, $e.g.,\D = 1$, the parameters should be selected as follows:
+
+################### PARAMETERS OF BABE WITH NTP $\D = 1$ ###################
+c = 0.22, slot time T = 6
+
+It is secure in 3 years with probability 0.996701592969
+
+It is resistant to (12 - block generation time) second network delay
+-~~~~~~~~~~~~~~ Common Prefix Property ~~~~~~~~~~~~~~
+k = 172
+
+It means: Prun the last 172 blocks of the best chain. All the remaining ones are probabilistically finalized
 
 -~~~~~~~~~~~~~~ Epoch Length ~~~~~~~~~~~~~~
+Epoch length should be at least 4480 slots, 7.46666666667 hours
 
-Epoch length should be at least 1829 slots, 3.04833333333 hours
 
 
 ### BABE with the Median Algorithm
-In order to make  $p_{delay}$ small, we let $\gamma = 0.1$ and $\omega = 0.37$. If we do not care about this probability, we can use the same parameters as above and specify the sync-epoch length based on the expected clock drifts.
 
+* Define $\alpha_{timely} = 0.85$, $\ell = 20$, $\omega_H = 0.3$ and $\gamma = 0.5$ in Theorem 2.
+* Define $\delta_\max$ and $T$. Let $\D_m = \lfloor \frac{2\delta_\max + |2 \Sigma|}{T}\rfloor + \lfloor \frac{\delta_\max + |2 \Sigma|}{T}\rfloor$
+* Decide the parameter $c$ such that the condition $\frac{p_Hp_\bot^{\D}}{c} > \frac{1}{2}$ and $\frac{p_H\_\mathsf{timely} (1- \omega_H)}{p_m\_\mathsf{timely} (1+\gamma)} > 2$
+is satisfied. If there is not any such $c$, then consider to increase $\alpha$  (honest validator assumption) or $\alpha_{timely}$ or decrease $\D$ (more optimistic network assumption).
 
-1.   Let $k = 8 k_{cp}$ (The CQ property parameter) We note that $4 k_{cp}$ is the optimal value that minimizes $R = 2 s_{ecq} + s_{hcg}$.
-
-Steps 2 - 6 are as above
+* Do the rest as in BABE with NTP.
 
 Finding synch-epoch length
 
-1.  Set $\mu_{hcq} = 0.54$
-
-2. Set $2  s_{ecq} / (2  mu_{hcq} - 1)$
-
-3. Let sync-epoch length = $s_{hcq} + 2  s_{ecq}$
-
+1.  Set $s_{cd}$ with respect to Theorem 2. 
 
 
 The parameters below are computed with the code in https://github.com/w3f/research/blob/master/experiments/parameters/babe_median.py
 
-#### PARAMETERS OF BABE WITH THE MEDIAN ALGORITHM 
-
-c = 0.42, slot time T = 6
-
-It is secure in 3 years with probability 0.995125418496
-
-It is resistant to 2.00053609831 second network delay and0.499231950845 seconds drift in one sync-epoch
-
+############## PARAMETERS OF BABE WITH THE MEDIAN ALGORITHM ##############
+c = 0.38, slot time T = 6
+It is secure in 3 years with probability 0.99656794973
+It is resistant to 2.79659722222 second network delay and 0.198402777778 seconds drift in one sync-epoch
 -~~~~~~~~~~~~~~ Common Prefix Property ~~~~~~~~~~~~~~
-
-k = 312
-
-It means: Prun the last 312 blocks of the best chain. All the remaining ones are probabilistically finalized
-
+k = 140
+It means: Prun the last 140 blocks of the best chain. All the remaining ones are probabilistically finalized
 -~~~~~~~~~~~~~~ Epoch Length ~~~~~~~~~~~~~~
-
-Sync-Epoch length should be at least 7188 slots, 11.98 hours
-
-Epoch length should be at least 2130 slots,3.55 hours
-
-Probability of waiting more than 2D in the end of sync epoch is 0.0791998132892
-
-
+Sync-Epoch length should be at least 2857 slots, 4.76166666667 hours
+Epoch length should be at least 2000 slots,3.33333333333 hours
 
 
 **Some Notes about clock drifts:** 
