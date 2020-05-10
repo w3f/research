@@ -102,10 +102,17 @@ We admitted adversarial manipulation of our network topology here, but it sounds
 
 
 
+
+
+
+
 % We isolated work on candidates for any given parachain $\para$ to $\vals_\para$ ...
 At this point, we consider a relay chain block $R$ being gossiped among the validators $\vals$.  $R$ contains candidate receipts $\receipt_{B,S}$ for candidate blocks $B$ on distinct parachains $\para$.  
 
 We must established that our authenticated pieces $\pieces_B$ for each $B$ in $R$ were correctly distributed before our approval checkers announce their assignments in \S\ref{sec:assignment} or run their assigned checks in \S\ref{sec:approcal_checks}, which must happen before our finality gadget GRANDPA considers $R$ in \S\ref{sec:finality}.  
+
+
+
 
 As our erasure coding permits recovery from any $f+1$ pieces, we establish correct distribution simply by asking all validators to ``vote'' whether they received their assigned authenticated pieces $\pieces_B$ for all the parachain candidates $B$ in $R$. 
 % which makes $R$ {\em available} (see \S\ref{sec:approval}).
