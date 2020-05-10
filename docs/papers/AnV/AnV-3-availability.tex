@@ -50,18 +50,36 @@ In \S\ref{sec:backing}, we could ask collators to send the same block to several
 \smallskip
 \paragraph{Candidate pieces:}
 
-All parachain validators in $\vals_\para$ must compute all of $\prepieces_B$ to compute $\merkleroot_B$, from which computing $\pieces_B$ too costs nothing.  We should therefore divide the distribution burden as equally as possible among parachain validators in $\vals_\para$.  We also prefer if the topology is symmetric in the sense that the links over which $\para_1$ sends to validators in $\para_2$ are the same as the links over which $\para_2$ sends to validators in $\para_1$.  We now outline an extremely simple topology that satisfies these requirement:
+All parachain validators in $\vals_\para$ must compute all of $\prepieces_B$ to compute $\merkleroot_B$, from which computing $\pieces_B$ too costs nothing.  We should therefore divide the distribution burden as equally as possible among parachain validators in $\vals_\para$.  We also prefer if the topology is symmetric in the sense that the links over which $\para_1$ sends to validators in $\para_2$ are the same as the links over which $\para_2$ sends to validators in $\para_1$.  
 
-We recall either parachain $\para_i$ for $i=1,2$ is equipped with a somewhat ephemeral value $\para_i.\mathsf{seed}$ that depends upon its parachain validator assignment and some on-chain randomness $r$.
-$$ \para_i.\mathsf{seed} := H\left( r, \mathsf{sort} \setst{ V.\mathsf{pk} }{ V \in \vals_{\para_i} } \right) $$
 
-We begin by assuming some abstract symmetric topology $\mathcal{T}$ on the set parachains, preferably a complete graph, i.e.\ diameter one.  Consider two parachains $\para_1$ and $\para_2$ with disjoint validator sets that are connected by an edge in $\mathcal{T}$.  We let $\mathsf{parashuffle}(\para_i,\para_{3-i})$ denote the Fisher-Yates shuffle of $\vals_{\para_i}$ seeded by $H( \para_i.\mathsf{seed}, \para_{3-i}.\mathsf{seed} )$.  We now define a topology $\mathcal{T}_e$ on the $\vals$ by connecting $\mathsf{parashuffle}(\para_1,\para_2)[j]$ to $\mathsf{parashuffle}(\para_2,\para_1)[j]$ for $j = 1,\ldots,\npvals$.
+There are simple topologies that satisfy these requirement:
+
+We start with some fixed symmetric topology $\bar{\mathcal{T}}$ on the set of parachains, preferably a complete graph, i.e.\ diameter one.  In $\bar{\mathcal{T}}$, we equip each edge $\overline{\para_1 \para_2} \in E(\mathcal{T})$ with a regular bipartite graph $\mathcal{T}_{\overline{\para_1 \para_2}}$ between its two parachains $\para_1$ and $\para_2$.  We then define the edge set of $\mathcal{T}$ to be the union of the edge sets of all $\mathcal{T}_{\overline{\para_1 \para_2}}$ for $\overline{\para_1 \para_2} \in E(\mathcal{T})$
+$$ E(\mathcal{T}) = \cup \Setst{ \mathcal{T}_{\overline{\para_1 \para_2}} }{ \overline{\para_1 \para_2} \in E(\mathcal{T}) } $$
+
+We get symmetry from the $\mathcal{T}_{\overline{\para_1 \para_2}}$ being undirected.  We distributes work equally by regularity of the $\mathcal{T}_{\overline{\para_1 \para_2}}$.  We could weaken this to semiregular if we assign different numbers of validators to different parachains.
+
+We note one simple example for $\mathcal{T}_{\overline{\para_1 \para_2}}$:  
+% We recall either parachain $\para_i$ for $i=1,2$ is equipped with a somewhat ephemeral value $\para_i.\mathsf{seed}$ that depends upon its parachain validator assignment and some on-chain randomness $r$.
+% $$ \para_i.\mathsf{seed} := H\left( r, \mathsf{sort} \setst{ V.\mathsf{pk} }{ V \in \vals_{\para_i} } \right) $$
+Assume each parachain $\phara$ has an associated value $\para.\mathsf{seed}$.  We let $\mathsf{parashuffle}(\para_i,\para_{3-i})$ denote the Fisher-Yates shuffle of $\vals_{\para_i}$ seeded by $H( \para_i.\mathsf{seed}, \para_{3-i}.\mathsf{seed} )$.  We define $\mathcal{T}_{\overline{\para_1 \para_2}}$ on the $\vals$ by connecting $\mathsf{parashuffle}(\para_1,\para_2)[j]$ to $\mathsf{parashuffle}(\para_2,\para_1)[j]$ for $j = 1,\ldots,\npvals$.
+
+
+Any block production epoch $e$ contains many shorter epochs $(e,k)$ in which we compute some parachain validator assignment $\para.\mathsf{id} \mapsto \vals_\para$.  We could however leave this topology abstract and reposition the actual assignments indices to validators and/or parachains. 
+
+We spoke of $\para_i$ being a parachain, but really $\para_i$ acted like an arbitrary validator grouping, so our actually parachains could be reshuffled freely among these groups.  We thereby supports fast churn without disrupting validator groupings.
+
+We can similarly reshuffle the mapping from actual validators to validator indices: 
+We let $\vals_{e,k}$ denote the Fisher-Yates shuffle of $\vals$ seeded by by $r_e || k$.  We then simply apply some fixed mapping from indices to parachains, such as $\floor{k / \npvals}$.  
+
 
 We can adapt this scheme to varying $|\vals_{\para_i}| \ge \npvals$ quite easily if not all parachains have the same number of assigned validators, i.e.\ if $\npvals$ is not tight.  We can also do additional shuffles if more than one link is desired.  
 % 
-If assigned two nodes cannot connect to one another, then any still online attempt connections with some random other nodes from the other parachain, or perhaps use some smarter scheme. 
+If two linked nodes cannot connect, then any still online attempt connections with some random other nodes from the other parachain, or perhaps use some smarter scheme. 
 
-As an example, assume $\mathcal{T}$ is a complete graph:  After our parachain validator $V$ of $\para$ observes some relay chain block $R$ containing $\receipt_{B,S}$ then, for all other parachains $\para' \ne \para$, $V$ computes the $i_{\para'}$s such that $V = \mathsf{parashuffle}(\para,\para')[j]$ and $\vals[i_{\para'}] = \mathsf{parashuffle}(\para',\para)[j]$ for some $j \leq \npvals$, and $V$ send $\pieces_B[i_{\para'}]$ to $\vals[i_{\para'}]$ directly using QUIC.  We expect $\vals[i_{\para'}]$ might have some piece from $\para'$ for $V$ too, thanks to the symmetry of our $\mathsf{parashuffle}$ criteria.  We expect this symmetry to reduce the required connections by almost a factor of two.
+
+As an unoptimised example, assume $\mathcal{T}$ is a complete graph:  After our parachain validator $V$ of $\para$ observes some relay chain block $R$ containing $\receipt_{B,S}$ then, for all other parachains $\para' \ne \para$, $V$ computes the $i_{\para'}$s such that $V = \mathsf{parashuffle}(\para,\para')[j]$ and $\vals[i_{\para'}] = \mathsf{parashuffle}(\para',\para)[j]$ for some $j \leq \npvals$, and $V$ send $\pieces_B[i_{\para'}]$ to $\vals[i_{\para'}]$ directly using QUIC.  We expect $\vals[i_{\para'}]$ might have some piece from $\para'$ for $V$ too, thanks to the symmetry of our $\mathsf{parashuffle}$ criteria.  We expect this symmetry to reduce the required connections by almost a factor of two.
 
 We have described this as $V$ initiating the connection, but a similar procedure works for $V$ requesting its piece for some $\para'$ block, or symmetrically $\vals[i_{\para'}]$ requesting $\pieces_B[i_{\para'}]$.  In fact, an initial implementation should focus upon requests because as noted above we shall request from other validators when our first choice fails. 
 
