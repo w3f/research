@@ -51,7 +51,7 @@ This ensures that validators are always incentivised to maintain high performanc
 Payable actions in Polkadot include: a) validating a parachain block, 
 b) producing a relay chain block in BABE, 
 c) adding to a BABE block a reference to a previously unreferenced uncle block,%
-\footnote{In the BABE protocol, at times two block producers may generate different blocks A and B at the same height, leading to a temporary fork in the relay chain. The fork will quickly be resolved and select one of the blocks, say A, as part of the main chain, while block B becomes an \emph{uncle} to all descendents of A. For security reasons, it is convenient to record and timestamp \emph{all} blocks produced, but since uncle blocks cannot be accessed via parent relations, we encourage block producers to explicitly add these references to the main chain.}
+\footnote{In the BABE protocol, at times two block producers may generate different blocks A and B at the same height, leading to a temporary fork in the relay chain. The fork will quickly be resolved and one of the blocks selected, say A, as part of the main chain, while block B becomes an \emph{uncle} to all descendents of A. For security reasons, it is convenient to record and timestamp \emph{all} blocks produced, but since uncle blocks cannot be accessed via parent relations, we encourage block producers to explicitly add these references to the main chain.}
  and d) producing an uncle block.
 
 \paragraph{Rewards within a validator slot:} As a nominator's stake is typically split among several validator supports, 
