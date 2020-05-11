@@ -283,24 +283,24 @@ $$\tag*{$\blacksquare$}$$
 BABE with median satisfies HCG property with parameters $\tau_{hcg} = p_hp_\bot^{D_m}(1-\omega)$ where $0 < \omega < 1$ and $s_{hcg} > 0$ in $s_{hcg}$ slots  with probability $1-\exp(-\frac{ p_hp_\bot^{\D_m} s_{hcg} \omega^2}{2})$.
 
 
-**Theorem 2 (Chain Densisty)**  Chain desisty property is satisfied with $s_{cd}$ in BABE with probability $1 - \exp(-\frac{p_H\_\mathsf{timely}p_\bot^\D s_{cd} \omega_H^2}{2}) - \exp(-\frac{\gamma^2s_{cd}p_m\_\mathsf{timely}}{2+\gamma}) - \exp(-\ell)$ where $\omega_H \in (0,1)$ and $\gamma > 0$.
+**Theorem 2 (Chain Densisty)**  Chain desisty property is satisfied with $s_{cd}$ in BABE with probability $1 - \exp(-\frac{p_H\_\mathsf{timely}p_\bot^{\D_m} s_{cd} \omega_H^2}{2}) - \exp(-\frac{\gamma^2s_{cd}p_m\_\mathsf{timely}}{2+\gamma}) - \exp(-\ell)$ where $\omega_H \in (0,1)$ and $\gamma > 0$.
 
-**Proof:** We first find the minimum difference between the number of honest slots  and the number of malicious slots in $s_{cd}$ slots belonging the one synch-epoch. For this, we need to find the minimum number of honest slots $H$ and maximum number of honest slots $m$.
+**Proof:** We first find the minimum difference between the number of honest slots  and the number of malicious slots in $s_{cd}$ slots belonging one synch-epoch. For this, we need to find the minimum number of honest slots $H$ and maximum number of honest slots $m$.
 
 We can show with the Chernoff bound that for all $\omega \in (0,1)$
 
-$$\Pr[H <  (1-\omega_H) p_H\_\mathsf{timely} p_\bot s_{cd}] \leq \exp(-\frac{p_H\_\mathsf{timely}p_\bot^\D s_{cd} \omega^2}{2})$$
+$$\Pr[H <  (1-\omega_H) p_H\_\mathsf{timely} p_\bot^{\D_m} s_{cd}] \leq \exp(-\frac{p_H\_\mathsf{timely}p_\bot^{\D_m} s_{cd} \omega^2}{2})$$
 
 
 and for all $\gamma >0$
 
 $$\Pr[m >  (1+\gamma) p_m\_\mathsf{timely} s_{cd}] \leq \exp(-\frac{\gamma^2s_{cd}p_m\_\mathsf{timely}}{2+\gamma})$$.
 
-So, $h-m \geq s_{cd}((1-\omega)p_H\_\mathsf{timely}p_\bot - (1+\gamma) p_m\_\mathsf{timely})$. Let's denote $dif = m + \ell$ where $\ell \geq dif - (1+\gamma) p_m\_\mathsf{timely} s_{cd}$
+So, $dif = h-m \geq s_{cd}((1-\omega)p_H\_\mathsf{timely}p_\bot^{\D_m} - (1+\gamma) p_m\_\mathsf{timely})$. Let's denote $dif = m + \ell$ where $\ell \geq dif - (1+\gamma) p_m\_\mathsf{timely} s_{cd}$
 
 
 
-Assume that the last block of the previous sync-epoch is $B$. So, we only consider the chains that are constructed on top of $B$. Consider a chain $C$ which has finalized blocks spanned in subslots $sl_u$ and $sl_v = sl_u + s_{cd}$. The longest subchain produced between $sl_u$ and $sl_v$ is $h \geq 2m + \ell$ becuase of the honest chain growth among the chains constructed on top $B$. The longest subchain with more malicious blocks than the honest blocks is possibe with $m$ malicious blocks and $m$ honest blocks. However, this chain can never beat the longest subchain produced at the end of $sl_u$ with probability $\frac{1}{2^\ell}$ because their difference is at least $\ell$ because of the comman prefix property. This means that there is not any subchain that has more malicious block and can be finalized. Therefore, all finalized chains in a synch epoch has more honest slot.
+Assume that the last block of the previous sync-epoch is $B$. So, we only consider the chains that are constructed on top of $B$. Consider a chain $C$ which has finalized blocks spanned in subslots $sl_u$ and $sl_v = sl_u + s_{cd}$. The longest subchain produced between $sl_u$ and $sl_v$ is $h \geq 2m + \ell$ becuase of the honest chain growth among the chains constructed on top $B$. The longest subchain with more malicious blocks than the honest blocks is possibe with $m$ malicious blocks and $m$ honest blocks. However, this chain can never beat the longest subchain produced at the end of $sl_u$ except with probability $\frac{1}{2^\ell}$. This means that there is not any subchain that has more malicious block and can be finalized except with a negligible probability. Therefore, all finalized chains in a synch epoch has more honest slot.
 
 
 
