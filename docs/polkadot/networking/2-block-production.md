@@ -5,7 +5,8 @@
 **Last updated**: 12.09.2019
 
 ====================================================================
-## Parachain networking
+
+## Block production broadcast
 
 ### Attestation Gossip: gossiping parachain blocks
 

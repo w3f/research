@@ -1,10 +1,10 @@
-====================================================================
+\====================================================================
 
 **Authors**: Ximin Luo
 
 **Created**: 05.11.2019
 
-====================================================================
+\====================================================================
 
 =========
 Discovery
@@ -184,7 +184,7 @@ TODO
 Routing table authentication
 ----------------------------
 
-See :doc:`6-authentication` for some background on the general topic of
+See :doc:`L-authentication` for some background on the general topic of
 authentication. Kademlia natively does not have a concept of authentication,
 but it is fairly straightforward to fit one in.
 
