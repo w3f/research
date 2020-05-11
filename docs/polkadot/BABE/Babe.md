@@ -387,33 +387,42 @@ After finding $k_{cq}$ such that $p \leq p_{attack}$, let the epoch length $R = 
 The parameters below are computed with the code in https://github.com/w3f/research/blob/master/experiments/parameters/babe_NTP.py. In this code, we choose the paramter $c$ not only according to security considitions but also according to having in expectation twice more single leader than multiple leaders.
 
 -################### PARAMETERS OF BABE WITH NTP $\D = 0$ ###################
+
 c = 0.52, slot time T = 6
 
 It is secure in 3 years with probability 0.99523431732
 
 It is resistant to (6 - block generation time) second network delay
+
 -~~~~~~~~~~~~~~ Common Prefix Property ~~~~~~~~~~~~~~
+
 k = 140
 
 It means: Prun the last 140 blocks of the best chain. All the remaining ones are probabilistically finalized
+
 -~~~~~~~~~~~~~~ Epoch Length ~~~~~~~~~~~~~~
+
 Epoch length should be at least 1440 slots,2.4 hours
 
 
 If we want more network resistance, $e.g.,\D = 1$, the parameters should be selected as follows:
 
 -################### PARAMETERS OF BABE WITH NTP $\D = 1$ ###################
+
 c = 0.22, slot time T = 6
 
 It is secure in 3 years with probability 0.996701592969
 
 It is resistant to (12 - block generation time) second network delay
+
 -~~~~~~~~~~~~~~ Common Prefix Property ~~~~~~~~~~~~~~
+
 k = 172
 
 It means: Prun the last 172 blocks of the best chain. All the remaining ones are probabilistically finalized
 
 -~~~~~~~~~~~~~~ Epoch Length ~~~~~~~~~~~~~~
+
 Epoch length should be at least 4480 slots, 7.46666666667 hours
 
 
