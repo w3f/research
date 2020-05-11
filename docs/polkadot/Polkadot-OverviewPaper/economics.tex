@@ -3,7 +3,7 @@
 Polkadot will have a native token called DOT (``Dot''). Its various functions are described in this section.
 
 
-\subsubsection{Staking rewards and inflation}
+\subsubsection{Staking rewards and inflation}\label{sec:inflation}
 
 We start with a description of staking rewards, i.e.~payments to \emph{stakers} -- validators and nominators -- 
 coming from the minting of new Dots. 
@@ -88,15 +88,15 @@ and even aim to make their logistics simpler.
 \subsubsection{Relay-chain block limits and transaction fees}
 
 \paragraph{Limits on resource usage:} We bound the amount of transactions that a relay-chain block can process, 
-in order to a) ensure that each block can be processed efficiently even on less powerful nodes and avoid delays in block production; b) have guaranteed availability for a certain amount of high-priority, operational transactions such as misconduct reports, even when there is high network traffic; and c) limit the growth rate of the relay-chain state. 
+in order to a) ensure that each block can be processed efficiently even on less powerful nodes and avoid delays in block production, and b) have guaranteed availability for a certain amount of high-priority, operational transactions such as misconduct reports, even when there is high network traffic. 
 In particular, we set block constraints on the following resources: on-chain byte-length, 
-time and memory required to process the transactions, and increase in state storage.
+and time and memory required to process the transactions.
 
 We classify transactions into several types, according to their priority level and resource consumption profile. 
 For each of these types we have run tests based on worst-case scenarios for state, and for different input arguments. 
 From these tests, we establish conservative estimates on resource usage for each transaction, and we use these estimates to ensure that all constraints on resource usage are observed.
 
-We also add an additional constraint on resources: we distinguish between regular and high-priority transactions, and only let regular transactions account for up to $75\%$ of each block resource limit. This is to ensure that each block has a guaranteed space for high-priority transactions of at least $25\%$ of resources.
+We also add an extra constraint on resources: we distinguish between regular and high-priority transactions, and only let regular transactions account for up to $75\%$ of each block resource limit. This is to ensure that each block has a guaranteed space for high-priority transactions of at least $25\%$ of resources.
 
 \paragraph{Transaction fees:} We use the model described above to set the fee level of a transaction based on three parameters: its type, its on-chain length, and its expected resource usage. This fee differentiation is used to reflect the different costs that a transaction incurs on the network and on the state, and to encourage the processing of certain types of transactions over others. A fraction of every transaction fee is paid to the block producer, while another fraction goes to finance the Treasury (Section~\ref{sec:treasury}). We highlight that, for a block producer, the rewards coming from transaction fees may constitute only a small fraction of their overall revenue, just enough to incentivise inclusion on the block.
 
