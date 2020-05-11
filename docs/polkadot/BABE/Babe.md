@@ -155,7 +155,7 @@ Given a chain set $\mathbb{C}_j$ an the parties current local chain $C_{loc}$, t
 We do not use the chain selection rule as in Ouroboros Genesis [3] because this rule is useful for parties who become online after a period of time and do not have any  information related to current valid chain (for parties always online the Genesis rule and Praos is indistinguishable with a negligible probability). Thanks to Grandpa finality, the new comers have a reference point to build their chain so we do not need the Genesis rule.
 
 
-## 4. Clock Adjustment
+## 4. Clock Adjustment (Relative Time Algorithm)
 
 It is important for parties to know the current slot  for the security and completeness of BABE. For this, validators can use their computer clocks which is adjusted by the Network Time Protocol. However, in this case, we need to trust servers of NTP. If an attack happens to one of these servers than we cannot claim anymore that BABE is secure. Therefore, we show how a party realizes the notion of slots without using NTP. Here, we assume we have a partial synchronous channel meaning that any message sent by a validator arrives at most $\D$-slots later. $\D$ is an unknown parameter.
 
@@ -207,13 +207,13 @@ Having $\theta$ small enough is important not to slow down the block production 
 For validators who were offline at some point during one synch-epoch, they can adjust their clock temporarily (till the next synch epoch) with the following algorithm. 
 
 **1. Case:** If $V$ was online at some point of a synch-epoch and when he becomes online if his clock works well, he should continue to collect the arrival time of valid blocks and produce his block according to his clock as usual. A block is considered as valid in this case if it is not equivocated, if the block is sent by the right validator and if its slot number belong to the current synch epoch. In the end of the sych-epoch, if he has collected $n$ arrival time of valid blocks he runs the median algorithm with these blocks. 
-If it has less than $n$ blocks it should wait till collecting $n$ arrival time of valid blocks.We note that he does not run with the arrival time of the finalized blocks.
+If it has less than $n$ blocks it should wait till collecting $n$ arrival time of valid blocks. We note that he does not run the median algorithm not only with the arrival time of the finalized blocks.
 
-**2. Case:** If $V$ was online at some point of a synch-epoch and when he becomes online if his clock does not work anymore, he should continue to collect the arrival time of valid blocks. He can adjust his clock according to e.g., the arrival last finalized block to continue to produce block. He can use this clock till collecting $n$ valid blocks. After collecting $n$ valid blocks he should readjust his according to the output of the median algorithm with these $n$ valid blocks.
+**2. Case:** If $V$ was online at some point of a synch-epoch and when he becomes online if his clock does not work anymore, he should continue to collect the arrival time of valid blocks. He can adjust his clock according to e.g., the arrival time of the last finalized block in GRANDPA to continue to produce block. He can use this clock till collecting $n$ valid blocks. After collecting $n$ valid blocks he should readjust his clock according to the output of the median algorithm with these $n$ valid blocks.
 
-With this algorithm, we can guarantee that the difference between his clock and an honest parties clock is at most $2\delta_{max} + |\Sigma|$. 
+With the temporarily clock adjustment, we can guarantee that the difference between this new clock and an honest parties clock is at most $2\delta_{max} + |\Sigma|$. 
 
-We not that during one sync-epoch the ratio of such offline validators should not be more that 0.05 otherwise it can affect the security of the relative time algorithm. 
+**We note that during one sync-epoch the ratio of such offline validators should not be more that 0.05 otherwise it can affect the security of the relative time algorithm.** 
 
 
 ## 5. Security Analysis
