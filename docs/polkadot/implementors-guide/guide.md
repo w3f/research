@@ -14,7 +14,7 @@ There are a number of other documents describing the research in more detail. Al
   * [Runtime](#Architecture-Runtime)
 * [Subsystems](#Subsystems)
   * [Overseer](#Overseer)
-  * [Candidate Backing](#Candidate-Backing)
+  * [Candidate Backing](#Candidate-Backing-Subsystem)
 * [Data Structures and Types](#Data-Structures-and-Types)
 * [Glossary / Jargon](#Glossary)
 
@@ -582,7 +582,7 @@ Futhermore, the protocols by which subsystems communicate with each other should
 
 ---
 
-### Candidate Backing subsystem
+### Candidate Backing Subsystem
 
 #### Description
 
