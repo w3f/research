@@ -41,7 +41,7 @@ Sharding and Proof-of-Stake in coordination with each other allow a parachain ho
 
 #### Issue 2: Flexibility / Specialization
 
-"dumb" VMs don't give you the flexibility. Any engineer knows that being able to specialize on a problem and create coarser-grained operations gives them and their users more _leverage_.  [TODO]
+"dumb" VMs don't give you the flexibility. Any engineer knows that being able to specialize on a problem gives them and their users more _leverage_.  [TODO]
 
 
 Having recognized these issues, we set out to find a solution to these problems, which could allow developers to create and deploy purpose-built blockchains unified under a common source of security, with the capability of message-passing between them; a _heterogeneous sharding solution_, which we have come to know as **Parachains**.
@@ -281,7 +281,7 @@ In order to import parachains, handle misbehavior reports, and keep data accessi
   * Configuration: number of parathread cores, number of parachain slots. Length of scheduled parathread "lookahead". Length of parachain slashing period. How long to keep old validation code for. etc.
   * Historical data for validators sets at least [TODO: how many?] blocks into the past. Used when reporting equivocations to prove that the validator at question actually belonged to the validator set at the time the equivocation was commited.
 
-This information should not change at any point between block initialization and inclusion of new parachain information. The reason for that is that the inclusoin of new parachain information will be checked against these values in the storage, but the new parachain information is produced by Node-side processes which draw information from Runtime APIs. Runtime APIs execute on top of the state directly after the initialization, so a divergence from that state would lead to validators producing unacceptable inputs.
+This information should not change at any point between block initialization and inclusion of new parachain information. The reason for that is that the inclusion of new parachain information will be checked against these values in the storage, but the new parachain information is produced by Node-side processes which draw information from Runtime APIs. Runtime APIs execute on top of the state directly after the initialization, so a divergence from that state would lead to validators producing unacceptable inputs.
 
 In the Substrate implementation, we may also have to worry about state changing due to other modules invoking `Call`s that change storage during initialization, but after the point at which parachain-specific modules run their initialization procedures. This could cause problems: parachain-specific modules could compute scheduling, parachain assignments, etc. during its initialization procedure, which would then become inconsistent afterwards. Other modules that might realistically cause such race conditions are Governance modules (which execute arbitrary `Call`s, or the `Scheduler` module). This implies that the runtime design should ensure that no racy entry points can affect storage that is used during parachain-specific module initialization. One way to accomplish this is to separate active storage items from pending storage updates. Other modules can add pending updates, but only the initialization or finalization logic can apply those to the active state. (of course, governance can reach in and break anything by mangling storage, but this is more about exposing a preventative API than a bulletproof one). One alternative is to ensure that all configuration is presented only as constants, which requires a full runtime upgrade to alter and as such does not suffer from these race conditions.
 
@@ -760,10 +760,10 @@ Signals from the overseer to a process to request change in execution that has t
 
 ```rust
 enum OverseerSignal {
-  /// Signal to start work localized to the relay-parent hash H.
-  StartWork(H),
-  /// Signal to stop (or phase down) work localized to the relay-parent hash H.
-  StopWork(H),
+  /// Signal to start work localized to the relay-parent hash.
+  StartWork(Hash),
+  /// Signal to stop (or phase down) work localized to the relay-parent hash.
+  StopWork(Hash),
 }
 ```
 
@@ -773,11 +773,11 @@ enum OverseerSignal {
 ```rust
 enum CandidateBackingProcessMessage {
   /// Registers a stream listener for updates to the set of backed candidates that could be included
-  /// in a child of the given relay-parent, referenced by its hash H
-  RegisterBackingWatcher(H, TODO),
+  /// in a child of the given relay-parent, referenced by its hash.
+  RegisterBackingWatcher(Hash, TODO),
   /// Note that the Candidate Backing Process should second the given candidate in the context of the 
-  /// given relay-parent (ref. by hash H). This candidate must be validated.
-  Second(H, CandidateReceipt)
+  /// given relay-parent (ref. by hash). This candidate must be validated.
+  Second(Hash, CandidateReceipt)
 }
 ```
 
