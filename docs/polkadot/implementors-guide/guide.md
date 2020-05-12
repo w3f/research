@@ -240,7 +240,7 @@ It is also helpful to divide Node-side behavior into two further categories: Net
 
 Node-side behavior is split up into various Processes. Processes are long-lived workers that perform a particular category of work. Processes can communicate with each other, and typically do so via an Overseer that prevents race conditions.
 
-Runtime logic is divided up into Modules and APIs. Modules encapsulate particular behavior of the system. Modules consist of storage, routines, and entry-points. Routines are invoked by entry points, by other modules, upon block initialization or closing. Routines can read and alter the storage of the module. Entry-points are the means by which new information is introduced to a module. Each block in the blockchain contains a set of Extrinsics. Each extrinsic targets a a specific entry point to trigger and which data should be passed to it. Runtime APIs provide a means for Node-side behavior to extract meaningful information from the state of a single fork.
+Runtime logic is divided up into Modules and APIs. Modules encapsulate particular behavior of the system. Modules consist of storage, routines, and entry-points. Routines are invoked by entry points, by other modules, upon block initialization or closing. Routines can read and alter the storage of the module. Entry-points are the means by which new information is introduced to a module and can limit the origins (user, root, parachain) that they accept being called by. Each block in the blockchain contains a set of Extrinsics. Each extrinsic targets a a specific entry point to trigger and which data should be passed to it. Runtime APIs provide a means for Node-side behavior to extract meaningful information from the state of a single fork.
 
 These two aspects of the implementation are heavily dependent on each other. The Runtime depends on Node-side behavior to author blocks, and to include Extrinsics which trigger the correct entry points. The Node-side behavior relies on Runtime APIs to extract information necessary to determine which actions to take.
 
@@ -335,7 +335,7 @@ Parachains and Parathreads behave exactly the same except with respect to how th
 
 -----
 
-### Runtime Architecture: A Proposal
+## Runtime Architecture: A Proposal
 
 [TODO: Figure out what to do with the previous section - there's a lot of useful information. A lot of info might be beyond the scope of the document, but is still useful. Figure out which research resources we can link to and which points are new to this doc. some race condition concerns were never written down before]
 
@@ -347,7 +347,149 @@ Due to the (lack of) guarantees provided by a particular blockchain-runtime fram
 
 We also expect, although it's beyond the scope of this guide, that these runtime modules will exist alongside various other modules. This has two facets to consider. First, even if the modules that we describe here don't invoke each others' entry points or routines during initialization, we still have to protect against those other modules doing that. Second, some of those modules are expected to provide governance capabilities for the chain. Configuration exposed by parachain-host modules is mostly for the benefit of these governance modules, to allow the operators or community of the chain to tweak parameters.
 
-The runtime's primary roles are to manage scheduling and updating of parachains and parathreads, as well as handling misbehavior reports and slashing. This guide doesn't focus on how parachains or parathreads are registered, only that they are.
+The runtime's primary roles to manage scheduling and updating of parachains and parathreads, as well as handling misbehavior reports and slashing. This guide doesn't focus on how parachains or parathreads are registered, only that they are. Also, this runtime description assumes that validator sets are selected somehow, but doesn't assume any other details than a periodic _session change_ event. Session changes give information about the incoming validator set and the validator set of the following session.
+
+The runtime also serves another role, which is to make data available to the Node-side logic via Runtime APIs. These Runtime APIs should be sufficient for the Node-side code to author blocks correctly.
+
+There is some functionality of the relay chain relating to parachains that we also consider beyond the scope of this document. In particular, all modules related to how parachains are registered aren't part of this guide, although we do provide routines that should be called by the registration process.
+
+We will split the logic of the runtime up into these modules:
+  * Initializer: manage initialization order of the other modules.
+  * Configuration: manage configuration and configuration updates in a non-racy manner.
+  * Paras: manage chain-head and validation code for parachains and parathreads.
+  * Scheduler: manages parachain and parathread scheduling as well as validator assignments.
+  * Inclusion: handles the inclusion and availability of scheduled parachains and parathreads.
+  * Validity: handles secondary checks and dispute resolution for included, available parablocks.
+
+The Initializer module is special - it's responsible for handling the initialization logic of the other modules to ensure that the correct initialization order and related invariants are maintained. The other modules won't specify a on-initialize logic, but will instead expose a special semi-private routine that the initialization module will call. The other modules are relatively straightforward and perform the roles described above.
+
+### The Initializer Module
+
+#### Description
+
+This module maintains no storage and is only responsible for initializing the other modules in a deterministic order. It also has one other purpose: accepting and forwarding session change notifications.
+
+ParachainHost runtime modules can't determine ahead-of-time when session change notifications are going to happen (note: this depends on module initialization order again - better to put session before parachains modules). Ideally, session changes are always handled before initialization. It is clearly a problem if we compute validator assignments to parachains during initialization and then the set of validators changes. In the best case, we can recognize that re-initialization needs to be done. In the worst case, bugs would occur.
+
+There are 3 main ways that we can handle this issue:
+  1. Establish an invariant that session change notifications always happen after initialization. This means that when we receive a session change notification before initialization, we call the initialization routines before handling the session change. 
+  2. Require that session change notifications always occur before initialization. Brick the chain if session change notifications ever happen after initialization.
+  3. Handle both the before and after cases.
+
+
+Although option 3 is the most comprehensive, it runs counter to our goal of simplicity. Option 1 means requiring the runtime to do redundant work at all sessions and will also mean, like option 3, that designing things in such a way that initialization can be rolled back and reapplied under the new environment. That leaves option 2, although it is a "nuclear" option in a way and requires us to constrain the parachain host to only run in full runtimes with a certain order of operations.
+
+So the other role of the initializer module is to forward session change notifications to modules in the initialization order, throwing an unrecoverable error if the notification is received after initialization.
+
+[REVIEW: other options? arguments in favor of going for options 1 or 3 instead of 2]
+
+#### Storage
+
+```rust
+HasInitialized: bool
+```
+
+#### Initialization
+
+The other modules are initialized in this order:
+1. Configuration
+1. Paras
+1. Scheduler
+1. Inclusion
+1. Validity.
+
+The configuration module is first, since all other modules need to operate under the same configuration as each other. It would lead to inconsistency if, for example, the scheduler ran first and then the configuration was updated before the Inclusion module.
+
+Set `HasInitialized` to true.
+
+#### Session Change
+
+If `HasInitialized` is true, throw an unrecoverable error (panic).
+Otherwise, forward the session change notification to other modules in initialization order.
+
+#### Finalization
+
+Finalization order is less important in this case than initialization order, so we finalize the modules in the reverse order from initialization.
+
+Set `HasInitialized` to false.
+
+### The Configuration Module
+
+#### Description
+
+This module is responsible for managing all configuration of the parachain host in-flight. It provides a central point for configuration updates to prevent races between configuration changes and parachain-processing logic. Configuration can only change during the session change routine, and as this module processes the session change notification first it provides an invariant that the configuration does not change throughout the entire session.
+
+The configuration that we will be tracking is the `HostConfiguration` struct.
+
+#### Storage
+
+The configuration module is responsible for two main pieces of storage.
+
+```rust
+/// The current configuration to be used.
+Configuration: HostConfiguration,
+/// A pending configuration to be applied on session change.
+PendingConfiguration: Option<HostConfiguration>,
+```
+
+#### Session change
+
+The session change routine for the Configuration module is simple. If the `PendingConfiguration` is `Some`, take its value and set `Configuration` to be equal to it. Reset `PendingConfiguration` to `None`.
+
+#### Routines
+
+```rust
+/// Get the host configuration.
+pub fn configuration() -> HostConfiguration {
+  Configuration::get()
+}
+
+/// Updating the pending configuration to be applied later.
+fn update_configuration(f: impl FnOnce(&mut HostConfiguration)) {
+  PendingConfiguration::mutate(|pending| {
+    let mut x = pending.unwrap_or_else(Self::configuration);
+    f(&mut x);
+    *pending = Some(x);
+  })
+}
+```
+
+#### Entry-points
+
+The Configuration module exposes an entry point for each configuration member. These entry-points accept calls only from governance origins. These entry-points will use the `update_configuration` routine to update the specific configuration field.
+
+### The Scheduler Module
+
+#### Description
+
+The Scheduler module is responsible for two main tasks:
+  - Assigning validators to parachains and parathreads.
+  - Scheduling parachains and parathreads
+
+Most of its work occurs within initialization, but it also does work within finalization.
+
+The Scheduler manages resource allocation using the concept of "Execution Cores". Each parachain has its own dedicated core, while parathreads are multiplexed over another set of cores. Parathreads also have a retrying mechanism built-in, and the main parathread cores cannot be repurposed for this use-case for economic security reasons. This gives us 3 sets of execution cores all-in-all: parachain cores, parathread cores, and parathread retry cores.
+
+An execution core is considered occupied for the entire duration it is assigned, as well as the entire time it takes for the submitted block to become available. When a core is assigned, the ownership of the core passes from the Scheduler module to the Inclusion module. If no candidate is included when the core is assigned, the core is returned to the Scheduler in block finalization. Otherwise, the core is returned when the block becomes available or the availability timeout is reached.
+
+So what should happen when an execution core is assigned and owned by the inclusion module when a change in configuration occurs? And what about assigning cores optimistically, so in the case that a core is freed by a parablock becoming available, the core can be reassigned within the span of the same block. Without optimistic assignment, the throughput of parachains is halved, as inclusion and availability can only occur in alternating blocks.
+
+
+#### Storage
+
+```rust
+ParathreadQueue: Vec<ParathreadBid>,
+ExecutionCores: Bitvec,
+```
+
+#### Initialization
+
+
+
+### The Inclusion Module
+
+### The Validity Module
+
 
 ----
 
@@ -433,7 +575,7 @@ When a process wants to communicate with another process, or, more typically, a 
 
 This communication prevents a certain class of race conditions. When the Overseer determines that it is time for processes to begin working on top of a particular relay-parent, it will dispatch a `StartWork` message to all processes to do so, and those messages will be handled asynchronously by those processes. Some processes will receive those messsages before others, and it is important that a message sent by Process A after receiving `StartWork` message will arrive at Process B after its `StartWork` message. If Process A maintaned an independent channel with Process B to communicate, it would be possible for Process B to handle the side message before the `StartWork` message, but it wouldn't have any logical course of action to take with the side message - leading to it being discarded or improperly handled. Well-architectured state machines should have a single source of inputs, so that is what we do here.
 
-It's important to note that the overseer is not aware of the internals of processes, and this extends to the jobs that they spawn. The overseer isn't aware of the existence or definition of those jobs, and is only aware of the outer processes with which it interacts. This gives process implementations leeway to define internal jobs as they see fit, and to wrap a more complex hierarchy of state machines than having a single layer of jobs for relay-parent-based work.
+It's important to note that the overseer is not aware of the internals of processes, and this extends to the jobs that they spawn. The overseer isn't aware of the existence or definition of those jobs, and is only aware of the outer processes with which it interacts. This gives process implementations leeway to define internal jobs as they see fit, and to wrap a more complex hierarchy of state machines than having a single layer of jobs for relay-parent-based work. Likewise, processes aren't required to spawn jobs. Certain types of processes, such as those for shared storage or networking resources, won't perform block-based work but would still benefit from being on the Overseer's message bus. These processes can just ignore the overseer's signals for block-based work.
 
 Futhermore, the protocols by which processes communicate with each other should be well-defined irrespective of the implementation of the process. In other words, their interface should be distinct from their implementation. This will prevent processes from accessing aspects of each other that are beyond the scope of the communication boundary.
 
@@ -635,6 +777,37 @@ enum CandidateBackingProcessMessage {
   /// Note that the Candidate Backing Process should second the given candidate in the context of the 
   /// given relay-parent (ref. by hash H). This candidate must be validated.
   Second(H, CandidateReceipt)
+}
+```
+
+#### Host Configuration
+
+The internal-to-runtime configuration of the parachain host. This is expected to be altered only by governance procedures.
+
+```rust
+struct HostConfiguration {
+  /// The minimum frequency at which parachains can update their validation code.
+  pub validation_upgrade_frequency: BlockNumber,
+  /// The delay, in blocks, before a validation upgrade is applied.
+  pub validation_upgrade_delay: BlockNumber,
+  /// The availability period, in blocks. This is the amount of blocks after inclusion that validators
+  /// have to make the block available and signal its availability to the chain.
+  pub availability_period: BlockNumber,
+  /// The acceptance period, in blocks. This is the amount of blocks after availability that validators
+  /// and fishermen have to perform secondary checks or issue reports.
+  pub acceptance_period: BlockNumber,
+  /// The maximum validation code size, in bytes.
+  pub max_code_size: u32,
+  /// The maximum head-data size, in bytes.
+  pub max_head_data_size: u32,
+  /// The amount of execution cores to dedicate to parathread execution.
+  pub parathread_cores: u32,
+  /// The amount of execution cores to dedicate to retrying parathreads.
+  pub parathread_retry_cores: u32,
+  /// The number of retries that a parathread author has to submit their block.
+  pub parathread_retries: u32,
+  /// The amount of blocks ahead to schedule parachains and parathreads.
+  pub scheduling_lookahead: u32,
 }
 ```
 
