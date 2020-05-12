@@ -12,8 +12,8 @@ There are a number of other documents describing the research in more detail. Al
 * [Architecture](#Architecture)
   * [Node-side](#Architecture-Node-side)
   * [Runtime](#Architecture-Runtime)
-* [Processes](#Processes)
-  * [Overseer](#Overseer-Process)
+* [Subsystems](#Subsystems)
+  * [Overseer](#Overseer)
   * [Candidate Backing](#Candidate-Backing)
 * [Data Structures and Types](#Data-Structures-and-Types)
 * [Glossary / Jargon](#Glossary)
@@ -51,7 +51,7 @@ Having recognized these issues, we set out to find a solution to these problems,
 
 ## Parachains: Basic Functionality
 
-This section aims to describe, at a high level, the architecture, actors, and processes involved in the implementation of parachains. It also illuminates certain subtleties and challenges faced in the design and implementation of those processes. Our goal is to carry a parachain block from authoring to secure inclusion, and define a process which can be carried out repeatedly and in parallel for many different parachains to extend them over time. Understanding of the high-level approach taken here is important to provide context for the proposed architecture further on.
+This section aims to describe, at a high level, the architecture, actors, and Subsystems involved in the implementation of parachains. It also illuminates certain subtleties and challenges faced in the design and implementation of those Subsystems. Our goal is to carry a parachain block from authoring to secure inclusion, and define a process which can be carried out repeatedly and in parallel for many different parachains to extend them over time. Understanding of the high-level approach taken here is important to provide context for the proposed architecture further on.
 
 The Parachain Host is a blockchain, known as the relay-chain, and the actors which provide security and inputs to the blockchain.
 
@@ -65,22 +65,22 @@ This alludes to a simple pipeline where collators send validators parachain bloc
 However, there is a problem with this formulation. In order for another validator to check the previous group of validators' work after the fact, the PoV must remain _available_ so the other validator can fetch it in order to check the work. The PoVs are expected to be too large to include in the blockchain directly, so we require an alternate _data availability_ scheme which requires validators to prove that the inputs to their work will remain available, and so their work can be checked. Empirical tests tell us that many PoVs may be between 1 and 10MB during periods of heavy load.
 
 Here is a description of the Inclusion Pipeline: the path a parachain block (or parablock, for short) takes from creation to inclusion:
-1. Validators are selected and assigned to parachains by the Validator Assignment Process.
+1. Validators are selected and assigned to parachains by the Validator Assignment routine.
 1. A collator produces the parachain block, which is known as a parachain candidate or candidate, along with a PoV for the candidate.
-1. The collator forwards the candidate and PoV to validators assigned to the same parachain via the Collation Distribution Process.
-1. The validators assigned to a parachain at a given point in time participate in the Candidate Backing Process to validate candidates that were put forward for validation. Candidates which gather enough signed validity statements from validators are considered "backed" and are called backed candidates. Their backing is the set of signed validity statements.
+1. The collator forwards the candidate and PoV to validators assigned to the same parachain via the Collation Distribution Subsystem.
+1. The validators assigned to a parachain at a given point in time participate in the Candidate Backing Subsystem to validate candidates that were put forward for validation. Candidates which gather enough signed validity statements from validators are considered "backed" and are called backed candidates. Their backing is the set of signed validity statements.
 1. A relay-chain block author, selected by BABE, can include up to one (1) backed candidate for each parachain to include in the relay-chain block alongside its backing.
 1. Once included in the relay-chain, the parachain candidate is considered to be "pending availability". It is not considered to be part of the parachain until it is proven available.
-1. In the following relay-chain blocks, validators will participate in the Availability Distribution Process to ensure availability of the candidate. Information regarding the availability of the candidate will be included in the subsequent relay-chain blocks.
+1. In the following relay-chain blocks, validators will participate in the Availability Distribution Subsystem to ensure availability of the candidate. Information regarding the availability of the candidate will be included in the subsequent relay-chain blocks.
 1. Once the relay-chain state machine has enough information to consider the candidate's PoV as being available, the candidate is considered to be part of the parachain and is graduated to being a full parachain block, or parablock for short.
 
 Note that the candidate can fail to be included in any of the following ways:
   - The collator is not able to propagate the candidate to any validators assigned to the parachain.
-  - The candidate is not backed by validators participating in the Candidate Backing Process.
+  - The candidate is not backed by validators participating in the Candidate Backing Subsystem.
   - The candidate is not selected by a relay-chain block author to be included in the relay chain
   - The candidate's PoV is not considered as available within a timeout and is discarded from the relay chain.
 
-This process can be divided further down. Steps 2 & 3 relate to the work of the collator in collating and distributing the candidate to validators via the Collation Distribution Process. Steps 3 & 4 relate to the work of the validators in the Candidate Backing Process and the block author (itself a validator) to include the block into the relay chain. Steps 6, 7, and 8 correspond to the logic of the relay-chain state-machine (otherwise known as the Runtime) used to fully incorporate the block into the chain. Step 7 requires further work on the validators' parts to participate in the Availability Distribution process and include that information into the relay chain for step 8 to be fully realized.
+This process can be divided further down. Steps 2 & 3 relate to the work of the collator in collating and distributing the candidate to validators via the Collation Distribution Subsystem. Steps 3 & 4 relate to the work of the validators in the Candidate Backing Subsystem and the block author (itself a validator) to include the block into the relay chain. Steps 6, 7, and 8 correspond to the logic of the relay-chain state-machine (otherwise known as the Runtime) used to fully incorporate the block into the chain. Step 7 requires further work on the validators' parts to participate in the Availability Distribution Subsystem and include that information into the relay chain for step 8 to be fully realized.
 
 This brings us to the second part of the process. Once a parablock is considered available and part of the parachain, it is still "pending approval". At this stage in the pipeline, the parablock has been backed by a majority of validators in the group assigned to that parachain, and its data has been guaranteed available by the set of validators as a whole. Once it's considered available, the host will even begin to accept children of that block. However, the validators in the parachain-group (known as the "Parachain Validators" for that parachain) are sampled from a validator set which contains some proportion of byzantine, or arbitrarily malicious members. This implies that the Parachain Validators for some parachain may be majority-dishonest, which means that secondary checks must be done on the block before it can be considered approved. This is necessary only because the Parachain Validators for a given parachain are sampled from an overall validator set which is assumed to be up to <1/3 dishonest - meaning that there is a chance to randomly sample Parachain Validators for a parachain that are majority or fully dishonest and can back a candidate wrongly. The Approval Process allows us to detect such misbehavior after-the-fact without allocating more Parachain Validators and reducing the throughput of the system. A parablock's failure to pass the approval process will invalidate the block as well as all of its descendents. However, only the validators who backed the block in question will be slashed, not the validators who backed the descendents.
 
@@ -93,7 +93,7 @@ The Approval Process looks like this:
 
 These two pipelines sum up the sequence of events necessary to extend and acquire full security on a Parablock. Note that the Inclusion Pipeline must conclude for a specific parachain before a new block can be accepted on that parachain. After inclusion, the Approval Process kicks off, and can be running for many parachain blocks at once.
 
-[TODO Diagram: Inclusion Pipeline & Approval Processes interaction]
+[TODO Diagram: Inclusion Pipeline & Approval Subsystems interaction]
 
 It is also important to take note of the fact that the relay-chain is extended by BABE, which is a forkful algorithm. That means that different block authors can be chosen at the same time, and may not be building on the same block parent. Furthermore, the set of validators is not fixed, nor is the set of parachains. And even with the same set of validators and parachains, the validators' assignments to parachains is flexible. This means that the architecture proposed in the next chapters must deal with the variability and multiplicity of the network state.
 
@@ -238,7 +238,7 @@ It is also helpful to divide Node-side behavior into two further categories: Net
 ```                                                   
 
 
-Node-side behavior is split up into various Processes. Processes are long-lived workers that perform a particular category of work. Processes can communicate with each other, and typically do so via an Overseer that prevents race conditions.
+Node-side behavior is split up into various subsystems. Subsystems are long-lived workers that perform a particular category of work. Subsystems can communicate with each other, and do so via an Overseer that prevents race conditions.
 
 Runtime logic is divided up into Modules and APIs. Modules encapsulate particular behavior of the system. Modules consist of storage, routines, and entry-points. Routines are invoked by entry points, by other modules, upon block initialization or closing. Routines can read and alter the storage of the module. Entry-points are the means by which new information is introduced to a module and can limit the origins (user, root, parachain) that they accept being called by. Each block in the blockchain contains a set of Extrinsics. Each extrinsic targets a a specific entry point to trigger and which data should be passed to it. Runtime APIs provide a means for Node-side behavior to extract meaningful information from the state of a single fork.
 
@@ -256,9 +256,9 @@ These two aspects of the implementation are heavily dependent on each other. The
 
 The architecture of the node-side behavior aims to embody the Rust principles of ownership and message-passing to create clean, isolatable code. Each resource should have a single owner, with minimal sharing where unavoidable.
 
-Many operations that need to be carried out involve the network, which is asynchronous. This asynchrony affects all core processes that rely on the network as well. The approach of hierarchical state machines is well-suited to this kind of environment.
+Many operations that need to be carried out involve the network, which is asynchronous. This asynchrony affects all core subsystems that rely on the network as well. The approach of hierarchical state machines is well-suited to this kind of environment.
 
-We introduce a hierarchy of state machines consisting of an overseer supervising processes, where processes can contain their own internal hierarchy of jobs. This is elaborated on in the [Processes](#Processes) section.
+We introduce a hierarchy of state machines consisting of an overseer supervising subsystems, where Subsystems can contain their own internal hierarchy of jobs. This is elaborated on in the [Subsystems](#Subsystems) section.
 
 ---
 
@@ -281,7 +281,7 @@ In order to import parachains, handle misbehavior reports, and keep data accessi
   * Configuration: number of parathread cores, number of parachain slots. Length of scheduled parathread "lookahead". Length of parachain slashing period. How long to keep old validation code for. etc.
   * Historical data for validators sets at least [TODO: how many?] blocks into the past. Used when reporting equivocations to prove that the validator at question actually belonged to the validator set at the time the equivocation was commited.
 
-This information should not change at any point between block initialization and inclusion of new parachain information. The reason for that is that the inclusion of new parachain information will be checked against these values in the storage, but the new parachain information is produced by Node-side processes which draw information from Runtime APIs. Runtime APIs execute on top of the state directly after the initialization, so a divergence from that state would lead to validators producing unacceptable inputs.
+This information should not change at any point between block initialization and inclusion of new parachain information. The reason for that is that the inclusion of new parachain information will be checked against these values in the storage, but the new parachain information is produced by Node-side subsystems which draw information from Runtime APIs. Runtime APIs execute on top of the state directly after the initialization, so a divergence from that state would lead to validators producing unacceptable inputs.
 
 In the Substrate implementation, we may also have to worry about state changing due to other modules invoking `Call`s that change storage during initialization, but after the point at which parachain-specific modules run their initialization procedures. This could cause problems: parachain-specific modules could compute scheduling, parachain assignments, etc. during its initialization procedure, which would then become inconsistent afterwards. Other modules that might realistically cause such race conditions are Governance modules (which execute arbitrary `Call`s, or the `Scheduler` module). This implies that the runtime design should ensure that no racy entry points can affect storage that is used during parachain-specific module initialization. One way to accomplish this is to separate active storage items from pending storage updates. Other modules can add pending updates, but only the initialization or finalization logic can apply those to the active state. (of course, governance can reach in and break anything by mangling storage, but this is more about exposing a preventative API than a bulletproof one). One alternative is to ensure that all configuration is presented only as constants, which requires a full runtime upgrade to alter and as such does not suffer from these race conditions.
 
@@ -417,7 +417,7 @@ Set `HasInitialized` to false.
 
 #### Description
 
-This module is responsible for managing all configuration of the parachain host in-flight. It provides a central point for configuration updates to prevent races between configuration changes and parachain-processing logic. Configuration can only change during the session change routine, and as this module processes the session change notification first it provides an invariant that the configuration does not change throughout the entire session.
+This module is responsible for managing all configuration of the parachain host in-flight. It provides a central point for configuration updates to prevent races between configuration changes and parachain-processing logic. Configuration can only change during the session change routine, and as this module handles the session change notification first it provides an invariant that the configuration does not change throughout the entire session.
 
 The configuration that we will be tracking is the `HostConfiguration` struct.
 
@@ -494,42 +494,42 @@ ExecutionCores: Bitvec,
 
 ----
 
-## Processes
+## Subsystems
 
-### Processes and Jobs
+### Subsystems and Jobs
 
-In this section we define the notions of Processes and Jobs. These are guidelines for how we will employ an architecture of hierarchical state machines. We'll have a top-level state machine which oversees the next level of state machines which oversee another layer of state machines and so on. The next sections will lay out these guidelines for what we've called Processes and Jobs, since this model applies to many of the tasks that the Node-side behavior needs to encompass, but these are only guidelines and some processes may have deeper hierarchies internally.
+In this section we define the notions of Subsystems and Jobs. These are guidelines for how we will employ an architecture of hierarchical state machines. We'll have a top-level state machine which oversees the next level of state machines which oversee another layer of state machines and so on. The next sections will lay out these guidelines for what we've called subsystems and jobs, since this model applies to many of the tasks that the Node-side behavior needs to encompass, but these are only guidelines and some Subsystems may have deeper hierarchies internally.
 
-Processes are long-lived worker tasks that are in charge of performing some particular kind of work. All processes can communicate with each other via a well-defined protocol. Processes can't communicate directly, but must communicate through an Overseer, which is responsible for relaying messages, handling process failures, and dispatching work signals.
+Subsystems are long-lived worker tasks that are in charge of performing some particular kind of work. All subsystems can communicate with each other via a well-defined protocol. Subsystems can't communicate directly, but must communicate through an Overseer, which is responsible for relaying messages, handling subsystem failures, and dispatching work signals.
 
 Most work that happens on the Node-side is related to building on top of a specific relay-chain block, which is contextually known as the "relay parent". We call it the relay parent to explicitly denote that it is a block in the relay chain and not on a parachain. We refer to the parent because when we are in the process of building a new block, we don't know what that new block is going to be. The parent block is our only stable point of reference, even though it is usually only useful when it is not yet a parent but in fact a leaf of the block-DAG expected to soon become a parent (because validators are authoring on top of it). Furthermore, we are assuming a forkful blockchain-extension protocol, which means that there may be multiple possible children of the relay-parent. Even if the relay parent has multiple children blocks, the parent of those children is the same, and the context in which those children is authored should be the same. The parent block is the best and most stable reference to use for defining the scope of work items and messages, and is typically referred to by its cryptographic hash.
 
-Since this goal of determining when to start and conclude work relative to a specific relay-parent is common to most, if not all processes, it is logically the job of the Overseer to distribute those signals as opposed to each process duplicating that effort, potentially being out of synchronization with each other. Process A should be able to expect that Process B is working on the same relay-parents as it is. One of the Overseer's tasks is to provide this heartbeat, or synchronized rhythm, to the system.
+Since this goal of determining when to start and conclude work relative to a specific relay-parent is common to most, if not all subsystems, it is logically the job of the Overseer to distribute those signals as opposed to each subsystem duplicating that effort, potentially being out of synchronization with each other. Subsystem A should be able to expect that subsystem B is working on the same relay-parents as it is. One of the Overseer's tasks is to provide this heartbeat, or synchronized rhythm, to the system.
 
-The work that Processes spawn to be done on a specific relay-parent is known as a job. Processes should set up and tear down jobs according to the signals received from the overseer. Processes may share or cache state between jobs.
+The work that subsystems spawn to be done on a specific relay-parent is known as a job. Subsystems should set up and tear down jobs according to the signals received from the overseer. Subsystems may share or cache state between jobs.
 
 ### Overseer
 
 The overseer is responsible for these tasks:
-1. Setting up, monitoring, and handing failure for overseen processes.
-2. Providing a "heartbeat" of which relay-parents processes should be working on.
-3. Acting as a message bus between processes.
+1. Setting up, monitoring, and handing failure for overseen subsystems.
+2. Providing a "heartbeat" of which relay-parents subsystems should be working on.
+3. Acting as a message bus between subsystems.
 
 
-The hierarchy of processes:
+The hierarchy of subsystems:
 ```
-+--------------+      +------------------+    +------------------+    
-|              |      |                  |---->   Process A      |    
-| Block Import |      |                  |    +------------------+    
-|    Events    |------>                  |    +------------------+    
-+--------------+      |                  |---->   Process B      |    
-                      |   Overseer       |    +------------------+    
-+--------------+      |                  |    +------------------+    
-|              |      |                  |---->   Process C      |    
-| Finalization |------>                  |    +------------------+    
-|    Events    |      |                  |    +------------------+
-|              |      |                  |---->   Process D      |
-+--------------+      +------------------+    +------------------+   
++--------------+      +------------------+    +--------------------+    
+|              |      |                  |---->   Subsystem A      |    
+| Block Import |      |                  |    +--------------------+    
+|    Events    |------>                  |    +--------------------+    
++--------------+      |                  |---->   Subsystem B      |    
+                      |   Overseer       |    +--------------------+    
++--------------+      |                  |    +--------------------+    
+|              |      |                  |---->   Subsystem C      |    
+| Finalization |------>                  |    +--------------------+    
+|    Events    |      |                  |    +--------------------+
+|              |      |                  |---->   Subsystem D      |
++--------------+      +------------------+    +--------------------+   
                                                   
 ```
 
@@ -538,23 +538,23 @@ The overseer determines work to do based on block import events and block finali
 The overseer's logic can be described with these functions:
 
 *On Startup*
-* Start all Processes
+* Start all subsystems
 * Determine all blocks of the blockchain that should be built on. This should typically be the head of the best fork of the chain we are aware of. Sometimes add recent forks as well.
-* For each of these blocks, send an `OverseerSignal::StartWork` to all processes.
+* For each of these blocks, send an `OverseerSignal::StartWork` to all subsystems.
 * Begin listening for block import events.
 
 *On Block Import Event*
 * Apply the block import event to the active leaves. A new block should lead to its addition to the active leaves set and its parent being deactivated.
-* For any deactivated leaves send an `OverseerSignal::StopWork` message to all processes.
-* For any activated leaves send an `OverseerSignal::StartWork` message to all processes.
+* For any deactivated leaves send an `OverseerSignal::StopWork` message to all subsystems.
+* For any activated leaves send an `OverseerSignal::StartWork` message to all subsystems.
 
 (TODO: in the future, we may want to avoid building on too many sibling blocks at once. the notion of a "preferred head" among many competing sibling blocks would imply changes in our "active set" update rules here)
 
 *On Message Send Failure*
-* If sending a message to a process fails, that process should be restarted and the error logged.
+* If sending a message to a subsystem fails, that subsystem should be restarted and the error logged.
 
 
-When a process wants to communicate with another process, or, more typically, a job within a process wants to communicate with its counterpart under another process, that communication must happen via the overseer. Consider this example where a job on Process A wants to send a message to its counterpart under Process B. This is a realistic scenario, where you can imagine that both jobs correspond to work under the same relay-parent.
+When a subsystem wants to communicate with another subsystem, or, more typically, a job within a subsystem wants to communicate with its counterpart under another subsystem, that communication must happen via the overseer. Consider this example where a job on subsystem A wants to send a message to its counterpart under subsystem B. This is a realistic scenario, where you can imagine that both jobs correspond to work under the same relay-parent.
 
 ```                                  
      +--------+                                                           +--------+      
@@ -566,7 +566,7 @@ When a process wants to communicate with another process, or, more typically, a 
           v                  |                              |                  |          
 +---------v---------+        |                              |        +---------|---------+
 |                   |        |                              |        |                   |
-| Process A         |        |       Overseer / Message     |        | Process B         |
+| Subsystem A       |        |       Overseer / Message     |        | Subsystem B       |
 |                   -------->>                  Bus         -------->>                   |
 |                   |        |                              |        |                   |
 +-------------------+        |                              |        +-------------------+
@@ -574,39 +574,39 @@ When a process wants to communicate with another process, or, more typically, a 
                              +------------------------------+                             
 ```
 
-This communication prevents a certain class of race conditions. When the Overseer determines that it is time for processes to begin working on top of a particular relay-parent, it will dispatch a `StartWork` message to all processes to do so, and those messages will be handled asynchronously by those processes. Some processes will receive those messsages before others, and it is important that a message sent by Process A after receiving `StartWork` message will arrive at Process B after its `StartWork` message. If Process A maintaned an independent channel with Process B to communicate, it would be possible for Process B to handle the side message before the `StartWork` message, but it wouldn't have any logical course of action to take with the side message - leading to it being discarded or improperly handled. Well-architectured state machines should have a single source of inputs, so that is what we do here.
+This communication prevents a certain class of race conditions. When the Overseer determines that it is time for subsystems to begin working on top of a particular relay-parent, it will dispatch a `StartWork` message to all subsystems to do so, and those messages will be handled asynchronously by those subsystems. Some subsystems will receive those messsages before others, and it is important that a message sent by subsystem A after receiving `StartWork` message will arrive at subsystem B after its `StartWork` message. If subsystem A maintaned an independent channel with subsystem B to communicate, it would be possible for subsystem B to handle the side message before the `StartWork` message, but it wouldn't have any logical course of action to take with the side message - leading to it being discarded or improperly handled. Well-architectured state machines should have a single source of inputs, so that is what we do here.
 
-It's important to note that the overseer is not aware of the internals of processes, and this extends to the jobs that they spawn. The overseer isn't aware of the existence or definition of those jobs, and is only aware of the outer processes with which it interacts. This gives process implementations leeway to define internal jobs as they see fit, and to wrap a more complex hierarchy of state machines than having a single layer of jobs for relay-parent-based work. Likewise, processes aren't required to spawn jobs. Certain types of processes, such as those for shared storage or networking resources, won't perform block-based work but would still benefit from being on the Overseer's message bus. These processes can just ignore the overseer's signals for block-based work.
+It's important to note that the overseer is not aware of the internals of subsystems, and this extends to the jobs that they spawn. The overseer isn't aware of the existence or definition of those jobs, and is only aware of the outer subsystems with which it interacts. This gives subsystem implementations leeway to define internal jobs as they see fit, and to wrap a more complex hierarchy of state machines than having a single layer of jobs for relay-parent-based work. Likewise, subsystems aren't required to spawn jobs. Certain types of subsystems, such as those for shared storage or networking resources, won't perform block-based work but would still benefit from being on the Overseer's message bus. These subsystems can just ignore the overseer's signals for block-based work.
 
-Futhermore, the protocols by which processes communicate with each other should be well-defined irrespective of the implementation of the process. In other words, their interface should be distinct from their implementation. This will prevent processes from accessing aspects of each other that are beyond the scope of the communication boundary.
+Futhermore, the protocols by which subsystems communicate with each other should be well-defined irrespective of the implementation of the subsystem. In other words, their interface should be distinct from their implementation. This will prevent subsystems from accessing aspects of each other that are beyond the scope of the communication boundary.
 
 ---
 
-### Candidate Backing Process
+### Candidate Backing subsystem
 
 #### Description
 
-The Candidate Backing Process is the process that a validator engages in to contribute to the backing of parachain candidates submitted by other validators.
+The Candidate Backing subsystem is engaged in by validators in to contribute to the backing of parachain candidates submitted by other validators.
 
 Its role is to produce backed candidates for inclusion in new relay-chain blocks. It does so by issuing signed [Statements](#Statement-type) and tracking received statements signed by other validators. Once enough statements are received, they can be combined into backing for specific candidates.
 
 It also detects double-vote misbehavior by validators as it imports votes, passing on the misbehavior to the correct reporter and handler.
 
-When run as a validator, this is the process which actually validates incoming candidates.
+When run as a validator, this is the subsystem which actually validates incoming candidates.
 
 #### Protocol
 
-This process receives messages of the type [CandidateBackingProcessMessage](#Candidate-Backing-Process-Message).
+This subsystem receives messages of the type [CandidateBackingSubsystemMessage](#Candidate-Backing-Subsystem-Message).
 
 #### Functionality
 
-The process should maintain a set of handles to Candidate Backing Jobs that are currently live, as well as the relay-parent to which they correspond.
+The subsystem should maintain a set of handles to Candidate Backing Jobs that are currently live, as well as the relay-parent to which they correspond.
 
 *On Overseer Signal*
 * If the signal is an `OverseerSignal::StartWork(relay_parent)`, spawn a Candidate Backing Job with the given relay parent, storing a bidirectional channel with the Candidate Backing Job in the set of handles.
 * If the signal is an `OverseerSignal::StopWork(relay_parent)`, cease the Candidate Backing Job under that relay parent, if any.
 
-*On CandidateBackingProcessMessage*
+*On CandidateBackingSubsystemMessage*
 * If the message corresponds to a particular relay-parent, forward the message to the Candidate Backing Job for that relay-parent, if any is live.
 
 
@@ -659,33 +659,33 @@ fn spawn_validation_work(candidate, parachain head, validation function) {
 *fetch pov block*
 
 Create a `(sender, receiver)` pair.
-Dispatch a `PovFetchProcessMessage(relay_parent, candidate_hash, sender)` and listen on the receiver for a response.
+Dispatch a `PovFetchSubsystemMessage(relay_parent, candidate_hash, sender)` and listen on the receiver for a response.
 
-*on receiving CandidateBackingProcessMessage*
-* If the message is a `CandidateBackingProcessMessage::RegisterBackingWatcher`, register the watcher and trigger it each time a new candidate is backed. Also trigger it once initially if there are any backed candidates at the time of receipt.
-* If the message is a `CandidateBackingProcessMessage::Second`, sign and dispatch a `Seconded` statement only if we have not seconded any other candidate and have not signed a `Valid` statement for the requested candidate. Signing both a `Seconded` and `Valid` message is a double-voting misbehavior with a heavy penalty, and this could occur if another validator has seconded the same candidate and we've received their message before the internal seconding request.
+*on receiving CandidateBackingSubsystemMessage*
+* If the message is a `CandidateBackingSubsystemMessage::RegisterBackingWatcher`, register the watcher and trigger it each time a new candidate is backed. Also trigger it once initially if there are any backed candidates at the time of receipt.
+* If the message is a `CandidateBackingSubsystemMessage::Second`, sign and dispatch a `Seconded` statement only if we have not seconded any other candidate and have not signed a `Valid` statement for the requested candidate. Signing both a `Seconded` and `Valid` message is a double-voting misbehavior with a heavy penalty, and this could occur if another validator has seconded the same candidate and we've received their message before the internal seconding request.
 
-(TODO: send statements to Statement Distribution Process, handle shutdown signal from parent process)
+(TODO: send statements to Statement Distribution subsystem, handle shutdown signal from candidate backing subsystem)
 
 ---
 
-### Candidate Proposal Process
+### Candidate Proposal Subsystem
 
-[TODO: get candidate from collator, feed to candidate backing process. ]
+[TODO: get candidate from collator, feed to candidate backing subsystem. ]
 
 ### Secondary Checking
 
 [TODO]
 
-### Validator Assignment Process
+### Validator Assignment Subsystem
 
 [TODO]
 
-### Collation Distribution Process
+### Collation Distribution Subsystem
 
 [TODO]
 
-### Availability Distribution Process
+### Availability Distribution Subsystem
 
 [TODO]
 
@@ -756,7 +756,7 @@ struct SignedStatement {
 
 #### Overseer Signal
 
-Signals from the overseer to a process to request change in execution that has to be obeyed by the process.
+Signals from the overseer to a subsystem to request change in execution that has to be obeyed by the subsystem.
 
 ```rust
 enum OverseerSignal {
@@ -768,14 +768,14 @@ enum OverseerSignal {
 ```
 
 
-#### Candidate Backing Process Message
+#### Candidate Backing subsystem Message
 
 ```rust
-enum CandidateBackingProcessMessage {
+enum CandidateBackingSubsystemMessage {
   /// Registers a stream listener for updates to the set of backed candidates that could be included
   /// in a child of the given relay-parent, referenced by its hash.
   RegisterBackingWatcher(Hash, TODO),
-  /// Note that the Candidate Backing Process should second the given candidate in the context of the 
+  /// Note that the Candidate Backing subsystem should second the given candidate in the context of the 
   /// given relay-parent (ref. by hash). This candidate must be validated.
   Second(Hash, CandidateReceipt)
 }
@@ -834,13 +834,13 @@ Here you can find definitions of a bunch of jargon, usually specific to the Polk
 - Parachain: A constituent chain secured by the Relay Chain's validators.
 - Parachain Validators: A subset of validators assigned during a period of time to back candidates for a specific parachain
 - Parathread: A parachain which is scheduled on a pay-as-you-go basis.
-- Process: A long-running task which is responsible for carrying out a particular category of work.
 - Proof-of-Validity (PoV): A stateless-client proof that a parachain candidate is valid, with respect to some validation function.
 - Relay Parent: A block in the relay chain, referred to in a context where work is being done in the context of the state at this block.
 - Runtime: The relay-chain state machine.
 - Runtime Module: See Module.
 - Runtime API: A means for the node-side behavior to access structured information based on the state of a fork of the blockchain.
 - Secondary Checker: A validator who has been randomly selected to perform secondary checks on a parablock which is pending approval.
+- Subsystem: A long-running task which is responsible for carrying out a particular category of work.
 - Validator: Specially-selected node in the network who is responsible for validating parachain blocks and issuing attestations about their validity.
 - Validation Function: A piece of Wasm code that describes the state-transition function of a parachain.
 
