@@ -21,7 +21,7 @@ There are a number of other documents describing the research in more detail. Al
 
 ## Origins
 
-Parachains are the solution to a problem. As with any solution, it cannot be understood without first understanding the problem. So let's start by going over the issues faced by blockchain technology that let to us beginning to explore the design space for something like parachains.
+Parachains are the solution to a problem. As with any solution, it cannot be understood without first understanding the problem. So let's start by going over the issues faced by blockchain technology that led to us beginning to explore the design space for something like parachains.
 
 #### Issue 1: Scalability
 
