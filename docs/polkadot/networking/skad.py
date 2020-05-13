@@ -222,7 +222,7 @@ class SKadLookup(object):
       # everything OK, now store the reply in the query graph
       self.query_succ[peer] = set(reply)
       for r in reply:
-          self.query_succ.setdefault(r, {}) # ensure r is in query_succ.keys()
+        self.query_succ.setdefault(r, {}) # ensure r is in query_succ.keys()
 
       self.query_result.add(peer)
 
@@ -244,7 +244,10 @@ class SKadLookup(object):
       return next_peer
 
   def current_best(self, include_waiting=False, verbose=False):
-    return self.max_sat_flow(lambda k: include_waiting or k in self.query_result, verbose=verbose)
+    return self.max_sat_flow(lambda k:
+        (k in self.query_result or k in self.query_expect)
+        if include_waiting else
+        (k in self.query_result), verbose=verbose)
 
 def tests_skademlia():
   print("----")
@@ -286,6 +289,8 @@ def tests_skademlia():
   assert(q.recv_result(5, {1,2}) == 1)
   assert(q.recv_result(1, None) == 2)
   assert(q.recv_result(2, None) == 7)
+  assert(q.current_best() == [5, 11, 12])
+  assert(q.current_best(True) == [5, 6, 8])
   # ^ corner case involving backtracking and failure - correctly selects 7,
   # even though it's unrelated to the "10 -> 5 -> 1" path, because 6 was
   # already selected previously
