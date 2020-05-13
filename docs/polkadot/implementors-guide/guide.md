@@ -363,13 +363,7 @@ We will split the logic of the runtime up into these modules:
 
 The Initializer module is special - it's responsible for handling the initialization logic of the other modules to ensure that the correct initialization order and related invariants are maintained. The other modules won't specify a on-initialize logic, but will instead expose a special semi-private routine that the initialization module will call. The other modules are relatively straightforward and perform the roles described above.
 
-### The Initializer Module
-
-#### Description
-
-This module is responsible for initializing the other modules in a deterministic order. It also has one other purpose: accepting and forwarding session change notifications.
-
-ParachainHost runtime modules can't determine ahead-of-time when session change notifications are going to happen (note: this depends on module initialization order again - better to put session before parachains modules). Ideally, session changes are always handled before initialization. It is clearly a problem if we compute validator assignments to parachains during initialization and then the set of validators changes. In the best case, we can recognize that re-initialization needs to be done. In the worst case, bugs would occur.
+The Parachain Host operates under a changing set of validators. Time is split up into periodic sessions, where each session brings a potentially new set of validators. Sessions are buffered by one, meaning that the validators of the upcoming session are fixed and always known. Parachain Host runtime modules need to react to changes in the validator set, as it will affect the runtime logic for processing candidate backing, availability bitfields, and misbehavior reports. The Parachain Host modules can't determine ahead-of-time exactly when session change notifications are going to happen within the block (note: this depends on module initialization order again - better to put session before parachains modules). Ideally, session changes are always handled before initialization. It is clearly a problem if we compute validator assignments to parachains during initialization and then the set of validators changes. In the best case, we can recognize that re-initialization needs to be done. In the worst case, bugs would occur.
 
 There are 3 main ways that we can handle this issue:
   1. Establish an invariant that session change notifications always happen after initialization. This means that when we receive a session change notification before initialization, we call the initialization routines before handling the session change. 
@@ -381,7 +375,15 @@ Although option 3 is the most comprehensive, it runs counter to our goal of simp
 
 So the other role of the initializer module is to forward session change notifications to modules in the initialization order, throwing an unrecoverable error if the notification is received after initialization.
 
-[REVIEW: other options? arguments in favor of going for options 1 or 3 instead of 2]
+[REVIEW: other options? arguments in favor of going for options 1 or 3 instead of 2. we could do a "soft" version of 2 where we note that the chain is potentially broken due to bad initialization order]
+
+[TODO Diagram: order of runtime operations (initialization, session change)]
+
+### The Initializer Module
+
+#### Description
+
+This module is responsible for initializing the other modules in a deterministic order. It also has one other purpose as described above: accepting and forwarding session change notifications. 
 
 #### Storage
 
@@ -417,9 +419,9 @@ Set `HasInitialized` to false.
 
 #### Description
 
-This module is responsible for managing all configuration of the parachain host in-flight. It provides a central point for configuration updates to prevent races between configuration changes and parachain-processing logic. Configuration can only change during the session change routine, and as this module handles the session change notification first it provides an invariant that the configuration does not change throughout the entire session.
+This module is responsible for managing all configuration of the parachain host in-flight. It provides a central point for configuration updates to prevent races between configuration changes and parachain-processing logic. Configuration can only change during the session change routine, and as this module handles the session change notification first it provides an invariant that the configuration does not change throughout the entire session. Both the scheduler and inclusion modules rely on this invariant to ensure proper behavior of the scheduler.
 
-The configuration that we will be tracking is the `HostConfiguration` struct.
+The configuration that we will be tracking is the [`HostConfiguration`](#Host-Configuration) struct.
 
 #### Storage
 
@@ -458,6 +460,89 @@ fn update_configuration(f: impl FnOnce(&mut HostConfiguration)) {
 
 The Configuration module exposes an entry point for each configuration member. These entry-points accept calls only from governance origins. These entry-points will use the `update_configuration` routine to update the specific configuration field.
 
+### The Paras Module
+
+#### Description
+
+The Paras module is responsible for storing information on parachains and parathreads. Registered parachains and parathreads cannot change except at session boundaries. This is primarily to ensure that the number of bits required for the availability bitfields does not change except at session boundaries.
+
+It's also responsible for managing parachain validation code upgrades as well as maintaining availability of old parachain code and its pruning.
+
+#### Storage
+
+Utility structs:
+```rust
+/// Metadata used to track previous parachain validation code that we keep in
+/// the state.
+pub struct ParaPastCodeMeta {
+	// Block numbers where the code was replaced. These can be used as indices
+	// into the `PastCode` map along with the `ParaId` to fetch the code itself.
+	upgrade_times: Vec<BlockNumber>,
+	// This tracks the highest pruned code-replacement, if any.
+	last_pruned: Option<BlockNumber>,
+}
+
+enum UseCodeAt {
+	// Use the current code.
+	Current,
+	// Use the code that was replaced at the given block number.
+	ReplacedAt(BlockNumber),
+}
+
+struct ParaGenesisArgs {
+  /// The initial head-data to use.
+  genesis_head: HeadData,
+  /// The validation code to start with.
+  validation_code: ValidationCode,
+  /// True if parachain, false if parathread.
+  parachain: bool,
+}
+```
+
+Storage layout:
+```rust
+/// All parachains. Ordered ascending by ParaId. Parathreads are not included.
+Parachains: Vec<ParaId>,
+/// The head-data of every registered para.
+Heads: map ParaId => Option<HeadData>;
+/// The validation code of every live para.
+ValidationCode: map ParaId => Option<ValidationCode>;
+/// Actual past code, indicated by the para id as well as the block number at which it became outdated.
+PastCode: map (ParaId, BlockNumber) => Option<ValidationCode>;
+/// Past code of parachains. The parachains themselves may not be registered anymore,
+/// but we also keep their code on-chain for the same amount of time as outdated code
+/// to keep it available for secondary checkers.
+PastCodeMeta: map ParaId => ParaPastCodeMeta;
+/// Which paras have past code that needs pruning and at which block number it must be pruned. Multiple entries for a single para are permitted. Ordered ascending by block number.
+PastCodePruning: Vec<(ParaId, BlockNumber)>;
+/// The block number at which the planned code change is expected for a para.
+/// The change will be applied after the first parablock for this ID included which executes
+/// in the context of a relay chain block with a number >= `expected_at`.
+FutureCodeUpgrades: map ParaId => Option<BlockNumber>;
+/// The actual future code of a para.
+FutureCode: map ParaId => ValidationCode;
+
+/// Upcoming paras (chains and threads). These are only updated on session change. Corresponds to an
+/// entry in the upcoming-genesis map.
+UpcomingParas: Vec<ParaId>;
+/// Upcoming paras instantiation arguments.
+UpcomingParasGenesis: map ParaId => Option<ParaGenesisArgs>;
+/// Paras that are to be deregistered at the end of the session.
+OutgoingParas: Vec<ParaId>;
+```
+#### Session Change
+
+1. Clean up outgoing paras. This means removing the entries under `Heads`, `ValidationCode`, `FutureCodeUpgrades`, and `FutureCode`. An according entry should be added to `PastCode`, `PastCodeMeta`, and `PastCodePruning` using the outgoing `ParaId` and removed `ValidationCode` value. This is because any outdated validation code must remain available on-chain for a determined amount of blocks, and validation code outdated by de-registering the para is still subject to that invariant.
+1. Apply all incoming paras by initializing the `Heads` and `ValidationCode` using the genesis parameters.
+1. Amend the `Parachains` list to reflect changes in registered parachains. 
+#### Initialization
+
+1. Do pruning based on all entries in `PastCodePruning` with `BlockNumber <= now`. Update the corresponding `PastCodeMeta` and `PastCode` accordingly.
+
+#### Finalization
+
+No finalization routine runs for this module.
+
 ### The Scheduler Module
 
 #### Description
@@ -472,16 +557,34 @@ The Scheduler manages resource allocation using the concept of "Execution Cores"
 
 An execution core is considered occupied for the entire duration it is assigned, as well as the entire time it takes for the submitted block to become available. When a core is assigned, the ownership of the core passes from the Scheduler module to the Inclusion module. If no candidate is included when the core is assigned, the core is returned to the Scheduler in block finalization. Otherwise, the core is returned when the block becomes available or the availability timeout is reached.
 
-So what should happen when an execution core is assigned and owned by the inclusion module when a change in configuration occurs? And what about assigning cores optimistically, so in the case that a core is freed by a parablock becoming available, the core can be reassigned within the span of the same block. Without optimistic assignment, the throughput of parachains is halved, as inclusion and availability can only occur in alternating blocks.
+One other consideration of execution cores is optimistic scheduling. Naïvely we would assign a parachain or a parathread core on initialization if it was free and not otherwise. However, with this mode of scheduling the throughput of the parachain host would be reduced. If an execution core is occupied by a candidate pending availability, it might be freed later on by that candidate becoming available. As a free core, it should logically be able to be assigned to a new parachain and become occupied by a new candidate afterwards. However, if cores are only scheduled on initialization this is not possible and the core cannot be assigned until the next relay-chain block, introducing unnecessary latency into the progression of parachains. One solution is to re-schedule cores as soon as they are freed. If the runtime was taken in isolation this would be a working solution. In reality, the runtime requires inputs generated by Node-side behavior, which needs to be made aware of execution core assignments that _would_ exist conditional on previously backed candidates becoming available. In order to make the Node-side behavior sufficiently aware of optimistic core assignments, it is better to compute these assignments during initialization. It is the scheduler's duty to compute core assignments for unassigned cores as well as optimistic assignments for occupied cores during initialization.
 
+Most of the scheduler's work is on scheduling parathreads as opposed to scheduling parachains. Since each parachain gets its own dedicated core, it's unnecessary to track which parachain cores are assigned or not. If a parachain core is occupied, it'll be optimistically assigned to that parachain. Otherwise, if the core is free it'll be assigned to that parachain.
 
+Parathreads operate on a system of claims. Collators participate in auctions to stake a claim on authoring the next block of a parathread. The scheduler guarantees that they'll be given at least a certain number of attempts to author a candidate that is backed and included.
+
+For parathreads, the situation is different. It's important to know which cores are occupied in order to know how many optimistic claims to assign.
 
 #### Storage
 
 ```rust
-ParathreadQueue: Vec<ParathreadBid>,
-ExecutionCores: Bitvec,
+/// A queue of upcoming claims
+ParathreadQueue: Vec<ParathreadClaim>,
+ParathreadRetryQueue: Vec<Vec<ParathreadClaim>>,
+/// An index used to ensure that only one claim on a parathread exists in the queue or retry queue or is
+/// currently being handled by an occupied core.
+ParathreadClaimIndex: Vec<(ParaId, CollatorId)>,
+ParathreadExecutionCores: Bitvec,
 ```
+
+#### Session Change
+
+Session changes are the only time that configuration can change, and the configuration module's session-change logic is handled before this module's. We also lean on the behavior of the inclusion module which clears all its occupied cores on session change. Thus we don't have to worry about cores being occupied across session boundaries and it is safe to re-size the `ParathreadExecutionCores` bitfield.
+
+Actions:
+1. Set `configuration = Configuration::configuration()` (see [HostConfiguration](#Host-Configuration))
+1. Reset `ParathreadExecutionCores` to be a zeroed bitfield of length `configuration.parathread_cores + configuration.parathread_retry_cores`
+1. Prune the retry-queue to remove all retries beyond `configuration.parathread_retries`
 
 #### Initialization
 
