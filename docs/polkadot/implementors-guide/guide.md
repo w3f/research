@@ -513,7 +513,8 @@ PastCode: map (ParaId, BlockNumber) => Option<ValidationCode>;
 /// but we also keep their code on-chain for the same amount of time as outdated code
 /// to keep it available for secondary checkers.
 PastCodeMeta: map ParaId => ParaPastCodeMeta;
-/// Which paras have past code that needs pruning and at which block number it must be pruned. Multiple entries for a single para are permitted. Ordered ascending by block number.
+/// Which paras have past code that needs pruning and the relay-chain block in which context the code was replaced.
+/// Multiple entries for a single para are permitted. Ordered ascending by block number.
 PastCodePruning: Vec<(ParaId, BlockNumber)>;
 /// The block number at which the planned code change is expected for a para.
 /// The change will be applied after the first parablock for this ID included which executes
@@ -527,7 +528,7 @@ FutureCode: map ParaId => ValidationCode;
 UpcomingParas: Vec<ParaId>;
 /// Upcoming paras instantiation arguments.
 UpcomingParasGenesis: map ParaId => Option<ParaGenesisArgs>;
-/// Paras that are to be deregistered at the end of the session.
+/// Paras that are to be cleaned up at the end of the session.
 OutgoingParas: Vec<ParaId>;
 ```
 #### Session Change
@@ -535,9 +536,18 @@ OutgoingParas: Vec<ParaId>;
 1. Clean up outgoing paras. This means removing the entries under `Heads`, `ValidationCode`, `FutureCodeUpgrades`, and `FutureCode`. An according entry should be added to `PastCode`, `PastCodeMeta`, and `PastCodePruning` using the outgoing `ParaId` and removed `ValidationCode` value. This is because any outdated validation code must remain available on-chain for a determined amount of blocks, and validation code outdated by de-registering the para is still subject to that invariant.
 1. Apply all incoming paras by initializing the `Heads` and `ValidationCode` using the genesis parameters.
 1. Amend the `Parachains` list to reflect changes in registered parachains. 
+
 #### Initialization
 
 1. Do pruning based on all entries in `PastCodePruning` with `BlockNumber <= now`. Update the corresponding `PastCodeMeta` and `PastCode` accordingly.
+
+#### Routines
+
+* `schedule_para_initialize(ParaId, ParaGenesisArgs)`: schedule a para to be initialized at the next session.
+* `schedule_para_cleanup(ParaId)`: schedule a para to be cleaned up at the next session.
+* `schedule_code_upgrade(ParaId, ValidationCode, expected_at: BlockNumber)`: Schedule a future code upgrade of the given parachain, to be applied after inclusion of a block of the same parachain executed in the context of a relay-chain block with number >= `expected_at`. 
+* `note_new_head(ParaId, HeadData, BlockNumber)`: note that a para has progressed to a new head, where the new head was executed in the context of a relay-chain block with given number. This will apply pending code upgrades based on the block number provided.
+* `validation_code_at(ParaId, at: BlockNumber, assume_intermediate: Option<BlockNumber>)`: Fetches the validation code to be used when validating a block in the context of the given relay-chain height. A second block number parameter may be used to tell the lookup to proceed as if an intermediate parablock has been included at the given relay-chain height. This may return past, current, or (with certain choices of `assume_intermediate`) future code. `assume_intermediate`, if provided, must be before `at`. If `at` is too old or the `ParaId` does not reference any live para, this may return `None`.
 
 #### Finalization
 
@@ -561,9 +571,7 @@ One other consideration of execution cores is optimistic scheduling. Naïvely we
 
 Most of the scheduler's work is on scheduling parathreads as opposed to scheduling parachains. Since each parachain gets its own dedicated core, it's unnecessary to track which parachain cores are assigned or not. If a parachain core is occupied, it'll be optimistically assigned to that parachain. Otherwise, if the core is free it'll be assigned to that parachain.
 
-Parathreads operate on a system of claims. Collators participate in auctions to stake a claim on authoring the next block of a parathread. The scheduler guarantees that they'll be given at least a certain number of attempts to author a candidate that is backed and included.
-
-For parathreads, the situation is different. It's important to know which cores are occupied in order to know how many optimistic claims to assign.
+Parathreads operate on a system of claims. Collators participate in auctions to stake a claim on authoring the next block of a parathread. The scheduler guarantees that they'll be given at least a certain number of attempts to author a candidate that is backed and included. Attempts that fail during the availability phase are not counted, since ensuring availability at that stage is the responsibility of the backing validators, not of the collator.
 
 #### Storage
 
