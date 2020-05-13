@@ -283,8 +283,9 @@ def tests_skademlia():
   assert(q.recv_result(10, {5,6}) == 5)
   assert(q.recv_result(11, {6,7}) == 6)
   assert(q.recv_result(12, {8}) == 8)
-  assert(q.recv_result(5, {1}) == 1)
-  assert(q.recv_result(1, None) == 7)
+  assert(q.recv_result(5, {1,2}) == 1)
+  assert(q.recv_result(1, None) == 2)
+  assert(q.recv_result(2, None) == 7)
   # ^ corner case involving backtracking and failure - correctly selects 7,
   # even though it's unrelated to the "10 -> 5 -> 1" path, because 6 was
   # already selected previously
