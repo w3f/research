@@ -560,10 +560,62 @@ No finalization routine runs for this module.
 [TODO: this section is actually mostly about parathread scheduling]
 
 The Scheduler module is responsible for two main tasks:
-  - Assigning validators to parachains and parathreads.
+  - Partitioning validators into groups and assigning groups to parachains and parathreads.
   - Scheduling parachains and parathreads
 
-The Scheduler manages resource allocation using the concept of "Execution Cores". Each parachain has its own dedicated core, while parathreads are multiplexed over another set of cores. Parathreads also have a retrying mechanism built-in, and the main parathread cores cannot be repurposed for this use-case for economic security reasons. This gives us 3 sets of execution cores all-in-all: parachain cores, parathread cores, and parathread retry cores.
+It aims to achieve these tasks with these goals in mind:
+  - It should be possible to know at least a block ahead-of-time, ideally more, which validators are going to be assigned to which parachains.
+  - Parachains that have a candidate pending availability in this fork of the chain should not be assigned.
+  - Validator assignments should not be gameable. Malicious cartels should not be able to manipulate the scheduler to assign themselves as desired.
+  - High or close to optimal throughput of parachains and parathreads. Work among validator groups should be balanced.
+
+The Scheduler manages resource allocation using the concept of "Execution Cores". There will be one execution core for each parachain, and a fixed number of cores used for multiplexing parathreads. Validators will be partitioned into groups, with the same number of groups as execution cores.
+
+Validator group assignments do not need to change very quickly. The security benefits of fast rotation would be redundant with the challenge mechanism in the Validity module. However, the execution core that a validator group is assigned to should change quickly, to prevent any potentially bad validator group from having dominance over a particular parachain.
+
+An execution core can exist in either one of two states at the beginning or end of a block: free or occupied. A free execution core can have a parachain or parathread assigned to it for the potential to have a backed candidate included. After inclusion, the core enters the occupied state as the backed candidate is pending availability. A core exits the occupied state when the candidate is no longer pending availability - either on timeout or on availability. A core starting in the occupied state can move to the free state and back to occupied all within a single block, as availability bitfields are processed before backed candidates. At the end of the block, there is a possible timeout on availability which can move the core back to the free state if occupied.
+
+```
+Execution Core State Machine
+                                       
+              Assignment &              
+              Backing                   
++-----------+              +-----------+
+|           +-------------->           |
+|  Free     |              | Occupied  |
+|           <--------------+           |
++-----------+ Availability +-----------+
+              or Timeout                
+                                        
+```
+
+```
+Execution Core Transitions within Block
+                                                                                             
+              +-----------+                |                    +-----------+                
+              |           |                |                    |           |                
+              | Free      |                |                    | Occupied  |                
+              |           |                |                    |           |                
+              +--/-----\--+                |                    +--/-----\--+                
+               /-       -\                 |                     /-       -\                 
+ No Backing  /-           \ Backing        |      Availability /-           \ No availability
+           /-              \               |                  /              \               
+         /-                 -\             |                /-                -\             
+  +-----v-----+         +----v------+      |         +-----v-----+        +-----v-----+      
+  |           |         |           |      |         |           |        |           |      
+  | Free      |         | Occupied  |      |         | Free      |        | Occupied  |      
+  |           |         |           |      |         |           |        |           |      
+  +-----------+         +-----------+      |         +-----|---\-+        +-----|-----+      
+                                           |               |    \               |            
+                                           |    No backing |     \ Backing      | (no change)
+                                           |               |      -\            |            
+                                           |         +-----v-----+  \     +-----v-----+      
+                                           |         |           |   \    |           |      
+                                           |         | Free      -----+---> Occupied  |      
+                                           |         |           |        |           |      
+                                           |         +-----------+        +-----------+      
+                                           |                 Availability Timeout            
+```
 
 An execution core is considered occupied for the entire duration it is assigned, as well as the entire time it takes for the submitted block to become available. When a core is assigned, the ownership of the core passes from the Scheduler module to the Inclusion module. If no candidate is included when the core is assigned, the core is returned to the Scheduler in block finalization. Otherwise, the core is returned when the block becomes available or the availability timeout is reached.
 
@@ -589,7 +641,15 @@ With this information, the Node-side can be aware of which parathreads have a go
   TODO: Validator assignment. We want to assign validators to chains, not to cores. Assigning to cores means that for parathread cores, the parathread is unclear until late in the process so that would have bad implications for networking.
 
   We can prepare a set of chains by assigning all unassigned cores, optimistically assigning all previously assigned cores, and then taking the union of those sets. However, this means that validator assignment is not possible to know until the beginning of the block. Ideally, we'd always know about at least a couple of blocks in advance, which makes networking discovery easier. However, optimistic assignment seems incompatible with this goal.
+
 ]
+
+- Compute group assignments one session in advance (know the number of bits 1 session in advance?)
+- note that #bits doesn't change fast w/o governance attack
+- Put parathread claims onto groups in advance and reassign at session boundaries
+- execution cores rotate across parachains/threads and validators are assigned to fixed core
+- know which parathreads are going to be assigned to which cores _when they are freed_.
+- one queue for parathreads & retries, just positioning rules
 
 #### Storage
 
@@ -736,7 +796,7 @@ This communication prevents a certain class of race conditions. When the Oversee
 
 It's important to note that the overseer is not aware of the internals of subsystems, and this extends to the jobs that they spawn. The overseer isn't aware of the existence or definition of those jobs, and is only aware of the outer subsystems with which it interacts. This gives subsystem implementations leeway to define internal jobs as they see fit, and to wrap a more complex hierarchy of state machines than having a single layer of jobs for relay-parent-based work. Likewise, subsystems aren't required to spawn jobs. Certain types of subsystems, such as those for shared storage or networking resources, won't perform block-based work but would still benefit from being on the Overseer's message bus. These subsystems can just ignore the overseer's signals for block-based work.
 
-Futhermore, the protocols by which subsystems communicate with each other should be well-defined irrespective of the implementation of the subsystem. In other words, their interface should be distinct from their implementation. This will prevent subsystems from accessing aspects of each other that are beyond the scope of the communication boundary.
+Furthermore, the protocols by which subsystems communicate with each other should be well-defined irrespective of the implementation of the subsystem. In other words, their interface should be distinct from their implementation. This will prevent subsystems from accessing aspects of each other that are beyond the scope of the communication boundary.
 
 ---
 
