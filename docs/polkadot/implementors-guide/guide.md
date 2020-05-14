@@ -557,7 +557,7 @@ No finalization routine runs for this module.
 
 #### Description
 
-[TODO: this section is actually mostly about parathread scheduling]
+[TODO: this section is still heavily under construction. key questions about execution cores and validator assignment are still open and the flow of the the section may be contradictory or inconsistent]
 
 The Scheduler module is responsible for two main tasks:
   - Partitioning validators into groups and assigning groups to parachains and parathreads.
@@ -571,7 +571,7 @@ It aims to achieve these tasks with these goals in mind:
 
 The Scheduler manages resource allocation using the concept of "Execution Cores". There will be one execution core for each parachain, and a fixed number of cores used for multiplexing parathreads. Validators will be partitioned into groups, with the same number of groups as execution cores.
 
-Validator group assignments do not need to change very quickly. The security benefits of fast rotation would be redundant with the challenge mechanism in the Validity module. However, the execution core that a validator group is assigned to should change quickly, to prevent any potentially bad validator group from having dominance over a particular parachain.
+Validator group assignments do not need to change very quickly. The security benefits of fast rotation would be redundant with the challenge mechanism in the Validity module. 
 
 An execution core can exist in either one of two states at the beginning or end of a block: free or occupied. A free execution core can have a parachain or parathread assigned to it for the potential to have a backed candidate included. After inclusion, the core enters the occupied state as the backed candidate is pending availability. A core exits the occupied state when the candidate is no longer pending availability - either on timeout or on availability. A core starting in the occupied state can move to the free state and back to occupied all within a single block, as availability bitfields are processed before backed candidates. At the end of the block, there is a possible timeout on availability which can move the core back to the free state if occupied.
 
@@ -887,25 +887,7 @@ Dispatch a `PovFetchSubsystemMessage(relay_parent, candidate_hash, sender)` and 
 
 ---
 
-### Candidate Proposal Subsystem
-
-[TODO: get candidate from collator, feed to candidate backing subsystem. ]
-
-### Secondary Checking
-
-[TODO]
-
-### Validator Assignment Subsystem
-
-[TODO]
-
-### Collation Distribution Subsystem
-
-[TODO]
-
-### Availability Distribution Subsystem
-
-[TODO]
+[TODO: subsystems for gathering data necessary for block authorship, for networking, for misbehavior reporting, etc.]
 
 ----
 
