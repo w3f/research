@@ -8,7 +8,7 @@
 
 # Availability and Validity (A&V) networking
 
-This subprotocol occurs whenever the block production protocol has output a candidate block for the current relay chain height.
+This subprotocol occurs whenever the relay chain block production protocol has output a candidate block for the current relay chain height.
 
 This candidate block references a bunch of parachain blocks, whose data has not yet been checked (validated) by the relay chain as a whole, but rather only in a preliminary way by the respective parachain validators at that height. The purpose of this subprotocol then, is to distribute this data across the relay chain, and ensure that it is available for some time, especially to the approval checkers that will perform another round of validity checking.
 
@@ -263,7 +263,7 @@ It's unnecessary to distinguish between "is a validator" and "acting as a proxy 
 
 The proxying protocol is straightforward, since the private validator node and the sentry nodes trust each other.
 
-1. Inbound, the protocol does not require any special headers (unwrapping/rewrapping of the content). Whenever a sentry node accepts an incoming connection, it forwards it directly onto the single sentry node.
+1. Inbound, the protocol does not require any special headers (unwrapping/rewrapping of the content). Whenever a sentry node accepts an incoming connection, it forwards it directly onto the corresponding validator node.
 
     Justification: in our A&V direct-sending protocol, the contents are all signed by their authors, so there is no need for extra checking at the sentry node, although this may be done either to simplify the code or as extra "defense in depth". In all cases, proper exercise of flow control at the private validator node is necessary to prevent the sentry node from spamming it by mistake.
 
