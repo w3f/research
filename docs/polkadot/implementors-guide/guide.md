@@ -571,7 +571,7 @@ It aims to achieve these tasks with these goals in mind:
 
 The Scheduler manages resource allocation using the concept of "Execution Cores". There will be one execution core for each parachain, and a fixed number of cores used for multiplexing parathreads. Validators will be partitioned into groups, with the same number of groups as execution cores. Validator groups will be assigned to different execution cores over time.
 
-An execution core can exist in either one of two states at the beginning or end of a block: free or occupied. A free execution core can have a parachain or parathread assigned to it for the potential to have a backed candidate included. After inclusion, the core enters the occupied state as the backed candidate is pending availability. A core exits the occupied state when the candidate is no longer pending availability - either on timeout or on availability. A core starting in the occupied state can move to the free state and back to occupied all within a single block, as availability bitfields are processed before backed candidates. At the end of the block, there is a possible timeout on availability which can move the core back to the free state if occupied.
+An execution core can exist in either one of two states at the beginning or end of a block: free or occupied. A free execution core can have a parachain or parathread assigned to it for the potential to have a backed candidate included. After inclusion, the core enters the occupied state as the backed candidate is pending availability. There is an important distinction: a core is not considered occupied until it is in charge of a block pending availability, although the implementation may treat scheduled cores the same as occupied ones for brevity. A core exits the occupied state when the candidate is no longer pending availability - either on timeout or on availability. A core starting in the occupied state can move to the free state and back to occupied all within a single block, as availability bitfields are processed before backed candidates. At the end of the block, there is a possible timeout on availability which can move the core back to the free state if occupied. 
 
 ```
 Execution Core State Machine
@@ -625,9 +625,7 @@ Parathreads operate on a system of claims. Collators participate in auctions to 
 
 With this information, the Node-side can be aware of which parathreads have a good chance of being includable within the relay-chain block and can focus any additional resources on backing candidates from those parathreads. Furthermore, Node-side code is aware of which validator group will be responsible for that thread. If the necessary conditions are reached for core reassignment, those backed candidates can be included within the same block as the core being freed.
 
-[
-  TODO: Node-side logic is going to make queries of the form "if I were to include all these bitfields, what new core assignments would occur?". This requires information about the prior bitfields of all validators. Maybe some more thought needed here to limit the coupling between scheduler & inclusion on this aspect.
-]
+Parathread claims, when scheduled onto a free core, may not result in a block pending availability. This may be due to collator error, networking timeout, or censorship by the validator group. In this case, the claims should be retried a certain number of times to give the collator a fair shot.
 
 [
   
@@ -637,39 +635,47 @@ With this information, the Node-side can be aware of which parathreads have a go
 
 ]
 
-- Compute group assignments one session in advance (know the number of bits 1 session in advance?)
-- note that #bits doesn't change fast w/o governance attack
-- Put parathread claims onto groups in advance and reassign at session boundaries
-- execution cores rotate across parachains/threads and validators are assigned to fixed core
-- know which parathreads are going to be assigned to which cores _when they are freed_.
-- one queue for parathreads & retries, just positioning rules
-
 #### Storage
 
 Utility structs:
 ```rust
 struct ParathreadClaim(ParaId, CollatorId);
+struct ParathreadEntry {
+  claim: ParathreadClaim,
+  core: u32,
+}
 
-enum CoreAssignment {
-  Parachain(ParaId),
-  Parathread(ParathreadClaim),
-  ParathreadRetry(ParathreadClaim, u32),
+enum CoreOccupied {
+  Parathread(ParathreadClaim, u32), // claim & retries
+  Parachain,
+}
+
+struct CoreAssignment {
+  core: u32,
+  para_id: ParaId,
+  collator: Option<CollatorId>,
+  group_idx: u32,
 }
 ```
 
 Storage layout:
 ```rust
-/// A queue of upcoming claims
-ParathreadQueue: Vec<ParathreadClaim>;
-/// A list of lists of parathread claims that are being retried. The i'th list corresponds to the (i+1)'th retry.
-ParathreadRetryQueue: Vec<Vec<ParathreadClaim>>;
-/// All occupied execution cores and the claim that they are processing.
-OccupiedCores: map u32 => CoreAssignment;
+/// All the validator groups. One for each core.
+ValidatorGroups: Vec<Vec<ValidatorId>>;
+/// A queue of upcoming claims and which core they should be mapped onto.
+ParathreadQueue: Vec<ParathreadEntry>;
+/// One entry for each execution core. Entries are `None` if the core is not currently occupied. Can be
+/// temporarily `Some` if scheduled but not occupied.
+/// The i'th parachain belongs to the i'th core, with the remaining cores all being 
+/// parathread-multiplexers.
+ExecutionCores: Vec<Option<CoreOccupied>>;
 /// An index used to ensure that only one claim on a parathread exists in the queue or retry queue or is
 /// currently being handled by an occupied core.
 ParathreadClaimIndex: Vec<(ParaId, CollatorId)>;
-/// A bitfield with a bit for each parathread core and retry core. 
-ParathreadExecutionCores: Bitvec;
+/// The block number where the session start occurred. Used to track how many group rotations have occurred.
+SessionStartBlock: BlockNumber;
+/// Currently scheduled cores - free but up to be occupied. Ephemeral storage item that's wiped on finalization.
+Scheduled: Vec<CoreAssignment>, // sorted by ParaId.
 ```
 
 #### Session Change
@@ -677,27 +683,45 @@ ParathreadExecutionCores: Bitvec;
 Session changes are the only time that configuration can change, and the configuration module's session-change logic is handled before this module's. We also lean on the behavior of the inclusion module which clears all its occupied cores on session change. Thus we don't have to worry about cores being occupied across session boundaries and it is safe to re-size the `ParathreadExecutionCores` bitfield.
 
 Actions:
-1. Re-queue all the assignments of occupied parathread and retry cores. For each `true` bit in `ParathreadExecutionCores`, remove the corresponding entry of `OccupiedCores`. Place `Parathread` and `ParathreadRetry` assignments back on the front of their respective queues. This does introduce some amount of reordering of claims at session boundaries.
+1. Set `SessionStartBlock` to current block number.
+1. Clear all `Some` members of `ExecutionCores`. Return all parathread claims to queue with retries un-incremented. Resize.
 1. Set `configuration = Configuration::configuration()` (see [HostConfiguration](#Host-Configuration))
-1. Reset `ParathreadExecutionCores` to be a zeroed bitfield of length `Paras::parachains().len() + configuration.parathread_cores + configuration.parathread_retry_cores`
-1. Prune the retry-queue to remove all retries beyond `configuration.parathread_retries`
+1. Resize `ExecutionCores` to have length `Paras::parachains().len() + configuration.parathread_cores with all `None` entries.
+1. Compute new validator groups.
+1. Prune the parathread queue to remove all retries beyond `configuration.parathread_retries`, and assign all parathreads to new cores if the number of parathread cores has changed.
 
 #### Initialization
+
+1. Schedule free cores using the `schedule(Vec::new())`.
+
+#### Finalization
+
+Actions:
+1. Free all scheduled cores and return parathread claims to queue, with retries incremented.
+1. If within `max(config.chain_availability_period, config.thread_availability_period)` of blocks since a rotation, trigger the `Inclusion::collect_pending` to time-out any parathread or parachain cores that have expired. Return any return parathread entries to the parathread queue without retries incremented.
 
 #### Routines
 
 * `add_parathread_claim(ParathreadClaim)`: Add a parathread claim to the queue. Fails if any parathread claim on the same parathread is currently indexed.
-* `return_core(u32)`: Returns the core with given index to the scheduler to re-schedule as seen fit. This will remove any entry from `OccupiedCores` and place back into `ParathreadQueue` or `ParathreadRetryQueue` as necessary. [TODO: find a way to signal why the core is being returned. cores returned because no candidate was backed increment retries, whereas cores returned due to availability timeout don't]
-* 
+* `schedule(Vec<u32>)`: schedule new core assignments, with a parameter indicating previously-occupied cores which are to be considered returned. All freed parachain cores should be assigned to their respective parachain, and all freed parathread cores should take the next parathread entry from the queue. The i'th validator group will be assigned to the `(i+k)%n`'th core at any point in time, where `k` is the number of rotations that have occurred in the session, and `n` is the total number of cores. This makes upcoming rotations within the same session predictable.
+* `scheduled() -> Vec<CoreAssignment>`: Get currently scheduled core assignments.
 
 ### The Inclusion Module
  
-[TODO]
-1. accept one transaction with both bitfields and backed candidates.
-1. for all newly-available candidates trigger code upgrades and start sending upwards messages out.
-1. after processing bitfields, request execution core reassignments.
-1. process backed candidates and create availability records. records should indicate height they were created. likewise, validator bitfields should be alongside height submitted to prevent confusion.
-1. on finality, clear out anything that has been pending availability for too long
+#### Description
+
+#### Storage 
+
+#### Initialization
+
+Nothing
+
+#### Finalization
+
+#### Routines
+
+#### Entry-points
+
 
 ### The Validity Module
 
