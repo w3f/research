@@ -627,6 +627,8 @@ With this information, the Node-side can be aware of which parathreads have a go
 
 Parathread claims, when scheduled onto a free core, may not result in a block pending availability. This may be due to collator error, networking timeout, or censorship by the validator group. In this case, the claims should be retried a certain number of times to give the collator a fair shot.
 
+Cores are treated as an ordered list of cores and are typically referred to by their index in that list.
+
 [
   
   TODO: Validator assignment. We want to assign validators to chains, not to cores. Assigning to cores means that for parathread cores, the parathread is unclear until late in the process so that would have bad implications for networking.
@@ -642,7 +644,7 @@ Utility structs:
 struct ParathreadClaim(ParaId, CollatorId);
 struct ParathreadEntry {
   claim: ParathreadClaim,
-  core: u32,
+  core: CoreIndex,
 }
 
 enum CoreOccupied {
@@ -651,17 +653,17 @@ enum CoreOccupied {
 }
 
 struct CoreAssignment {
-  core: u32,
+  core: CoreIndex,
   para_id: ParaId,
   collator: Option<CollatorId>,
-  group_idx: u32,
+  group_idx: GroupIndex,
 }
 ```
 
 Storage layout:
 ```rust
 /// All the validator groups. One for each core.
-ValidatorGroups: Vec<Vec<ValidatorId>>;
+ValidatorGroups: Vec<Vec<ValidatorIndex>>;
 /// A queue of upcoming claims and which core they should be mapped onto.
 ParathreadQueue: Vec<ParathreadEntry>;
 /// One entry for each execution core. Entries are `None` if the core is not currently occupied. Can be
@@ -687,7 +689,7 @@ Actions:
 1. Clear all `Some` members of `ExecutionCores`. Return all parathread claims to queue with retries un-incremented. Resize.
 1. Set `configuration = Configuration::configuration()` (see [HostConfiguration](#Host-Configuration))
 1. Resize `ExecutionCores` to have length `Paras::parachains().len() + configuration.parathread_cores with all `None` entries.
-1. Compute new validator groups.
+1. Compute new validator groups by shuffling using a secure randomness beacon
 1. Prune the parathread queue to remove all retries beyond `configuration.parathread_retries`, and assign all parathreads to new cores if the number of parathread cores has changed.
 
 #### Initialization
@@ -703,25 +705,115 @@ Actions:
 #### Routines
 
 * `add_parathread_claim(ParathreadClaim)`: Add a parathread claim to the queue. Fails if any parathread claim on the same parathread is currently indexed.
-* `schedule(Vec<u32>)`: schedule new core assignments, with a parameter indicating previously-occupied cores which are to be considered returned. All freed parachain cores should be assigned to their respective parachain, and all freed parathread cores should take the next parathread entry from the queue. The i'th validator group will be assigned to the `(i+k)%n`'th core at any point in time, where `k` is the number of rotations that have occurred in the session, and `n` is the total number of cores. This makes upcoming rotations within the same session predictable.
+* `schedule(Vec<CoreIndex>)`: schedule new core assignments, with a parameter indicating previously-occupied cores which are to be considered returned. All freed parachain cores should be assigned to their respective parachain, and all freed parathread cores should take the next parathread entry from the queue. The i'th validator group will be assigned to the `(i+k)%n`'th core at any point in time, where `k` is the number of rotations that have occurred in the session, and `n` is the total number of cores. This makes upcoming rotations within the same session predictable.
 * `scheduled() -> Vec<CoreAssignment>`: Get currently scheduled core assignments.
+* `occupied(Vec<CoreIndex>). Note that the given cores have become occupied. This clears them from `Scheduled`. Fails if any given cores were not scheduled.
+* `core_para(CoreIndex) -> ParaId`: return the currently-scheduled or occupied ParaId for the given core.
+* `group_validators(GroupIndex) -> Vec<ValidatorIndex>`
 
 ### The Inclusion Module
  
 #### Description
+ 
+The inclusion module is responsible for inclusion and availability of scheduled parachains and parathreads.
+
 
 #### Storage 
 
-#### Initialization
+Helper structs:
+```rust
+struct AvailabilityBitfield {
+  bitfield: BitVec, // one bit per core.
+  submitted_at: BlockNumber, // for accounting, as meaning of bits may change over time.
+}
 
-Nothing
+struct CandidatePendingAvailability {
+  core: CoreIndex, // execution core
+  receipt: AbridgedCandidateReceipt,
+  availability_votes: Bitfield, // one bit per validator.
+  relay_parent_number: BlockNumber, // number of the relay-parent.
+  included_in_number: BlockNumber,
+}
+```
 
-#### Finalization
+Storage Layout:
+```rust
+/// The latest bitfield for each validator, referred to by index.
+bitfields: map ValidatorIndex => AvailabilityBitfield;
+/// Candidates pending availability.
+PendingAvailability: map ParaId => CandidatePendingAvailability;
+```
+
+[TODO: `CandidateReceipt` and `AbridgedCandidateReceipt` can contain code upgrades which make them very large. the code entries should be split into a different storage map with infrequent access patterns]
+
+#### Session Change
+
+1. Clear out all candidates pending availability.
+1. Clear out all validator bitfields.
 
 #### Routines
 
+All failed checks should lead to an unrecoverable error making the block invalid.
+
+
+  * `process_bitfields(Bitfields)`:
+    1. check that the number of bitfields and bits in each bitfield is correct.
+    1. check that there are no duplicates
+    1. check all validator signatures.
+    1. apply each bit of bitfield to the corresponding pending candidate. looking up parathread cores using the `Scheduler` module. Disregard bitfields that have a `1` bit for any free cores. 
+    1. For each applied bit of each availability-bitfield, set the bit for the validator in the `CandidatePendingAvailability`'s `availability_votes` bitfield. Track all candidates that now have >2/3 of bits set in their `availability_votes`. These candidates are now available and can be enacted.
+    1. For all now-available candidates, invoke the `enact_candidate` routine with the candidate and relay-parent number.
+    1. If any candidates have become available, invoke `Scheduler::schedule(freed)` where `freed` is the list of freed cores.
+    1. [TODO] pass it onwards to `Validity` module.
+  * `process_candidates(BackedCandidates)`: 
+    1. Get all scheduled cores using `Scheduler::scheduled`.
+    1. check that each candidate corresponds to a scheduled core and that they are ordered in ascending order by `ParaId`.
+    1. check the backing of the candidate using the signatures and the bitfields.
+    1. create an entry in the `PendingAvailability` map for each backed candidate with a blank `availability_votes` bitfield.
+    1. Call `Scheduler::occupied` for all scheduled cores where a backed candidate was submitted.
+  * `enact_candidate(relay_parent_number: BlockNumber, AbridgedCandidateReceipt)`:
+    1. If the receipt contains a code upgrade, Call `Paras::schedule_code_upgrade(para_id, code, relay_parent_number + config.validationl_upgrade_delay)`. [TODO] Note that this is safe as long as we never enact candidates where the relay parent is across a session boundary. In that case, which we should be careful to avoid with contextual execution, the configuration might have changed and the para may de-sync from the host's understanding of it.
+    1. Call `Paras::note_new_head` using the `HeadData` from the receipt and `relay_parent_number`.
+  * `collect_pending`:
+    ```rust
+      fn collect_pending(f: impl Fn(CoreIndex, BlockNumber) -> bool) -> Vec<u32> {
+        // sweep through all paras pending availability. if the predicate returns true, when given the core index and
+        // the block number the candidate has been pending availability since, then clean up the corresponding storage for that candidate.
+        // return a vector of cleaned-up core IDs.
+      }
+    ```
+
 #### Entry-points
 
+  ```rust
+  struct SignedAvailabilityBitfield {
+    validator_index: ValidatorIndex,
+    bitfield: Bitvec,
+    signature: ValidatorSignature, // signature is on payload: bitfield ++ relay_parent ++ validator index
+  }
+  struct Bitfields(Vec<(SignedAvailabilityBitfield)>), // bitfields sorted by validator index, ascending
+  
+  enum ValidityAttestation {
+    /// Implicit validity attestation by issuing.
+    /// This corresponds to issuance of a `Seconded` statement.
+    Implicit(ValidatorSignature),
+    /// An explicit attestation. This corresponds to issuance of a
+    /// `Valid` statement.
+    Explicit(ValidatorSignature),    
+  }
+  
+  struct BackedCandidate {
+    candidate: AbridgedCandidateReceipt,
+    validity_votes: Vec<ValidityAttestation>,
+    // the indices of validators who signed the candidate within the group. There is no need to include 
+    // bit for any validators who are not in the group, so this is more compact.
+    validator_indices: BitVec, 
+  }
+
+  struct BackedCandidates(Vec<BackedCandidate>); // sorted by para-id.
+  ```
+
+  1. `Inclusion`: This entry-point accepts two parameters: `Bitfields` and `BackedCandidates`. The `Bitfields` are first forwarded to the `process_bitfields` routine, and then on success the backed candidates are forwarded to the `process_candidates` routine.
 
 ### The Validity Module
 
