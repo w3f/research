@@ -3,7 +3,7 @@
 
 for dir in $(find docs -mindepth 1 -type d); do
   case $dir in
-    */_static|*/_static/*|*/_templates|*/_templates/*|*/images|*/images/*) continue;;
+    */_static|*/_static/*|*/_templates|*/_templates/*|*/images|*/images/*|docs/papers|docs/papers/*) continue;;
     *)
       if [ -f "$dir/main.tex" ]; then
         continue

@@ -28,7 +28,7 @@ production system.
 
 \subsubsection{Networking overview}
 
-As discussed above, Polkadot consists of a central relay chain interacting with
+As discussed above, Polkadot consists of a unique relay chain interacting with
 many different parachains and providing them with security services. These
 require the following network-level functionality, generally for distribution
 and availability:
@@ -37,7 +37,7 @@ and availability:
 
 \item As with all blockchain-like protocols, the relay chain requires:
   \begin{enumerate}
-    \item accepting \emph{extrinsics} (transactions / commands) from users, and distributing them
+    \item accepting transactions from users and other external data (collectively known as extrinsic data or \emph{extrinsics}), and distributing them
     \item distributing artefacts of the collation subprotocol \ref{sec:relaychainblockproduction}
     \item distributing artefacts of the finalisation subprotocol \ref{sec:grandpa}
     \item synchronising previously-finalised state

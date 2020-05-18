@@ -37,6 +37,8 @@ templates_path = ['_templates']
 
 master_doc = 'index'
 
+exclude_patterns = ['papers/**']
+
 
 # -- Options for HTML output -------------------------------------------------
 
