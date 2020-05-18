@@ -23,7 +23,8 @@ We define {\em authenticated (erasure coded candidate) pieces} $(d,\merkleroot_B
 We transport only authenticated pieces between nodes throughout, or full blocks like $\blobB$, because only authenticated pieces provide an irrefutable claims about candidates. 
 
 We let $\pieces_B$ denote the list of these authenticated pieces, so
-$$ \pieces_B = Listst{ (d,\receipt_{B,S},\vect{\merkleroot_B d}) }{ d \in \prepieces_B } \mathperiod $$
+$$ \pieces_B = Listst{ (d,\receipt_{B,S},\vect{\merkleroot_B d}) }{ d \in \prepieces_B } \mathcomma $$
+with each piece signed by one member of $S$.  (TODO: Really?)
 %
 We shall distribute $\pieces_B$ among the full relay chain validator set $\vals$ with $\pieces_B[i]$ going to $\vals[i]$ for $i = 1,\ldots,\nvals$.  
 
@@ -95,63 +96,71 @@ We admitted adversarial manipulation of our network topology here, but it sounds
 % TODO:  Future work?  Here below?
 
 
-\subsection{Voting}
-\label{sec:voting}  % Pre-GRANDPA
+\subsection{Votes} % Attestation
+\label{sec:availability_votes}  % Pre-GRANDPA
+
+We consider a candidate receipt $\receipt_{B,S}$ backed in some recent relay chain block $R$.  
+
+An honestly erasure coded $\blobB$ can be recovered from any $f+1$ pieces in $\pieces_B$.  If not honestly encoded, then our reconstruction algorithm $\decode_{k,n}$  still produces data from any $f+1$ symbols.
+
+We assume throughout that $2f+1$ validators behave correctly and at most $f$ validators behave byzantine.  
+It follows that, if $2f+1$ validators claim they possess their piece, then anyone could later reconstruct an honestly erasure coded $\blobB$ from the remaining $f+1$ held by validators who claimed correctly, much like other byzantine fault tolerant voting processes.  
+
+At this point, our validators votes that they believe candidate to be available once they received their authenticated piece $(d,\receipt_{B,S},\vect{\merkleroot_B d}) \in \pieces_B$ and validate the signature (TODO) and the witness copath $\vect{\merkleroot_B d}$ to the merkle root $\merkleroot_B$ in $\receipt_{B,S}$.  We shall broadcast these {\em availability votes} via gossip and accumulate them in relay chain blocks, almost like transactions, but we briefly explain their implications first before explaining the voting mechanics.
+
+\smallskip
+\paragraph{Security:}
+
+We wait upon these availability votes before our approval checkers announce their assignments in \S\ref{sec:assignment} or run their assigned checks in \S\ref{sec:approcal_checks}, which must happen before our finality gadget GRANDPA considers $R$ in \S\ref{sec:finality}. 
+ 
+It follows that approval checkers should all receive enough pieces to run the reconstruction algorithm $\decode_{k,n}$.  At this point, an approval reruns the erasure coding algorithm $\encode_{k,n}$ to  recomputes all $\prepieces_B$ and $\merkleroot_B$.  If this fails, they declare the candidate receipt $\receipt_{B,S}$, which eventually results in slashing $S$.  
+
+An invalid erasure coding should therefore by detected slashed, assuming both that $2f+1$ validators behave honestly and that some honest validator approval checks $\receipt_{B,S}$.
+%
+We shall address this second assumption in later sections.  We note here however that approval checkers must reveal themselves to obtain the block, but any who announce early provide far less security, which makes it critically importnat they wait until the availability votes.  In concrete term, any adversary could adaptively choose not to make their block available if they observed an approval checker they believe honest or unassailable.  
+
+\smallskip
+\paragraph{Execution:}
+
+We implement some of the protocol described here within the relay chain's state machine, which carries out tasks like record backed candidates and availability votes.  
+%
+There are also actions in the relay chain associated to execution via $\verify_\para(\blobB_0,M)$ of the parachains candidate, at minimum updating the parachain's head and state root $q_\rho$.  We discussed in \S\ref{sec:backing_checks} that $V_0$ computes these actions on the relay parent before the block producer even creates $R$, which makes the relay chain into a lite client of its past state.  We ensure these updates can be applied later, but we must apply them eventually however.
+
+We expect availability votes could pass for some candidate receipts in $R$, while failing for other candidate receipts in $R$.  We do not delay the available parachain while waiting for the unavailable one.  As some parachain's availability might stall indefinitely, we impose some time limit, or other criteria, after which backed candidate receipts expire, so the relay chain can forget about the unsuccessful candidate, and new candidates can be accepted from the parachain and its validators.  
+
+In other words, we freely replace backed candidates that do not achieve availability quickly enough.  We therefore cannot regard the candidate receipt $\receipt_{B,S}$ as acting in the relay chain block $R$ in which its backing transaction appears.  
+
+Instead we have $\receipt_{B,S}$ act only in the relay chain block $R' > R$ that finally declares it passed the $2f+1$ availability votes, meaning the relay chain block producer for $R'$ applies the update to the parachain's head, state root $q_\rho$, and possibly other data.  At minimum $R$ lies strictly between $R'$ and the relay parent of $\receipt_{B,S}$, so good pipelining for parachain blocks depends upon them building upon one another correctly before they appear on chain.
+
+\smallskip
+\paragraph{Mechanics:}
+
+We should ``aggregate'' the signatures for availability votes because most validators vote for most candidates.
+%
+As a simple but efficient scheme, validators' signed votes contain a bitfield with one bit for each candidate and indicate the relay chain height that maps bits to candidates.  
+
+We could indicate the map from bits in the bitfield to candidates with a relay chain block hash of course.  We might however do so more efficiently using a relay chain state root directly, so then relay chain block producers include the availability vote by providing updated witnesses.  ...  In short, we yet again make the relay chain a lite client of its own past state.
+
+We must rotate which parachain validator groups back which parachains, so there exist two natural strategies foe allocating bits in this bitfield to represent candidates: 
+
+We want parachains that produce candidates for many relay chain blocks.  Any such busy parachain might control one bit in this bitfield for an entire epoch, so its currently backed candidate receipt can be looked up directly in the relay chain state.  
+
+We also want parachains called parathreads that produce candidates only very rarely after winning some auction.  We cannot permanently allocate one bit for every parathread, so instead we temporarily assign parathread candidates a bit tied to their parachain validator group.  
+
+We think this second parathread mapping would impose unneeded waiting for full parachains when they rotate between parachain validator groups, so implementing both techniques sounds easiest. 
 
 
+\subsection{Notes}
 
+Initially, we explored designs in which availability votes happened primarily off-chain, but these incur significant complexity and demand more subtle security assumptions.  Also, these ideas roughly parallel existing side chain work so some provide only slow on-chain resolution.  
 
+We expect fine tuning the signature aggregation mechanism might yield better results:
 
+We could aggregate using BLS signatures, so that verifiers only check one signature per candidate.  We want roughy one tenth as many candidates as validators however, so the overall higher cost form BLS overuns any savings here.  We do only require $2f+1$ signers, so perhaps clever optimisations could gives extremely efficient BLS signatures that signers who complicate verification, but this sounds like subtle future optimisation work. 
 
+We expect most direct optimisation would be Rabin-Williams signatures that increased total on-chain vote size tenfold, but only double voting bandwidth, but improved verification performance by a larger 10-100 factor, so Rabin-Williams signatures warrant further investigation.
+% https://cr.yp.to/sigs/rwsota-20080131.pdf
 
-
-
-% We isolated work on candidates for any given parachain $\para$ to $\vals_\para$ ...
-At this point, we consider a relay chain block $R$ being gossiped among the validators $\vals$.  $R$ contains candidate receipts $\receipt_{B,S}$ for candidate blocks $B$ on distinct parachains $\para$.  
-
-We must established that our authenticated pieces $\pieces_B$ for each $B$ in $R$ were correctly distributed before our approval checkers announce their assignments in \S\ref{sec:assignment} or run their assigned checks in \S\ref{sec:approcal_checks}, which must happen before our finality gadget GRANDPA considers $R$ in \S\ref{sec:finality}.  
-
-
-
-
-As our erasure coding permits recovery from any $f+1$ pieces, we establish correct distribution simply by asking all validators to ``vote'' whether they received their assigned authenticated pieces $\pieces_B$ for all the parachain candidates $B$ in $R$. 
-% which makes $R$ {\em available} (see \S\ref{sec:approval}).
-
-It suffices if validators announce an availability attestation via gossip once they receive their authenticated piece $\pieces_B$ for each $B$ in $R$.  In this design, a validator $V$ considers a relay chain block $R$ to be {\em strongly available} once it observes $f+1$ availability attestations for $R$ and possesses all it own pieces for candidates in $R$.
-
-As an alternative, we could ask that validators gossip availability announcements for each candidate receipt $\receipt_{B,S}$ separately.  In this design, we achieve a weaker ``mixed'' availability notion more quickly, which itself suffices to begin the approval checks in \S\ref{sec:approval}.  We need more bandwidth and computation fort his approach, although this could be reduced if availability attestation simply contained a bitfield or other compressed scheme for selecting parachains.
-
-We should require each validator possess its authenticated pieces from $\pieces_B$ before voting in our finality gadget too though, which imposes our first stronger availability notion before finality anyways.  In other words, we only profit from the weaker ``mixed'' availability notion by launching approval validity checks sooner.
-
-In either case, all validators establish an availability notion for relay chain blocks long before any GRANDPA votes, which triggers the later approval checks discussed blow in \S\ref{sec:approval}.
-
-
-\subsection{Unavailability}
-\label{sec:unavailability} % BABE
-
-We cannot entirely escape the availability question within our relay chain block production scheme BABE either:  Imagine we have several forks $C_1,\ldots,C_k$ for which at most $f$ validators possess all their chunks, but no fork for which $f+1$ validators possess all their chunks.  Yet, each block producers $U$ possess all their chunks for at least one fork $C_i$.  If BABE were oblivious to availability, then $U$ extends $C_i$, and GRANDPA stalls under this configuration. 
-% TODO:  Anything about secondary validity check here ???
-
-Instead, we define an availability grace period $\grace$ after which an unavailability subprotocol alters BABE's chain selection rule:  
-
-If a validator $U \in \vals$ cannot obtain some piece $d \in \pieces_B$ within $\grace$ time after seeing the attested candidate receipt $\receipt_{B,\cdot}$ included in some relay chain block $R$, then $U$ announces via gossip the unavailability of the piece $d$. 
-% TODO: Was $R_{head}$ but really?
-In essence, these unavailability announcements are precisely opposite our second piecemeal availability announcement strategy, perhaps replacing the bitfield with trifield represented as 5 trits per bytes, or another compression technique that made availability announcements more efficient than unavailability.
-
-As unavailability announcements are always piecemeal, if we adopt the first availability announcement strategy that covers whole relay chain blocks then we might still need partial availability announcements to revoke unavailability announcements, either for BABE or if not using requests for pieces then to halt send attempts.
-
-We now explain the validators' responses to these unavailability announcements:
-
-First, suppose some validator $V \in \vals$ observes an unavailability announcement for some attested candidate receipt $\receipt_{B,S}$ from some validator $\vals[i]$.  If $V$ possesses the block $\blobB$ then $V$ has computed $\pieces_B$ to check $\receipt_{B,S}$, so $V$ already possesses $\pieces_B[i]$ and should offer it to $\vals[i]$.  Any $V \in S$ satisfies this, but so shall any validators who signed off on the approval checks discussed below in \S\ref{sec:validity}. 
-
-Second, if any validator $U \in \vals$ observes unavailability announcements for pieces of some attested candidate receipt $\receipt_{B,\cdot}$ from at least $f+1$ different validators, then in BABE a block producer $U$ shall not propose a relay chain block containing any $\receipt_{B',\cdot}$ for which $B'$ is a descendent of $B$.
-In this situation, there might be prevotes but never any precommits in GRANDPA for chains containing  $\receipt_{B,\cdot}$, so $\receipt_{B,\cdot}$ cannot possibly be finalised by GRANDPA.  We should consider if the GHOST chain weighting rule used by BABE and by GRANDPA for prevotes should weigh unavailability announcements, but doing so should only impact performance.
-
-As an aside, we also considered $U$ abandoning any fork $C$ for which at least $f+1$ different validators gossiped unavailability announcements for possibly distinct blobs in $C$, instead of for the same blob.  Any truly unavailable pieces eventually trigger both conditions but they trigger this variant with possibly distinct blobs first, and with more false positives.  We optimise for the honest case here and caution that more false positives results in more chains, so spammy parachains could create more load on the availability system.
-
-Any validator should revoke their past unavailability announcements for some piece $d \in \pieces_B$ whenever they eventually obtain $d$, again by gossiping the revocation.  We also define some super availability grace period, longer than $\npvals \grace$, after which time, if $2f+1$ of the validators announced unavailability of some specific piece, then the parachain validators who signed for that block are slashed.
-We revert this slash whenever revocations later reduce the unavailability announcements below $f+1$.
-% TODO: Any interactions with slashing computation?
-
+There could even be validator groupings that negotiates Schnorr multi-signatures too, but this remains soundly future work.
 
 
