@@ -48,7 +48,7 @@ We prove the contrapositive of the claim. If $A$ does not satisfy $t$-PJR, there
 This proves that $prescore_w(c',t) \geq t$ and completes the proof of the lemma.
 \end{proof}
 
-We remark that for a given solution $(A,w)$ and parameter $t$, one can verify the condition defined in the previous lemma by running Algorithm~\ref{alg:maxprescore} in time $O(|E|)$ and checking whether $\maxprescore(A,w,t)<t$. This verification is thus linear in the size of the background instance. Alternatively, from just solution $(A,w)$ one can execute $\maxscore(A,w)$ in time $O(|E|\cdot \log k)$ (see Lemma~\ref{lem:maxscore2}) to obtain the highest score $t_{\max}$ and verify that $A$ satisfies $t$-PJR for each $t>t_{\max}$.
+We remark that for a given solution $(A,w)$ and parameter $t$, one can verify the condition defined in the previous lemma by running Algorithm~\ref{alg:maxprescore} in time $O(|E|)$ and checking whether $\maxprescore(A,w,t)<t$. This verification is thus linear in the size of the background instance. Alternatively, from just solution $(A,w)$ one can execute $\maxscore(A,w)$ in time $O(|E|\cdot \log k)$ (see Lemma~\ref{lem:maxscore}) to obtain the highest score $t_{\max}$ and verify that $A$ satisfies $t$-PJR for each $t>t_{\max}$.
 
 \subsection{The local search algorithm}
 

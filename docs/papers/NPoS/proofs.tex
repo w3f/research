@@ -1,85 +1,3 @@
-\section{Computing the maximum score in our heuristic}\label{s:maxscore}
-
-For a fixed partial solution $(A,w)$ and for each candidate $c'\in C\setminus A$, consider the function 
-$f_{c'}(t):=prescore_w(c',t)-t$ in the interval $[0,\infty)$. 
-Notice from the definition of pre-scores~\eqref{eq:prescore} that this funcion is convex, continuous and strictly decreasing with no lower bound, and that $f_{c'}(0)\geq 0$; hence it has a unique root, which corresponds precisely to $score_w(c')$. We could approximate this root via binary search -- however, we can do better. Function $f_{c'}(t)$ is piece-wise linear: if we sort the member supports $\{supp_w(c): \ c\in A\}=\{t_1, \cdots, t_r\}$ so that $t_1 < \cdots < t_r$ for some $r\leq |A|$, then $f_{c'}(t)$ is linear in each of the intervals $[0, t_1), [t_1, t_2), \cdots, [t_r, \infty)$.
-
-Similarly, function $f(t):= \max_{c'\in C\setminus A} f_{c'}(t) = \max_{c'\in C\setminus A} prescore_w(c',t) -t$ is continuous and strictly decreasing in the interval $[0,\infty)$, with a unique root $t_{\max}=\max_{c'\in C\setminus A} score_w(c')$. Unfortunately, this function is in general not linear within each of the intervals above.%
-%
-\footnote{In each of these $O(k)$ intervals, function $f(t)$ is piece-wise linear with $O(|C|)$ pieces. We could thus find the root of $f(t)$ via binary search by performing $O(\log k + \log |C|)$ calls to $\maxprescore$. However, our approach only requires $O(\log k)$ such calls.} %
-%
-Still, it will be convenient to use binary search to identify the interval that contains $t_{\max}$. We do so in Algorithm~\ref{alg:interval}. The next lemma follows from our exposition and its proof is skipped.
-
-\begin{algorithm}[htb]\label{alg:interval}
-\SetAlgoLined
-\KwData{Partial solution $(A,w)$.}
-Sort the member supports to obtain $0=t_0<t_1<\cdots <t_r$, where $\{t_1, \cdots, t_r\}=\{supp_w(c): \ c\in A\}$\;
-\lIf{$p_{t_r}\geq t_r$ where $(c_{t_r},p_{t_r})\leftarrow \maxprescore(A,w,t_r)$}{\Return $t_r$}
-Let $j_{lo}=0$, $j_{hi}=r-1$\;
-\While{$j_{lo}<j_{hi}$}{
-  Let $j=\lceil (j_{lo}+j_{hi})/2 \rceil$\;
-  \eIf{$p_{t_j}\geq t_j$ where $(c_{t_j},p_{t_j})\leftarrow \maxprescore(A,w,t_j)$}{
-  Set $j_{lo}\leftarrow j$\;}{
-  Set $j_{hi}\leftarrow j-1$\;}
-}
-\Return $t_{j_{lo}}$\;
-
- \caption{$\interval(M,w)$}
-\end{algorithm}
-
-\begin{lemma}
-For a partial solution $(A,w)$, Algorithm $\interval(A,w)$ makes $O(\log |A|)$ calls to $\maxprescore$, and thus runs in time $O(|E|\cdot \log k)$. It returns a value $t'$ so that $t'\leq t_{\max}:=\max_{c'\in C\setminus A} score_w(c')$, and for each candidate $c'\in C\setminus A$, the value of $prescore_w(c',t)$ is linear in $t$ within the interval $[t',t_{\max}]$.
-\end{lemma}
-
-Once we have identified such a value $t'$, we exploit the fact that for each $c'\in C\setminus A$, function $f_{c'}(t)$ is linear inside the interval $[t',t_{\max}]$. If we fix a candidate $c'$ and linearize function $f_{c'}(t)$ by extending its linear behavior within $[t', t_{\max}]$ onto the full domain $[0,\infty)$, and we denote its corresponding unique root by $t_{c'}$, then we have 
-%
-\begin{align*}
-    0&= f_{c'}(t_{c'})|_{\text{linearized around } [t', t_{\max}]}\\
-    &=prescore_w(c', t_{c'})|_{\text{linearized around } [t', t_{\max}]} - t_{c'}\\
-    &=\sum_{n\in N_{c'}} slack_w(n,t)|_{\text{linearized around } [t', t_{\max}]} - t_{c'}\\
-    &=\sum_{n\in N_{c'}} \Big( s_n - \sum_{c\in A\cap C_n: \ supp_{w}(c)< t'}w_{nc} - \sum_{c\in A\cap C_n: \ supp_w(c)\geq t'} w_{nc}\cdot t_{c'}/supp_w(c) \Big) - t_{c'},
-\end{align*}
-%
-where we used the definitions of pre-score and slack. Solving for $t_{c'}$, we obtain
-%
-\begin{align*}
-    t_{c'}=\frac{\sum_{n\in N_{c'}} \Big( s_n - \sum_{c\in A\cap C_n: \ supp_w(c)< t'} w_{nc} \Big)}%
-    {1+\sum_{n\in N_{c'}} \sum_{c\in A\cap C_n: \ supp_w(c)\geq t'} \frac{w_{nc}}{supp_w(c)}}=:linscore_w(c',t').
-\end{align*}
-
-Notice that the expression above depends only on $t'$ and not on $t_{\max}$. We refer to this value as \emph{the linearized score of $c'$ around $t'$}, and denote it by $linscore_w(c',t')$. For each candidate $c'\in C\setminus A$ we have that, since $f_{c'}(t)$ is a convex decreasing function over $[0,\infty)$ and its linearization around $t'$ is tangential to it, the root of this linearization must be lower than its own root, i.e. $linscore_w(c',t')\leq score_w(c')$. 
-On the other hand, for the candidate $c_{\max}$ with highest score $t_{\max}$, these two roots must coincide, i.e. $t_{\max}=score_w(c_{\max})=linscore_w(c_{\max}, t')$. Consequently, $c_{\max}$ also has the highest linearized score around $t'$ among all candidates in $C\setminus A$, and we can exploit this fact to find it. We formalize these observations in Algorithm~\ref{alg:maxscore} and the lemma below.
-
-\begin{algorithm}[htb]\label{alg:maxscore}
-\SetAlgoLined
-\KwData{Partial solution $(A,w)$.}
-Let $t'\leftarrow \interval(A,w)$\;
-
-\For{each voter $n\in N$}{
-Compute $p_n:=s_n-\sum_{c\in A\cap C_n: \ supp_w(c)< t'} w_{nc}$\;
-Compute $q_n:=\sum_{c\in A\cap C_n: \ supp_w(c)\geq t'} w_{nc}/supp_w(c)$\;
-}
-\For{each candidate $c'\in C\setminus A$}{
-Compute $linscore_w(c',t')=\frac{\sum_{n\in N_{c'}} p_n}{1+\sum_{n\in N_{c'}} q_n}$\;
-}
-Find a candidate $c_{\max}\in\arg\max_{c'\in C\setminus A} linscore_w(c',t')$\;
-\Return $(c_{\max}, linscore_w(c_{\max},t'))$\;
- \caption{$\maxscore(A,w)$}
-\end{algorithm}
-
-\begin{lemma}\label{lem:maxscore}
-For a partial solution $(A,w)$, Algorithm $\maxscore(A,w)$ runs in time $O(|E|\cdot \log k)$ and returns a tuple $(c_{\max}, t_{\max})$ such that $t_{\max}=score_w(c_{\max})=\max_{c'\in C\setminus A} score_w(c')$.
-\end{lemma}
-\begin{proof}
-The correctness of the algorithm follows from the definition of linearized score and the arguments above. Each of the \textbf{for} loops executes in time $O(|E|)$ because in each one of them each edge is examined at most once. Thus, the running time is dominated by the call to function $\interval(A,w)$, which takes time $O(|E|\cdot \log k)$.
-\end{proof}
-
-This proves Lemma~\ref{lem:maxscore2}
-We also highlight that the linearized score of a candidate $c'$ around the origin (i.e. setting $t'=0$) is such that %
-%
-$$\frac{1}{linscore_w(c',0)}=\frac{1+\sum_{n\in N_{c'}} \sum_{c\in A\cap C_n} \frac{w_{nc}}{supp_w(c)}}{\sum_{n\in N_{c'}} s_n},$$
-%
-which roughly corresponds to the \emph{load} candidate function being minimized in the $\phragmen$ heuristic (Algorithm~\ref{alg:phragmen}). Therefore, our heuristic can be seen as a generalization which, by considering further linearizations of the pre-score function, grants new candidates higher scores and thus higher supports. 
 
 \section{Delayed proofs}\label{s:proofs}
 
@@ -140,7 +58,7 @@ Let $\hat{t}\leftarrow \sum_{n\in N} s_n / |A|$\;
   Let $(c_{\max},t_{\max})\leftarrow \maxscore(\bar{A},\bar{w})$\;
 	\If{$|A|==k$}{
 	  Find tuple $(c_{\min}, t_{\min})$ where $c_{\min}\in A$ and $t_{\min}=supp_w(c_{\min})=supp_w(A)$\; 
-		\lIf {($t_{\min}$ \geq (1-\eps)\cdot t_{\max})} { \Return $(A,w)$ }
+		\lIf {($t_{\min} \geq (1-\eps)\cdot t_{\max}$)} { \Return $(A,w)$ }
 		Set $A\leftarrow A-c_{\min}$;%, and $w_{nc_{\min}}\leftarrow 0$ for each $n\in N_{c_{\min}}$;
 	}
 	\eIf{$\balancing$}{

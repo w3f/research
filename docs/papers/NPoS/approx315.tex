@@ -1,0 +1,115 @@
+\section{A faster constant-factor approximation algorithm}\label{s:315}
+
+Recall from Theorem~\ref{thm:2eps} that a $(2+\eps)$-approximation algorithm for the maximin support problem can be computed in time $\tilde{O}(B\cdot |C|)$. We now use our heuristic to develop a new constant-factor algorithm that runs in time $O(B\cdot k)$. We highlight that the gains in speed are of paramount importance for our application to validator selection in NPoS, where there are potentially thousands of candidates and a massive number of voters.
+
+We propose $\balanced$ (Algorithm~\ref{alg:balanced}), an iterative greedy algorithm that alternates between adding a new validator following our heuristic and \emph{rebalancing} the weight vector, i.e. replacing the weight vector by a balanced one. We remark that this is a middle ground between the approach taken in $\phragmen$, where the weight vector is never rebalanced, and the approach in $\MMS$ where the vector is rebalanced for every potential candidate to add. We formalize this procedure below.
+
+\begin{algorithm}[htb]\label{alg:balanced}
+\SetAlgoLined
+\KwData{Approval graph $G=(N\cup C, E)$, vector $s$ of vote strengths, committee size $k$.}
+Initialize $A=\emptyset$\ and $w=0\in\R^E$\;
+\For{$i$ from $1$ to $k$}{
+Let $(c_{\max},t_{\max})\leftarrow \maxscore(A,w)$\;
+Update $(A,w)\leftarrow \ins(A,w,c_{\max},t_{\max})$\;
+Update $w$ to a balanced weight vector for $A$\;
+}
+\Return $(A,w)$\;
+\caption{$\balanced$}
+\end{algorithm}
+
+\begin{theorem}\label{thm:315}
+$\balanced$ (Algorithm~\ref{alg:balanced}) offers a $3.15$-approximation for the maximin support problem, and executes in time $O(B\cdot k)$, assuming that $B= \Omega(|E|\cdot\log k).$
+\end{theorem}
+
+We start with an analysis of its runtime. In each of the $k$ iterations there is a call to Algorithm $\maxscore$, which executes in time $O(|E|\cdot \log k)$ by Lemma~\ref{lem:maxscore}, and a balanced weight vector is computed in time $B$ (see Section~\ref{s:prel}). Thus, the running time is $k\cdot (B+O(|E|\cdot \log k))=O(B\cdot k)$, where the last equality holds if we assume that $B=\Omega(|E|\cdot \log k)$. 
+
+Before we analyze the approximation guarantee of Algorithm $\balanced$, we introduce a technical result. 
+Informally speaking, it says that if a partial solution is balanced then there must be a subset of voters with large slack and a subset of adjacent unelected candidates with high pre-scores, as defined in $\eqref{eq:slack}$ and $\eqref{eq:prescore}$.
+
+\begin{lemma}\label{lem:N_a}
+Let $(A,w)$ be a balanced solution with $|A|< k$, and let $t^*$ be the optimal value of the maximin support instance. 
+Then, there is a non-empty subset $D\subseteq C\setminus A$ of candidates, and a subset $N(a)\subseteq N$ of voters for each $0\leq a \leq 1$, such that 
+\begin{enumerate}
+    \item each voter $n\in N(a)$ has a neighbor in $D$, i.e. $N(a)\subseteq \cup_{c\in D}N_c$; 
+     \item for each candidate $c\in A\cap(\cup_{n\in N(a)} C_n)$, $supp_w(c)\geq at^*$;
+     \item $\sum_{n\in N(a)} s_n \geq |D|\cdot (1-a) t^*$; and
+     \item for any $a\leq b\leq 1$, we have that $N(b)\subseteq N(a)$, and for each $n\in N(a)$ we have that $n$ is in $N(b)$ if and only if property 2 above holds for $n$ with parameter $a$ replaced by $b$. 
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Fix a parameter $0\leq a\leq 1$, let $(A^*, w^*)$ be an optimal solution with $t^*=supp_{w^*}(A^*)$, and define $D:=A^*\setminus A$, which is non-empty as $|A^*|>|A|$. Now, define the set $N':=\{n\in N: \ supp_w(A\cap C_n)\geq at^*\}$, where $supp_w(\emptyset)=\infty$ by convention. If we define $N(a)\subseteq N'$ as those voters in $N'$ that have a neighbor in $D$, then properties 1, 2 and 4 become evident. Hence, it only remains to prove the third property.
+
+We claim that there is no edge with non-zero weight between $N\setminus N'$ and $A':=\{c\in A: \ supp_w(c)\geq at^*\}$. 
+Indeed, if there was a pair $n\in N\setminus N'$, $c\in A'$ with $w_{nc}>0$, the fact that $n\notin N'$ implies that $n$ has another neighbor $c'\in A$ with $supp_w(c)<at^*$, but then by Lemma~\ref{lem:balanced} and the fact that $w$ is balanced for $A$, we would have that $supp_w(c)\leq supp_w(c')<at^*$, which contradicts the definition of $A'$. Thus, we get the inequality
+$$\sum_{n\in N\setminus N'} s_n \leq \sum_{c\in A\setminus A'} supp_w(c) < |A\setminus A'|\cdot at^*< |A^*\setminus A'|\cdot at^*.$$
+
+By reducing some components in vectors $w$ and $w^*$, we can assume without loss of generality that $supp_{w^*}(c)=t^*$ if $c\in A^*$, zero otherwise, and $supp_{w}(c)=a t^*$ if $c\in A^*\cap A'$, zero otherwise. Define $f:=w^* - w\in\mathbb{R}^E$, which we interpret as a vector of flows over the network induced by $N\cup A^*$, with positive signs corresponding to flow leaving $N$, and vice-versa. We partition the network nodes into four sets: $N'$, $N\setminus N'$, $A^*\cap A'$, and $A^*\setminus A'$. Relative to $f$, we have that a) $N$ has a net excess of $|A^*|\cdot t^* - |A^*\cap A'|\cdot a t^*$, b) $N\setminus N'$ has a net excess of at most $\sum_{n\in N\setminus N'} s_n < |A^*\setminus A'|\cdot at^*$ (by the previous inequality), and c) $A^*\cap A'$ has a net demand of $|A^*\cap A'|\cdot (1-a) t^*$. 
+
+Using the flow decomposition theorem, we can decompose flow $f$ into circulations and simple paths, where each path starts in one of the sets with net excess and ends in one of the sets with net demand. If we define $f'$ to be the sub-flow of $f$ that contains only the simple paths that start in $N'$ and end in $A^*\setminus A'$, then %
+%
+\begin{align*}
+    \text{flow value in } f' &\geq (\text{ net excess in $N$ } - \text{ net excess in $N\setminus N'$ } - \text{ net demand in $A^*\cap A')$ w.r.t. } f\\
+    &\geq |A^*|\cdot t^* - |A^*\cap A'|\cdot a t^* -|A^*\setminus A'|\cdot a t^* -|A^*\cap A'|\cdot (1-a) t^*\\
+    & = |A^*\setminus A'|\cdot (1-a)t^*.
+\end{align*}
+%
+A key observation now is that none of the flow in $f'$ can pass by any node in $N\setminus N'$ or $A\setminus A'$. 
+This is because any path in $f'$ starts in $N'$, nodes in $N'$ have no neighbors in $A\setminus A'$ (by definitions of $N'$ and $A'$), and furthermore there is no flow possible from $A^*\setminus (A\setminus A')=(A^*\setminus A)\cup (A^*\cap A')$ to $N\setminus N'$ in $f=w^*-w$, because $w$ has no flow from $N\setminus N'$ toward $A'$ (by our claim) nor toward $A^*\setminus A$ (by our assumption wlog on $w$).
+Therefore, the formula above is actually a lower bound on the flow going from $N'$ to $(A^*\setminus A')\setminus (A\setminus A')=A^*\setminus A=D$. Finally, we notice that for each path in $f'$, the last edge goes from $N'$ to $D$, so it originates in $N(a)$. This proves that $\sum_{n\in N(a)} s_n\geq \text{ flow value in } f'\geq |A^*\setminus A'|\cdot (1-a) t^* \geq |D|\cdot (1-a) t^*$, which is the third property.
+\end{proof}
+
+As a warm-up, we show how this last result easily implies a $4$-approximation guarantee for $\balanced$.
+
+\begin{lemma}
+For a balanced solution $(A,w)$ with $|A|<k$, and $t^*$ as in Lemma~\ref{lem:N_a}, there is a candidate $c'\in C\setminus A$ with $score_w(c')\geq t^*/4$. Therefore, $\balanced$ provides a $4$-approximation for the maximin support problem.
+\end{lemma}
+
+\begin{proof}
+Apply Lemma~\ref{lem:N_a} with $a=1/2$. In what follows we refer to the properties stated in that lemma. We have that
+
+\begin{align*}
+    \sum_{c'\in D} prescore_w(c',t^*/4) &=\sum_{c'\in D} \sum_{n\in N_{c'}} slack_w(n,t^*/4)
+    \geq \sum_{n\in N(a)} slack_w(n,t^*/4) & \text{(by property 1)}\\
+    &\geq \sum_{n\in N(a)} \Big[ s_n - \frac{t^*}{4}\sum_{c\in A\cap C_n} \frac{w_{nc}}{supp_w(c)} \Big] &\text{(by equation \ref{eq:slack})}\\
+    &\geq \sum_{n\in N(a)} \Big[ s_n - \frac{1}{2}\sum_{c\in A\cap C_n} w_{nc} \Big] &\text{(by property 2)}\\
+    &\geq \frac{1}{2}\sum_{n\in N(a)} s_n \geq \frac{1}{2} (|D|\cdot t^*/2) = |D|\cdot t^*/4. 
+    &\text{(by ineq.~\ref{eq:feasible} and property 3)}
+\end{align*}
+
+Therefore, by an averaging argument, there must be a candidate $c'\in D$ with $prescore_w(c',t^*/4)\geq t^*/4$, which implies that $score_w(c')\geq t^*/4$. The $4$-approximation guarantee for Algorithm $\balanced$ easily follows by induction on the $k$ iterations, and Lemma~\ref{lem:insert}.
+\end{proof}
+
+To get a better approximation guarantee for Algorithm $\balanced$ and prove Theorem~\ref{thm:315}, we apply Lemma~\ref{lem:N_a} with a different parameter $a$. For this, we will use the following technical result, whose proof is delayed to Apppendix~\ref{s:proofs}.
+
+\begin{lemma}\label{lem:Lebesgue}
+Consider a strictly increasing and differentiable function $f:\mathbb{R}\rightarrow \mathbb{R}$, with a unique root $\chi$. For a finite sum $\sum_{i\in I} \alpha_i f(x_i)$ where $\alpha_i\in\mathbb{R}$ and $ x_i\geq \chi$ for each $i\in I$, we have that
+$$\sum_{i\in I} a_i f(x_i) = \int_{\chi}^{\infty} f'(x) \big(\sum_{i\in I: \ x_i\geq x} a_i\big)dx.$$
+\end{lemma}
+
+\begin{lemma}
+For a balanced solution $(A,w)$ with $|A|<k$, and $t^*$ as in Lemma~\ref{lem:N_a}, there is a $c'\in C\setminus A$ with $score_w(c')\geq t^*/3.15$. 
+Therefore, $\balanced$ provides a $3.15$-approximation for maximin support.
+\end{lemma}
+
+\begin{proof}
+Again we apply Lemma~\ref{lem:N_a} and its properties, for a parameter $0\leq a\leq 1$ to be defined later. We have
+\begin{align*}
+    \sum_{c'\in D} prescore_w(c',at^*) &= \sum_{c'\in D} \sum_{n\in N_c} slack_w(n, at^*) 
+    \geq \sum_{n\in N(a)} slack_w(n, at^*) & \text{(by property 1)}\\
+    &\geq \sum_{n\in N(a)} \Big[ s_n - at^* \sum_{c\in A\cap C_n} \frac{w_{nc}}{supp_w(c)} \Big] &\text{(by equation \ref{eq:slack})}\\
+    &\geq \sum_{n\in N(a)} \Big[ s_n - \frac{at^*}{supp_w(A\cap C_n)} \sum_{c\in A\cap C_n} w_{nc} \Big] &\text{(by property 2)}\\
+    &\geq \sum_{n\in N(a)} s_n\Big[ 1- \frac{at^*}{supp_w(A\cap C_n)} \Big], &\text{(by ineq.~\ref{eq:feasible})}
+\end{align*}
+%
+where $supp_w(\emptyset)=\infty$ by convention. 
+At this point, we apply Lemma~\ref{lem:Lebesgue} over function $f(x):=1-a/x$, which has the unique root $\chi=a$, and index set $I=N(a)$ with $\alpha_n=s_n$ and $x_n=supp_w(A\cap C_n)/t^*$. We obtain
+\begin{align*}
+    \sum_{c'\in D} prescore_w(c',at^*) &\geq \int_{a}^{\infty} f'(x) \Big( \sum_{n\in N(a): \ supp_w(A\cap C_n)\geq xt^*} s_n \Big)dx\\
+    &=\int_{a}^{\infty} \frac{a}{x^2}\Big( \sum_{n\in N(x)} s_n \Big)dx & \text{(by property 4)}\\
+    &\geq \int_{a}^1 \frac{a}{x^2} \Big( |D|\cdot (1-x)t^* \Big)dx & \text{(by property 3)}\\
+    & = |D|\cdot at^* \int_{a}^1 \Big( \frac{1}{x^2} - \frac{1}{x} \Big)dx = |D|\cdot at^*\Big(\frac{1}{a} - 1 + \ln  a\Big).
+\end{align*}
+
+If we now set $a=1/3.15$, we have that $1/a - 1 + \ln a\geq 1$, and thus by an averaging argument there is a candidate $c'\in D$ for which $prescore_w(c',at^*)\geq at^*$, and hence $score_w(c')\geq at^*$. The approximation guarantee for Algorithm $\balanced$ follows by induction on the $k$ iterations and Lemma~\ref{lem:insert}.
+\end{proof}
