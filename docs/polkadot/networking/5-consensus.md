@@ -1,12 +1,12 @@
 ====================================================================
 
-**Authors**: Rob Habermeier, Fatemeh Shirazi 
+**Authors**: Rob Habermeier, Fatemeh Shirazi
 
 **Last updated**: 12.09.2019
 
 ====================================================================
 
-## Gossiping GRANDPA communication (polite-grandpa)
+## Consensus broadcast
 
 This document defines a _bounded_ gossip protocol for circulation of GRANDPA votes.
 

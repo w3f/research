@@ -1,29 +1,28 @@
 \subsection{Economics and Incentive Layer}\label{sec:economics}
 
-Polkadot will have a native token called dot. Its various functions are described in this section.
+Polkadot will have a native token called DOT (``Dot''). Its various functions are described in this section.
 
 
-\subsubsection{Staking rewards and inflation}
+\subsubsection{Staking rewards and inflation}\label{sec:inflation}
 
 We start with a description of staking rewards, i.e.~payments to \emph{stakers} -- validators and nominators -- 
-coming from the minting of new dots. 
-Unlike other blockchain protocols, the amount of tokens in Polkadot will not be bounded by an absolute constant, but there will rather be a controlled yearly inflation rate. Indeed, recent research~\cite{chitra2019competitive} suggests that in a proof-of-stake based protocol the staking rewards must remain competitive, in order to maintain high staking rates and high security levels, so deflationary policies are advised against. 
+coming from the minting of new Dots. 
+Unlike some other blockchain protocols, the amount of tokens in Polkadot will not be bounded by an absolute constant, but there will rather be a controlled yearly inflation rate. Indeed, recent research~\cite{chitra2019competitive} suggests that in a proof-of-stake based protocol the staking rewards must remain competitive, in order to maintain high staking rates and high security levels, so deflationary policies are advised against. 
 
-In our design, dots minted for staking rewards are the main driver of inflation in the system. 
-This is because Treasury (Section \ref{sec:governance}), the only other mechanism that mints dots, 
-is designed to closely match its expenditure to the average dot burning caused by transaction fees and slashings.
+In our design, staking rewards are the only mechanism that mints Dots. 
+%Dots minted for staking rewards are the main driver of inflation in the system. This is because Treasury (Section \ref{sec:governance}), which receives a fraction of all transaction fees, slashings and missed validator rewards, has a mechanism design to closely matches its expenditure to its income, and thus is neither a net burner not net minter of Dots. 
 Thus, it is convenient to introduce our inflation model in this section as well. 
 %We do not consider rewards coming from transaction fees, slashings, nor rewards to fishermen and other reporters of offenses; these will be analyzed in further sections. 
 
-Recall from the description of the NPoS protocol (Section \ref{sec:validators}) that both validators and nominators stake dots. 
+Recall from the description of the NPoS protocol (Section \ref{sec:validators}) that both validators and nominators stake Dots. 
 They get paid roughly proportional to their stake, but can be slashed up to $100\%$ in case of a misconduct. 
 Even though they are actively engaged for only one era%
 \footnote{Recall that an era lasts approximately one day. See Table~\ref{t:time} in the Appendix.} 
 at a time, they can continue to be engaged for an unlimited number of eras. 
 During this period their stake is locked, meaning it cannot be spent, and it remains locked for several weeks after their last active era, to keep stakers liable to slashing even if an offence is detected late.
 
-\paragraph{Staking rate, interest rate, inflation rate:} Let the staking rate be the total amount of dots 
-currently staked by validators and nominators, divided by the current total dot supply. 
+\paragraph{Staking rate, interest rate, inflation rate:} Let the staking rate be the total amount of Dots 
+currently staked by validators and nominators, divided by the current total Dot supply. 
 The stakers' average interest rate will be a function of the staking rate: 
 if the staking rate dips below a certain target value selected by governance, 
 the average interest rate is increased, thus incentivising more participation in NPoS, and vice versa. 
@@ -32,7 +31,7 @@ If the stakers' average yearly interest rate is then set to $20\%$ at that level
 we can expect the inflation rate to fluctuate closely around $50\%\times 20\% = 10\%$. 
 Hence, by setting targets for the staking rate and stakers' interest rate, we also control the inflation rate. 
 Following this principle, every era we adjust our estimate of the staking rate, 
-and use it to compute the total amount of dots to be paid to stakers for that era.
+and use it to compute the total amount of Dots to be paid to stakers for that era.
 
 \paragraph{Rewards across validator supports:} 
 Once the total payout for the current era is computed, we need to establish how it is distributed.
@@ -42,7 +41,7 @@ plus a fraction of the stake of its backing nominators, and this partition is ma
 as high and evenly distributed as possible, hence ensuring security and decentralisation. 
 A further incentive mechanism put in place to ensure decentralisation over time 
 is paying validator supports equally for equal work, regardless of their stake. 
-As a consequence, if a popular validator has a high support, its nominators will likely be paid less per staked dot 
+As a consequence, if a popular validator has a high support, its nominators will likely be paid less per staked Dot 
 than nominators backing a less popular validator. Hence, nominators will be incentivised to change their preferences 
 over time in favour of less popular validators (with good reputation nonetheless), helping the system converge to the ideal case where all validator supports have equal stake.
 
@@ -52,7 +51,7 @@ This ensures that validators are always incentivised to maintain high performanc
 Payable actions in Polkadot include: a) validating a parachain block, 
 b) producing a relay chain block in BABE, 
 c) adding to a BABE block a reference to a previously unreferenced uncle block,%
-\footnote{In the BABE protocol, at times two block producers may generate different blocks A and B at the same height, leading to a temporary fork in the relay chain. The fork will quickly be resolved and select one of the blocks, say A, as part of the main chain, while block B becomes an \emph{uncle} to all descendents of A. For security reasons, it is convenient to record and timestamp \emph{all} blocks produced, but since uncle blocks cannot be accessed via parent relations, we encourage block producers to explicitly add these references to the main chain.}
+\footnote{In the BABE protocol, at times two block producers may generate different blocks A and B at the same height, leading to a temporary fork in the relay chain. The fork will quickly be resolved and one of the blocks selected, say A, as part of the main chain, while block B becomes an \emph{uncle} to all descendents of A. For security reasons, it is convenient to record and timestamp \emph{all} blocks produced, but since uncle blocks cannot be accessed via parent relations, we encourage block producers to explicitly add these references to the main chain.}
  and d) producing an uncle block.
 
 \paragraph{Rewards within a validator slot:} As a nominator's stake is typically split among several validator supports, 
@@ -89,15 +88,15 @@ and even aim to make their logistics simpler.
 \subsubsection{Relay-chain block limits and transaction fees}
 
 \paragraph{Limits on resource usage:} We bound the amount of transactions that a relay-chain block can process, 
-in order to a) ensure that each block can be processed efficiently even on less powerful nodes and avoid delays in block production; b) have guaranteed availability for a certain amount of high-priority, operational transactions such as misconduct reports, even when there is high network traffic; and c) limit the growth rate of the relay-chain state. 
+in order to a) ensure that each block can be processed efficiently even on less powerful nodes and avoid delays in block production, and b) have guaranteed availability for a certain amount of high-priority, operational transactions such as misconduct reports, even when there is high network traffic. 
 In particular, we set block constraints on the following resources: on-chain byte-length, 
-time and memory required to process the transactions, and increase in state storage.
+and time and memory required to process the transactions.
 
 We classify transactions into several types, according to their priority level and resource consumption profile. 
 For each of these types we have run tests based on worst-case scenarios for state, and for different input arguments. 
 From these tests, we establish conservative estimates on resource usage for each transaction, and we use these estimates to ensure that all constraints on resource usage are observed.
 
-We also add an additional constraint on resources: we distinguish between regular and high-priority transactions, and only let regular transactions account for up to $75\%$ of each block resource limit. This is to ensure that each block has a guaranteed space for high-priority transactions of at least $25\%$ of resources.
+We also add an extra constraint on resources: we distinguish between regular and high-priority transactions, and only let regular transactions account for up to $75\%$ of each block resource limit. This is to ensure that each block has a guaranteed space for high-priority transactions of at least $25\%$ of resources.
 
 \paragraph{Transaction fees:} We use the model described above to set the fee level of a transaction based on three parameters: its type, its on-chain length, and its expected resource usage. This fee differentiation is used to reflect the different costs that a transaction incurs on the network and on the state, and to encourage the processing of certain types of transactions over others. A fraction of every transaction fee is paid to the block producer, while another fraction goes to finance the Treasury (Section~\ref{sec:treasury}). We highlight that, for a block producer, the rewards coming from transaction fees may constitute only a small fraction of their overall revenue, just enough to incentivise inclusion on the block.
 

@@ -4,9 +4,8 @@
 
 **Last updated**: 24.09.2019
 
-**Note**: This write-up contains notes from a networking workshop 05.08.19-06.08.19 at Parity Technologies.
-
 ====================================================================
+
 # Networking for Polkadot
 
 ## Overview

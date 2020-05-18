@@ -2,30 +2,28 @@
 
 Prior to this paper, the only polynomial-time algorithms known to achieve the PJR property were $\phragmen$~\cite{brill2017phragmen} and $\MMS$~\cite{sanchez2016maximin} (Algorithms \ref{alg:phragmen} and \ref{alg:mms} respectively). 
 Both methods build a solution by starting with an empty committee and iteratively adding to it a new candidate over $k$ rounds, following some specific rule for candidate selection. 
-In Section~\ref{ss:heuristic} we introduce a new rule to select a candidate to add to a given partial solution, and in Section~\ref{s:315} we use it to obtain a new constant-factor approximation algorithm for the maximin support problem which is faster than the ones described in the previous section. 
-This heuristic also constitutes the basis for the PJR enabler in Section~\ref{s:local}.
-
-\subsection{The heuristic}\label{ss:heuristic}
+In this section we introduce a new rule to select a candidate to add to a given partial solution. 
+This heuristic constitutes the basis for our results in the next two sections. 
 
 We start with a brief analysis of the approaches taken in $\MMS$ and $\phragmen$. For a given partial solution, $\MMS$ computes a balanced weight vector for each possible augmented committee resulting from adding a candidate, and keeps the one with largest support. Naturally, this heuristic provides great control over the evolution of the maximin support objective (including a 2-approximation guarantee, see Theorem~\ref{thm:mms}), but is relatively slow, as computing balanced weight vectors is costly. On the other hand, $\phragmen$ foregoes balancing and performs only minimal modifications to the current weight vector to adapt it to the new augmented committee, and hence it is very fast but provides poor guarantees over the maximin support objective. Our heuristic also foregoes balancing, and indeed is almost as fast as $\phragmen$, but provides greater control over the maximin support objective.
 
 In all algorithms described in this section, we assume that there is a known background instance $(G=(N\cup C, E), s, k)$ that does not need to be passed as input. Rather, the input is a partial solution $(A,w)$ with $|A|\leq k$. We also assume that the list of committee member supports $(supp_w(c))_{c\in A}$ is implicitly passed by reference and updated in every algorithm, so it does not need to be recomputed every time.
 
-Let $c'\in C\setminus A$ be a candidate that we consider adding to $(A,w)$. To do so, we need to modify weight vector $w$ to a new feasible vector $w'$ that redirects towards $c'$ some of the votes of nominators in $N_{c'}$, in turn decreasing the support of other committee members adjacent to these nominators. Now, for a given threshold $t\geq 0$, we want to make sure not to reduce the support of any member $c$ below $t$, assuming it starts above $t$, and not to reduce it at all otherwise. A simple rule to ensure this is as follows: for each nominator $n$ in $N_{c'}$ and each member $c\in A\cap C_n$, reduce the weight on edge $nc$ from $w_{nc}$ to $w_{nc}\cdot \min\{1, t/supp_w(c)\}$, and assign the difference to edge $nc'$. That way, it is clear that even if all edges incident to a member $c$ are so reduced in weight, the support of $c$ is scaled by a factor at most $\min\{1, t/supp_w(c)\}$ and hence its new support does not fall below $t$.
+Let $c'\in C\setminus A$ be a candidate that we consider adding to $(A,w)$. To do so, we need to modify weight vector $w$ to a new feasible vector $w'$ that redirects towards $c'$ some of the votes of voters in $N_{c'}$, in turn decreasing the support of other committee members approved by these voters. Now, for a given threshold $t\geq 0$, we want to make sure not to reduce the support of any member $c$ below $t$, assuming it starts above $t$, and not to reduce it at all otherwise. A simple rule to ensure this is as follows: for each voter $n$ in $N_{c'}$ and each member $c\in A\cap C_n$, reduce the weight on edge $nc$ from $w_{nc}$ to $w_{nc}\cdot \min\{1, t/supp_w(c)\}$, and assign the difference to edge $nc'$. That way, it is clear that even if all edges incident to a member $c$ are so reduced in weight, the support of $c$ is scaled by a factor at most $\min\{1, t/supp_w(c)\}$ and hence its new support does not fall below $t$.
 
 Thus, if for each $n\in N$ and $t\geq 0$ we define that voter's \emph{slack} as
 
 \begin{align}
-    slack_w(n,t):= s_n - \sum_{c\in A\cap C_n} w_{nc} \cdot\min \Big\{ 1, t/supp_w(c)\Big\} \label{eq:slack}
+    slack_{(A,w)}(n,t):= s_n - \sum_{c\in A\cap C_n} w_{nc} \cdot\min \Big\{ 1, t/supp_w(c)\Big\} \label{eq:slack}
 \end{align}
 %
 and for each $c'\in C\setminus A$ and $t\geq 0$ we define that candidate's \emph{pre-score} as
 %
 \begin{equation}\label{eq:prescore}
-    prescore_w(c',t) := \sum_{n\in N_{c'}} slack_w(n,t),
+    prescore_{(A,w)}(c',t) := \sum_{n\in N_{c'}} slack_{(A,w)}(n,t),
 \end{equation}
 %
-then we can add $c'$ to the solution with support $prescore_w(c',t)$, while not making any other member's support decrease below threshold $t$. The resulting weight modification rule is formalized in Algorithm~\ref{alg:ins}. The next lemma follows from the previous exposition and its proof is skipped.
+then we can add $c'$ to the solution with support $prescore_{(A,w)}(c',t)$, while not making any other member's support decrease below threshold $t$. The resulting weight modification rule is formalized in Algorithm~\ref{alg:ins}. The next lemma follows from the previous exposition and its proof is skipped.
 
 \begin{algorithm}[htb]\label{alg:ins}
 \SetAlgoLined
@@ -34,7 +32,7 @@ Initialize $w'\leftarrow w$\;
 \For{each voter $n\in N_c$}{
 Set $w'_{nc'} \leftarrow s_n$\;
 \For{each member $c\in A\cap C_n$}{
-\lIf{$supp_w(c)>t$}{Update $w'_{nc} \leftarrow w'_{nc}\cdot\frac{t}{supp_w(c)}$}
+\lIf{$supp_w(c)>t$}{update $w'_{nc} \leftarrow w'_{nc}\cdot\frac{t}{supp_w(c)}$}
 Update $w'_{nc'}\leftarrow w'_{nc'} - w'_{nc}$\;
 }
 }
@@ -43,165 +41,131 @@ Update $w'_{nc'}\leftarrow w'_{nc'} - w'_{nc}$\;
 \end{algorithm}
 
 \begin{lemma}\label{lem:insert}
-For a feasible partial solution $(A,w)$, candidate $c'\in C\setminus A$ and threshold $t\geq 0$, Algorithm $\ins(A,w,c',t)$ executes in time $O(|E|)$, and returns a feasible solution $(A+c',w')$ where $supp_{w'}(c')=prescore_w(c',t)$ and $supp_{w'}(c)\geq \min\{supp_w(c),t\}$ for each member $c\in A$. 
-In particular, if $prescore_w(c',t)\geq t$ then $supp_{w'}(A+c')\geq \min\{supp_w(A),t\}$.
+For a feasible partial solution $(A,w)$, candidate $c'\in C\setminus A$ and threshold $t\geq 0$, 
+Algorithm $\ins(A,w,c',t)$ executes in time $O(|E|)$, and returns a feasible solution $(A+c',w')$ 
+where $supp_{w'}(c')=prescore_{(A,w)}(c',t)$ and $supp_{w'}(c)\geq \min\{supp_w(c),t\}$ for each member $c\in A$. 
+In particular, if $prescore_{(A,w)}(c',t)\geq t$ then $supp_{w'}(A+c')\geq \min\{supp_w(A),t\}$.
 \end{lemma}
 
-When we add the new candidate $c'$ to the solution, we want to ensure that inequality $prescore_w(c',t)\geq t$ holds, as we do not want to increase the number of validators with support below threshold $t$. How high can we make threshold $t$ and still have $prescore_w(c',t)\geq t$ hold? For each candidate $c'\in C\setminus A$, we define $score_w(c')$ to be the highest value of $t$ such that $prescore_w(c',t) \geq t$. Our heuristic now becomes apparent.
+Whenever partial solution $(A,w)$ is clear from context, we drop the subscript from our definitions of slack and pre-score. 
+When we add the new candidate $c'$ to the solution, we want to ensure that inequality $prescore(c',t)\geq t$ holds, as we do not want to increase the number of validators with support below threshold $t$. How high can we make threshold $t$ and still have $prescore(c',t)\geq t$ hold? For each candidate $c'\in C\setminus A$, we define $score_{(A,w)}(c')$ (shortened to $score(c')$) to be the highest value of $t$ such that $prescore(c',t) \geq t$. Our heuristic now becomes apparent.
 
 \begin{heuristic}
-Given a partial solution $(A,w)$, find a candidate $c_{\max}\in C\setminus A$ with highest score $t_{\max}=score_w(c_{\max})=\max_{c'\in C\setminus A} score_w(c')$, and execute $\ins(A,w,c_{\max},t_{\max})$, so that its output solution $(A+c_{\max},w')$ observes 
+Given a partial solution $(A,w)$, find a candidate $c_{\max}\in C\setminus A$ with highest score $t_{\max}=score(c_{\max})=\max_{c'\in C\setminus A} score(c')$, and execute $\ins(A,w,c_{\max},t_{\max})$, so that its output solution $(A+c_{\max},w')$ observes 
 
 $$\forall c\in A, \ supp_{w'}(c)\geq \min\{supp_w(c), t_{\max}\}, \quad \text{ and } \quad supp_{w'}(A+c_{\max})\geq \min \Big\{ supp_w(A), t_{\max}\Big\}.$$
 \end{heuristic}
 
-Given a partial solution $(A,w)$, how can we find the candidate with highest score in $C\setminus A$? 
-As a first step, we show in Algorithm~\ref{alg:maxprescore} how to find the candidate with highest pre-score for a given threshold $t$.
+In the remainder of the section we describe efficient algorithms to find the candidate with highest pre-score for a given threshold $t$, and the candidate with highest score. The reader uninterested in these computational details may skip ahead to the next section.
+
+We start with Algorithm~\ref{alg:maxprescore}, which shows how to find the candidate with highest pre-score for a given threshold $t$.
 
 \begin{algorithm}[htb]\label{alg:maxprescore}
 \SetAlgoLined
 \KwData{Partial solution $(A,w)$, threshold $t\geq 0$.}
 \For{each voter $n\in N$}{
-Compute $slack_w(n,t)=s_n-\sum_{c\in A\cap C_n} w_{nc}\cdot \min\{1, t/supp_w(c)\}$\;
+Compute $slack(n,t)=s_n-\sum_{c\in A\cap C_n} w_{nc}\cdot \min\{1, t/supp_w(c)\}$\;
 }
 \For{each candidate $c'\in C\setminus A$}{
-Compute $prescore_w(c',t)=\sum_{n\in N_{c'}} slack_w(n,t)$\;
+Compute $prescore(c',t)=\sum_{n\in N_{c'}} slack(n,t)$\;
 }
-Find a candidate $c_t\in\arg\max_{c'\in C\setminus A} prescore_w(c', t)$\;
-\Return $(c_t, prescore_w(c_t, t))$\;
+Find a candidate $c_t\in\arg\max_{c'\in C\setminus A} prescore(c', t)$\;
+\Return $(c_t, prescore(c_t, t))$\;
  \caption{$\maxprescore(A,w,t)$}
 \end{algorithm}
 
 \begin{lemma}
-For a partial solution $(A,w)$ and threshold $t\geq 0$, Algorithm $\maxprescore(A,w,t)$ executes in time $O(|E|)$, and returns a tuple $(c_t,p_t)$ such that $c_t\in C\setminus A$ and $p_t=prescore_w(c_t,t)=\max_{c'\in C\setminus A} prescore_w(c',t)$.
+For a partial solution $(A,w)$ and threshold $t\geq 0$, $\maxprescore(A,w,t)$ executes in time $O(|E|)$, 
+and returns a tuple $(c_t,p_t)$ such that $c_t\in C\setminus A$ 
+and $p_t=prescore(c_t,t)=\max_{c'\in C\setminus A} prescore(c',t)$.
 \end{lemma}
 
 \begin{proof}
 The correctness of the algorithm directly follows from the definitions of slack and pre-score. The running time is $O(|E|)$ because each edge in the approval graph $G=(N\cup V, E)$ is inspected at most once in each of the two loops. The first loop also inspects each voter, but we have $|N|=O(|E|)$ since we assume that $G$ has no isolated vertices.
 \end{proof}
 
-Now, notice that the highest score can be expressed as $\max_{c'\in C\setminus A} score_w(c')=\max\{t\geq 0: \ \max_{c'\in C\setminus A} prescore_w(c,t)\geq t\}$. 
-Hence, one can approximate the highest score by running several trials of Algorithm $\maxprescore(A,w,t)$, where we apply binary search on input threshold $t$ to find the highest value such that the output pre-score $p_t$ observes $p_t\geq t$. 
-However, in Appendix~\ref{s:maxscore} we present a more sophisticated algorithm that can find the highest score exactly, by running $O(\log k)$ trials of $\maxprescore$, where we exploit the fact that the pre-scores are piece-wise linear functions in $t$.  
 
-\begin{lemma}\label{lem:maxscore2}
-There is an algorithm $\maxscore(A,w)$ that, for a partial solution $(A,w)$ given as input, runs in time $O(|E|\cdot \log k)$ and returns a tuple $(c_{\max}, t_{\max})$ such that $t_{\max}=score_w(c_{\max})=\max_{c'\in C\setminus A} score_w(c')$.
-\end{lemma}
+For a fixed partial solution $(A,w)$ and for each candidate $c'\in C\setminus A$, consider the function 
+$f_{c'}(t):=prescore(c',t)-t$ in the interval $[0,\infty)$. 
+Notice from the definition of pre-score~\eqref{eq:prescore} that this function is convex, continuous and strictly decreasing with no lower bound, and that $f_{c'}(0)\geq 0$; hence it has a unique root which corresponds precisely to $score(c')$. We could approximate this root via binary search -- however, we can do better. 
+Function $f_{c'}(t)$ is piece-wise linear: if we sort the member supports $\{supp_w(c): \ c\in A\}=\{t_1, \cdots, t_r\}$ so that $t_1 < \cdots < t_r$ for some $r\leq |A|$, then $f_{c'}(t)$ is linear in each of the intervals $[0, t_1), [t_1, t_2), \cdots, [t_r, \infty)$.
 
-To conclude the section we remark that our full heuristic, which finds a candidate with highest score and adds it to the current partial solution (Algorithms $\maxscore$ followed by $\ins$) executes in time $O(|E|\cdot \log k)$. It thus matches the running time of the heuristic in $\phragmen$ up to a logarithmic term.
+Similarly, function $f(t):= \max_{c'\in C\setminus A} f_{c'}(t) = \max_{c'\in C\setminus A} prescore(c',t) -t$ is continuous and strictly decreasing in the interval $[0,\infty)$, with a unique root $t_{\max}=\max_{c'\in C\setminus A} score(c')$. Unfortunately, this function is in general not linear within each of the intervals above.%
+%
+\footnote{In each of these $O(k)$ intervals, function $f(t)$ is piece-wise linear with $O(|C|)$ pieces. We could thus find the root of $f(t)$ via binary search by performing $O(\log k + \log |C|)$ calls to $\maxprescore$. However, our approach only requires $O(\log k)$ such calls.} %
+%
+Still, it will be convenient to use binary search to identify the interval that contains $t_{\max}$. We do so in Algorithm~\ref{alg:interval}. The next lemma follows from our exposition and its proof is skipped.
 
-\subsection{A faster constant-factor approximation algorithm}\label{s:315}
-
-Recall from Theorem~\ref{thm:2eps} that a $(2+\eps)$-approximation algorithm for the maximin support problem can be computed in time $\tilde{O}(B\cdot |C|)$. We now use our heuristic to develop a new constant-factor algorithm that runs in time $O(B\cdot k)$. We highlight that the gains in speed are of paramount importance for our application to validator selection in NPoS, where there are potentially thousands of candidates and a massive number of voters.
-
-We propose $\balanced$ (Algorithm~\ref{alg:balanced}), an iterative greedy algorithm that alternates between adding a new validator following our heuristic and \emph{rebalancing} the weight vector, i.e. replacing the weight vector by a balanced one. We remark that this is a middle ground between the approach taken in $\phragmen$, where the weight vector is never rebalanced, and the approach in $\MMS$ where the vector is rebalanced for every potential candidate to add. We formalize this procedure below.
-
-\begin{algorithm}[htb]\label{alg:balanced}
+\begin{algorithm}[htb]\label{alg:interval}
 \SetAlgoLined
-\KwData{Approval graph $G=(N\cup C, E)$, vector $s$ of vote strengths, committee size $k$.}
-Initialize $A=\emptyset$\ and $w=0\in\R^E$\;
-\For{$i$ from $1$ to $k$}{
-Let $(c_{\max},t_{\max})\leftarrow \maxscore(A,w)$\;
-Update $(A,w)\leftarrow \ins(A,w,c_{\max},t_{\max})$\;
-Update $w$ to a balanced weight vector for $A$\;
+\KwData{Partial solution $(A,w)$.}
+Sort the member supports to obtain $0=t_0<t_1<\cdots <t_r$, where $\{t_1, \cdots, t_r\}=\{supp_w(c): \ c\in A\}$\;
+\lIf{$p_{t_r}\geq t_r$ where $(c_{t_r},p_{t_r})\leftarrow \maxprescore(A,w,t_r)$}{\Return $t_r$}
+Let $j_{lo}=0$, $j_{hi}=r-1$\;
+\While{$j_{lo}<j_{hi}$}{
+  Let $j=\lceil (j_{lo}+j_{hi})/2 \rceil$\;
+  \eIf{$p_{t_j}\geq t_j$ where $(c_{t_j},p_{t_j})\leftarrow \maxprescore(A,w,t_j)$}{
+  Set $j_{lo}\leftarrow j$\;}{
+  Set $j_{hi}\leftarrow j-1$\;}
 }
-\Return $(A,w)$\;
-\caption{$\balanced$}
+\Return $t_{j_{lo}}$\;
+
+ \caption{$\interval(A,w)$}
 \end{algorithm}
 
-\begin{theorem}\label{thm:315}
-$\balanced$ (Algorithm~\ref{alg:balanced}) offers a $3.15$-approximation for the maximin support problem, and executes in time $O(B\cdot k)$, assuming that $B= \Omega(|E|\cdot\log k).$
-\end{theorem}
-
-We start with an analysis of its runtime. In each of the $k$ iterations there is a call to Algorithm $\maxscore$, which executes in time $O(|E|\cdot \log k)$ by Lemma~\ref{lem:maxscore2}, and a balanced weight vector is computed in time $B$ (see Section~\ref{s:prel}). Thus, the running time is $k\cdot (B+O(|E|\cdot \log k))=O(B\cdot k)$, where the last equality holds if we assume that $B=\Omega(|E|\cdot \log k)$. 
-
-Before we analyze the approximation guarantee of Algorithm $\balanced$, we introduce a technical result. 
-Informally speaking, it says that if a partial solution is balanced then there must be a subset of voters with large slack and a subset of adjacent unelected candidates with high pre-scores, as defined in $\eqref{eq:slack}$ and $\eqref{eq:prescore}$.
-
-\begin{lemma}\label{lem:N_a}
-Let $(A,w)$ be a balanced solution with $|A|< k$, and let $t^*$ be the optimal value of the maximin support instance. 
-Then, there is a non-empty subset $D\subseteq C\setminus A$ of candidates, and a subset $N(a)\subseteq N$ of voters for each $0\leq a \leq 1$, such that 
-\begin{enumerate}
-    \item each voter $n\in N(a)$ has a neighbor in $D$, i.e. $N(a)\subseteq \cup_{c\in D}N_c$; 
-     \item for each candidate $c\in A\cap(\cup_{n\in N(a)} C_n)$, $supp_w(c)\geq at^*$;
-     \item $\sum_{n\in N(a)} s_n \geq |D|\cdot (1-a) t^*$; and
-     \item for any $a\leq b\leq 1$, we have that $N(b)\subseteq N(a)$, and for each $n\in N(a)$ we have that $n$ is in $N(b)$ if and only if property 2 above holds for $n$ with parameter $a$ replaced by $b$. 
-\end{enumerate}
-\end{lemma}
-
-\begin{proof}
-Fix a parameter $0\leq a\leq 1$, let $(A^*, w^*)$ be an optimal solution with $t^*=supp_{w^*}(A^*)$, and define $D:=A^*\setminus A$, which is non-empty as $|A^*|>|A|$. Now, define the set $N':=\{n\in N: \ supp_w(A\cap C_n)\geq at^*\}$, where $supp_w(\emptyset)=\infty$ by convention. If we define $N(a)\subseteq N'$ as those voters in $N'$ that have a neighbor in $D$, then properties 1, 2 and 4 become evident. Hence, it only remains to prove the third property.
-
-We claim that there is no edge with non-zero weight between $N\setminus N'$ and $A':=\{c\in A: \ supp_w(c)\geq at^*\}$. 
-Indeed, if there was a pair $n\in N\setminus N'$, $c\in A'$ with $w_{nc}>0$, the fact that $n\notin N'$ implies that $n$ has another neighbor $c'\in A$ with $supp_w(c)<at^*$, but then by Lemma~\ref{lem:balanced} and the fact that $w$ is balanced for $A$, we would have that $supp_w(c)\leq supp_w(c')<at^*$, which contradicts the definition of $A'$. Thus, we get the inequality
-$$\sum_{n\in N\setminus N'} s_n \leq \sum_{c\in A\setminus A'} supp_w(c) < |A\setminus A'|\cdot at^*< |A^*\setminus A'|\cdot at^*.$$
-
-By reducing some components in vectors $w$ and $w^*$, we can assume without loss of generality that $supp_{w^*}(c)=t^*$ if $c\in A^*$, zero otherwise, and $supp_{w}(c)=a t^*$ if $c\in A^*\cap A'$, zero otherwise. Define $f:=w^* - w\in\mathbb{R}^E$, which we interpret as a vector of flows over the network induced by $N\cup A^*$, with positive signs corresponding to flow leaving $N$, and vice-versa. We partition the network nodes into four sets: $N'$, $N\setminus N'$, $A^*\cap A'$, and $A^*\setminus A'$. Relative to $f$, we have that a) $N$ has a net excess of $|A^*|\cdot t^* - |A^*\cap A'|\cdot a t^*$, b) $N\setminus N'$ has a net excess of at most $\sum_{n\in N\setminus N'} s_n < |A^*\setminus A'|\cdot at^*$ (by the previous inequality), and c) $A^*\cap A'$ has a net demand of $|A^*\cap A'|\cdot (1-a) t^*$. 
-
-Using the flow decomposition theorem, we can decompose flow $f$ into circulations and simple paths, where each path starts in one of the sets with net excess and ends in one of the sets with net demand. If we define $f'$ to be the sub-flow of $f$ that contains only the simple paths that start in $N'$ and end in $A^*\setminus A'$, then %
-%
-\begin{align*}
-    \text{flow value in } f' &\geq (\text{ net excess in $N$ } - \text{ net excess in $N\setminus N'$ } - \text{ net demand in $A^*\cap A')$ w.r.t. } f\\
-    &\geq |A^*|\cdot t^* - |A^*\cap A'|\cdot a t^* -|A^*\setminus A'|\cdot a t^* -|A^*\cap A'|\cdot (1-a) t^*\\
-    & = |A^*\setminus A'|\cdot (1-a)t^*.
-\end{align*}
-%
-A key observation now is that none of the flow in $f'$ can pass by any node in $N\setminus N'$ or $A\setminus A'$. 
-This is because any path in $f'$ starts in $N'$, nodes in $N'$ have no neighbors in $A\setminus A'$ (by definitions of $N'$ and $A'$), and furthermore there is no flow possible from $A^*\setminus (A\setminus A')=(A^*\setminus A)\cup (A^*\cap A')$ to $N\setminus N'$ in $f=w^*-w$, because $w$ has no flow from $N\setminus N'$ toward $A'$ (by our claim) nor toward $A^*\setminus A$ (by our assumption wlog on $w$).
-Therefore, the formula above is actually a lower bound on the flow going from $N'$ to $(A^*\setminus A')\setminus (A\setminus A')=A^*\setminus A=D$. Finally, we notice that for each path in $f'$, the last edge goes from $N'$ to $D$, so it originates in $N(a)$. This proves that $\sum_{n\in N(a)} s_n\geq \text{ flow value in } f'\geq |A^*\setminus A'|\cdot (1-a) t^* \geq |D|\cdot (1-a) t^*$, which is the third property.
-\end{proof}
-
-As a warm-up, we show how this last result easily implies a $4$-approximation guarantee for $\balanced$.
-
 \begin{lemma}
-For a balanced solution $(A,w)$ with $|A|<k$, and $t^*$ as in Lemma~\ref{lem:N_a}, there is a candidate $c'\in C\setminus A$ with $score_w(c')\geq t^*/4$. Therefore, $\balanced$ provides a $4$-approximation for the maximin support problem.
+For a partial solution $(A,w)$, Algorithm $\interval(A,w)$ makes $O(\log |A|)$ calls to $\maxprescore$, and thus runs in time $O(|E|\cdot \log k)$. It returns a value $t'$ so that $t'\leq t_{\max}:=\max_{c'\in C\setminus A} score(c')$, and for each candidate $c'\in C\setminus A$, the value of $prescore(c',t)$ is linear in $t$ within the interval $[t',t_{\max}]$.
 \end{lemma}
 
-\begin{proof}
-Apply Lemma~\ref{lem:N_a} with $a=1/2$. In what follows we refer to the properties stated in that lemma. We have that
-
+Once we have identified such a value $t'$, we exploit the fact that for each $c'\in C\setminus A$, function $f_{c'}(t)$ is linear inside the interval $[t',t_{\max}]$. If we fix a candidate $c'$ and linearize function $f_{c'}(t)$ by extending its linear behavior within $[t', t_{\max}]$ onto the full domain $[0,\infty)$, and we denote its corresponding unique root by $t_{c'}$, then we have 
+%
 \begin{align*}
-    \sum_{c'\in D} prescore_w(c',t^*/4) &=\sum_{c'\in D} \sum_{n\in N_{c'}} slack_w(n,t^*/4)
-    \geq \sum_{n\in N(a)} slack_w(n,t^*/4) & \text{(by property 1)}\\
-    &\geq \sum_{n\in N(a)} \Big[ s_n - \frac{t^*}{4}\sum_{c\in A\cap C_n} \frac{w_{nc}}{supp_w(c)} \Big] &\text{(by equation \ref{eq:slack})}\\
-    &\geq \sum_{n\in N(a)} \Big[ s_n - \frac{1}{2}\sum_{c\in A\cap C_n} w_{nc} \Big] &\text{(by property 2)}\\
-    &\geq \frac{1}{2}\sum_{n\in N(a)} s_n \geq \frac{1}{2} (|D|\cdot t^*/2) = |D|\cdot t^*/4. 
-    &\text{(by ineq.~\ref{eq:feasible} and property 3)}
-\end{align*}
-
-Therefore, by an averaging argument, there must be a candidate $c'\in D$ with $prescore_w(c',t^*/4)\geq t^*/4$, which implies that $score_w(c')\geq t^*/4$. The $4$-approximation guarantee for Algorithm $\balanced$ easily follows by induction on the $k$ iterations, and Lemma~\ref{lem:insert}.
-\end{proof}
-
-To get a better approximation guarantee for Algorithm $\balanced$ and prove Theorem~\ref{thm:315}, we apply Lemma~\ref{lem:N_a} with a different parameter $a$. For this, we will use the following technical result, whose proof is delayed to Apppendix~\ref{s:proofs}.
-
-\begin{lemma}\label{lem:Lebesgue}
-Consider a strictly increasing and differentiable function $f:\mathbb{R}\rightarrow \mathbb{R}$, with a unique root $\chi$. For a finite sum $\sum_{i\in I} \alpha_i f(x_i)$ where $\alpha_i\in\mathbb{R}$ and $ x_i\geq \chi$ for each $i\in I$, we have that
-$$\sum_{i\in I} a_i f(x_i) = \int_{\chi}^{\infty} f'(x) \big(\sum_{i\in I: \ x_i\geq x} a_i\big)dx.$$
-\end{lemma}
-
-\begin{lemma}
-For a balanced solution $(A,w)$ with $|A|<k$, and $t^*$ as in Lemma~\ref{lem:N_a}, there is a $c'\in C\setminus A$ with $score_w(c')\geq t^*/3.15$. 
-Therefore, $\balanced$ provides a $3.15$-approximation for maximin support.
-\end{lemma}
-
-\begin{proof}
-Again we apply Lemma~\ref{lem:N_a} and its properties, for a parameter $0\leq a\leq 1$ to be defined later. We have
-\begin{align*}
-    \sum_{c'\in D} prescore_w(c',at^*) &= \sum_{c'\in D} \sum_{n\in N_c} slack_w(n, at^*) 
-    \geq \sum_{n\in N(a)} slack_w(n, at^*) & \text{(by property 1)}\\
-    &\geq \sum_{n\in N(a)} \Big[ s_n - at^* \sum_{c\in A\cap C_n} \frac{w_{nc}}{supp_w(c)} \Big] &\text{(by equation \ref{eq:slack})}\\
-    &\geq \sum_{n\in N(a)} \Big[ s_n - \frac{at^*}{supp_w(A\cap C_n)} \sum_{c\in A\cap C_n} w_{nc} \Big] &\text{(by property 2)}\\
-    &\geq \sum_{n\in N(a)} s_n\Big[ 1- \frac{at^*}{supp_w(A\cap C_n)} \Big], &\text{(by ineq.~\ref{eq:feasible})}
+    0&= f_{c'}(t_{c'})|_{\text{linearized around } [t', t_{\max}]}\\
+    &=prescore(c', t_{c'})|_{\text{linearized around } [t', t_{\max}]} - t_{c'}\\
+    &=\sum_{n\in N_{c'}} slack(n,t)|_{\text{linearized around } [t', t_{\max}]} - t_{c'}\\
+    &=\sum_{n\in N_{c'}} \Big( s_n - \sum_{c\in A\cap C_n: \ supp_{w}(c)< t'}w_{nc} - \sum_{c\in A\cap C_n: \ supp_w(c)\geq t'} w_{nc}\cdot t_{c'}/supp_w(c) \Big) - t_{c'},
 \end{align*}
 %
-where $supp_w(\emptyset)=\infty$ by convention. 
-At this point, we apply Lemma~\ref{lem:Lebesgue} over function $f(x):=1-a/x$, which has the unique root $\chi=a$, and index set $I=N(a)$ with $\alpha_n=s_n$ and $x_n=supp_w(A\cap C_n)/t^*$. We obtain
+where we used the definitions of pre-score and slack. Solving for $t_{c'}$, we obtain
+%
 \begin{align*}
-    \sum_{c'\in D} prescore_w(c',at^*) &\geq \int_{a}^{\infty} f'(x) \Big( \sum_{n\in N(a): \ supp_w(A\cap C_n)\geq xt^*} s_n \Big)dx\\
-    &=\int_{a}^{\infty} \frac{a}{x^2}\Big( \sum_{n\in N(x)} s_n \Big)dx & \text{(by property 4)}\\
-    &\geq \int_{a}^1 \frac{a}{x^2} \Big( |D|\cdot (1-x)t^* \Big)dx & \text{(by property 3)}\\
-    & = |D|\cdot at^* \int_{a}^1 \Big( \frac{1}{x^2} - \frac{1}{x} \Big)dx = |D|\cdot at^*\Big(\frac{1}{a} - 1 + \ln  a\Big).
+    t_{c'}=\frac{\sum_{n\in N_{c'}} \Big( s_n - \sum_{c\in A\cap C_n: \ supp_w(c)< t'} w_{nc} \Big)}%
+    {1+\sum_{n\in N_{c'}} \sum_{c\in A\cap C_n: \ supp_w(c)\geq t'} \frac{w_{nc}}{supp_w(c)}}=:linscore_w(c',t').
 \end{align*}
 
-If we now set $a=1/3.15$, we have that $1/a - 1 + \ln a\geq 1$, and thus by an averaging argument there is a candidate $c'\in D$ for which $prescore_w(c',at^*)\geq at^*$, and hence $score_w(c')\geq at^*$. The approximation guarantee for Algorithm $\balanced$ follows by induction on the $k$ iterations and Lemma~\ref{lem:insert}.
+Notice that the expression above depends only on $t'$ and not on $t_{\max}$. We refer to this value as \emph{the linearized score of $c'$ around $t'$}, and denote it by $linscore_{(A,w)}(c',t')$ (shortened to $linscore(c',t')$). 
+For each candidate $c'\in C\setminus A$ we have that, since $f_{c'}(t)$ is a convex decreasing function over $[0,\infty)$ and its linearization around $t'$ is tangential to it, the root of this linearization must be lower than its own root, i.e. $linscore_w(c',t')\leq score_w(c')$. 
+On the other hand, for the candidate $c_{\max}$ with highest score $t_{\max}$, these two roots must coincide, i.e. $t_{\max}=score(c_{\max})=linscore(c_{\max}, t')$. Consequently, $c_{\max}$ also has the highest linearized score around $t'$ among all candidates in $C\setminus A$, and we can exploit this fact to find it. We formalize these observations in Algorithm~\ref{alg:maxscore} and the lemma below.
+
+\begin{algorithm}[htb]\label{alg:maxscore}
+\SetAlgoLined
+\KwData{Partial solution $(A,w)$.}
+Let $t'\leftarrow \interval(A,w)$\;
+
+\For{each voter $n\in N$}{
+Compute $p_n:=s_n-\sum_{c\in A\cap C_n: \ supp_w(c)< t'} w_{nc}$\;
+Compute $q_n:=\sum_{c\in A\cap C_n: \ supp_w(c)\geq t'} w_{nc}/supp_w(c)$\;
+}
+\For{each candidate $c'\in C\setminus A$}{
+Compute $linscore(c',t')=\frac{\sum_{n\in N_{c'}} p_n}{1+\sum_{n\in N_{c'}} q_n}$\;
+}
+Find a candidate $c_{\max}\in\arg\max_{c'\in C\setminus A} linscore(c',t')$\;
+\Return $(c_{\max}, linscore(c_{\max},t'))$\;
+ \caption{$\maxscore(A,w)$}
+\end{algorithm}
+
+\begin{lemma}\label{lem:maxscore}
+For a partial solution $(A,w)$, Algorithm $\maxscore(A,w)$ runs in time $O(|E|\cdot \log k)$ and returns a tuple $(c_{\max}, t_{\max})$ such that $t_{\max}=score(c_{\max})=\max_{c'\in C\setminus A} score(c')$.
+\end{lemma}
+\begin{proof}
+The correctness of the algorithm follows from the definition of linearized score and the arguments above. Each of the \textbf{for} loops executes in time $O(|E|)$ because in each one of them each edge is examined at most once. Thus, the running time is dominated by the call to function $\interval(A,w)$, which takes time $O(|E|\cdot \log k)$.
 \end{proof}
+
+
+To conclude the section we remark that our full heuristic, which finds a candidate with highest score and adds it to the current partial solution (Algorithm $\maxscore$ followed by $\ins$) executes in time $O(|E|\cdot \log k)$. It thus matches the running time of the heuristic in $\phragmen$ up to a logarithmic term.
+We also highlight that the linearized score of a candidate $c'$ around the origin (i.e. setting $t'=0$) is such that %
+%
+$$\frac{1}{linscore_w(c',0)}=\frac{1+\sum_{n\in N_{c'}} \sum_{c\in A\cap C_n} \frac{w_{nc}}{supp_w(c)}}{\sum_{n\in N_{c'}} s_n},$$
+%
+which roughly corresponds to the \emph{load} candidate function being minimized in the $\phragmen$ heuristic (see Algorithm~\ref{alg:phragmen}). Therefore, our heuristic can be seen as a generalization which, by considering further linearizations of the pre-score function, grants new candidates higher scores and thus higher supports. 
+
