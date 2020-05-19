@@ -8,14 +8,20 @@
 
 # Availability and Validity (A&V) networking
 
-Status: draft; accepted with a few TODO items remaining
+This subprotocol occurs whenever the relay chain block production protocol has output a candidate block for the current relay chain height.
+
+This candidate block references a bunch of parachain blocks, whose data has not yet been checked (validated) by the relay chain as a whole, but rather only in a preliminary way by the respective parachain validators at that height. The purpose of this subprotocol then, is to distribute this data across the relay chain, and ensure that it is available for some time, especially to the approval checkers that will perform another round of validity checking.
+
+These approval checkers are randomly assigned by another higher-layer protocol, in a similar way to how the parachain validators (i.e. the preliminary checkers) were randomly assigned.
+
+Note: data from the relay chain is fully-replicated at each node, outside of this protocol. This does not need to be optimised, as there is only one relay chain and its data is not expected to be large.
 
 ## TODO
 
 - to save time, the initial implemented version will be via gossip. Make a note of this.
-- use sentry nodes as proxies
+- handle the case where C does not evenly divide N
+- mention alternate topology suggested by jeff, more general & connected (in some sense) but also more complex
 - rough performance analysis & implementation notes, at the end of the doc.
-- consider the pieces of relay chain blocks.
 
 ## Background
 
@@ -63,33 +69,34 @@ A4: TODO: Protocols should not be easily spammable, or the spammers should be ea
 
 ### Special considerations
 
-S1: A small fraction of nodes may have poor reachability, and need to communicate via a proxy. Otherwise, we can assume the graph of communication links is mostly-connected via the public internet.
+S1: Some validator nodes are running behind sentry nodes, who must act as their proxy. Otherwise, we can assume that all other nodes (including the sentry nodes themselves) are fully-reachable via the public internet.
 
-This is an optional consideration; we believe we do not need to consider it in the initial implementation, and so our solution for this is described in a separate section in this document. Parts of the main proposal that will need to be changed or extended for this, are marked [TBX S1 #($ref)], TBX standing for "to be extended".
+To help implementation be divided into stages, the main proposal is defined without this consideration. Parts of it that will need to be changed or extended for this, are marked [[TBX S1](#sentry-node-proxies) #($ref)], TBX standing for "to be extended".
 
 ## Protocol overview
 
-We rely on an underlying gossip network that allows us to broadcast various metadata to every node of the relay chain, namely:
+Part of this protocol relies on some pre-existing medium that allows us to broadcast various metadata to every node of the relay chain, namely:
 
 1. receipts of specific pieces ("I have pieces X, Y and Z")
 2. receipts of "enough" pieces ("I have >1/3 of pieces, I don't need more"). This could also double as an attestation to everyone else, that there is availability from the attester's position on the network.
-3. [TBX S1 #1]
 
-This metadata should be gossiped every few seconds. The data of the actual pieces are distributed via a separate topology as described below:
+These should be gossiped every few seconds, and allows the participants to know when the stages of the protocol begin and end, details below.
+
+The data of the actual pieces are distributed via a topology separate from the broadcast medium:
 
 Recall that we have a disjoint partition of N validators into C sets of parachain validators, each set having size N/C. For our purposes for this subprotocol, we will randomly assign a co-ordinate (c, i) to every validator, with c in [0, C) and i in [0, N/C). Fixing c and varying i defines a particular parachain validator set; varying c and fixing i defines what we'll call a particular validator "ring". This name is only meant to be very slightly suggestive, the precise structure and its justification will be described below.
 
-The random assignment must be a deterministic assignment that every validator can calculate in the same way. For this purpose, we can use some entropy extracted from the chain at a position (height) determined by the current period, to seed a deterministic shuffle algorithm across the entire set of validators. The actual input seed must be pre-processed from the on-chain entropy, e.g. via HKDF, such that it is not re-used in any other security context.
+The random assignment must be a deterministic but unpredictable assignment that every validator can calculate in the same way. For this purpose, we can use some entropy extracted from the chain at a position (height) determined by the current period, to seed a deterministic shuffle algorithm across the entire set of validators. The actual input seed must be pre-processed from the on-chain entropy, e.g. via HKDF, such that it is not re-used in any other security context.
 
-Example:
+**Example**: Let's say we have 20 validators `[a, b, c, ..., t]` and 5 parachains. The co-ordinates of the validators could look like such `[a: (0, 0), b: (0, 1), c: (0, 2), d: (0, 3), e: (1, 0), ..., t: (4, 3)]`. The validator set of the first parachain would be `[a, b, c, d]`. The first validator ring would be `[a, e, i, m, q]`, the second `[b, f, j, n, r]`.
 
-Let's say we have 20 validators `[a, b, c, ..., t]` and 5 parachains. The co-ordinates of the validators could look like such `[a: (0, 0), b: (0, 1), c: (0, 2), d: (0, 3), e: (1, 0), ..., t: (4, 3)]`. The validator set of the first parachain would be `[a, b, c, d]`. The first validator ring would be `[a, e, i, m, q]`, the second `[b, f, j, n, r]`.
+We assume that all nodes can reach each other directly via the physical topology. (For an extension that relaxes this assumption, see [Sentry node proxies](#sentry-node-proxies)). In terms of actual communication, a validator will be expected to communicate with:
 
-A validator ring is mostly-connected as permitted by the physical topology. Nodes within this ring talk to each other periodically via short-term and low-cost QUIC connections.
+- all other validators in their "ring"
+- all other validators in the same preliminary-check set; this is the same as the parachain validator set
+- all other validators in the same approval-checking set
 
-For a given parachain, the preliminary checkers are also mostly-connected, as permitted by the physical topology. Likewise the approval checkers are also mostly-connected.
-
-These connections represent the vast majority of traffic flow in our A&V networking protocol; to improve reliability and availability there are also other lines of communication as described below.
+This communication is to be done via short-term [QUIC](https://quicwg.org/base-drafts/draft-ietf-quic-transport.html) connections. These have a low connection setup latency (0- or 1-RTT), and maintaining a connection also uses up no OS-level resources. So it is generally unproblematic to have a few hundred of them. This communication represents the majority of traffic flow in our A&V networking protocol.
 
 The protocol runs in several phases and stages. Every node acts both in the distributor and distributee role, but not every role is active in every stage. A summary follows:
 
@@ -114,7 +121,7 @@ As a distributor, each validator (c, i) attempts to send the relevant pieces for
 
 In more detail:
 
-Each distributor (c, i) will, with parallelism = C / 4, for s in [0..C), try to send the relevant piece to target t = ((c+s) mod C, i) [TBX S1 #2]. C / 4 comes from our estimate that T_b ~= 4 * T_L.
+Each distributor (c, i) will, with parallelism = C / 4, for s in [0..C), try to send the relevant piece to target t = ((c+s) mod C, i). C / 4 comes from our estimate that T_b ~= 4 * T_L.
 
 Trials are done with a timeout, slightly larger than T_l. Sending is via QUIC. In order for it to be treated as a success, it should include an acknowledgement of receipt. Note this is orthogonal from the gossiped receipts which include a validator signature; by contrast this transport-level receipt can be assumed to be already protected by QUIC [transport authentication](L-authentication.html).
 
@@ -188,8 +195,6 @@ For example, bittorrent has similar requirements and does not use a structured o
 
 The "ring" structure was chosen to make it easier to do load-balancing, as everyone can just "go around the ring" for most of these sorts of tasks, starting from their own position. The problem with (e.g.) having N clients independently randomly choose from N servers is that 1/3 of servers won't be chosen, and 1/4 of them will have multiple clients - see [N balls and N buckets](https://theartofmachinery.com/2020/01/27/systems_programming_probability.html#n-balls-in-n-buckets).
 
-[S1 only] The "ring" structure also makes it easier to find suitable proxies. Since everyone in the ring tries to connect to (i.e. is a neighbour of) everyone else, shared reachability can be calculated more efficiently, than an alternative topology where two mutually-unreachable nodes A and B have different neighbour sets across the other parachains.
-
 In the "ideal case", everyone starts stage A simultaneously, there is no network congestion, and all pieces are uniformly sized. Then, our stage A will have a completely evenly-distributed traffic profile, since everyone is scheduled to send a different piece to everyone else at all times. While we know that this "ideal case" will never be observed in practise, it gives us a reference point for the rest of the design.
 
 In practise, we assume that everyone will be entering the stage at different times, normally distributed with standard deviation on the order of a few seconds. The parallel sending strategy therefore provides a good chance that there will be a "slot" available, helping to smooth out any spikes caused by multiple sources attempting to send to the same target at once.
@@ -219,7 +224,7 @@ Rate-limiting, including for proxies [TBX S1 #3]
 
 TODO
 
-#### Erasure coding
+### Erasure coding
 
 As mentioned in the background, each block is divided into pieces which are then distributed. In practise this is done by an erasure code, but this networking layer does not need to know the details of that. The only knowledge it requires is:
 
@@ -230,57 +235,42 @@ When receiving each piece, we also need to be able to authenticate it individual
 
 ## Extensions
 
-### Incomplete reachability
+### Sentry node proxies
 
-This extension deals with a scenario where we need to consider S1, i.e. where a minority of nodes cannot reach each other in the physical network.
+This extension deals with a scenario where we need to consider S1, i.e. where some nodes are running behind sentry nodes, who must act as their proxy. In other words, nodes have two types of reachability:
 
-Typically, a NAT traversal solution consists of a few different parts:
+a. fully-reachable by the public internet<br/>
+b. not reachable, except by their sentry nodes who are trusted
 
-1. Detect possible candidate addresses for myself and make this available to others e.g. as described in RFC 8445 (ICE)
-2. Configuring network infrastructure to provide more reachable addresses e.g. RFC 6970 (UPnP)
-3. Selecting & using a mutually-reachable proxy e.g. RFC 5766 (TURN)
+(a) was the assumption we made of all nodes in the main proposal, and now we must also account for (b). Note that this is a more restricted assumption than an arbitrary internet topology - the latter would require a fully-general NAT traversal solution, which is more complex and carries more runtime overhead.
 
-Even with S1, for A&V networking we will assume that another layer (e.g. the Polkadot address book abstraction) provides #1, that local node operators will perform #2 themselves if needed, but for ease of analysis and load-balancing purposes we will specify a #3 here that is better suited to our A&V networking protocol, than another solution like TURN that was designed with other or more vague resource usage profiles in mind.
+Specifically for A&V direct sending, this translates to the following scenarios:
 
-Note that our proposal is also useful for other cases of unreachability beyond NATs, such as temporary network misconfigurations.
+a. for incoming connections, the sentry node accepts these and proxies them back to the validator node<br/>
+b. for outgoing connections, either the validator node makes the connection directly, or else makes it via their sentry node.
 
-The proposal is as follows:
+In some cases where both peers are behind their own sentries, this may be up to 2 hops. However, it is unnecessary to have special-case logic to handle this situation. The following general rules will suffice, and they can be applied even to normal validator nodes (those running without sentries):
 
-For the metadata that is gossiped periodically around as described in the overview, we additionally include:
+1. For the address book, the validator should insert (or have their sentry nodes insert) the addresses of whatever nodes are acting as incoming proxies for it, what other people can reach. The following details are important:
 
-3. [TBX S1 #1] reachability of peers ("I can reach peer X, they can reach me")
+    a. each record should include a creation date, so that later entries unambiguously obsolete earlier entries. Thus load-balancing can be done in a more predictable way, across the full set of addresses.
 
-Then, we also need a proxying protocol that allows target peer T to request piece X from source peer S via a proxy peer P, which ideally should be spam-resistant (TODO [TBX S1 #3]). Proxies may optionally store the pieces that they are passed, and broadcast receipts for these as well, up to some limit chosen by them to conserve their own resources.
+    b. each record should include an expiry date, so that old addresses are unambiguously avoided by readers unsure if the entry they got is "too old" or not
 
-**Distributors**
+2. For transport session keys, any node claiming to be a validator or a proxy for one, must present a certificate proving that the validator key authorises the transport key to do so. This ties back into the [authentication proposals](#L-authentication.html#proposal-fresh-authentication-signals).
 
-For a distributor (c, i), when sending a piece to another target t, we augment the sending with some failover proxies. If the direct sending fails after a timeout, we proceed as follows, trying successive items with a timeout until one succeeds:
+It's unnecessary to distinguish between "is a validator" and "acting as a proxy for a validator". This could be given as optional information in the certificate (e.g. so that the peer expects a higher latency), or it may be omitted if the validator wants to withhold this information from its peers. Nodes are free to guess whether their peers are proxies or not.
 
-2. [TBX S1 #2] send to t, via randomly-chosen proxies p from the following sets, in turn:
+#### Proxy protocol
 
-   a. your (and their) ring, with co-ords (c', i) for all c'
-   b. their parachain, with co-ords (c, i') for all i'
-   c. the gossip neighbours of t
+The proxying protocol is straightforward, since the private validator node and the sentry nodes trust each other.
 
-   k choices are to be tried from each set, before moving onto the next set; k = 3 seems like a reasonable *a priori* choice without real-world data.
+1. Inbound, the protocol does not require any special headers (unwrapping/rewrapping of the content). Whenever a sentry node accepts an incoming connection, it forwards it directly onto the corresponding validator node.
 
-   The choice should prioritise proxies with known shared reachability to t.
+    Justification: in our A&V direct-sending protocol, the contents are all signed by their authors, so there is no need for extra checking at the sentry node, although this may be done either to simplify the code or as extra "defense in depth". In all cases, proper exercise of flow control at the private validator node is necessary to prevent the sentry node from spamming it by mistake.
 
-A proxy has "known shared reachability" to a target t iff:
+2. Outbound, the protocol needs special headers for the private validator node to tell the sentry node the outgoing destination. This is straightforward: namely the peer validator's key.
 
-a. you know you can reach them, i.e. you previously successfully reached them, and
-b. you received a reachability report from them, that claims they can reach t
+Recall that as above, there are two types of outbound connections: distributors pushing data, or distributees requesting data.
 
-If a proxy is chosen successfully, this should be remembered for the next period and the proxy may be re-used, skipping any failed attempts to send directly or via other proxies. Of course, if this proxy subsequently fails then we can remove this association and retry the steps from scratch.
-
-The above applies for all stages where distributors are active. As per the [summary table](#Protocol-overview) this is all stages, except phase 2 stage B.
-
-**Distributees**
-
-As per the [summary table](#Protocol-overview) distributees are only active in stage B.
-
-For phase 1 stage B, we have N/C possible options to ask for every single piece.
-
-For phase 2 stage B, we have N possible options to ask for ceil(N/3) pieces.
-
-These numbers are high enough that we consider it unnecessary to specify that requests-for-pieces can be proxied, which itself is also slightly more complex than proxying a push as it involves one extra half-round of messages. This allows us to avoid some (hopefully) unnecessary complexity in what is already a fairly complex protocol.
+Since the private validator node may not be able to access the address book (e.g. one implemented via Kademlia DHT), the sentry node is the one to perform the address book lookup. As described in 1(a) above, in the general case it will get a set of addresses as the result. For better load-balancing, the sentry node should sort this set and select the jth address to connect to, where j = i mod n, n is the size of the set, and (c, i) is the co-ordinate of its validator.
