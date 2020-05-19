@@ -86,15 +86,15 @@ Recall that we have a disjoint partition of N validators into C sets of parachai
 
 The random assignment must be a deterministic but unpredictable assignment that every validator can calculate in the same way. For this purpose, we can use some entropy extracted from the chain at a position (height) determined by the current period, to seed a deterministic shuffle algorithm across the entire set of validators. The actual input seed must be pre-processed from the on-chain entropy, e.g. via HKDF, such that it is not re-used in any other security context.
 
-Example:
+**Example**: Let's say we have 20 validators `[a, b, c, ..., t]` and 5 parachains. The co-ordinates of the validators could look like such `[a: (0, 0), b: (0, 1), c: (0, 2), d: (0, 3), e: (1, 0), ..., t: (4, 3)]`. The validator set of the first parachain would be `[a, b, c, d]`. The first validator ring would be `[a, e, i, m, q]`, the second `[b, f, j, n, r]`.
 
-Let's say we have 20 validators `[a, b, c, ..., t]` and 5 parachains. The co-ordinates of the validators could look like such `[a: (0, 0), b: (0, 1), c: (0, 2), d: (0, 3), e: (1, 0), ..., t: (4, 3)]`. The validator set of the first parachain would be `[a, b, c, d]`. The first validator ring would be `[a, e, i, m, q]`, the second `[b, f, j, n, r]`.
+We assume that all nodes can reach each other directly via the physical topology. (For an extension that relaxes this assumption, see [Sentry node proxies](#sentry-node-proxies)). In terms of actual communication, a validator will be expected to communicate with:
 
-A validator ring is mostly-connected as permitted by the physical topology. Nodes within this ring talk to each other periodically via short-term and low-cost QUIC connections.
+- all other validators in their "ring"
+- all other validators in the same preliminary-check set; this is the same as the parachain validator set
+- all other validators in the same approval-checking set
 
-For a given parachain, the preliminary checkers are also mostly-connected, as permitted by the physical topology. Likewise the approval checkers are also mostly-connected.
-
-These connections represent the vast majority of traffic flow in our A&V networking protocol; to improve reliability and availability there are also other lines of communication as described below.
+This communication is to be done via short-term [QUIC](https://quicwg.org/base-drafts/draft-ietf-quic-transport.html) connections. These have a low connection setup latency (0- or 1-RTT), and maintaining a connection also uses up no OS-level resources. So it is generally unproblematic to have a few hundred of them. This communication represents the majority of traffic flow in our A&V networking protocol.
 
 The protocol runs in several phases and stages. Every node acts both in the distributor and distributee role, but not every role is active in every stage. A summary follows:
 
