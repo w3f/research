@@ -271,4 +271,4 @@ The proxying protocol is straightforward, since the private validator node and t
 
 Recall that as above, there are two types of outbound connections: distributors pushing data, or distributees requesting data.
 
-Since the private validator node may not be able to access the address book, the sentry node is the one to perform the address book lookup. As described in 1(a) above, in the general case it will get a set of addresses as the result. For better load-balancing, the sentry node should sort this set and select the jth address to connect to, where j = i mod n, n is the size of the set, and (c, i) is the co-ordinate of its validator.
+Since the private validator node may not be able to access the address book (e.g. one implemented via Kademlia DHT), the sentry node is the one to perform the address book lookup. As described in 1(a) above, in the general case it will get a set of addresses as the result. For better load-balancing, the sentry node should sort this set and select the jth address to connect to, where j = i mod n, n is the size of the set, and (c, i) is the co-ordinate of its validator.
