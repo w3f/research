@@ -19,6 +19,8 @@ Note: data from the relay chain is fully-replicated at each node, outside of thi
 ## TODO
 
 - to save time, the initial implemented version will be via gossip. Make a note of this.
+- handle the case where C does not evenly divide N
+- mention alternate topology suggested by jeff, more general & connected (in some sense) but also more complex
 - rough performance analysis & implementation notes, at the end of the doc.
 
 ## Background
