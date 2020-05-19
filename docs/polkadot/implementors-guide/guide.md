@@ -917,8 +917,6 @@ The Candidate Backing subsystem determines whether parachain blocks are valid or
 
 Its role is to produce backed candidates for inclusion in new relay-chain blocks. It does so by issuing signed [Statements](#Statement-type) and tracking received statements signed by other validators. Once enough statements are received, they can be combined into backing for specific candidates.
 
-It also detects double-vote misbehavior by validators as it imports votes, passing on the misbehavior to the correct reporter and handler.
-
 #### Protocol
 
 The **Candidate Selection** subsystem is the primary source of non-overseer messages into this subsystem. That subsystem generates appropriate [`CandidateBackingSubsystemMessage`s](#Candidate-Backing-Subsystem-Message), and passes them to this subsystem.
@@ -1008,8 +1006,10 @@ This module is only ever interested in parablocks assigned to the particular par
 New parablock candidates may arrive from a potentially unbounded set of collators. This subsystem chooses either 0 or 1 of them per relay parent to second. If it chooses to second a candidate, it sends an apropriate message to the **Candidate Backing** subsystem to generate an appropriate `Statement`.
 
 All parablocks which peers have seconded are also sent to the Candidate Backing subsystem for re-validation.
+As seconded peers are tallied, double-votes are detected. If found, a report is sent to the **Misbehavior Arbitration** subsystem.
 
 In the event that a parablock candidate proves invalid, this subsystem will receive a message back from the Candidate Backing subsystem indicating so. If that parablock candidate originated from a collator, this subsystem will blacklist that collator. If that parablock candidate originated from a peer, this subsystem generates a report for the **Misbehavior Arbitration** subsystem.
+
 
 TODO: more details, protocol, etc
 
