@@ -947,7 +947,7 @@ This will probably blur the lines between jobs, will probably require inter-job 
 
 The Candidate Backing Job represents the work a node does for backing candidates with respect to a particular relay-parent.
 
-The goal of a Candidate Backing Job is to produce as many backed candidates as possible. This is done via signed [Statements](#Statement-type) by validators. If a candidate receives a majority of supporting Statements from the Parachain Validators currently assigned, then that candidate is considered backed.
+The goal of a Candidate Backing Job is to produce as many accurate [Statements](#Statement-type) about candidates as possible. If a candidate receives a majority of supporting Statements from the Parachain Validators currently assigned, then that candidate is considered backed.
 
 *on startup*
 * Fetch current validator set, validator -> parachain assignments from runtime API.
