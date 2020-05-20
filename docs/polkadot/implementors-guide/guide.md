@@ -913,7 +913,7 @@ Furthermore, the protocols by which subsystems communicate with each other shoul
 
 #### Description
 
-The Candidate Backing subsystem determines whether parachain blocks are valid or not. When run as a validator or fisherman, this subsystem actually validates incoming candidates.
+The Candidate Backing subsystem ensures at least one preliminary validator commits to each parablock's correctness. Parablocks for which no validator will assert correctness are discarded. If the block later proves invalid, the initial backers are slashable; this gives polkadot a rational threat model during subsequent stages.
 
 Its role is to produce backed candidates for inclusion in new relay-chain blocks. It does so by issuing signed [Statements](#Statement-type) and tracking received statements signed by other validators. Once enough statements are received, they can be combined into backing for specific candidates.
 
