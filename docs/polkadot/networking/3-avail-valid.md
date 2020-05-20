@@ -19,8 +19,6 @@ Note: data from the relay chain is fully-replicated at each node, outside of thi
 ## TODO
 
 - to save time, the initial implemented version will be via gossip. Make a note of this.
-- handle the case where C does not evenly divide N
-- mention alternate topology suggested by jeff, more general & connected (in some sense) but also more complex
 - rough performance analysis & implementation notes, at the end of the doc.
 
 ## Background
@@ -35,9 +33,9 @@ Every block is erasure coded across N pieces with a threshold of ceil(N/3).
 
 At the start of the period, for every parachain, its N/C parachain validators each have all of the N pieces. In this role we call them the "preliminary checkers". The high-level purpose of A&V networking is to:
 
-1. Distribute the pieces of all C blocks to all other validators
+R1: Distribute the pieces of all C blocks to all other validators. A corollary of this is that every validator *must receive* at minimum (C-1) pieces, 1 from every other parachain.
 
-2. Ensure that ceil(N/3) of the pieces of all C blocks remains available and retrievable for a reasonable amount of time, across the N validators.
+R2: Ensure that ceil(N/3) of the pieces of all C blocks remains available and retrievable for a reasonable amount of time, across the N validators.
 
 Near the end of the period, for every parachain, a set of approval checkers of size > N/C will be chosen from the N validators, to actually retrieve at least ceil(N/3) pieces of the block.
 
@@ -63,7 +61,7 @@ A1: Reduced redundancy & latency: pieces should (mostly) only be sent to the nod
 
 A2: Constrain the use of shared OS resources, so the protocol does not interfere with other programs running at the same site.
 
-A3: Performance degrades reasonably under load or imperfect network conditions.
+A3: Expected work load should be as balanced as possible under ideal conditions, and degrade reasonably under imperfect conditions e.g. network congestion. For example, every sender should send approximately (C-1) pieces, rather than some senders sending twice as many as others.
 
 A4: TODO: Protocols should not be easily spammable, or the spammers should be easily identifiable and punishable.
 
@@ -75,6 +73,8 @@ To help implementation be divided into stages, the main proposal is defined with
 
 ## Protocol overview
 
+We assume that all nodes can reach each other directly via the underlay topology, e.g. the internet layer. For an extension that relaxes this assumption, see [Sentry node proxies](#sentry-node-proxies).
+
 Part of this protocol relies on some pre-existing medium that allows us to broadcast various metadata to every node of the relay chain, namely:
 
 1. receipts of specific pieces ("I have pieces X, Y and Z")
@@ -82,21 +82,15 @@ Part of this protocol relies on some pre-existing medium that allows us to broad
 
 These should be gossiped every few seconds, and allows the participants to know when the stages of the protocol begin and end, details below.
 
-The data of the actual pieces are distributed via a topology separate from the broadcast medium:
+The data of the pieces are distributed via the following communication links:
 
-Recall that we have a disjoint partition of N validators into C sets of parachain validators, each set having size N/C. For our purposes for this subprotocol, we will randomly assign a co-ordinate (c, i) to every validator, with c in [0, C) and i in [0, N/C). Fixing c and varying i defines a particular parachain validator set; varying c and fixing i defines what we'll call a particular validator "ring". This name is only meant to be very slightly suggestive, the precise structure and its justification will be described below.
+1. all validators in their in-neighbour set, as defined by in the overlay topology below
+2. all other validators in the same preliminary-check set; this is the same as the parachain validator set
+3. all other validators in the same approval-checking set
 
-The random assignment must be a deterministic but unpredictable assignment that every validator can calculate in the same way. For this purpose, we can use some entropy extracted from the chain at a position (height) determined by the current period, to seed a deterministic shuffle algorithm across the entire set of validators. The actual input seed must be pre-processed from the on-chain entropy, e.g. via HKDF, such that it is not re-used in any other security context.
+In addition to data, the aforementioned metadata may also be passed along links (2) and (3), to improve performance.
 
-**Example**: Let's say we have 20 validators `[a, b, c, ..., t]` and 5 parachains. The co-ordinates of the validators could look like such `[a: (0, 0), b: (0, 1), c: (0, 2), d: (0, 3), e: (1, 0), ..., t: (4, 3)]`. The validator set of the first parachain would be `[a, b, c, d]`. The first validator ring would be `[a, e, i, m, q]`, the second `[b, f, j, n, r]`.
-
-We assume that all nodes can reach each other directly via the physical topology. (For an extension that relaxes this assumption, see [Sentry node proxies](#sentry-node-proxies)). In terms of actual communication, a validator will be expected to communicate with:
-
-- all other validators in their "ring"
-- all other validators in the same preliminary-check set; this is the same as the parachain validator set
-- all other validators in the same approval-checking set
-
-This communication is to be done via short-term [QUIC](https://quicwg.org/base-drafts/draft-ietf-quic-transport.html) connections. These have a low connection setup latency (0- or 1-RTT), and maintaining a connection also uses up no OS-level resources. So it is generally unproblematic to have a few hundred of them. This communication represents the majority of traffic flow in our A&V networking protocol.
+These links represent the majority of traffic flow in our A&V networking protocol. They are short-term [QUIC](https://quicwg.org/base-drafts/draft-ietf-quic-transport.html) connections. These have a low connection setup latency (0- or 1-RTT), and maintaining a connection also uses up no OS-level resources. So it is generally unproblematic to have a few hundred of them open at once, or to repeatedly open and close them. Empirical runtime performance data will be needed to properly choose the best approach.
 
 The protocol runs in several phases and stages. Every node acts both in the distributor and distributee role, but not every role is active in every stage. A summary follows:
 
@@ -109,11 +103,41 @@ P2SB  | N            | Y
 
 Note that there is also background activity, as described below.
 
+## Overlay topology
+
+This section defines the topology where most of the data passes through.
+
+Recall that we have a disjoint partition of N validators into C sets of parachain validators. In the general case, each set has size floor(N/C) or ceil(N/C), these being equal when C evenly-divides N, otherwise being 1 apart.
+
+The topology is to be unpredictably but deterministically generated via a composition of shuffles. First we define the seeds in a secure manner. We expect that the chain provides an unpredictable value every period (chain height), the *chain seed*. The *topology master seed* should be derived from this seed via some KDF, e.g. HKDF. From this *topology master seed* we derive a *chain seed* for every chain, again via some KDF.
+
+We then perform the following random assignments:
+
+- Using the topology master seed, we randomly assign a *validator-index* `[0..N-1]` to every validator.
+- Using the topology master seed, we randomly assign a *chain-index* `[0..C-1]` to every chain.
+- Using the topology master seed, we randomly assign a *larger-chain-index* `[0..D]` to every chain of size `ceil(N/C)`, ignoring chains of size `floor(N/C)`, where `D == N mod C`.
+- For every chain `c`:
+    - Using the chain seed of `c`, we randomly assign a *chain-validator-index* `[0..|c|-1]` to every validator in the chain.
+- For every unordered pair of chains (`a`, `b`):
+    - Using (the chain seed of `a`) XOR (the chain seed of `b`), we randomly assign a matching between the chain-validator-indexes of `a` and `b`. There are two cases:
+        - If `|a| == |b|` then the assignment can be performed straightforwardly, e.g. via a random shuffle on `[0..|a|-1]` interpreted as a matching. **Example**: if `|a| == 10` then we shuffle `[0..9]` then zip the result with `[0..9]` to get a list-of-pairs to be interpreted as bidirectional matches.
+        - If `|a| == |b| + 1` then we first select an index from `b` to act as the extra index. The selected index would be `larger-chain-index(a) mod |b|`. We now can perform the random matching as above, except that the match against the extra-index goes only from `b` to `a`. **Example**: if `larger-chain-index(a) == 57`, `|a| == 11`, `|b| == 10` then we would randomly assign a matching between `[0..10]` and `[0..10]`, where `10` on the RHS is later replaced by `7`, and `7 -> (some index of a)` but not `(some index of a) -> 7`. Note that `7` also has another bidirectional match with some other index of a.
+        - If `|a| + 1 == |b|` then as above, but of course flipped.
+    - This matching defines part of the in-neighbours and out-neighbours of the validators of a pair of chains: for everyone in the pair of chains, it adds 1 in-neighbour, and 0, 1, or 2 out-neighbours depending on the size of the chains.
+
+The above assignment can be calculated by everyone in the same way, and gives an in-neighbour-set of `C-1` for every validator, satisfying our [requirement](#high-level-requirements) R1.
+
+Some validators will have slightly more than `C-1` validators in their out-neighbour set, but we attempt to spread this evenly across the validators, satisfying our aim A3. This is what the indexes are for; without these we cannot attempt to spread the load. In summary, validators will either have `C-1`, `D-1`, or `C-1 + ceil-or-floor(D/floor(N/C))` out-neighbours, where `D == N mod C`. **Example**: if `N == 998`, `C == 100`, then this would be `{99, 97, 109, 110}`, which is not too uneven.
+
+Additionally, links are used in a bidirectional way as much as possible, helping to optimise the resource usage in terms of connections.
+
+Note: in general, KDFs require an additional input, the "security context". Typically this should be a string that is not used in any other context globally. For example the string `"polkadot A&V topology master seed, generating validator-index"`, `"polkadot A&V chain seed for chain $chain-id"`, etc, will be sufficient.
+
 ## Protocol phase 1: initial distribution
 
 Every validator is both a distributor of C pieces and a distributee (recipient) of C pieces [TODO: correction, explanation]. Every piece has one source parachain and one main target storer, and so we can index pieces with a tuple (c_s, (c_t, i_t)) which would read as *the piece with source parachain c_s and destination validator on parachain c_t with index i_t*.
 
-In phase 1, pieces are distributed by the source parachain validators (c_s, \*) to the main target storers. This happens in two stages. Stage A is where most of the material is distributed, and stage B acts as a backup mechanism for anything that was missed during stage A.
+In phase 1, pieces are distributed by the source parachain validators (c_s, *) to the main target storers. This happens in two stages. Stage A is where most of the material is distributed, and stage B acts as a backup mechanism for anything that was missed during stage A.
 
 **Stage A**
 
