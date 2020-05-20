@@ -11,11 +11,11 @@ These subsystems comprise the Validity module. All detailed documentation lives 
 
 ## Overseer
 
-The overseer is the postal service: it relays messages between the other modules. At any time in this document when we state that a module sends a message to another, it does so via the overseer. The overseer also alerts other subsystems when they should be prepared to work on new relay parents, and when they should shut down preparations to work on old, finalized, or otherwise obsolete relay parents.
+The overseer is the postal service: it relays messages between the other subsystems. At any time in this document when we state that a subsystem sends a message to another, it does so via the overseer. The overseer also alerts other subsystems when they should be prepared to work on new relay parents, and when they should shut down preparations to work on old, finalized, or otherwise obsolete relay parents.
 
 ## Candidate Selection
 
-The candidate selection module is in charge of seconding 0 or 1 parablock candidates per relay parent.
+The candidate selection subsystem is in charge of seconding 0 or 1 parablock candidates per relay parent.
 
 ### Inbound Messages
 
@@ -27,7 +27,7 @@ The candidate selection module is in charge of seconding 0 or 1 parablock candid
 
 ## Candidate Backing
 
-The candidate backing module is in charge of producing statements which assert the (non-)validity of a parachain candidate.
+The candidate backing subsystem is in charge of producing statements which assert the (non-)validity of a parachain candidate.
 
 ### Inbound Messages
 
@@ -41,7 +41,7 @@ The candidate backing module is in charge of producing statements which assert t
 
 ## Candidate Validation
 
-The candidate validation module handles the details of validating a candidate. For any given parachain candidate, it arranges the appropriate context: the validation function, the relay parent head data, the in-progress relay data, etc.
+The candidate validation subsystem handles the details of validating a candidate. For any given parachain candidate, it arranges the appropriate context: the validation function, the relay parent head data, the in-progress relay data, etc.
 
 ### Inbound Messages
 
@@ -55,7 +55,7 @@ Responses from the Candidate Validation subsystem always return to the requester
 
 ## Statement Distribution
 
-The statement distribution module sends statements to peer nodes, detects double-voting, and tabulates when a sufficient portion of the validator set has unanimously judged a candidate. When judgment is not unanimous, it escalates the issue to misbehavior arbitration.
+The statement distribution subsystem sends statements to peer nodes, detects double-voting, and tabulates when a sufficient portion of the validator set has unanimously judged a candidate. When judgment is not unanimous, it escalates the issue to misbehavior arbitration.
 
 ### Inbound Messages
 
@@ -70,7 +70,7 @@ The statement distribution module sends statements to peer nodes, detects double
 
 ## Misbehavior Arbitration
 
-The misbehavior arbitration module kicks in when two validator nodes disagree about a candidate's validity. In this case, _all_ validators, not just those assigned to its parachain, weigh in on the validity of this candidate. The minority is slashed.
+The misbehavior arbitration subsystem kicks in when two validator nodes disagree about a candidate's validity. In this case, _all_ validators, not just those assigned to its parachain, weigh in on the validity of this candidate. The minority is slashed.
 
 ### Incoming Messages
 
