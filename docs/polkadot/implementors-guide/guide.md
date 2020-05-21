@@ -1042,7 +1042,7 @@ async fn statement_gossip_job<GS: GossipService>(
 The `statement_gossip_job` should consist of a `futures::select!` block with 3 parts:
 
 * A future that takes the statements from the `subsystem_receiver` stream and gossips them along with the `relay_parent` hash using `gossip_service`.
-* A future that takes the messages that `gossip_service` receives for the `relay_parent`, filters to only the statements and semds them via `overseer_sender`.
+* A future that takes the messages that `gossip_service` receives for the `relay_parent`, filters to only the statements and sends them via `overseer_sender`.
 * The `exit_future`.
 
 I have a basic implementation of this code on the [`ashley-test-statement-gossip-subsystem`](https://github.com/paritytech/polkadot/tree/ashley-test-statement-gossip-subsystem) branch.
