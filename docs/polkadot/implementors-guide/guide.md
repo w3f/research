@@ -995,59 +995,22 @@ The statement gossip subsystem is responsible for gossiping out and receiving [S
 
 This subsystem communicates with the overseer via [two message types](#Candidate-Backing-Subsystem-Messages), one for overseer -> subsystem and another for subsystem -> overseer. Currently this just differentiates between statements that the subsystem has been instructed to gossip out, and statements that the subsystem has received.
 
-Here is one design for how it might look in code:
+The subsystem needs to contain a handle to a gossiping engine to gossip and recieve messages. This will be cloned into each job that is spawned. Apart from that, it also contains the general structures that all subsystems contain, e.g. channels to communicate with the overseer and handles to spawned jobs in order to shut them down.
 
-```rust
-struct StatementGossipSubsystem<GS: GossipService, SP: Spawn> {
-    /// This trait comes from the legacy networking code, so it is likely to be changed at some point.
-    gossip_service: GS,
-    /// A map of relay parent hashes to the associated stop signal, and a mono-directional channel for communication.
-    jobs: HashMap<Hash, (exit_future::Signal, Sender<SignedStatement>)>,
-    /// A sender of messages to the overseer. This is not used directly, but passed to and used inside of jobs.
-    overseer_sender: Sender<StatementGossipSubsystemOut>,
-    /// A `futures` Spawner such as `sc_service::SpawnTaskHandle`.
-    spawner: SP
-}
-```
+On `OverseerSignal::StartWork` it should spawn a job and pass in `relay_parent` and a clone of the gossiping engine.
 
-On `OverseerSignal::StartWork`:
-1) `Clone` the `gossip_service` and `overseer_sender`.
-2) Create an associated `exit_future::Signal` and `exit_future::Exit`.
-3) Create a channel for subsystem -> job communication.
-4) Call `statement_gossip_job` and spawn the future using the `spawner`.
-5) Insert the exit signal and subsystem sender into `jobs`.
+On `OverseerSignal::StopWork` it should stop the job via the job handle.
 
-On `OverseerSignal::StopWork`:
-1) Remove the signal and sender from `jobs`.
-2) Call `signal.fire()`, causing the future to complete.
+On `StatementGossipSubsystemMessageIn::StatementToGossip` it should send the signed statement to the job running for the `relay_parent`.
 
-On `StatementGossipSubsystemMessageIn::StatementToGossip`:
-1) Get the associated sender for the `relay_parent` hash.
-2) Send the signed statement on it.
+The statement gossip job needs to poll two seperate futures (as well as the exit signal):
 
-```rust
-async fn statement_gossip_job<GS: GossipService>(
-    gossip_service: GS,
-    // The relay parent that this job is running for.
-    relay_parent: Hash,
-    // A future that resolves with the associated `exit_future::Signal` is fired.
-    exit_future: exit_future::Exit,
-    // A cloned sender of messages to the overseer. This channel is shared between all jobs.
-    overseer_sender: Sender<StatementGossipSubsystemOut>,
-    // A receiver of messages from the subsystem. This channel is exclusive to this job.
-    subsystem_receiver: Receiver<SignedStatement>,
-);
-```
-
-The `statement_gossip_job` should consist of a `futures::select!` block with 3 parts:
-
-* A future that takes the statements from the `subsystem_receiver` stream and gossips them along with the `relay_parent` hash using `gossip_service`.
-* A future that takes the messages that `gossip_service` receives for the `relay_parent`, filters to only the statements and sends them via `overseer_sender`.
-* The `exit_future`.
+* A future that takes the passed-in statements and gossips them along with the `relay_parent` hash using the gossip engine.
+* A future that takes the messages that the gossip engine receives for the `relay_parent` and sends to the subsystem.
 
 I have a basic implementation of this code on the [`ashley-test-statement-gossip-subsystem`](https://github.com/paritytech/polkadot/tree/ashley-test-statement-gossip-subsystem) branch.
 
-(TODO: Do we need a message type for sending a statemen directly to a peer?)
+(TODO: Do we need a message type for sending a statemen directly to a peer?)  
 (TODO: We probably need to account for backpressure)
 
 ---
