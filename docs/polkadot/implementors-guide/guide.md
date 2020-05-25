@@ -997,16 +997,21 @@ This subsystem communicates with the overseer via [two message types](#Candidate
 
 The subsystem needs to contain a handle to a gossiping engine to gossip and recieve messages. This will be cloned into each job that is spawned. Apart from that, it also contains the general structures that all subsystems contain, e.g. channels to communicate with the overseer and handles to spawned jobs in order to shut them down.
 
-On `OverseerSignal::StartWork` it should spawn a job and pass in `relay_parent` and a clone of the gossiping engine.
+On `OverseerSignal::StartWork` it should:
+* Spawn a job and pass in `relay_parent`, a clone of the gossiping engine and a handle to a message validator.
+* Send out a neighbour packet with the `relay_parent` added to the list of accepted chain heads.
 
-On `OverseerSignal::StopWork` it should stop the job via the job handle.
+On `OverseerSignal::StopWork` it should:
+* Stop the job via the job handle.
+* Send out a neighbour packet with the job's `relay_parent` removed.
 
-On `StatementGossipSubsystemMessageIn::StatementToGossip` it should send the signed statement to the job running for the `relay_parent`.
+On `StatementGossipSubsystemMessageIn::StatementToGossip` it should:
+* Send the signed statement to the job running for the `relay_parent`.
 
 The statement gossip job needs to poll two seperate futures (as well as the exit signal):
 
-* A future that takes the passed-in statements and gossips them along with the `relay_parent` hash using the gossip engine.
-* A future that takes the messages that the gossip engine receives for the `relay_parent` and sends to the subsystem.
+* A future that takes the passed-in statements, validates them and gossips them along with the `relay_parent` hash using the gossip engine.
+* A future that takes the messages that the gossip engine receives for the `relay_parent`, validates them and sends to the subsystem.
 
 I have a basic implementation of this code on the [`ashley-test-statement-gossip-subsystem`](https://github.com/paritytech/polkadot/tree/ashley-test-statement-gossip-subsystem) branch.
 
