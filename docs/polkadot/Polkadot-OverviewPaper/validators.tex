@@ -3,13 +3,13 @@
 % ensure high communication responsiveness, and build long-term reputation of reliability.
 % They are heavily staked and prone to slashing in case of offenses,
 % but are otherwise highly remunerated by the network.
-Polkadot will have a native token called DOT (``Dot''). It will use Nominated Proof-of-Stake (NPoS), our very own version of proof-of-stake (PoS).
+Polkadot will have a native token called DOT. It will use Nominated Proof-of-Stake (NPoS), our very own version of proof-of-stake (PoS).
 Consensus protocols with deterministic finality, such as the one in Polkadot, 
 require a set of registered validators of bounded size.
 Polkadot will maintain a number $\nval$ of validators, in the order of hundreds or thousands.
 This number will be ultimately decided by governance, and is intended to grow linearly with the number of parachains;
 yet it will be independent of the number of users in the network, thus ensuring scalability.
-However, NPoS allows for an unlimited number of Dot holders to participate as \emph{nominators},
+However, NPoS allows for an unlimited number of DOT holders to participate as \emph{nominators},
 who help maintain high levels of security by putting more value at stake.
 As such, NPoS is not only much more efficient than proof-of-work (PoW),
 but also considerably more secure than conventional forms of PoS such as DPoS and BPoS. %it would be great to add a references to DPoS and BPoS, but I couldn't find a good one.
@@ -17,7 +17,7 @@ Furthermore, we introduce new guarantees on decentralisation hitherto unmatched 
 
 A new set of validators is elected at the beginning of every \emph{era} -- a period during roughly one day (see Table~\ref{t:time} in the Appendix) --
 to serve for that era, according to the nominators' preferences.
-More precisely, any Dot holder may choose to become a validator candidate or a nominator.
+More precisely, any DOT holder may choose to become a validator candidate or a nominator.
 Each candidate indicates the amount of stake he is willing to stake and his desired commission fee for operational costs.
 In turn, each nominator locks some stake and publishes a list with any number of candidates that she trusts.
 Then a public protocol, discussed below, takes these lists as input and elects the candidates
@@ -28,10 +28,10 @@ see Section~\ref{sec:economics} for more details.
 Nominators are thus economically incentivised to act as watchdogs for the system, and they will base their preferences 
 on parameters such as validators' staking levels, commission fees, past performance, and security practices.
 Our scheme allows for the system to elect validators with massive amounts of aggregate stake
-- much higher than any single party's Dot holdings -
+- much higher than any single party's DOT holdings -
 and thus helps turn the validator election process into a meritocracy rather than a plutocracy.
-In fact, at any given moment we expect there to be a considerable fraction of all the Dot supply be staked in NPoS.
-This makes it very difficult for an adversarial entity to get validators elected since it either needs a large amount of Dots or high enough reputation to get the required nominators' backing,
+In fact, at any given moment we expect there to be a considerable fraction of all the DOT supply be staked in NPoS.
+This makes it very difficult for an adversarial entity to get validators elected since it either needs a large amount of DOTs or high enough reputation to get the required nominators' backing,
  as well as being very costly to attack because it is liable to lose all of its stake and its earned reputation.
 
 Polkadot elects validators via a decentralised protocol with carefully selected, simple and publicly known rules,
@@ -42,9 +42,9 @@ and where the goals are decentralisation and security.
 \paragraph{Decentralisation:}  
 Our decentralisation objective translates into the classical notion of proportional representation in voting theory.
 That is, a committee should represent each minority in the electorate proportional to their aggregate vote strength (in this case, their stake), with no minority being under-represented. 
-We highlight here that nominators -- and their lists of trusted candidates -- constitute a valuable gauge for the preferences of the general community, and that diverse preferences and factions will naturally arise not only due to economical and security-related reasons, but also political, geographical, etc. Such diversity of points of view is expected and welcome in a decentralized community, and it is important to engage all minorities in decision-making processes to ensure user satisfaction. 
+We highlight here that nominators -- and their lists of trusted candidates -- constitute a valuable gauge for the preferences of the general community, and that diverse preferences and factions will naturally arise not only due to economical and security-related reasons, but also political, geographical, etc. Such diversity of points of view is expected and welcome in a decentralised community, and it is important to engage all minorities in decision-making processes to ensure user satisfaction. 
 
-The goal of designing an electoral system that achieves proportional representation has been present in the literature for a very long time. Of special note is the work of Scandinavian mathematicians Edvard Phragm\'{e}n and Thorvald Thiele in the late nineteenth century. Very recently, there has been considerable effort in the research community to formalize the notion of proportional representation, and revisit the methods by Phragm\'{e}n and Thiele and optimise them algorithmically. 
+The goal of designing an electoral system that achieves proportional representation has been present in the literature for a very long time. Of special note is the work of Scandinavian mathematicians Edvard Phragm\'{e}n and Thorvald Thiele in the late nineteenth century. Very recently, there has been considerable effort in the research community to formalise the notion of proportional representation, and revisit the methods by Phragm\'{e}n and Thiele and optimise them algorithmically. 
 Our validator selection protocol is an adaptation of Phragm\'{e}n's methods and is guaranteed 
 to observe the technical property of \emph{proportional justified representation} (PJR)~\cite{sanchez2017proportional, brill2017phragmen}. 
 Formally, this means that if each nominator $\nom \in \Nom$ has stake $stake_\nom$ 
