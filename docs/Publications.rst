@@ -5,7 +5,7 @@ Publications
 
 **Papers:**
 
-Jeff Burdges, Alfonso Cevallos, Peter Czaban, Rob Habermeier, Syed Hosseini, Fabio Lama, Handan Kılınç Alper, Ximin Luo, Fatemeh Shirazi, Alistair Stewart, Gavin Wood, `Overview of Polkadot and its Design Considerations <https://github.com/w3f/research/blob/master/docs/papers/OverviewPaper-V1.pdf>`_, first version, 02 May 2020. 
+Jeff Burdges, Alfonso Cevallos, Peter Czaban, Rob Habermeier, Syed Hosseini, Fabio Lama, Handan Kılınç Alper, Ximin Luo, Fatemeh Shirazi, Alistair Stewart, Gavin Wood, `Overview of Polkadot and its Design Considerations <http://arxiv.org/abs/2005.13456>`_, first version, 28 May 2020. 
 
 
 
