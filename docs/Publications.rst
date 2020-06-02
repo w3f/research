@@ -7,11 +7,11 @@ Publications
 
 * Jeff Burdges, Alfonso Cevallos, Peter Czaban, Rob Habermeier, Syed Hosseini, Fabio Lama, Handan Kılınç Alper, Ximin Luo, Fatemeh Shirazi, Alistair Stewart, Gavin Wood, `Overview of Polkadot and its Design Considerations <http://arxiv.org/abs/2005.13456>`_, first version, 29 May 2020. 
 
-* Jeff Burdges and Luca de Feo, "Delay Encryption", in progress. 
+* Jeff Burdges and Luca de Feo, "Delay Encryption", in submission. 
 
 * Alfonso Cevallos and Alistair Stewart, `Validator Election in Nominated Proof-of-Stake <https://arxiv.org/abs/2004.12990>`_, in progress.
 
-* Handan Kılınç Alper, `Consensus on Clock in Universally Composable Timing Model <https://eprint.iacr.org/2019/1348>`_, in progress. 
+* Handan Kılınç Alper, `Consensus on Clock in Universally Composable Timing Model <https://eprint.iacr.org/2019/1348>`_, in submission. 
 
 * Alistair Stewart and Lefteris Kokoris Kogias, `GRANDPA: A finality Gadget <https://github.com/w3f/research/blob/master/docs/_static/pdf/grandpa.pdf>`_, in progress. 
 
