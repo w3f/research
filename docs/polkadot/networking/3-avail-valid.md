@@ -33,7 +33,7 @@ Every block is erasure coded across N pieces with a threshold of ceil(N/3).
 
 At the start of the period, for every parachain, its N/C parachain validators each have all of the N pieces. In this role we call them the "preliminary checkers". The high-level purpose of A&V networking is to:
 
-R1: Distribute the pieces of all C blocks to all other validators. A corollary of this is that every validator *must receive* at minimum (C-1) pieces, 1 from every other parachain.
+R1: Distribute the pieces of all C blocks to all other validators. A corollary of this is that every validator *must receive* at minimum (C-1) pieces - 1 from every other parachain - when operating at full capacity i.e. when every C parachain produces a block.
 
 R2: Ensure that ceil(N/3) of the pieces of all C blocks remains available and retrievable for a reasonable amount of time, across the N validators.
 
@@ -84,7 +84,7 @@ These should be gossiped every few seconds, and allows the participants to know 
 
 The data of the pieces are distributed via the following communication links:
 
-1. all validators in their in-neighbour set, as defined by in the overlay topology below
+1. all validators in their in- and out-neighbour sets, as defined by in the overlay topology below
 2. all other validators in the same preliminary-check set; this is the same as the parachain validator set
 3. all other validators in the same approval-checking set
 
@@ -120,7 +120,7 @@ We then perform the following random assignments:
     - Using the chain seed of `c`, we randomly assign a *chain-validator-index* `[0..|c|-1]` to every validator in the chain.
 - For every unordered pair of chains (`a`, `b`):
     - Using (the chain seed of `a`) XOR (the chain seed of `b`), we randomly assign a matching between the chain-validator-indexes of `a` and `b`. There are two cases:
-        - If `|a| == |b|` then the assignment can be performed straightforwardly, e.g. via a random shuffle on `[0..|a|-1]` interpreted as a matching. **Example**: if `|a| == 10` then we shuffle `[0..9]` then zip the result with `[0..9]` to get a list-of-pairs to be interpreted as bidirectional matches.
+        - If `|a| == |b|` then the assignment can be performed straightforwardly, e.g. via a random shuffle on `[0..|a|-1]` interpreted as a matching (a.k.a. bipartite graph). **Example**: if `|a| == 10` then we shuffle `[0..9]` then zip the result with `[0..9]` to get a list-of-pairs to be interpreted as bidirectional matches.
         - If `|a| == |b| + 1` then we first select an index from `b` to act as the extra index. The selected index would be `larger-chain-index(a) mod |b|`. We now can perform the random matching as above, except that the match against the extra-index goes only from `b` to `a`. **Example**: if `larger-chain-index(a) == 57`, `|a| == 11`, `|b| == 10` then we would randomly assign a matching between `[0..10]` and `[0..10]`, where `10` on the RHS is later replaced by `7`, and `7 -> (some index of a)` but not `(some index of a) -> 7`. Note that `7` also has another bidirectional match with some other index of a.
         - If `|a| + 1 == |b|` then as above, but of course flipped.
     - This matching defines part of the in-neighbours and out-neighbours of the validators of a pair of chains: for everyone in the pair of chains, it adds 1 in-neighbour, and 0, 1, or 2 out-neighbours depending on the size of the chains.
