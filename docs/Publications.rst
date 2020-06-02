@@ -5,7 +5,7 @@ Publications
 
 **Papers:**
 
-1. Jeff Burdges, Alfonso Cevallos, Peter Czaban, Rob Habermeier, Syed Hosseini, Fabio Lama, Handan Kılınç Alper, Ximin Luo, Fatemeh Shirazi, Alistair Stewart, Gavin Wood, `Overview of Polkadot and its Design Considerations <http://arxiv.org/abs/2005.13456>`_, first version, 28 May 2020. 
+1. Jeff Burdges, Alfonso Cevallos, Peter Czaban, Rob Habermeier, Syed Hosseini, Fabio Lama, Handan Kılınç Alper, Ximin Luo, Fatemeh Shirazi, Alistair Stewart, Gavin Wood, `Overview of Polkadot and its Design Considerations <http://arxiv.org/abs/2005.13456>`_, first version, 29 May 2020. 
 
 2. Alfonso Cevallos and Alistair Stewart, `Validator election in nominated proof-of-stake <https://arxiv.org/abs/2004.12990>`_, in progress.
 
@@ -20,7 +20,7 @@ Publications
 
 * Jeff Burdges, "Assessing or incentivising correct mixing without authorities", Financial Cryptography and Data Security (FC), February 2020. 
 
-* Alistair Stewart, "GRANDPA: A Finality Gadget", ACM Computer and Communications Security (CCS), Npvember 2019.
+* Alistair Stewart, "GRANDPA: A Finality Gadget", ACM Computer and Communications Security (CCS), November 2019.
 
 **Blog Posts:**
 
