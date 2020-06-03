@@ -7,7 +7,7 @@ Publications
 
 * Jeff Burdges, Alfonso Cevallos, Peter Czaban, Rob Habermeier, Syed Hosseini, Fabio Lama, Handan Kılınç Alper, Ximin Luo, Fatemeh Shirazi, Alistair Stewart, Gavin Wood, `Overview of Polkadot and its Design Considerations <http://arxiv.org/abs/2005.13456>`_, first version, 29 May 2020. 
 
-* Jeff Burdges and Luca de Feo, "Delay Encryption", in submission. 
+* Jeff Burdges and Luca de Feo, `Delay Encryption <https://eprint.iacr.org/2020/638>`_, in submission. 
 
 * Alfonso Cevallos and Alistair Stewart, `Validator Election in Nominated Proof-of-Stake <https://arxiv.org/abs/2004.12990>`_, in progress.
 
