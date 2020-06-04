@@ -233,7 +233,7 @@ FLOW_SINK = "target"
 
 class SKadLookup(object):
 
-  def __init__(self, init_queries, target_key, use_min_cost=True, prioritise_unique_results=False):
+  def __init__(self, init_queries, target_key, prioritise_unique_results=False):
     # query flow graph, capacities
     self.query_succ = { FLOW_SRC: set(init_queries) }
 
@@ -249,8 +249,6 @@ class SKadLookup(object):
     self.query_gap = 0
 
     self.target_key = target_key
-    # use max-flow-min-cost, otherwise use max-flow and brute-force over the costs
-    self.use_min_cost = use_min_cost
     # TODO: this could be implemented by tweaking the costs, leave it out for now
     self.prioritise_unique_results = prioritise_unique_results
     if prioritise_unique_results:
@@ -274,112 +272,63 @@ class SKadLookup(object):
   def warn_no_query(self, ctx):
     print(ctx, ": too-few results to select a next peer") # TODO more error detail
 
-  def max_flow_wrong(self, matching, verbose=False):
-    # construct the capacity graph
-    # note that the order is important, we want the max_flow algorithm to
-    # traverse the closest ones first.
-    # FIXME: sadly this fails, including some asserts below
-    # we need max-saturating-flow not max-flow
-    MAX = 100000000000 # TODO: should calculate this better
-
-    C = defaultdict(lambda: defaultdict(lambda: 0))
-    for k, succs in self.query_succ.items():
-      for succ in sorted(succs, key=self.distance_to):
-        C[k][succ] = MAX
-      if k != FLOW_SRC and matching(k):
-        C[k][FLOW_SINK] = MAX - self.distance_to(k)
-
-    # calculate max flow
-    (f, max_flow) = max_flow_dinic(C, FLOW_SRC, FLOW_SINK)
-    if verbose:
-      print("cap & flow:")
-      pprintd(C)
-      pprintd(max_flow)
-
-    # extract results
-    results = set()
-    for k in C.keys():
-      if k not in (FLOW_SRC, FLOW_SINK) and matching(k):
-        # FIXME: sadly this doesn't always work, partial flows can be maximal
-        if max_flow[k][FLOW_SINK] == MAX - self.distance_to(k):
-          results.add(k)
-
-    return sorted(results, key=self.distance_to)
-
-  def max_flow_min_distance(self, matching, honour_query_gap=True, ask_results=None, verbose=False):
+  def max_flow_min_distance(self, matching, ask_results=None, verbose=False):
     if ask_results is None:
       ask_results = self.num_parallel()
 
-    use_min_cost = self.use_min_cost
-    if not self.use_min_cost and ask_results != self.num_parallel():
-      use_min_cost = True
-      print("use_min_cost = False only supported for ask_results == num_parallel, ignoring")
-
+    # construct input for max-flow-min-cost, as per our security model
     C = defaultdict(lambda: defaultdict(lambda: 0))
     for k, succs in self.query_succ.items():
       if k == FLOW_SRC:
+        # every initial query node has capacity := ask_results from the source
         for succ in sorted(succs, key=self.distance_to):
           C[k][succ] = ask_results
       elif succs:
-        # restrict all nodes to only being on 1 flow, by converting them into
-        # two nodes (k) and (k, "out") with capacity 1 between them
+        # restrict all nodes to only being on one "disjoint path" by converting
+        # them into two nodes (k) and (k, "out") with capacity := ask_results
+        # across the edge between them
         C[k][(k, "out")] = ask_results
         for succ in sorted(succs, key=self.distance_to):
           C[(k, "out")][succ] = ask_results
-
+    # every candidate has capacity := num_parallel to the sink
     candidates = list(k for k in self.query_succ.keys() if k != FLOW_SRC and matching(k))
+    Rates = defaultdict(lambda: defaultdict(lambda: 0))
+    for k in candidates:
+      C[k][FLOW_SINK] = self.num_parallel()
+      Rates[k][FLOW_SINK] = self.distance_to(k)
+    # In summary we have:
+    # - capacity (num_parallel * ask_results) from the source
+    # - capacity (|candidates| * num_parallel) to the sink
+    # So a max-flow must consist of <= ask_results final nodes before the sink
+    # since that is the maximum capacity available from the source.
+    # The other things above encode the constraints to solve for S-Kademlia:
+    # - split-nodes -> disjoint paths
+    # - min-cost -> lowest distance
+    # Moreover due to the min-cost constraint, it is not possible for a flow to
+    # be "split" across two final nodes - all possible flows will fully-use the
+    # capacity of a final node, i.e. the one that has the lower cost.
 
-    # honour_query_gap is True if we are using this function to select the next
-    # peer to query, or False if we are using this function to give us results
-    if honour_query_gap:
-      # a next-peer selection previously failed, meaning we hit a bottleneck in
-      # the query graph, so ensure we don't select more peers beyond it.
-      wanted = self.num_parallel() - self.query_gap
-    else:
-      wanted = ask_results
-    if verbose:
-      print("candidates:", candidates, "wanted:", wanted)
+    if verbose: print("candidates:", candidates, "ask_results:", ask_results)
+    # run max-flow-min-cost
+    (max_flow, min_cost, F) = max_flow_min_cost(C, Rates, FLOW_SRC, FLOW_SINK)
 
-    if not use_min_cost:
-      # brute force version using only max-flow, also works
-      # doesn't easily support ask_results != self.num_parallel(), so disable that
-      for subset in combinations(sorted(candidates, key=self.distance_to), wanted):
-        C_ = deepcopy(C)
-        for k in subset:
-          C_[k][FLOW_SINK] = self.num_parallel()
-        (max_flow, max_flow_graph) = max_flow_dinic(C_, FLOW_SRC, FLOW_SINK)
-        max_flow /= ask_results # normalise
-        if verbose:
-          print(subset)
-          pprintd(C_)
-          print("max flow:", max_flow)
-          pprintd(max_flow_graph)
-        if max_flow == wanted:
-          return sorted(subset)
-      return []
-    else:
-      # more efficient version using max-flow-min-cost just once
-      Rates = defaultdict(lambda: defaultdict(lambda: 0))
-      for k in candidates:
-        C[k][FLOW_SINK] = self.num_parallel()
-        Rates[k][FLOW_SINK] = self.distance_to(k)
-      (max_flow, min_cost, F) = max_flow_min_cost(C, Rates, FLOW_SRC, FLOW_SINK)
-      max_flow /= ask_results # normalise
-      if max_flow < wanted and honour_query_gap: return []
-      results = [k for k in candidates if F[k][FLOW_SINK] == self.num_parallel()]
-      #print(max_flow, ask_results, len(results), self.num_parallel())
-      assert max_flow * ask_results == len(results) * self.num_parallel()
-      # if (self.query_gap == 0) then we always get exactly what we want.
-      # else, we might get more results than we want, but we cut those back
-      # since those are from previously-failed queries.
-      if honour_query_gap:
-        assert wanted <= max_flow <= wanted + self.query_gap
-      return sorted(results)[:wanted]
+    results = [k for k in candidates if F[k][FLOW_SINK] == self.num_parallel()]
+    #print(max_flow, ask_results, len(results), self.num_parallel())
+    assert max_flow == len(results) * self.num_parallel()
+    return sorted(results)
 
   def select_next_query(self, verbose=False):
     next_to_query = self.max_flow_min_distance(
       lambda k: k not in self.query_result and
                 k not in self.query_failed, verbose=verbose)
+    expected = self.num_parallel() - self.query_gap
+    if len(next_to_query) < expected:
+        # sanity check: if we got fewer than expected from max-flow-min-distance,
+        # this means we've hit a(nother) bottleneck in our query graph and
+        # we're actually already querying everything there is to query
+        assert all(q in self.query_expect for q in next_to_query)
+    # filter out stuff we're already querying. if these leaves us with nothing
+    # then it means we've hit a bottleneck in the query graph
     return [q for q in next_to_query if q not in self.query_expect]
 
   def recv_result(self, peer, reply, verbose=False):
@@ -437,22 +386,22 @@ class SKadLookup(object):
         (k in self.query_result or k in self.query_expect)
         if include_waiting else
         (k in self.query_result),
-        honour_query_gap=False,
         ask_results=ask_results,
         verbose=verbose)
 
-def tests_skademlia(use_min_cost=True):
+def tests_skademlia():
   print("----")
-  q = SKadLookup([4,5,6], 0, use_min_cost=use_min_cost)
+  q = SKadLookup([4,5,6], 0)
   assert(q.recv_result(4, {1,2,3}) == 1)
   assert(q.recv_result(5, {1,2,3}) == 2)
   assert(q.recv_result(6, {4,1,2}) == 3)
   # ^ corner case, correctly selects 3 even though 3 not part of 6's reply
   assert(q.current_best() == [4,5,6])
-  assert(q.current_best(True) == [1,2,3]) # this assert fails if using max_flow_wrong
+  assert(q.current_best(True) == [1,2,3])
+  # ^ this assert fails if using max-flow without cost considerations
 
   print("----")
-  q = SKadLookup([5,6,7,8], 0, use_min_cost=use_min_cost)
+  q = SKadLookup([5,6,7,8], 0)
   assert(q.recv_result(5, {3,4}) == 3)
   assert(q.recv_result(6, {3,4}) == 4)
   assert(q.recv_result(7, {3,4}) == None)
@@ -463,12 +412,12 @@ def tests_skademlia(use_min_cost=True):
   assert(q.query_gap == 3)
 
   print("----")
-  q = SKadLookup([5,6,7], 0, use_min_cost=use_min_cost)
+  q = SKadLookup([5,6,7], 0)
   assert(q.recv_result(5, {4}) == 4)
   assert(q.recv_result(4, {1,2,3}) == 1)
   assert(q.recv_result(6, {4}) == None) # e.g. not 2
   assert(q.recv_result(7, {4}) == None)
-  # this test fails if "restrict nodes to only being on 1 flow" is not implemented
+  # ^ this test fails if "restrict nodes to only being on 1 flow" is not implemented
   assert(q.query_gap == 2)
   assert(q.current_best() == [4,5,6])
   assert(q.current_best(ask_results=4) == [4,5,6,7])
@@ -476,7 +425,7 @@ def tests_skademlia(use_min_cost=True):
   assert(q.current_best(True, ask_results=4) == [1,4,5,6])
 
   print("----")
-  q = SKadLookup([10,11,12], 0, use_min_cost=use_min_cost)
+  q = SKadLookup([10,11,12], 0)
   assert(q.recv_result(10, {5,6}) == 5)
   assert(q.recv_result(11, {6,7}) == 6)
   assert(q.recv_result(12, {8}) == 8)
@@ -492,5 +441,4 @@ def tests_skademlia(use_min_cost=True):
 if __name__ == "__main__":
   tests_max_flow_dinic()
   tests_max_flow_min_cost()
-  tests_skademlia(use_min_cost=True)
-  tests_skademlia(use_min_cost=False)
+  tests_skademlia()
