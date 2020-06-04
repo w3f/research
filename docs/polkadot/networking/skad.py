@@ -260,6 +260,9 @@ class SKadLookup(object):
       self.query_succ[nodeId] = {}
       self.launch_query("init %3s" % target_key, nodeId)
 
+  def num_parallel(self):
+    return len(self.query_succ[FLOW_SRC])
+
   def distance_to(self, n):
     return distance(n, self.target_key)
 
@@ -303,53 +306,74 @@ class SKadLookup(object):
 
     return sorted(results, key=self.distance_to)
 
-  def max_flow_min_distance(self, matching, verbose=False):
+  def max_flow_min_distance(self, matching, honour_query_gap=True, ask_results=None, verbose=False):
+    if ask_results is None:
+      ask_results = self.num_parallel()
+
+    use_min_cost = self.use_min_cost
+    if not self.use_min_cost and ask_results != self.num_parallel():
+      use_min_cost = True
+      print("use_min_cost = False only supported for ask_results == num_parallel, ignoring")
+
     C = defaultdict(lambda: defaultdict(lambda: 0))
     for k, succs in self.query_succ.items():
       if k == FLOW_SRC:
         for succ in sorted(succs, key=self.distance_to):
-          C[k][succ] = 1
+          C[k][succ] = ask_results
       elif succs:
         # restrict all nodes to only being on 1 flow, by converting them into
         # two nodes (k) and (k, "out") with capacity 1 between them
-        C[k][(k, "out")] = 1
+        C[k][(k, "out")] = ask_results
         for succ in sorted(succs, key=self.distance_to):
-          C[(k, "out")][succ] = 1
+          C[(k, "out")][succ] = ask_results
 
     candidates = list(k for k in self.query_succ.keys() if k != FLOW_SRC and matching(k))
-    wanted = len(self.query_succ[FLOW_SRC]) - self.query_gap
+
+    # honour_query_gap is True if we are using this function to select the next
+    # peer to query, or False if we are using this function to give us results
+    if honour_query_gap:
+      # a next-peer selection previously failed, meaning we hit a bottleneck in
+      # the query graph, so ensure we don't select more peers beyond it.
+      wanted = self.num_parallel() - self.query_gap
+    else:
+      wanted = ask_results
     if verbose:
       print("candidates:", candidates, "wanted:", wanted)
 
-    if not self.use_min_cost:
+    if not use_min_cost:
       # brute force version using only max-flow, also works
+      # doesn't easily support ask_results != self.num_parallel(), so disable that
       for subset in combinations(sorted(candidates, key=self.distance_to), wanted):
         C_ = deepcopy(C)
         for k in subset:
-          C_[k][FLOW_SINK] = 1
+          C_[k][FLOW_SINK] = self.num_parallel()
         (max_flow, max_flow_graph) = max_flow_dinic(C_, FLOW_SRC, FLOW_SINK)
+        max_flow /= ask_results # normalise
         if verbose:
           print(subset)
           pprintd(C_)
           print("max flow:", max_flow)
           pprintd(max_flow_graph)
         if max_flow == wanted:
-          return list(subset)
+          return sorted(subset)
       return []
     else:
       # more efficient version using max-flow-min-cost just once
       Rates = defaultdict(lambda: defaultdict(lambda: 0))
       for k in candidates:
-        C[k][FLOW_SINK] = 1
+        C[k][FLOW_SINK] = self.num_parallel()
         Rates[k][FLOW_SINK] = self.distance_to(k)
       (max_flow, min_cost, F) = max_flow_min_cost(C, Rates, FLOW_SRC, FLOW_SINK)
-      if max_flow < wanted: return []
-      results = [k for k in candidates if F[k][FLOW_SINK] == 1]
-      assert max_flow == len(results)
+      max_flow /= ask_results # normalise
+      if max_flow < wanted and honour_query_gap: return []
+      results = [k for k in candidates if F[k][FLOW_SINK] == self.num_parallel()]
+      #print(max_flow, ask_results, len(results), self.num_parallel())
+      assert max_flow * ask_results == len(results) * self.num_parallel()
       # if (self.query_gap == 0) then we always get exactly what we want.
       # else, we might get more results than we want, but we cut those back
       # since those are from previously-failed queries.
-      assert wanted <= max_flow <= wanted + self.query_gap
+      if honour_query_gap:
+        assert wanted <= max_flow <= wanted + self.query_gap
       return sorted(results)[:wanted]
 
   def select_next_query(self, verbose=False):
@@ -391,7 +415,7 @@ class SKadLookup(object):
 
       self.query_result.add(peer)
 
-    assert (len(self.query_expect) + self.query_gap == len(self.query_succ[FLOW_SRC]))
+    assert (len(self.query_expect) + self.query_gap == self.num_parallel())
     self.query_expect.remove(peer)
     candidates = self.select_next_query(verbose=verbose)
 
@@ -405,14 +429,17 @@ class SKadLookup(object):
       next_peer = candidates[0]
       # make the actual query
       self.launch_query("recv %3s" % peer, next_peer)
-      assert (len(self.query_expect) + self.query_gap == len(self.query_succ[FLOW_SRC]))
+      assert (len(self.query_expect) + self.query_gap == self.num_parallel())
       return next_peer
 
-  def current_best(self, include_waiting=False, verbose=False):
+  def current_best(self, include_waiting=False, ask_results=None, verbose=False):
     return self.max_flow_min_distance(lambda k:
         (k in self.query_result or k in self.query_expect)
         if include_waiting else
-        (k in self.query_result), verbose=verbose)
+        (k in self.query_result),
+        honour_query_gap=False,
+        ask_results=ask_results,
+        verbose=verbose)
 
 def tests_skademlia(use_min_cost=True):
   print("----")
@@ -443,8 +470,10 @@ def tests_skademlia(use_min_cost=True):
   assert(q.recv_result(7, {4}) == None)
   # this test fails if "restrict nodes to only being on 1 flow" is not implemented
   assert(q.query_gap == 2)
-  assert(q.current_best() == [4])
-  assert(q.current_best(True) == [1])
+  assert(q.current_best() == [4,5,6])
+  assert(q.current_best(ask_results=4) == [4,5,6,7])
+  assert(q.current_best(True) == [1,4,5])
+  assert(q.current_best(True, ask_results=4) == [1,4,5,6])
 
   print("----")
   q = SKadLookup([10,11,12], 0, use_min_cost=use_min_cost)
