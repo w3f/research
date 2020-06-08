@@ -14,6 +14,7 @@
 \newcommand{\phonestslots}{\ensuremath{\mathtt{p\_honest\_slots}}}
 \newcommand{\honestslots}{\ensuremath{\mathtt{honest\_slots}}}
 \newcommand{\malslots}{\ensuremath{\mathtt{mal\_slots}}}
+\newcommand{\randweakslot}{\ensuremath{r\_weak\_slots}}
 \newcommand{\publicvrfs}{\ensuremath{\mathtt{public\_vrfs}}}
 \newcommand{\phonestvrfs}{\ensuremath{\mathtt{p\_honest\_vrfs}}}
 \newcommand{\honestvrfs}{\ensuremath{\mathtt{honest\_vrfs}}}
@@ -26,6 +27,23 @@
 
 \section{Analysis}
 
+\subsection{Security Definitions}
+
+\begin{definition}[Chain Growth (CG) Property \cite{backbone}] \label{def:cg}
+	The CG  property with parameters $ s, s_{cg}\in \mathbb{N} $ ensures that if the length of a blockchain owned by an honest party at the onset of a round $ C_u $ is $ \ell_u $ and the length of the same blockchain at round $ C_v  $ where $ C_v \leq C_u - s  $ is $\ell_v$, then the $ s \geq \ell_u  - \ell_v \geq  s_{cg} $.
+	
+	
+\end{definition}
+
+In other words, the CG property guarantees if a chain is owned by an honest party at a round, then this chain has grown $ s_{cg}$ blocks in every $ s_{cg} $ rounds. 
+
+\begin{definition}[Chain Quality (CQ) Property \cite{backbone}]\label{def:cq}
+	The CQ property with parameters $ \mu \in (0,1]  $ and $ k \in \mathbb{N} $ ensures that the ratio of honest blocks in any $ k $ length portion of a blockchain owned by an honest party is at least $ \mu $.
+\end{definition} 
+
+The CQ property ensures the existence of sufficient honest blocks on  any blockchain owned by an honest party.
+
+We prove the chain growth of the best chain assuming that the weakly corrupted validators do not produce the block. We assume that the adversary can weakly corrupt validators whose chance to produce the next block is less than $ \thweak' $.
 \paragraph{Adversarial Model:} In our model, we assume that there exists $ n $ validators.  We consider two type of corruption in our model. We call the first corruption model \emph{strong corruption} and the second one \emph{weak corruption}. When a validator is strongly corrupted, it means that the current state (non-volatile memory) of the validator is shared with the adversary. We assume that every validator starts a new era with a freshly generated keys and erases the old keys. The adversary can strongly corrupt up to $ f = (1-\alpha)n $ validators in one era where $ \alpha \in (0,1] $ is the ratio of honest validators.  
 When a validator is weakly corrupted, it means that the validator is not able to participate the protocol. The weak corruption basically silence the validator as if she does not exists. The adversary can weakly corrupt up to $ \nweak $ validators at the same time at most  $ \weakperiod $ slots. A weakly corrupted validator is considered as malicious if she does not contribute the protocol as she is supposed to do because of the weakly corruption.  In other words, if the view of the protocol at the time that the validator is weakly corrupted is different than the view of the protocol without the corruption, then we assume this validator malicious and consider it as successful weakly corruption.  We denote honest validators set in one sortition and one block production phase by $ \mathcal{H} $ where $ |\mathcal{H}| = n_H = n-f - f_\nweak$ where $ f_\nweak $ is the number of malicious validators because of the weakly corruption.  Therefore, in our analysis below, we consider the security of Sassafras with $ f + f_{\nweak}$ malicious validators out of $ n $ validators. 
 
@@ -39,33 +57,108 @@ This separation lets us analyze the security of Sassafras with more appropriate 
 
 
 
+%TODO No successfull weak corruption before starting an epoch 
+%	\item This game is played against an adversary which breaks the security of  Sassafras with probability $ p_1 $. The sub phases that is executed to decide block producers of epoch $ e $ takes $ l $ epochs.	
+%In these $ l $ epochs, the period that a validator generates and sends VRFs to repeater takes $ \Gamma_{\mathsf{vrf}} $ slots, that a repeater publishes all VRFs takes $ \Gamma_{\mathsf{rep}} $ slots and that the validator publishes her unpublished VRFs takes $ \Gamma_{\mathsf{last}} $ slots. 
+%
+%%One epoch consists of $ \eplen  $ slots.
+%
+%
+%The number of VRF outputs that are published to be sorted are $ \allvrfs $. Remember that all VRF outputs that are published are less than the threshold $ c $. $ \phonestvrfs $ of them are given to the adversary to be published (i.e., if the repeater is the malicious, then the owner of the VRF is leaked to the adversary). In other words, the adversary knows the owner of $ \phonestvrfs $ many honest validators' VRF outputs
+%
+%One epoch consists of $ \eplen  $ slots. $ \publicslots $ are the number of slots whose block producer is known by the adversary. $ \phonestslots $ of them are the number of slots whose block producer is honest and known by the adversary. So, $ \eplen  - \publicslots $ of them is not known by the adversary before starting the epoch.
+%
+%$ \malslotset $ is a slot set that includes the assigned to a malicious validator. $ \weakslotset $ is a slot set that includes the slots which are assigned to weakly corrupted validators during their slot. $ \honestslotset $ is the set of the rest of the slots (honest slots) which is not in $ \malslotset $ or $ \weakslotset $. 
+%
+%In the next games, we bound these parameters.
+%
+%\item We reduce the previous game to the game where the adversary cannot corrupt  any honest validator weakly and successfully during the sub phases. This game is indistinguishable from the previous game  because $ \Gamma_{\mathsf{vrf}}, \Gamma_{\mathsf{rep}}, \Gamma_{\mathsf{last}}> \weakperiod $. In other words, the weak corruptions in the previous game during sub phases will never be successful because after a validator is weakly corrupted during $\weakperiod $ slots, she will still have time to complete the sub-phase. So the view of the protocol does not change\footnote{We can also consider the adversary where $ \weakperiod > \Gamma_{\mathsf{vrf}}, \Gamma_{\mathsf{rep}}, \Gamma_{\mathsf{last}} $ but it requires more complicated analysis. So, it is left as a future work.} in all sub phases. In other words, all VRF outputs generated by honest validators and less than $ c $ are published in the blockchain. So, $ p_1 = p_2 $.
 
 
 
-
-\paragraph{Honest Slot:} We call a slot associated with a VRF value $ \omega_{V,e,i} $ is an honest slot  if $ V $ is an honest validator and $ \mathcal{V}[H(\omega_{V,e,i}||``WHO'')] $ is not a corrupted validator. Therefore, the probability of having an honest slot is $ p_{\mathsf{hslot}} = \alpha^2 $.  
-
-\paragraph{Weak Slot:} We call a slot associated with a VRF value $ \omega_{V,e,i} $ is a weak slot  if $ V $ is an honest validator and $ \mathcal{V}[H(\omega_{V,e,i}||``WHO'')] $ is not a corrupted validator. Therefore, the probability of having a weak slot is $ p_{\mathsf{wslot}} = \alpha (1-\alpha) $.  
-
-\paragraph{Malicious Slot:}  We call a slot associated with a VRF value $ \omega_{V,e,i} $ is a malicious slot  if $ V $ is a strongly corrupted validator. Therefore, the probability of having a malicious slot is $ p_{\mathsf{mslot}} =  (1-\alpha) $.  
+%\paragraph{Honest Slot:} We call a slot associated with a VRF value $ \omega_{V,e,i} $ is an honest slot  if $ V $ is an honest validator and $ \mathcal{V}[H(\omega_{V,e,i}||``WHO'')] $ is not a corrupted validator. Therefore, the probability of having an honest slot is $ p_{\mathsf{hslot}} = \alpha^2 $.  
 
 
+\paragraph{Public Slot:} We call a slot associated with a VRF value $ \omega_{V,e,i} $ is a weak slot  if $ V $ is an honest validator and $ \mathcal{V}[H(\omega_{V,e,i}||``WHO'')] $ is not a corrupted validator. Therefore, the probability of having a weak slot is $ p_{\mathsf{pSlot}} = \alpha (1-\alpha) $.  
 
-\begin{lemma}[ECQ]
-	Assuming that $ \alpha^2 > (1-\alpha) $, Sassafras satisfies existential chain quality in $ s_{ecq} $ slots except with probability $ \exp(-s_{ecq}) $.
+\paragraph{Malicious Slot:}  We call a slot associated with a VRF value $ \omega_{V,e,i} $ is a malicious slot  if $ V $ is a strongly corrupted validator. Therefore, the probability of having a malicious slot is $ p_{\mathsf{mSlot}} =  (1-\alpha) $.  
+
+
+
+\paragraph{Rand-Weak Slot:} We call a slot associated with a VRF value $ \omega_{V,e,i} $ is a random weak slot  if $ V $ is an honest validator and $ \mathcal{V}[H(\omega_{V,e,i}||``WHO'')] $ is not a corrupted validator and the adversary weakly corrupts $ V $ in the slot with the VRF value $ \omega_{V,e,i} $.  Below, we find the probability of having rand-weak slot $ p_{rSlot} $.
+
+\begin{lemma}
+	The probability that a slot is a rand-weak is less than $$(1 - \exp(-\frac{\mu_{\mathsf{hvrf}}\delta_{\mathsf{hvrf}}}{2}))\frac{w \vrfaattemptsbound }{\mu_{\mathsf{hvrf}} (1- \delta_{\mathsf{hvrf}}) - (\eplen  -1)} $$ where $ 0 < \delta_{\mathsf{hvrf}} < 1 $, $ \mu_{\mathsf{hvrf}} = (n-f)c\alpha\vrfaattemptsbound $ and  $ \eplen  $ is the epoch length.
 \end{lemma}
 
 \begin{proof}
-Let's consider consecutive blocks $ B_1, B_2, ..., B_{k_{ecq}} $ of a chain $ \mathbf{B} $ owned by an honest validator  and assume that all of them generated by a malicious validator. Imagine that the first honest block before $ B_1 $ is $ B_{h_1}  \in \mathbf{B}$ and the first honest block after $ B_{k_{ecq}} $ is $ B_{h_2}  \in \mathbf{B}$. Remark that $ B_{h_1} $ exists because it is the genesis block in the worst case. Also, $ B_{h_2} $ exists because it is owned by an honest validators so in the worst case it is the last block of $ \mathbf{B} $. 
-
- and spanned between  slots $sl_i  $ and $ sl_j $ where $ sl_j - sl_i \geq s_{ecq} $. Assume that all of them generated by a malicious party.
+	Consider a slot $ sl $ in an epoch $ e $ with the VRF input $ (r_e||i) $. Since $ (r_e||i) $ of the VRF output of $ sl $ is public, the adversary can eliminate validators for this slot $ sl $ to weakly corrupt who have already produced a block on a slot with the VRF input-index $ i $ and public validators who will produce with VRF input-index $ i $ in next slots. Let's call such validators \emph{inactive} for slot $ sl $ and assume that their number is $ n_i $. After eliminating the inactive validators, the adversary can compute the probability that an active  and honest validator $ V $ is selected in slot $ sl $ based on the number of blocks that she produced so far $ (\ell_V) $ and. So, this probability is
+	
+	%$$p_{V,s} = \frac{|\vrfwinninglist_V|- \ell_V}{\sum_{V' \in \mathcal{H}_a}|\vrfwinninglist_{V'}| -\ell_{V'}-\numleak} \leq \frac{\vrfaattemptsbound - \ell_V}{\numanom - (s-1)}$$
+	
+	\begin{equation}\label{eq:prVs}
+	p_{V,sl} = \frac{|\vrfwinninglist_V|- \ell_V}{\honestvrfs - \sum_{V' \in \mathcal{H}_a}\ell_{V'}}\leq \frac{\vrfaattemptsbound - \ell_V}{\honestvrfs - (R-1)}
+	\end{equation}
+	
+	
+	where $ \honestvrfs $ is the number of honest validators' VRF outputs which are anonymous to the adversary.
+	In this case the best strategy for the adversary to increase her chance to  weakly corrupt the right validator  is sorting the list $ \{p_{V,sl}\}_{V \in \mathsf{Active}} $ in ascending order, and weakly corrupting the first $ w $ of the validators in the sorted $ \{p_{V,sl}\}_{V \in \mathsf{Active}} $. Therefore, the probability that being a rand-weak slot is less than $  \frac{w\vrfaattemptsbound }{\honestvrfs - (R-1)}  $.
+	
+	Now let's lower bound $ \honestvrfs $ to upper bound $ p_{\mathsf{rweak}} $.	For this, we define a random variable $ R_{V,e,i} $ which is 1 if $ V $ is an honest validator, $ U = \vals[H(\omega'_{V,e,i} \| "WHO") \mod |\vals|]  $ corresponds to  \emph{an honest validator}, $ \omega'_{V,e,i} < c $. Otherwise, it is 0.  In this case, $ \pr[R_{V,e,i} = 1] = \alpha c$ and
+	the expected number of $ R_{V,e,i}  = 1$ is  $ \mu_{\mathsf{hvrf}} = (n-f) \vrfaattemptsbound \alpha c $. We can bound the probability of having $ \honestvrfs $ close to the expected value with  the Chernoff bound as follows for all $ 0 <\delta_{\mathsf{hvrf}} < 1 	 $:
+	
+	\begin{equation}\label{eq:beforeepcoh}
+	\epsilon_4 = \pr[ \honestvrfs = \sum_{\substack{ \forall V \in \mathcal{H} \\0\leq i < \vrfaattemptsbound}} R_{V,e,i} \leq \mu_{\mathsf{hvrf}} (1 - \delta_{\mathsf{hvrf}})] < \exp(-\frac{\mu_{\mathsf{hvrf}}\delta_{\mathsf{hvrf}}^2}{2}) \nonumber
+	\end{equation}
+	
+	Hence, we can upper bound the probability of having a rand-weak slot with
+	$$(1 - \exp(-\frac{\mu_{\mathsf{hvrf}}\delta_{\mathsf{hvrf}}}{2}))\frac{w \vrfaattemptsbound }{\mu_{\mathsf{hvrf}} (1- \delta_{\mathsf{hvrf}}) - (\eplen  -1)} $$
 \end{proof}
 
-ECQ property broken if there are more corrupted slots between slots $ sl_i $ and $ sl_i + s_{ecq} $.  Since the honest slots are sampled more than the corrupted slots,  the probability that ECQ property is broken is less than $ 2^{-s_{ecq}} $.
+\paragraph{Honest Slot:} We call a slot associated with a VRF value $ \omega_{V,e,i} $ is an honest slot  if it is not neither a malicious slot, nor public slot or rand-weak slot. Therefore, the probability of having an honest slot is $ p_{\mathsf{hSlot}} = 1- p_{\mathsf{mSlot}} - p_{\mathsf{pSlot}} - p_{\mathsf{rSlot}}  $.  
 
 
+\begin{lemma}[ECQ]
+	If $ p_{\mathsf{mSlot}} < p_{\mathsf{hSlot}} $, the adversary breaks the existential chain quality with the parameter $ \malslots $ except with probability $ 1- \exp(-\Omega(k)) $.
+\end{lemma}
+
+\begin{proof}
+	
+	Let's consider consecutive $ k_{ecq} $ blocks $ B_1, B_2, ..., B_{k_{ecq}} $ of a chain $ \mathbf{B} $ owned by an honest validator  and assume that all of them generated by a malicious validator. Imagine that the first honest block before $ B_1 $ is $ B_{h_1}  \in \mathbf{B}$  and the first honest block after $ B_{k_{ecq}} $ is $ B_{h_2}  \in \mathbf{B}$. Remark that $ B_{h_1} $ exists because it is the genesis block in the worst case. Also, $ B_{h_2} $ exists because it is owned by an honest validators so in the worst case it is the last block of $ \mathbf{B} $. We know that the difference between the length of the chain whose last block is generated by the honest validator and the length of the chain whose last block is generated by the next honest validator is at least one because honest validators always build on top of the longest chain. Therefore, the length of the other chains that the honest validators build will be at least the number of honest slots $ (h) $ between the slot of $ B_{h_1} $ and $ B_{h_2} $. Since $ \mathbf{B} $ is the honest validator's best chain, it is longer than other chains meaning that $ k_{ecq} \geq h $.  Since $ p_{\mathsf{mSlot}} < p_{\mathsf{hSlot}} $ the probability that there are less than $ k_{ecq} $ honest slots given that there are $ k_{ecq} $ malicious slots is  falls exponantially with $ k_{ecq} $.
+\end{proof}
 
 
+\begin{lemma}[CP]
+	Assuming that probability that having  $ p_{\mathsf{hSlot}} >\frac{1}{2}$, Sassafras satisfies the common prefix property  with the parameter $ k $ except with the probability  $ \exp(-\Theta(k)) $. 
+\end{lemma}
+
+Thanks to the result of  Kiayias et al. \cite{consistency}, that if probability that having an honest slot is greater than the probability of having malicious slot and weak slot, chain prefix property is guaranteed with the error bound $ \exp(-\Theta(k)) $.
+
+If a weakly corrupted validator informs everyone after the corruptions, then the chain that includes his block could be ignored by other validators. Thus, weakly corrupted validators do not help the adversary to break the common prefix property. If we had such mechanism in Sassafras, then having $ p_{\mathsf{hSlot}}  > p_{\mathsf{mSlot}} $ would be enough to achieve CP. 
+
+
+\begin{lemma}[HCG]
+	Sassafras satisfies the honest chain growth property with $ \tau_{hcg} = p_{\mathsf{hSlot}}(1-\delta_{\mathsf{hSlot}}  $ in $ s_{hcg} $ slots except with the probability $ \exp(-\frac{sp_{\mathsf{hSlot}}\delta_{\mathsf{hSlot}}^2}{2}) $ where $ 0< \delta_{\mathsf{hSlot}} < 1 $.
+\end{lemma}
+
+\begin{proof}
+	Consider a chain $ \mathbf{B} $ owned by an honest validator at slot $ sl $. Let $ sl_u $ and $ sl_v $ be two previous slots where $ \mathbf{B}[sl_u] $ and $ \mathbf{B}[sl_v] $ are generated by honest validators and $ sl_u + s \leq sl_v $. As discussed in  Lemma \ref{lem:ecq}, the chain grows between $ \mathbf{B}[sl_u] $ and $ \mathbf{B}[sl_v] $ at least the number of honest slots. Therefore, let's upper bound the honest slots with the Chernoff bound for all $ 0<\delta_{\mathsf{hSlot}}<1 $.
+	
+	\begin{equation}
+	\pr[\honestslots = \sum_{sl_u}^{sl_v}S_i \leq s p_{\mathsf{hSlot}}(1-\delta_{\mathsf{hSlot}})] < \exp(-\frac{sp_{\mathsf{hSlot}}\delta_{\mathsf{hSlot}}^2}{2})
+	\end{equation}
+	
+	
+\end{proof}
+
+
+\begin{lemma}[CG]
+	Assuming that ECQ property is satisfied in $ s_{ecq} $ slots and the number of honest slots in $ s $ slots is at least $ \honestslots $, then the chain grows at least $ \honestslots $ in $ 2s_{ecq} + s_{hcg} $ slots.
+\end{lemma}
+
+\begin{proof}
+	Consider the subchain $ B[sl_i,sl_i+s_{ecq}] $ spanned between slots $ sl_i $ and $ sl_i + s_{ecq} $  which is the subchain of a best chain in slot $ sl_i +  2s_{ecq} + s  $. Thanks to the ECQ property $ B[sl_i,sl_i+s_{ecq}] $ contains at least one block $ B_1 $ generated in an honest slot.   Now consider another subchain $ B[sl_j -s_{ecq} :sl_j] $ of the best chain spanned between slots $ sl_j - s $ and $ sl_j $ where $ sl_j $  is the last slot of $ e $. Similarly, $ B[sl_j -s_{ecq} :sl_j] $ contains at least one block $ B_2 $ generated on an honest slot. Lastly, we consider another subchain between blocks $ B_1 $ and $ B_2 $.  Thanks to honest chain growth, the length of the the subchain between $ B_1 $ and $ B_2 $ is at least equal to the number of honest slots between them which is $ \honestslots $. 
+\end{proof}
 %\paragraph{Expected Number of VRFs:}
 %The expected number of VRFs by honest validators and by strongly corrupted validators play a key role to analyze the distribution of honest and malicious slots. Probability that the repeater of a VRF value $ \omega_{V,e,i} < c $ is a corrupted validator is $ (1-\alpha) $. 
 
@@ -87,139 +180,9 @@ ECQ property broken if there are more corrupted slots between slots $ sl_i $ and
 %$$\mu_{mvrf} = \alpha c * \vrfaattemptsbound $$
 
 
-\paragraph{Expected Number of Slots:}
 
 
-We reduce Sassafras to other protocols where the difference is indistinguishable. We analyze the security of the final reduced protocol which is easier to analyze.
 
-\begin{theorem}
-	Consider consecutive $ s $ slots of an epochs $ e $  in Sassafras. The number of corrupted slots in $ e $ is at most
-	$$ \frac{w *\vrfaattemptsbound}{\honestvrfs - (R-1)} +  \phonestslots + \malslots $$ 
-	 where $ \phonestslots + \malslots < \mu_{\mathsf{phSlot}}(1+\delta_{\mathsf{phSlot}}) + \mu_{\mathsf{mSlot}} (1 + \delta_{\mathsf{mslot}}) $ for  $ \delta_{\mathsf{phSlot}}, \delta_{\mathsf{mslot}} > 0 $ and $ \honestvrfs > \mu_{\mathsf{hvrf}} (1- \delta_{\mathsf{hvrf}}) $ for $ 0<\delta_{\mathsf{hvrf}} <1 $ with probability $ 1- \negl(s) - \negl'(n) $ where $ \negl $ and $\negl'  $ are  negligible functions.
-\end{theorem}
-
-\begin{proof}
-
-\begin{enumerate}[label={{Game }}{{\arabic*}}]	
-	\item This game is played against an adversary which breaks the security of  Sassafras with probability $ p_1 $. The sub phases that is executed to decide block producers of epoch $ e $ takes $ l $ epochs.	
-	 In these $ l $ epochs, the period that a validator generates and sends VRFs to repeater takes $ \Gamma_{\mathsf{vrf}} $ slots, that a repeater publishes all VRFs takes $ \Gamma_{\mathsf{rep}} $ slots and that the validator publishes her unpublished VRFs takes $ \Gamma_{\mathsf{last}} $ slots. 
-	 
-	 %One epoch consists of $ \eplen  $ slots.
-	 
-	
-	 The number of VRF outputs that are published to be sorted are $ \allvrfs $. Remember that all VRF outputs that are published are less than the threshold $ c $. $ \phonestvrfs $ of them are given to the adversary to be published (i.e., if the repeater is the malicious, then the owner of the VRF is leaked to the adversary). In other words, the adversary knows the owner of $ \phonestvrfs $ many honest validators' VRF outputs
-	 
-	 One epoch consists of $ \eplen  $ slots. $ \publicslots $ are the number of slots whose block producer is known by the adversary. $ \phonestslots $ of them are the number of slots whose block producer is honest and known by the adversary. So, $ \eplen  - \publicslots $ of them is not known by the adversary before starting the epoch.
-	 
-	 $ \malslotset $ is a slot set that includes the assigned to a malicious validator. $ \weakslotset $ is a slot set that includes the slots which are assigned to weakly corrupted validators during their slot. $ \honestslotset $ is the set of the rest of the slots (honest slots) which is not in $ \malslotset $ or $ \weakslotset $. 
-	  
-	 In the next games, we bound these parameters.
-	
-	\item We reduce the previous game to the game where the adversary cannot corrupt  any honest validator weakly and successfully during the sub phases. This game is indistinguishable from the previous game  because $ \Gamma_{\mathsf{vrf}}, \Gamma_{\mathsf{rep}}, \Gamma_{\mathsf{last}}> \weakperiod $. In other words, the weak corruptions in the previous game during sub phases will never be successful because after a validator is weakly corrupted during $\weakperiod $ slots, she will still have time to complete the sub-phase. So the view of the protocol does not change\footnote{We can also consider the adversary where $ \weakperiod > \Gamma_{\mathsf{vrf}}, \Gamma_{\mathsf{rep}}, \Gamma_{\mathsf{last}} $ but it requires more complicated analysis. So, it is left as a future work.} in all sub phases. In other words, all VRF outputs generated by honest validators and less than $ c $ are published in the blockchain. So, $ p_1 = p_2 $.
-	
-	\item We reduce the previous game to the game where the game is aborted if $ \phonestvrfs \geq  (n-f)\vrfaattemptsbound \frac{fc}{n} (1+\delta_{\mathsf{leak}})  $ where  $ \delta_{\mathsf{leak}} > 0 $  Let's analyze the probability that this event happens in the previous game since it is the only difference. We define a random variable $ R_{V,e,i} $ which is 1 if $ V $ is an honest validator, $ U = \vals[H(\omega'_{V,e,i} \| "WHO") \mod |\vals|]  $ corresponds to \emph{a strongly corrupted validator} and  $ \omega'_{V,e,i} < c $. Otherwise, it is 0. For simplicity of our analysis, we do not consider $ \vrfarepeatbound $. In this case, $ \pr[R_{V,e,i} = 1] = \frac{fc}{n}$ 
-	%TODO random oracle model
-	and
-	the expected number of $ R_{V,e,i}  = 0$ is  $ \mu_{\mathsf{leak}} = (n-f) \vrfaattemptsbound \frac{fc}{n} $. We can bound the probability of having the leakage more than the bound in the event with the Chernoff bound as follows for all $ \delta_{\mathsf{leak}} > 0 	 $:
-	
-	\begin{equation}\label{eq:beforeepcoh}
-	\epsilon_3 = \pr[ \phonestvrfs = \sum_{\substack{ \forall V \in \mathcal{H} \\0\leq i < \vrfaattemptsbound}} R_{V,e,i} \geq \mu_{\mathsf{leak}} (1+ \delta_{\mathsf{leak}})] < \exp(-\frac{\mu_{\mathsf{leak}}\delta_{\mathsf{leak}}^2}{2+\delta_{\mathsf{leak}}}) \nonumber
-	\end{equation}
-	
-	From the difference lemma we can conclude that the Game 2 = Game 1 and Game 3 are indistinguishable except with probability $ \epsilon_3 $. So, the adversary breaks the security of Game 3 with the probability $ p_3 \leq  p_2 - \epsilon_3 $
-	
-	
-	\item We reduce the previous game to another game which is aborted when $ \honestvrfs \leq (n-f)c \frac{n-fh}{n} \vrfaattemptsbound (1- \delta_{\mathsf{hvrf}}) $ where $ 0 < \delta_{\mathsf{hvrfs}} < 1 $. Similarly, let's analyze the probability that it happens in the previous game. We define a random variable $ R_{V,e,i} $ which is 1 if $ V $ is an honest validator, $ U = \vals[H(\omega'_{V,e,i} \| "WHO") \mod |\vals|]  $ corresponds to  \emph{an honest node}, $ \omega'_{V,e,i} < c $. Otherwise, it is 0.  In this case, $ \pr[R_{V,e,i} = 1] = \frac{(n-f)c}{n}$ and
-	the expected number of $ R_{V,e,i}  = 0$ is  $ \mu_{\mathsf{hvrf}} = (n-f) \vrfaattemptsbound \frac{(n-f)c}{n} $. We can bound the probability of having the abort case in Game 3 with the Chernoff bound as follows for all $ 0 <\delta_{\mathsf{hvrf}} < 1 	 $:
-	
-	\begin{equation}\label{eq:beforeepcoh}
-	\epsilon_4 = \pr[ \honestvrfs = \sum_{\substack{ \forall V \in \mathcal{H} \\0\leq i < \vrfaattemptsbound}} R_{V,e,i} \leq \mu_{\mathsf{hvrf}} (1 - \delta_{\mathsf{hvrf}})] < \exp(-\frac{\mu_{\mathsf{hvrf}}\delta_{\mathsf{hvrf}}^2}{2}) \nonumber
-	\end{equation}
-	
-	From the difference lemma we can conclude that the Game 3 and Game 4 are indistinguishable except with probability $ \epsilon_4 $. So, the adversary breaks the security of Game 3 with the probability $ p_4 \leq p_2 - \epsilon_3  - \epsilon_4$.       
-	
-	\item We reduce the previous game to the game where the game is aborted if $ \malvrfs \geq fc \vrfaattemptsbound (1+\delta_{\mathsf{mal}}) $. We find the probability that this event happens in Game 4.
-	We define a random variable $ R_{V,e,i} $ for all $ V \in \A $ which is 1 $ \omega'_{V,e,i} < c $. Otherwise, it is 0.  $ \pr[R_{V,e,i} = 1] = c $ so the expected number of malicious VRF outputs  is $ \mu_{\mathsf{mal}} = fc\vrfaattemptsbound  $. We can bound the probability of having this event with the Chernoff bound as follows for all $ \delta_{\mathsf{mal}} > 0 	 $:
-	
-	\begin{equation}\label{eq:malvrf}
-	\epsilon_5 = \pr[ \malvrfs = \sum_{\substack{ \forall V \in \A \\0\leq i < \vrfaattemptsbound}} R_{V,e,i} \geq \mu_{\mathsf{mal}} (1+ \delta_{\mathsf{mal}})] < \exp(-\frac{\mu_{\mathsf{mal}}\delta_{\mathsf{mal}}^2}{(2+\delta_{\mathsf{mal}})}) \nonumber
-	\end{equation}                                                                                                                                                                                                          From the difference lemma we can conclude that the Game 4 and Game 5 are indistinguishable except with probability $ \epsilon_5 $. So, the adversary breaks the security of Game 5 with the probability $ p_5 \leq p_2 - \epsilon_3  - \epsilon_4 - \epsilon_5$                                                         
-	
-
-	
-	
-	\item We reduce the previous game to the game which is aborted if the number of slot assignments known by the adversary is greater than $ (\mu_{\mathsf{phSlot}}(1+\delta_{\mathsf{phSlot}})+ \mu_{\mathsf{mSlot}}(1+\delta_{\mathsf{mslot}})) $ in $ \subslots $ slots where $ |\subslots| = s $. Let's analyze being in this case in the previous game because it is the only difference between those two games. We consider two random variable. The first one is $ S_{j} $ which is 1 if it is assigned one of the $ \phonestvrfs $ and the other one is $ \tilde{S}_j $ which is 1 if it is assigned to one of the $ \malvrfs $. $ \pr[S_j = 1] \leq \frac{\phonestvrfs}{\allvrfs} $ and $  \pr[\tilde{S}_j = 1]\leq \frac{\malvrfs}{\allvrfs} $ where $ \allvrfs = \phonestvrfs + \malvrfs + \honestvrfs $. In this case, $ \mu_{\mathsf{phSlot}} = E[\sum_{S_j \in \subslots} S_j] \leq \frac{s*\phonestvrfs}{\allvrfs}$ and $ \mu_{\mathsf{mSlot}} = E[\sum_{S_j \in \subslots} \tilde{S}_j] \leq \frac{s*\malvrfs}{\allvrfs}$. Similarly, we bound the probability that the abort case happen in Game 5 for all $ \delta_{\mathsf{phSlot}}, \delta_{\mathsf{mSlot}} > 0 $ .
-	
-	\begin{equation}\label{eq:malvrf}
-	\epsilon'_6 = \pr[\phonestslots = \sum_{S_j \in \subslots} S_{j} \geq \mu_{\mathsf{phSlot}} (1+ \delta_{\mathsf{phSlot}})] < \exp(-\frac{\mu_{\mathsf{phSlot}}\delta_{\mathsf{phSlot}}^2}{(2+\delta_{\mathsf{phSlot}})}) \nonumber
-	\end{equation}      
-	
-	 \begin{equation}\label{eq:malvrf}
-	 \tilde{\epsilon}_6 = \pr[\malslots = \sum_{S_j \in \subslots} \tilde{S}_{j} \geq \mu_{\mathsf{mSlot}} (1+ \delta_{\mathsf{mSlot}})] < \exp(-\frac{\mu_{\mathsf{mSlot}}\delta_{\mathsf{mSlot}}^2}{(2+\delta_{\mathsf{mSlot}})}) \nonumber
-	 \end{equation}   
-	
-	From the difference lemma we can conclude that the Game 5 and Game 6 are indistinguishable except with probability $ \epsilon_6 = \epsilon'_6  + \tilde{\epsilon}_6 $. So, the adversary breaks the security of Game 6 with the probability $ p_5 \leq p_2 - \epsilon_3  - \epsilon_4 - \epsilon_5 - \epsilon_6$   
-	 
-	 In this game, $ \honestslots = s - (\phonestslots + \malslots) \geq s - (\mu_{\mathsf{phSlot}}(1+\delta_{\mathsf{phSlot}})+ \mu_{\mathsf{mSlot}}(1+\delta_{\mathsf{mslot}})) $ in every $ s $ slots.
-	 \item We reduce the previous game to the game which is aborted if the number of successful corruptions $ f_w $ is greater bla bla. We know that the adversary cannot successfully weakly corrupt validators who run the sub phases for the slot assignments of any consecutive $ s $ slots in an epoch $ e $ (See Game 2). During the execution of sub slots $ s $, a weakly corrupted validator is considered a successful corruption if she is weakly corrupted during her slot. Therefore, $ f_w $ is at least $ \phonestslots $ because the adversary knows which honest validator is going to produce block in these slots. On the other hand, the adversary does not know for sure which validators are assigned to $ \honestslots $. Therefore, we compute the probability that a validator $ V $ is assigned to a slot $ sl $ which is one of the $ \honestslots $.
-	 Since the input $ (r_e||i) $ of the VRF output of $ sl $ is already known, the adversary can eliminate validators for this slot $ sl $ who have already produced a block on a slot with the VRF input-index $ i $ and leaked validators who will produce with VRF input-index $ i $ in next slots. Let's call such validators \emph{inactive} for slot $ sl $ and assume that their number is $ n_i $. After eliminating the inactive validators, the adversary can compute the probability that an active validator $ V $ is selected in slot $ sl $ based on the number of blocks that she produced so far $ (\ell_V) $ and. So, this probability is
-	 
-	 %$$p_{V,s} = \frac{|\vrfwinninglist_V|- \ell_V}{\sum_{V' \in \mathcal{H}_a}|\vrfwinninglist_{V'}| -\ell_{V'}-\numleak} \leq \frac{\vrfaattemptsbound - \ell_V}{\numanom - (s-1)}$$
-	 
-	 \begin{equation}\label{eq:prVs}
-	 	p_{V,sl} = \frac{|\vrfwinninglist_V|- \ell_V}{\honestvrfs - \sum_{V' \in \mathcal{H}_a}\ell_{V'}}\leq \frac{\vrfaattemptsbound - \ell_V}{\honestvrfs - (R-1)}
-	 \end{equation}
-
-	 
-	 In this case the best strategy for the adversary to weakly corrupt the validators whose probability is in the greatest first $ w $ probabilities since it maximizes its chance to corrupt the validator who is going produce block in slot $ sl $ so that the view of the protocol changes. Therefore, the probability that the adversary weakly corrupts the block produce of the slot $ sl  $ is less than $p_{\mathsf{weak}} = w \frac{\vrfaattemptsbound - \ell_V}{\honestvrfs - (R-1)} $. Therefore, we can bound  number of successful corruption in this way with the Chernoff bound in $ s $  slots.
-	 
-	 \begin{equation}
-	 \epsilon_7 = \pr[f_w \geq sp_{\mathsf{weak}}(1+\delta_w) + \phonestslots] < \exp(-\frac{p_{\mathsf{weak}}\delta_w^2}{2 + \delta_w})
-	 \end{equation}
-	 
-	So, $ f_w \geq  s p_{\mathsf{weak}}(1+\delta_w) + \phonestslots $ with probability $ \epsilon_7 $ in Game 6. From the difference lemma we can conclude that the Game 6 and Game 7 are indistinguishable except with probability $ \epsilon_7 $. So, the adversary breaks the security of Game 7 with the probability $ p_6 \leq p_2 - \epsilon_3  - \epsilon_4 - \epsilon_5 - \epsilon_6 -\epsilon_7 $   
-	
-	%TODO Discussion about the best thing to increase f_w is to publish all the VRFs that passes the threshold.
-
-\end{enumerate}	
-\end{proof}
-
-
-\begin{lemma}[CG]
-	Assuming that ECQ property is satisfied in $ s_{ecq} $ slots and the number of honest slots in $ s $ slots is at least $ \honestslots $, then the chain grows at least $ \honestslots $ in $ 2s_{ecq} + s $ slots.
-\end{lemma}
-	\paragraph{CG:} Consider the subchain $ B[sl_i,sl_i+s_{ecq}] $ spanned between slots $ sl_i $ and $ sl_i + s_{ecq} $  which is the subchain of a best chain in slot $ sl_i +  2s_{ecq} + s  $. Thanks to the ECQ property $ B[sl_i,sl_i+s_{ecq}] $ contains at least one block $ B_1 $ generated in an honest slot.   Now consider another subchain $ B[sl_j -s_{ecq} :sl_j] $ of the best chain spanned between slots $ sl_j - s $ and $ sl_j $ where $ sl_j $  is the last slot of $ e $. Similarly, $ B[sl_j -s_{ecq} :sl_j] $ contains at least one block $ B_2 $ generated on an honest slot. Lastly, we consider another subchain between blocks $ B_1 $ and $ B_2 $.  Thanks to honest chain growth, the length of the the subchain between $ B_1 $ and $ B_2 $ is at least equal to the number of honest slots between them which is $ \honestslots $. 
-	
-	
-\begin{lemma}[CP]
-	Assuming that probability that having an honest slot is greater than $ \frac{1}{2} $, Sassafras satisfies common prefix property  with the parameter $ k $ except with the probability  $ \exp(-\Theta(k)) $. 
-\end{lemma}
-	
-	
-Thanks to the result of  Kiayias et al. \cite{consistency}, that if probability that having an honest slot is greater than the probability of having malicious slot, chain prefix property is guaranteed with the error bound $ \exp(-\Theta(k)) $. 
-%TODO Does current design give the simulatability
-%TODO think if we need simulatability for the normal VRF
-
-
-In our rest of the analysis we consider that we assume that we have at least $  $
-
-\subsection{Security Definitions}
-
-\begin{definition}[Chain Growth (CG) Property \cite{backbone}] \label{def:cg}
-	The CG  property with parameters $ s, s_{cg}\in \mathbb{N} $ ensures that if the length of a blockchain owned by an honest party at the onset of a round $ C_u $ is $ \ell_u $ and the length of the same blockchain at round $ C_v  $ where $ C_v \leq C_u - s  $ is $\ell_v$, then the $ s \geq \ell_u  - \ell_v \geq  s_{cg} $.
-	
-	
-\end{definition}
-
-In other words, the CG property guarantees if a chain is owned by an honest party at a round, then this chain has grown $ s_{cg}$ blocks in every $ s_{cg} $ rounds. 
-
-\begin{definition}[Chain Quality (CQ) Property \cite{backbone}]\label{def:cq}
-	The CQ property with parameters $ \mu \in (0,1]  $ and $ k \in \mathbb{N} $ ensures that the ratio of honest blocks in any $ k $ length portion of a blockchain owned by an honest party is at least $ \mu $.
-\end{definition} 
-
-The CQ property ensures the existence of sufficient honest blocks on  any blockchain owned by an honest party.
-
-We prove the chain growth of the best chain assuming that the weakly corrupted validators do not produce the block. We assume that the adversary can weakly corrupt validators whose chance to produce the next block is less than $ \thweak' $.
 
 
 
