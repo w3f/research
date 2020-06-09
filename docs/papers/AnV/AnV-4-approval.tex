@@ -3,21 +3,16 @@
 \section{Approval} % phase
 \label{sec:approval}
 
-We now describe the subprotocols that provide the approval validity checks required before finality.  
+We now describe the subprotocol that provide the approval validity checks required before finality.  
 
 
 We preserve the previous notation from \S\ref{sec:backing} and \S\ref{sec:availability}:  
 
-Any parachains block $B$ on a parachain $\rho$ has a candidate proof-of-validity blob $\blobB$ that contains the witness proofs for any parachain state interactions, as well as an associated candidate receipt $\receipt_B$ that contains the Merkle root $\merkleroot_B$ for the Merkle tree with leaves consisting of the erasure coded pieces $\prepieces_B$ of $\blobB$.  We distributed the authenticated pieces $\pieces_B$ that consist of one piece from $\prepieces_B$ and its witness copath for $\merkleroot_B$.  
+Any parachain block $B$ on a parachain $\rho$ has a candidate proof-of-validity blob $\blobB$ that contains the witness proofs for any parachain state interactions, as well as an associated candidate receipt $\receipt_B$ that contains the Merkle root $\merkleroot_B$ for the Merkle tree with leaves consisting of the erasure coded pieces $\prepieces_B$ of $\blobB$.  We distributed the authenticated pieces $\pieces_B$ that consist of one piece from $\prepieces_B$ and its witness copath for $\merkleroot_B$.  
 
-All validators accumulate the attested candidate receipts $\receipt_{B,S}$ that consist of its inner candidate receipt $\receipt_B$ and validity attestations.  We also accumulate availability attestations for individual $\receipt_B$ or full relay chain blocks as chosen in \S\ref{subsec:availability}.  In all designs, each validator $V$ winds up with availability and unavailability attestations applicable to candidates $B$ in relay chain blocks $R$.  After $V$ observe $2f+1$ availability claims for all candidates $B$ in some relay chain block $R$, then $V$ considers $R$ to be {\em weakly available} and enters the approval phase for $R$.  
+We handle attested candidate receipts $\receipt_{B,S}$ that consist of its abridges candidate receipt $\receipt_B$ and validity attestations.  We first in \S\ref{sec:backing} posted candidate receipts $\receipt_{B,S}$ on chain once they received sufficient backing.  We then in \S\ref{subsec:availability} accumulated on-chain the availability attestations for them.  We finally recognized availability on-chain once this reached $2f+1$, which determines when candidate parablocks actually interacts wit the relay chain. 
 
-In this section, we assume that all mentioned validators consider the relay chain block $R$ to be available, but implementations must obviously support candidate validity attestations arriving before other attestations make them valid. 
-
-In spirit, candidate validity attestations could come from any validator, and should ideally be saved due to being slashable, but we only interpret these signatures as relevant towards specific goals, like backing or approval, when they come from nodes with the appropriate role assigned.
-
-In the previous section (\S\ref{subsec:availability}), we previously only saw candidate validity attestations interpreted as initial sponsoring or backing before, both by validators assigned to the parachain $\rho$, but approval checks discussed here provide attestations by other validators, and the next section discusses invalidity and unavailability attestations by non-validators (i.e., collators and fishermen).
-
+In this section, we consider a relay chain block $R$ in which several candidate receipts $\receipt_{B,S}$ were declared available and executed.  In \S\ref{sec:backing}, we freely announced $\receipt_{B,S}$ on chain without impacting relay chain validity because doing so interacted with nothing.  As $B$ executes in $R$ however, we cannot consider $R$ valid unless we consider $B$ valid, but so far we have validity attestations for $B$ only from $S \subset \vals_\para$, and $\vals_\rho$ is a tiny and dangerously foreseeable set of validators.  We discuss here the approval phase for $R$ in which an unforeseeable selection of approval checkers provide attestations.
 
 The approval phase for $R$ has two components, approval checker assignments and actually performing the checks.  We have three flavours of approval checker assignments, which all roughly follow the pattern of
 \begin{itemize}
@@ -33,12 +28,14 @@ All approval checker assignments trigger the same approval check protocol, which
 \end{itemize}
 We describe this second component first because ???why???.
 
+In spirit, candidate validity attestations could come from any validator, and might ideally be saved, due to being slashable, but we only interpret these signatures as relevant towards specific goals depending upon the validator's role, like backing or approval, when they come from nodes with the appropriate role assigned.  We shall discusses invalidity claims and unavailability complaints by non-validators, like collators and fishermen, in the next section.
+
 
 \subsection{Checking}
 \label{sec:approcal_checks}
 
 % In this subsection, 
-We now temporarily suppose that our validator $V$ completed some approval checker assignment criteria subphase:  First, $V$ has constructed and announced via gossip some approval checker VRF signature $\pi_{V,\cdot}$.  Second, there exists a parachain $\rho$ determined by the specific approval checker assignment criteria applied to $\VRF.\Out(\pi)$.  We let $B$ denote the parachain candidate $B$ for $\rho$ in $R$ and $\receipt_{B,\cdot}$ its candidate receipt.  
+We now temporarily suppose that our validator $V$ passed some approval checker assignment criteria subphase:  First, $V$ has constructed and announced via gossip some approval checker VRF signature $\pi_{V,\cdot}$.  Second, there exists a parachain $\rho$ determined by the specific approval checker assignment criteria applied to $\VRF.\Out(\pi)$.  We let $B$ denote the parachain candidate $B$ for $\rho$ in $R$ and $\receipt_{B,\cdot}$ its candidate receipt.  
 
 We caution that $\pi_{V,\cdot}$ always depends upon the verifiers' ambiant knowledge, but we optionally package some extra knowledge with $\pi_{V,\cdot}$, like equivocation proofs (see below).  We prevent late stage adversarial influence from shifting approval checker assignment criteria, but verifiers' ambiant knowledge also impacts if and when $V$ checks $B$.  We cannot however package this extra knowledge with $\pi_{V,\cdot}$, so validators can disagree for a limited time over whether $V$ checks $B$.
 
