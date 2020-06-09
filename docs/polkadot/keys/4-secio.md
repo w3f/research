@@ -2,9 +2,9 @@ https://forum.web3.foundation/t/transport-layer-authentication-libp2ps-secio/69
 
 
 
-## Transport layer authentication - libp2p's SECIO
+## Transport layer authentication 
 
-We must authenticate connections as the transport layer from session keys, which could happen in several ways, like signing a hash provided by the transport layer.  A priori, we could simplify everything if the session key simply included the static key used in authentication component of the transport layer's key exchange, which might help avoid some security mistakes elsewhere too.  
+We should authenticate connections as the transport layer from session keys, which could happen in several ways, like signing a hash provided by the transport layer.  A priori, we could simplify everything if the session key simply included the static key used in authentication component of the transport layer's key exchange, which might help avoid some security mistakes elsewhere too.  
 
 There are numerous transports for libp2p, but only QUIC was actually designed to be secure.  Instead, one routes traffic through [libp2p's secio protocol](https://github.com/libp2p/specs/pull/106).  We trust QUIC's cryptographic layer which is TLS 1.3, but secio itself is a home brew job with no serious security analysis, which usually [goes](https://github.com/tendermint/tendermint/issues/3010) [poorly](https://github.com/tendermint/kms/issues/111).  
 
