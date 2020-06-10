@@ -161,6 +161,64 @@ as follows:
    then the application could implement its own receive buffer on top of the
    kernel's receive buffer, and measure that.
 
+Overall resource allocation
+---------------------------
+
+Other resource concerns exist; general solutions for these are well-known, and
+are also to be implemented. We mention them here for completeness:
+
+- Connections use up memory, so the application should only keep a bounded
+  number of connections open at any given time. Alongside this, applications
+  should timeout inactive connections, since they prevent other connections
+  that might be more active, and an attacker can otherwise exploit this. The
+  application should be able to control this based on their own policy - e.g.,
+  certain trusted and authenticated peers may be allowed to be inactive for a
+  longer time, if their role is deemed important enough for the protocol.
+
+- Connections are made pre-authentication, so all connections are initially
+  in a pre- i.e. unauthenticated state. Policies based on giving extra resource
+  guarantees to authenticated peers must account for this.
+
+  For example, a policy that gives a guarantee of 40% of the connection pool to
+  trusted and authenticated peers, does not prevent a DoS attack that makes
+  lots of frivolous connections attempts, since they are all initially
+  unauthenticated. These peers will still be forced to sit in the queue until
+  the inactive connections timeout. However once they have a connection and
+  successfully authenticate, they will benefit from the guarantee.
+
+  On the other hand, QUIC supports 0-RTT (i.e. immediate) authentication for
+  peers that have previously connected, and we plan to be adopting that in the
+  mid-term future, so this will give more flexibility to these policies. The
+  above scenario then would be much more well-protected.
+
+Then there are DoS attacks at a lower level, consuming resources before they
+even reach the application. For these cases, the protection must be implemented
+elsewhere, e.g. at the OS level, at the hardware level, or at another network
+location such as your router or ISP:
+
+- Various types of packet flooding
+- Breach of protocol, such as sending TCP traffic outside of the ack window for
+  an already-opened connection
+
+Solutions to these are also well-known, are not specific to Polkadot or
+decentralised networks, and can be adopted by node operators at their choice.
+Therefore they are outside of the scope of this document for now. Note that
+conversely, these lower-level protections are not effective against attacks
+that *do* reach the application - only the application has enough information
+to distinguish bad open TCP connections from good open TCP connections.
+
+Deciding resource policies
+--------------------------
+
+The above few sections describe the form in which various resource policies
+should take, and how to enforce them. The actual policies are left for the
+operator to decide. Often a human can set the values by hand, but this can be
+tedious and inaccurate.
+
+Automatically determining appropriate policies, in response to changing network
+conditions, including attackers that might want to exploit this automation, is
+a fine topic for future research.
+
 
 As applied to Polkadot
 ======================
