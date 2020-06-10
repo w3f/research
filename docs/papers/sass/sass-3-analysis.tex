@@ -62,12 +62,12 @@ In these $ l $ epochs, the period that a validator generates and sends VRFs to r
 
 \paragraph{Rand-Weak Slot:} We call a slot associated with a VRF value $ \omega_{V,e,i} $ is a random weak slot  if $ V $ is an honest validator and $ \mathcal{V}[H(\omega_{V,e,i}||``WHO'')] $ is not a corrupted validator and the adversary weakly corrupts $ V $ in the slot with the VRF value $ \omega_{V,e,i} $.  Below, we find the probability of having rand-weak slot $ p_{rSlot} $.
 
-\begin{lemma}
+\begin{lemma}\label{lem:pr}
 	The probability that a slot is a rand-weak is less than $$(1 - \exp(-\frac{\mu_{\mathsf{hvrf}}\delta_{\mathsf{hvrf}}}{2}))\frac{\nweak \vrfaattemptsbound }{\mu_{\mathsf{hvrf}} (1- \delta_{\mathsf{hvrf}}) - (\eplen  -1)} $$ where $ 0 < \delta_{\mathsf{hvrf}} < 1 $, $ \mu_{\mathsf{hvrf}} = (n-f)c\alpha\vrfaattemptsbound $ and  $ \eplen  $ is the epoch length.
 \end{lemma}
 
 \begin{proof}
-	Consider a slot $ sl $ in an epoch $ e $ with the VRF input $ (r_e||i) $. Since $ (r_e||i) $ of the VRF output of $ sl $ is public, the adversary can eliminate validators for this slot $ sl $ to weakly corrupt who have already produced a block on a slot with the VRF input-index $ i $ and public validators who will produce with VRF input-index $ i $ in next slots. Let's call such validators \emph{inactive} for slot $ sl $ and assume that their number is $ n_i $. After eliminating the inactive validators, the adversary can compute the probability that an active  and honest validator $ V $ is selected in slot $ sl $ based on the number of blocks that she produced so far $ (\ell_V) $ and. So, this probability is
+	Consider a slot $ sl $ in an epoch $ e $ with the VRF input $ (r_e||i) $. Since $ (r_e||i) $ of the VRF output of $ sl $ is public, the adversary can eliminate validators for this slot $ sl $ to weakly corrupt who have already produced a block on a slot with the VRF input-index $ i $ and public validators who will produce with VRF input-index $ i $ in next slots. Let's call such validators \emph{inactive} for slot $ sl $ and assume that their number is $ n_i $. After eliminating the inactive validators, the adversary can compute the probability that an active  and honest validator $ V $ is selected in slot $ sl $ based on the number of blocks that she produced so far $ (\ell_V) $ and. So, this probability is where $ \mathcal{H}_a $ is the set of active validators:
 	
 	%$$p_{V,s} = \frac{|\vrfwinninglist_V|- \ell_V}{\sum_{V' \in \mathcal{H}_a}|\vrfwinninglist_{V'}| -\ell_{V'}-\numleak} \leq \frac{\vrfaattemptsbound - \ell_V}{\numanom - (s-1)}$$
 	
@@ -118,7 +118,7 @@ In these $ l $ epochs, the period that a validator generates and sends VRFs to r
 
 \subsection{Security Proof}
 
-\begin{lemma}[ECQ]
+\begin{lemma}[ECQ]\label{lem:ecq}
 	If $ p_{\mathsf{mSlot}} < p_{\mathsf{hSlot}} $, the adversary breaks the existential chain quality with the parameter $ \malslots $ except with probability $ 1- \exp(-\Omega(k)) $.
 \end{lemma}
 
@@ -128,7 +128,7 @@ In these $ l $ epochs, the period that a validator generates and sends VRFs to r
 \end{proof}
 
 
-\begin{lemma}[CP]
+\begin{lemma}[CP]\label{lem:cp}
 	Assuming that probability that having  $ p_{\mathsf{hSlot}} >\frac{1}{2}$, Sassafras satisfies the common prefix property  with the parameter $ k $ except with the probability  $ \exp(-\Theta(k)) $. 
 \end{lemma}
 
@@ -137,7 +137,7 @@ Thanks to the result of  Kiayias et al. \cite{consistency}, that if probability 
 If a weakly corrupted validator informs everyone after the corruptions, then the chain that includes his block could be ignored by other validators. Thus, weakly corrupted validators do not help the adversary to break the common prefix property. If we had such mechanism in Sassafras, then having $ p_{\mathsf{hSlot}}  > p_{\mathsf{mSlot}} $ would be enough to achieve CP. 
 
 
-\begin{lemma}[HCG]
+\begin{lemma}[HCG]\label{lem:hcg}
 	Sassafras satisfies the honest chain growth property with $ \tau_{hcg} = p_{\mathsf{hSlot}}(1-\delta_{\mathsf{hSlot}})  $ in $ s_{hcg} $ slots except with the probability $ \exp(-\frac{s_{hcg}p_{\mathsf{hSlot}}\delta_{\mathsf{hSlot}}^2}{2}) $ where $ 0< \delta_{\mathsf{hSlot}} < 1 $.
 \end{lemma}
 
@@ -152,7 +152,7 @@ If a weakly corrupted validator informs everyone after the corruptions, then the
 \end{proof}
 
 
-\begin{lemma}[CG]
+\begin{lemma}[CG]\label{lem:cg}
 	Assuming that ECQ property is satisfied with the parameter $ k_{ecq}  $, Sassafras satisfies CG property with the parameter $ s = 2s_{ecq} + s_{hcg} $ and $ \tau =  \tau_{hcg} \frac{s_hcg}{2 s_{ecq} + s_{hcg}}   $ where $ s_{ecq} \tau  \leq k_{ecq} \leq s_{ecq} $ except with the probability $ \exp(-\frac{s_{hcg}p_{\mathsf{hSlot}}\delta_{\mathsf{hSlot}}^2}{2}) +  \exp(-\Omega(k)) $ .
 \end{lemma}
 
@@ -162,7 +162,7 @@ If a weakly corrupted validator informs everyone after the corruptions, then the
 
 
 
-\begin{theorem}
+\begin{theorem}\label{th:sec}
 	Assuming that  $ p_{\mathsf{hSlot}} >\frac{1}{2}$ and given that  $k_{ecq}$ is the ECQ parameter, $k > 2k_{ecq}$ is the CP parameter, $s_{hcg} = k/\tau_{hcg}$, $s_{ecq} = k_{ecq}/\tau$, the epoch length is $\eplen  = 2s_{ecq} + s_{hcg}$, Sassafras is secure.
 \end{theorem}
 
