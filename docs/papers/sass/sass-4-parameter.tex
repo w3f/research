@@ -1,0 +1,58 @@
+\section{Parameter Selection}
+
+The parameters of Sassafras should be selected with respect to the results in Section 
+\ref{sec:analysis}.
+
+According to Theorem \ref{th:sec}, $ p_\mathsf{hSlot} $ must be greater than 0.5. Therefore,
+\begin{itemize}
+	\item if $ \nweak = 0 $, $ p_{\mathsf{pSlot}} + p_\mathsf{mSlot} = 1- \alpha^2  \leq 0.5 $ implies that $ \alpha \geq \sqrt{0.5} \approx 0.71  $
+	
+	\item if  if $ \nweak > 0 $, we should also consider random weak slots. So, we need $ p_{\mathsf{pSlot}} + p_\mathsf{mSlot} + p_\mathsf{rSlot} \leq 0.5$. Since $ p_\mathsf{rSlot} $ depends on $ \eplen , \vrfaattemptsbound $ and $ \alpha $, we should decide alpha after fixing $ \eplen  $. 
+\end{itemize}
+
+
+\paragraph{Finding Epoch Length with respect to ECQ, CP and CG parameters:}
+
+We first need to decide our security bound e.g., $ p_{attack} = 0.005 $ and a life time $ L $ in terms of epoch. Below, we choose the parameters for an adversary who can break the Sassafras in $ L $ epochs with at most the probability $ p_{attack} $.	
+
+\begin{enumerate}
+	\item Decide $ \eplen $
+	\item Set $ s_{ecq} = s_{hcg}  = \eplen /3 $ (since $ \eplen  $ should be at least $ 2s_{ecq} + s_{hcg} $)
+	\item $ \tau_{hcg} = p_{\mathsf{hSlot}} * (1 - \delta_{\mathsf{hSlot}}) $ (from Lemma \ref{lem:hcg})
+	\item $ \tau = \tau_{hcg} \frac{s_{hcg}}{2s_{ecq} + s_{hcg}} $ (from Lemma \ref{lem:cg})
+	\item $ k_{ecq} = \tau s_{ecq}  $ and $ k = \tau \eplen  $ to satisfy the Theorem \ref{th:sec}
+	\item Compute $ p_{sass} $ as in Theorem \ref{th:sec} based on the parameters above. If it is less than $ p_{attack} $, then we find the smallest possible $ \eplen $.
+\end{enumerate}
+
+According to above algorithm, we find that the epoch length $ \eplen = 1599 $ slots and $ k = 134 $.
+
+Now, we set $ \eplen $. Based on this we should find $ \vrfaattemptsbound $ such that $ p_{\mathsf{pSlot}} + p_\mathsf{mSlot} + p_\mathsf{rSlot} \leq 0.5$. In Table \ref{tb:param}, we find the minimum $ \vrfaattemptsbound $, $ c $ and $ \alpha $ based on $ \nweak $ which is the number of weak corruption that an adversary can execute simultaneously.
+
+
+
+\begin{table}
+	\centering
+	\begin{tabular}{|c|c|c|c|}
+		\hline
+		$ \nweak $ & $ \alpha $ & $ \vrfaattemptsbound $& $ c $  \\\hline
+		0&0.716&31&0.5 \\ \hline
+		1&0.72&88&0.5 \\ \hline
+		2&0.74&75&0.51 \\ \hline
+		3&0.75&97&0.52 \\ \hline
+		4&0.75&99&0.64 \\ \hline
+		5&0.75&94&0.77 \\ \hline
+		6&0.75&96&0.89 \\ \hline
+	\end{tabular}
+\caption{Parameters}
+\label{tb:param}
+\end{table}
+
+
+
+
+
+
+ 
+ 
+ 
+ 
