@@ -1,15 +1,15 @@
 import math
 
 L = 94670777.9 #Life time of BABE in seconds
-n = 1000.0 #number of validators
+n = 100.0 #number of validators
 
 alpha = math.sqrt(0.5)
-max_alpha = 0.75
+max_alpha = 0.8
 f = int(alpha * n)
 max_max_attempts = 64
 max_attempts = 0
 c = 0.5
-delta_hvrf = 0.5
+delta_hvrf = 0.1
 eplen = 1000
 
 delta_hslot = 0.5
@@ -74,6 +74,7 @@ def find_max(eplen,nweak):
     # print(pr)
     # print((n-f) * c * alpha * (1-
     # delta_hvrf))
+    
     if pr < 0:
         return -1
     max_attempts = pr * (eplen - 1) / (pr * (n-f) * c * alpha * (1-delta_hvrf) - nweak)
@@ -96,15 +97,19 @@ while(psass > p_attack):
     eplen = eplen + 1
     #print(psass)
 
-nweak_lst = [0,1,2,3,4,5,6,7]
-
-for nweak in nweak_lst:
-    max_attempts = find_max(eplen,nweak)
+nweak_lst = [1,2,3,4,5,6,7]
+print
+print('eplen: ' + str(eplen) + ' k: ' + str(k))
+for nweak in nweak_lst:    
     counter = 0
-    while max_attempts < 0 or max_attempts > 100:
+    alpha = math.sqrt(0.5)
+    c = 0.5
+    max_attempts = find_max(eplen,nweak)
+    while max_attempts < 0 or max_attempts > 64:
     
-        if counter % 2 == 0 and alpha < max_alpha :
+        if counter % 10 == 0 and alpha < max_alpha :
             alpha = alpha + 0.01
+            f = int((1- alpha) * n)
         elif alpha > max_alpha or c < 1:
             c = c + 0.01
         else:
@@ -112,4 +117,8 @@ for nweak in nweak_lst:
             break
         counter = counter + 1
         max_attempts = find_max(eplen,nweak)
-    print(str(nweak) + '&' + str(alpha) + '&' + str(max_attempts) + '&' + str(c))
+    print(str(nweak) + '&' + str(round(alpha,2)) + '&' + str(max_attempts) + '&' + str(round(c,2)))
+    
+    #mu_hvrf = (n-f) * c * alpha * max_attempts
+    #print((1- math.exp(-mu_hvrf * pow(delta_hvrf,2) /2)))
+    print(r'\\\hline')
