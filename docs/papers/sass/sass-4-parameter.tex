@@ -26,27 +26,113 @@ We first need to decide our security bound e.g., $ p_{attack} = 0.005 $ and a li
 
 According to above algorithm, we find that the epoch length $ \eplen = 1599 $ slots and $ k = 134 $.
 
-Now, we set $ \eplen $. Based on this we should find $ \vrfaattemptsbound $ such that $ p_{\mathsf{pSlot}} + p_\mathsf{mSlot} + p_\mathsf{rSlot} \leq 0.5$. In Table \ref{tb:param}, we find the minimum $ \vrfaattemptsbound $, $ c $ and $ \alpha $ based on $ \nweak $ which is the number of weak corruption that an adversary can execute simultaneously.
+Now, we set $ \eplen $. Based on this we should find $ \vrfaattemptsbound $ such that $ p_{\mathsf{pSlot}} + p_\mathsf{mSlot} + p_\mathsf{rSlot} \leq 0.5$. In Tables,  we find the minimum $ \vrfaattemptsbound $, $ c $ and $ \alpha $ based on $ \nweak $ which is the number of weak corruption that an adversary can execute simultaneously for $ n = 100 $, $ n = 200 $, $ n = 500 $ and $ n =1000 $, respectively. As it can be seen from these tables, when we have less validators, we need more $ \vrfaattemptsbound $ to deanonymise the slots.
+
+
+
+	\begin{table}
+	\parbox{.45\linewidth}{
+		\centering
+		\begin{tabular}{|c|c|c|c|}
+			\hline
+			$ \nweak $ & $ \alpha $ & $ \vrfaattemptsbound $& $ c $  \\\hline
+			1&0.75&64&0.81
+			\\\hline
+			2&0.77&54&0.95
+			\\\hline
+			
+			3&-&-&-
+			\\\hline
+			
+			4&-&-&-
+			\\\hline
+			
+			5&-&-&-
+			\\\hline
+			
+			6&-&-&-
+			\\\hline
+			7&-&-&-
+			\\\hline
+		\end{tabular}
+		\caption{Parameters when $ n = 100 $}}
+		\label{tb:param100}
+\hfill
+		\parbox{.45\linewidth}{
+		\centering
+		\begin{tabular}{|c|c|c|c|}
+			\hline
+			$ \nweak $ & $ \alpha $ & $ \vrfaattemptsbound $& $ c $  \\\hline
+			1&0.73&63&0.62
+			\\\hline
+			2&0.74&63&0.72
+			\\\hline
+			3&0.75&59&0.77
+			\\\hline
+			4&0.76&45&0.86
+			\\\hline
+			5&0.76&62&0.9
+			\\\hline
+			6&0.77&47&0.95
+			\\\hline
+			7&0.77&64&0.97
+			\\\hline
+		\end{tabular}
+		\caption{Parameters when $ n = 200 $}
+		\label{tb:param200}}
+	\end{table}
 
 
 
 \begin{table}
+\parbox{.45\linewidth}{
 	\centering
 	\begin{tabular}{|c|c|c|c|}
 		\hline
 		$ \nweak $ & $ \alpha $ & $ \vrfaattemptsbound $& $ c $  \\\hline
-		0&0.716&31&0.5 \\ \hline
-		1&0.72&88&0.5 \\ \hline
-		2&0.74&75&0.51 \\ \hline
-		3&0.75&97&0.52 \\ \hline
-		4&0.75&99&0.64 \\ \hline
-		5&0.75&94&0.77 \\ \hline
-		6&0.75&96&0.89 \\ \hline
+1&0.72&35&0.5
+\\\hline
+2&0.73&23&0.59
+\\\hline
+3&0.73&45&0.59
+\\\hline
+4&0.74&22&0.68
+\\\hline
+5&0.74&31&0.68
+\\\hline
+6&0.74&57&0.68
+\\\hline
+7&0.74&60&0.77
+\\\hline
 	\end{tabular}
-\caption{Parameters}
-\label{tb:param}
+\caption{Parameters when $ n = 500 $}
+\label{tb:param500}
+}
+\hfill
+\parbox{.45\linewidth}{
+	\centering
+	\begin{tabular}{|c|c|c|c|}
+		\hline
+		$ \nweak $ & $ \alpha $ & $ \vrfaattemptsbound $& $ c $  \\\hline
+	1&0.72&10&0.5
+	\\\hline
+	2&0.72&18&0.5
+	\\\hline
+	3&0.72&56&0.52
+	\\\hline
+	4&0.73&12&0.59
+	\\\hline
+	5&0.73&16&0.59
+	\\\hline
+	6&0.73&23&0.59
+	\\\hline
+	7&0.73&45&0.59
+	\\\hline
+	\end{tabular}
+	\caption{Parameters when $ n = 1000 $}
+	\label{tb:param1000}
+}
 \end{table}
-
 
 
 
