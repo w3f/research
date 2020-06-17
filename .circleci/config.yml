@@ -3,12 +3,14 @@ version: 2
 jobs:
   tests:
     docker:
-      - image: python:3.8-slim-buster
+      - image: python:3.8-buster
     steps:
       - checkout
       - run:
           name: build
           command: |
+            apt-get update
+            apt-get install -y graphviz
             pip install virtualenv
 
             python3.8 -mvirtualenv --no-download .

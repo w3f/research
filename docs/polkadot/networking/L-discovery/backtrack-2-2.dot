@@ -1,0 +1,26 @@
+digraph {
+  label = "step 2: #1 fails\nquery #2";
+  rankdir = LR;
+  node [style=filled];
+  edge [color=gray];
+  nodesep = 1;
+  ranksep = 1;
+  subgraph hop1 {
+      rank = same
+      10, 11, 12
+  }
+  self -> 10 -> 5 [color=red];
+  5 -> 1
+  5 -> 2 [color=red];
+  10, 5, 2 [fillcolor=red];
+
+  self -> 11 -> 6 [color=blue];
+  11, 6 [fillcolor=blue];
+
+  self -> 12 -> 8 [color=green];
+  12, 8 [fillcolor=green];
+
+  10 -> 6
+  11 -> 7
+  1 [shape=diamond]
+}
