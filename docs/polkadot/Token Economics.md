@@ -206,7 +206,7 @@ As mentioned earlier, part of the tx fee needs to go to the block producer, to i
 
 A transaction fee tx is computed as follows:
 
-$$fee(tx) = c_{traffic} \cdot \Big[ base\_fee + type(tx)\cdot length(tx) + weight(tx)\Big],$$
+$$fee(tx) = base\_fee + type(tx)\cdot length(tx) + c_{traffic} \cdot \Big[ weight(tx)\Big],$$
 
 where $c_{traffic}$ is a parameter independent from the transaction, that evolves over time depending on the network traffic; we explain this parameter in the next subsection. Parameter $type(tx)$ depends on the transaction type only; in particular for operational transactions, we currently set $type(tx)$ to zero.
 
