@@ -164,8 +164,7 @@ In more precise terms, here is an incremental version of the SKad recursive
 lookup algorithm, to be called whenever a reply is received at each step of the
 recursive lookup:
 
-.. include:: skad.py
-   :code: py
+- See :ref:`code-listing_skademlia`; this section needs a bit of an update.
 
 
 Routing table drop policy
@@ -475,3 +474,11 @@ out, the analogous thing to do here would be to remove them immediately from
 the k-bucket. However it may be more prudent to attempt to re-establish the
 connection at least for a short while, before switching to a different node, to
 better effect the “long-term nodes are preferred” design intention of Kademlia.
+
+Appendix
+========
+
+.. toctree::
+   :glob:
+
+   L-discovery/*

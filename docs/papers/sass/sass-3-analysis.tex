@@ -31,7 +31,7 @@
 
 
 \subsection{Adversarial Model:} 
-In our model, we assume that there exists $ n $ validators.  We consider two type of corruption in our model. We call the first corruption model \emph{strong corruption} and the second one \emph{weak corruption}. When a validator is strongly corrupted, it means that the current state (non-volatile memory) of the validator is shared with the adversary. We assume that every validator starts a new era with a freshly generated keys and erases the old keys. The adversary can strongly corrupt up to $ f = (1-\alpha)n $ validators in one era where $ \alpha \in (0,1] $ is the ratio of honest validators.  
+In our model, we assume that there exists $ n $ validators in synchronous network which means that any message arrive to other validators within $ T $ seconds where $ T $ is the slot duration. We consider two type of corruption in our model. We call the first corruption model \emph{strong corruption} and the second one \emph{weak corruption}. When a validator is strongly corrupted, it means that the current state (non-volatile memory) of the validator is shared with the adversary. We assume that every validator starts a new era with a freshly generated keys and erases the old keys. The adversary can strongly corrupt up to $ f = (1-\alpha)n $ validators in one era where $ \alpha \in (0,1] $ is the ratio of honest validators.  
 When a validator is weakly corrupted, it means that the validator is not able to participate the protocol. The weak corruption basically silence the validator as if she does not exists during the corruption. The adversary can weakly corrupt up to $ \nweak $ validators at the same time at most  $ \weakperiod $ slots. A weakly corrupted validator is considered as malicious if she does not contribute the protocol as she is supposed to do because of the weakly corruption.  In other words, if the view of the protocol at the time that the validator is weakly corrupted is different than the view of the protocol without the corruption, then we assume this validator malicious and consider it as successful weakly corruption.  We denote honest validators set in one sortition and one block production phase by $ \mathcal{H} $ where $ |\mathcal{H}| = n_H = n-f - f_\nweak$ where $ f_\nweak $ is the number of malicious validators because of the weakly corruption.  Therefore, in our analysis below, we consider the security of Sassafras with $ f + f_{\nweak}$ malicious validators out of $ n $ validators. 
 
 We analyze the number $ f_{\nweak} $ considering that the adversary can corrupt at most $ \nweak $ validators at the same time. For this, we analyze the best strategy for an adversary to maximize $ f_{\nweak} $ in Sassafras.
@@ -39,7 +39,7 @@ We analyze the number $ f_{\nweak} $ considering that the adversary can corrupt 
 
 %Remark that the adversary needs to weakly corrupt constantly a validator to make this validator malicious because in this case the validator will not have any chance to submit her VRF values. 
 
-This separation lets us analyze the security of Sassafras with more appropriate assumptions. Remark that a strongly corrupted validator behaves arbitrarily according to the adversarial will while weakly corrupted validator just stops running on time within $ \weakperiod $ slots. For example, the adversary can never make a weakly corrupted validator to construct on top of non-best chain. Therefore, weakly corrupted validators do not help  the adversary to construct a chain to break common prefix property or existential chain quality.  However, they help the adversary without consent to reduce the chain growth because they stop producing blocks or they produce blocks much later than expected.
+This separation lets us analyse the security of Sassafras with more appropriate assumptions. Remark that a strongly corrupted validator behaves arbitrarily according to the adversarial will while weakly corrupted validator just stops running on time within $ \weakperiod $ slots. For example, the adversary can never make a weakly corrupted validator to construct on top of non-best chain. Therefore, weakly corrupted validators do not help  the adversary to construct a chain to break common prefix property or existential chain quality.  However, they help the adversary without consent to reduce the chain growth because they stop producing blocks or they produce blocks much later than expected.
 
 
 
@@ -62,12 +62,12 @@ In these $ l $ epochs, the period that a validator generates and sends VRFs to r
 
 \paragraph{Rand-Weak Slot:} We call a slot associated with a VRF value $ \omega_{V,e,i} $ is a random weak slot  if $ V $ is an honest validator and $ \mathcal{V}[H(\omega_{V,e,i}||``WHO'')] $ is not a corrupted validator and the adversary weakly corrupts $ V $ in the slot with the VRF value $ \omega_{V,e,i} $.  Below, we find the probability of having rand-weak slot $ p_{rSlot} $.
 
-\begin{lemma}
+\begin{lemma}\label{lem:pr}
 	The probability that a slot is a rand-weak is less than $$(1 - \exp(-\frac{\mu_{\mathsf{hvrf}}\delta_{\mathsf{hvrf}}}{2}))\frac{\nweak \vrfaattemptsbound }{\mu_{\mathsf{hvrf}} (1- \delta_{\mathsf{hvrf}}) - (\eplen  -1)} $$ where $ 0 < \delta_{\mathsf{hvrf}} < 1 $, $ \mu_{\mathsf{hvrf}} = (n-f)c\alpha\vrfaattemptsbound $ and  $ \eplen  $ is the epoch length.
 \end{lemma}
 
 \begin{proof}
-	Consider a slot $ sl $ in an epoch $ e $ with the VRF input $ (r_e||i) $. Since $ (r_e||i) $ of the VRF output of $ sl $ is public, the adversary can eliminate validators for this slot $ sl $ to weakly corrupt who have already produced a block on a slot with the VRF input-index $ i $ and public validators who will produce with VRF input-index $ i $ in next slots. Let's call such validators \emph{inactive} for slot $ sl $ and assume that their number is $ n_i $. After eliminating the inactive validators, the adversary can compute the probability that an active  and honest validator $ V $ is selected in slot $ sl $ based on the number of blocks that she produced so far $ (\ell_V) $ and. So, this probability is
+	Consider a slot $ sl $ in an epoch $ e $ with the VRF input $ (r_e||i) $. Since $ (r_e||i) $ of the VRF output of $ sl $ is public, the adversary can eliminate validators for this slot $ sl $ to weakly corrupt who have already produced a block on a slot with the VRF input-index $ i $ and public validators who will produce with VRF input-index $ i $ in next slots. Let's call such validators \emph{inactive} for slot $ sl $ and assume that their number is $ n_i $. After eliminating the inactive validators, the adversary can compute the probability that an active  and honest validator $ V $ is selected in slot $ sl $ based on the number of blocks that she produced so far $ (\ell_V) $ and. So, this probability is where $ \mathcal{H}_a$ is the set of active validators:
 	
 	%$$p_{V,s} = \frac{|\vrfwinninglist_V|- \ell_V}{\sum_{V' \in \mathcal{H}_a}|\vrfwinninglist_{V'}| -\ell_{V'}-\numleak} \leq \frac{\vrfaattemptsbound - \ell_V}{\numanom - (s-1)}$$
 	
@@ -118,7 +118,7 @@ In these $ l $ epochs, the period that a validator generates and sends VRFs to r
 
 \subsection{Security Proof}
 
-\begin{lemma}[ECQ]
+\begin{lemma}[ECQ]\label{lem:ecq}
 	If $ p_{\mathsf{mSlot}} < p_{\mathsf{hSlot}} $, the adversary breaks the existential chain quality with the parameter $ \malslots $ except with probability $ 1- \exp(-\Omega(k)) $.
 \end{lemma}
 
@@ -128,7 +128,7 @@ In these $ l $ epochs, the period that a validator generates and sends VRFs to r
 \end{proof}
 
 
-\begin{lemma}[CP]
+\begin{lemma}[CP]\label{lem:cp}
 	Assuming that probability that having  $ p_{\mathsf{hSlot}} >\frac{1}{2}$, Sassafras satisfies the common prefix property  with the parameter $ k $ except with the probability  $ \exp(-\Theta(k)) $. 
 \end{lemma}
 
@@ -137,7 +137,7 @@ Thanks to the result of  Kiayias et al. \cite{consistency}, that if probability 
 If a weakly corrupted validator informs everyone after the corruptions, then the chain that includes his block could be ignored by other validators. Thus, weakly corrupted validators do not help the adversary to break the common prefix property. If we had such mechanism in Sassafras, then having $ p_{\mathsf{hSlot}}  > p_{\mathsf{mSlot}} $ would be enough to achieve CP. 
 
 
-\begin{lemma}[HCG]
+\begin{lemma}[HCG]\label{lem:hcg}
 	Sassafras satisfies the honest chain growth property with $ \tau_{hcg} = p_{\mathsf{hSlot}}(1-\delta_{\mathsf{hSlot}})  $ in $ s_{hcg} $ slots except with the probability $ \exp(-\frac{s_{hcg}p_{\mathsf{hSlot}}\delta_{\mathsf{hSlot}}^2}{2}) $ where $ 0< \delta_{\mathsf{hSlot}} < 1 $.
 \end{lemma}
 
@@ -145,14 +145,14 @@ If a weakly corrupted validator informs everyone after the corruptions, then the
 	Consider a chain $ \mathbf{B} $ owned by an honest validator at slot $ sl $. Let $ sl_u $ and $ sl_v $ be two previous slots where $ \mathbf{B}[sl_u] $ and $ \mathbf{B}[sl_v] $ are generated by honest validators and $ sl_u + s_{hcg} \leq sl_v $. As discussed in  Lemma \ref{lem:ecq}, the chain grows between $ \mathbf{B}[sl_u] $ and $ \mathbf{B}[sl_v] $ at least the number of honest slots. Therefore, let's upper bound the honest slots with the Chernoff bound for all $ 0<\delta_{\mathsf{hSlot}}<1 $.
 	
 	\begin{equation}
-	\pr[\honestslots = \sum_{sl_u}^{sl_v}S_i \leq s p_{\mathsf{hSlot}}(1-\delta_{\mathsf{hSlot}})] < \exp(-\frac{s_{hcg}p_{\mathsf{hSlot}}\delta_{\mathsf{hSlot}}^2}{2})
+	\pr[\honestslots = \sum_{sl_u}^{sl_v}S_i \leq s_{hcg} p_{\mathsf{hSlot}}(1-\delta_{\mathsf{hSlot}})] < \exp(-\frac{s_{hcg}p_{\mathsf{hSlot}}\delta_{\mathsf{hSlot}}^2}{2})
 	\end{equation}
 	
 	
 \end{proof}
 
 
-\begin{lemma}[CG]
+\begin{lemma}[CG]\label{lem:cg}
 	Assuming that ECQ property is satisfied with the parameter $ k_{ecq}  $, Sassafras satisfies CG property with the parameter $ s = 2s_{ecq} + s_{hcg} $ and $ \tau =  \tau_{hcg} \frac{s_hcg}{2 s_{ecq} + s_{hcg}}   $ where $ s_{ecq} \tau  \leq k_{ecq} \leq s_{ecq} $ except with the probability $ \exp(-\frac{s_{hcg}p_{\mathsf{hSlot}}\delta_{\mathsf{hSlot}}^2}{2}) +  \exp(-\Omega(k)) $ .
 \end{lemma}
 
@@ -162,12 +162,12 @@ If a weakly corrupted validator informs everyone after the corruptions, then the
 
 
 
-\begin{theorem}
+\begin{theorem}\label{th:sec}
 	Assuming that  $ p_{\mathsf{hSlot}} >\frac{1}{2}$ and given that  $k_{ecq}$ is the ECQ parameter, $k > 2k_{ecq}$ is the CP parameter, $s_{hcg} = k/\tau_{hcg}$, $s_{ecq} = k_{ecq}/\tau$, the epoch length is $\eplen  = 2s_{ecq} + s_{hcg}$, Sassafras is secure.
 \end{theorem}
 
-\emph{Proof Sketch}
-	The overall result says that $\tau = \tau_{hcg}\frac{s_{hcg}}{2s_{ecq}+s_{hcg}} = \frac{k}{s_{hcg}}\frac{s_{hcg}}{2s_{ecq}+s_{hcg}} = \frac{k}{\eplen }$. The best chain at the end of an epoch grows at least $k$ blocks in one epoch thanks to the chain growth.
-	
-	Since $k > 2k_{ecq}$, the last $k_{ecq}$ block of includes at least one honest block. Therefore, the randomness includes one honest randomness and the adversary can have at most $s_{ecq}$ slots to change the randomness. This grinding effect can be upper-bounded by $s_{ecq}(1-\alpha)nq$ where $q$ is the hashing power \cite{ouroboros}. The randomness generated by an epoch is finalized at latest one epoch later thanks to the common prefix property. Similarly, the session key update which is going to be used in three epochs later is finalized one epoch later before a randomness of the epoch where the new key are going to be used starts to leak.
-	
+\emph{Proof Sketch:}
+The overall result says that $\tau = \tau_{hcg}\frac{s_{hcg}}{2s_{ecq}+s_{hcg}} = \frac{k}{s_{hcg}}\frac{s_{hcg}}{2s_{ecq}+s_{hcg}} = \frac{k}{\eplen }$. The best chain at the end of an epoch grows at least $k$ blocks in one epoch thanks to the chain growth.
+
+Since $k > 2k_{ecq}$, the last $k_{ecq}$ block of includes at least one honest block. Therefore, the randomness includes one honest randomness and the adversary can have at most $s_{ecq}$ slots to change the randomness. This grinding effect can be upper-bounded by $s_{ecq}(1-\alpha)nq$ where $q$ is the hashing power \cite{ouroboros}. The randomness generated by an epoch is finalized at latest one epoch later thanks to the common prefix property. Similarly, the session key update which is going to be used in three epochs later is finalized one epoch later before a randomness of the epoch where the new key are going to be used starts to leak.
+

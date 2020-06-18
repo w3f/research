@@ -102,58 +102,123 @@ As mentioned in the introduction, the straightforward defence against malicious
 unauthenticated peers is good resource allocation. Below is a concrete proposal
 for such an algorithm, which should generalise to all foreseeable use-cases.
 
-Given some roles (or more concretely, “peer connections”) we want to send data
-to or receive data from, how do we do this in a “fair” way?
+Given some demands on a single shared resource (e.g. all streams that demand
+download bandwidth), how do we satisfy these in a fair and efficient way? For
+example, if we simply say "each demand can only use up 1/N of the resource"
+where N is the number of demands, this would perhaps be "fair" but it would
+result in tremendous waste, since any part of each 1/N that goes unused cannot
+be reused by another demand.
 
-Here’s one basic proposal. Suppose we have a list of roles R, and each role is
-associated with a ``priority`` and a relative ``use_limit``, such that
-``sum(use_limit[r] for r in R) == 1`` and R is sorted by priority, “most
-urgent” first; this defines our resource limits and is to be configured by the
-higher layer. Then suppose for every time-interval t we have a list of actual
-usages for each role R, written as ``demand[r]``, and we want to calculate what
-to actually use for each role, ``to_use[r]`` such that ``sum(to_use) <
-total_avail``.
+Here's one basic proposal. Suppose we have a set of demanders ``D``, each
+associated with a ``guarantee[d]``. These values are interpreted relative to
+each other, and lets the higher layer indicate which demanders are "more
+important" by defining their guarantees relative to each other. Now for each
+time-interval ``t`` we have some demands for each demander, ``demand[d]``, and
+we want to decide how much resources to give to each demander, ``to_use[d]``
+such that ``sum(to_use) < total_avail``.
 
-Then the algorithm we propose below (valid for both sending and receiving)
-satisfies the following properties:
+Then the algorithm we propose below satisfies the following properties:
 
-1. If the ``sum(demand) < total_avail``, then ``to_use == demand``. In
-   other words, if demand is lower than availability then demand is
-   fully-satisfied, regardless of priorities or use-limits. A good algorithm
-   should not special case this explicitly, but simply degenerate to this when
-   appropriate.
+1. If ``sum(demand) < total_avail``, then ``to_use == demand``. In other words,
+   if demand is lower than availability then demand is fully satisfied,
+   regardless of guarantees. A good algorithm should not need to special case
+   this explicitly, but simply degenerate to this when appropriate.
 
-2. If ``all(demand[r] > use_limit[r] * total_avail for r in R)``, then
-   ``all(to_use[r] == use_limit[r] * total_avail for r in R)``. In other words
-   if every role demands to use more than is available, then their actual use
-   is simply the proportion that is defined by our resource limits. This avoids
-   higher-priority roles starving lower-priority roles.
+2. If ``all(demand[d] > guarantee[d] * total_avail for d in D)``, then
+   ``all(to_use[d] == guarantee[d] * total_avail for d in D)``. That is, if
+   every demander demands to use more than is available, then their actual use
+   (relative to others) is simply their ``guarantee[d]``. This avoids
+   higher-guarantee demanders starving lower-guarantee demanders.
 
 The algorithm is as follows, described as executable Python:
 
-.. include:: bw-alloc.py
+.. include:: bw_alloc.py
    :code: py
 
-In a real networking program, the above algorithm may have to be tweaked a bit.
-However this should not be so hard - it should be possible to know what
-``demand`` is at any given moment either for sending or for receiving.
+If the application so wishes, it may divide ``guarantees`` conceptually into
+further levels. For example if there are two classes of demanders, class A and
+class B, it may wish to reserve 80% of resources for class A demanders, divided
+equally amongst however many of them there are. In this case, every class A
+demander ``a`` would have ``guarantee[a] = 80 / N_A`` where ``N_A`` is the
+number of class A entities, and likewise every class B demander ``b`` would
+have ``guarantee[b] = 20 / N_B``. Our algorithm will work fine for such an
+arrangement, and need not be explicitly aware of the classes.
 
--  for sending: in order to deal with backpressure properly you should
+In a real networking program, ``demand`` may be estimated for a given interval,
+as follows:
+
+-  For sending streams: in order to deal with backpressure properly you should
    always have a priority-heap of things to send, as opposed to trying to send
    something as soon as it becomes available to send.
 
    -  (The priority-heap is populated as new things become available to
       send, and is popped when the recipient signals via some control-flow
-      mechanism that they are unblocked for receiving again. This priority is
-      unrelated to the role-priorities we introduce above for
-      ``calculate_to_use``.)
+      mechanism that they are unblocked for receiving again.)
 
--  for receiving: normal networking implementations have the kernel
+-  For receiving streams: normal networking implementations have the kernel
    buffer stuff until the application is ready to process it, and any excess is
-   dropped. It is normally possible to query how full the buffer is.
+   dropped. It is normally possible to query how full the buffer is; if not
+   then the application could implement its own receive buffer on top of the
+   kernel's receive buffer, and measure that.
 
-At each time-interval, it is straightforward to calculate ``demand`` from
-either the application’s send priority-heaps or the kernel’s receive buffers.
+Overall resource allocation
+---------------------------
+
+Other resource concerns exist; general solutions for these are well-known, and
+are also to be implemented. We mention them here for completeness:
+
+- Connections use up memory, so the application should only keep a bounded
+  number of connections open at any given time. Alongside this, applications
+  should timeout inactive connections, since they prevent other connections
+  that might be more active, and an attacker can otherwise exploit this. The
+  application should be able to control this based on their own policy - e.g.,
+  certain trusted and authenticated peers may be allowed to be inactive for a
+  longer time, if their role is deemed important enough for the protocol.
+
+- Connections are made pre-authentication, so all connections are initially
+  in a pre- i.e. unauthenticated state. Policies based on giving extra resource
+  guarantees to authenticated peers must account for this.
+
+  For example, a policy that gives a guarantee of 40% of the connection pool to
+  trusted and authenticated peers, does not prevent a DoS attack that makes
+  lots of frivolous connections attempts, since they are all initially
+  unauthenticated. These peers will still be forced to sit in the queue until
+  the inactive connections timeout. However once they have a connection and
+  successfully authenticate, they will benefit from the guarantee.
+
+  On the other hand, QUIC supports 0-RTT (i.e. immediate) authentication for
+  peers that have previously connected, and we plan to be adopting that in the
+  mid-term future, so this will give more flexibility to these policies. The
+  above scenario then would be much more well-protected.
+
+Then there are DoS attacks at a lower level, consuming resources before they
+even reach the application. For these cases, the protection must be implemented
+elsewhere, e.g. at the OS level, at the hardware level, or at another network
+location such as your router or ISP:
+
+- Various types of packet flooding
+- Breach of protocol, such as sending TCP traffic outside of the ack window for
+  an already-opened connection
+
+Solutions to these are also well-known, are not specific to Polkadot or
+decentralised networks, and can be adopted by node operators at their choice.
+Therefore they are outside of the scope of this document for now. Note that
+conversely, these lower-level protections are not effective against attacks
+that *do* reach the application - only the application has enough information
+to distinguish bad open TCP connections from good open TCP connections.
+
+Deciding resource policies
+--------------------------
+
+The above few sections describe the form in which various resource policies
+should take, and how to enforce them. The actual policies are left for the
+operator to decide. Often a human can set the values by hand, but this can be
+tedious and inaccurate.
+
+Automatically determining appropriate policies, in response to changing network
+conditions, including attackers that might want to exploit this automation, is
+a fine topic for future research.
+
 
 As applied to Polkadot
 ======================

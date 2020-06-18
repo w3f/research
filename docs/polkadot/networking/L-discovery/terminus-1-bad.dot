@@ -1,0 +1,28 @@
+digraph {
+  label = "step 1 (bad): #400 replies\nuse #400 as red final, but they are far & we miss 140";
+  rankdir = LR;
+  node [style=filled];
+  edge [color=gray];
+  nodesep = 1;
+  ranksep = 1;
+  subgraph {
+     rank = same
+     400, 450
+  }
+  subgraph {
+     rank = same
+     300, 220, 200
+  }
+  self -> 400 [color=red];
+  400 [fillcolor=red];
+
+  self -> 300 [color=blue];
+  300 [fillcolor=blue];
+
+  self -> 200 -> 50 [color=green];
+  200, 50 [fillcolor=green];
+
+  400 -> 450, 300, 200 [color=red,arrowhead=diamond]
+  200 -> 140, 220
+  50 -> 100, 160 [color=green,arrowhead=diamond]
+}
