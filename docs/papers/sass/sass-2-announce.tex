@@ -148,7 +148,7 @@ We need the proof $\pi_{V,e,i}$ to bind this extra key to the VRF outputs $\omeg
 
 \subsubsection{Fujisaki–Okamoto}
 
-We took $\gamma_{V,e,i} = \skvrfa H_1(r_e \| i)$ above for some $i < \vrfaattemptsbound$.  As a result, any user Alice could treat $h \gamma_{V,e,i}$ as a public key for the anonymous $V$ by using $H_1(r_e \| i)$ as a base point.  If done naively, then we encounter an interesting malleablity concern with this public key, which we suggest addressing with an Fujisaki–Okamoto (FO) transform \cite{FO_transform}.  
+We took $\gamma_{V,e,i} = \skvrfa H_1(r_e \| i)$ above for some $i < \vrfaattemptsbound$.  As a result, any user Alice could treat $h \gamma_{V,e,i}$ as a public key for the anonymous $V$ by using $H_1(r_e \| i)$ as a base point.  If done naively, then we encounter an interesting malleability concern with this public key, which we suggest addressing with an Fujisaki–Okamoto (FO) transform \cite{FO_transform}.  
 % Find FO ref in ~/Articles/postquantum/isogenies/CSIDH/383.pdf 
 
 In concrete terms, Alice creates an ephemeral secret $s$, encrypts both her transaction and $s$ using an AEAD with symmetric key $s \omega_{V,e,i}$, and sends it to $U$ along with the curve points $s H_1(r_e \| i)$ and $\omega_{V,e,i}$.  Alice should encrypt her connection to $U$ and ideally run it through a mixnet or Tor.  At this point, $U$ recognises $V$ from $\omega_{V,e,i}$ and forwards $s H_1(r_e \| i)$ and the AEAD ciphertext, so that $V$ can find the symmetric key aka shared secret $\skvrfa s H_1(r_e \| i) = s \omega_{V,e,i}$ and decrypt the AEAD ciphertext.
