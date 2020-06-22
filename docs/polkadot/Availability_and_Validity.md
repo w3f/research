@@ -10,4 +10,4 @@ Contact with: handan@web3.foundation, alistair@web3.foundation
 
 # Availability and Validity
 
-<iframe src="../_static/pdfview/viewer.html?file=../pdf/availability_validity.pdf" width="100%" height="650em"></iframe>
+<iframe src="../_static/pdfview/viewer.html?file=../pdf/AnV.pdf" width="100%" height="650em"></iframe>
