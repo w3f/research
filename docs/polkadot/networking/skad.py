@@ -455,7 +455,7 @@ class SKadLookup(object):
     assert max_flow == lcm * len(termini)
     return results
 
-  def maybe_get_results(self, include_waiting=False, flows=False, verbose=False):
+  def maybe_get_results(self, include_waiting=True, flows=False, verbose=False):
     """Check if the query is in a state where it can be finished."""
     queries = self.peek_best_queries(verbose=verbose)
     if any(q not in self.query_result for q in queries):

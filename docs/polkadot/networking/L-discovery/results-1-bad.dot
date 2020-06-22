@@ -1,5 +1,5 @@
 digraph F {
-  label = "results (bad): can't distinguish between results";
+  label = "results (bad):\ncan't distinguish between results";
   rankdir = LR;
   node [style=filled];
   edge [color=gray];
@@ -24,11 +24,13 @@ digraph F {
   subgraph cluster_r {
     label="x"
     labelloc="b"
+    fontsize=16
     style=invis
     subgraph cluster_duck {
       margin=0
       label="x"
       labelloc="t"
+      fontsize=16
       style=invis
       4,5,6,7,8,9
     }

@@ -1,5 +1,5 @@
 digraph {
-  label = "results (good): can sort nodes based on their distance and flow";
+  label = "results (good):\ncan sort nodes on their distance and flow";
   rankdir = LR;
   node [style=filled];
   edge [color=gray];
