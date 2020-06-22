@@ -64,7 +64,7 @@ We get symmetry from the $\mathcal{T}_{\overline{\para_1 \para_2}}$ being undire
 We note one simple example for $\mathcal{T}_{\overline{\para_1 \para_2}}$:  
 % We recall either parachain $\para_i$ for $i=1,2$ is equipped with a somewhat ephemeral value $\para_i.\mathsf{seed}$ that depends upon its parachain validator assignment and some on-chain randomness $r$.
 % $$ \para_i.\mathsf{seed} := H\left( r, \mathsf{sort} \setst{ V.\mathsf{pk} }{ V \in \vals_{\para_i} } \right) $$
-Assume each parachain $\phara$ has an associated value $\para.\mathsf{seed}$.  We let $\mathsf{parashuffle}(\para_i,\para_{3-i})$ denote the Fisher-Yates shuffle of $\vals_{\para_i}$ seeded by $H( \para_i.\mathsf{seed}, \para_{3-i}.\mathsf{seed} )$.  We define $\mathcal{T}_{\overline{\para_1 \para_2}}$ on the $\vals$ by connecting $\mathsf{parashuffle}(\para_1,\para_2)[j]$ to $\mathsf{parashuffle}(\para_2,\para_1)[j]$ for $j = 1,\ldots,\npvals$.
+Assume each parachain $\para$ has an associated value $\para.\mathsf{seed}$.  We let $\mathsf{parashuffle}(\para_i,\para_{3-i})$ denote the Fisher-Yates shuffle of $\vals_{\para_i}$ seeded by $H( \para_i.\mathsf{seed}, \para_{3-i}.\mathsf{seed} )$.  We define $\mathcal{T}_{\overline{\para_1 \para_2}}$ on the $\vals$ by connecting $\mathsf{parashuffle}(\para_1,\para_2)[j]$ to $\mathsf{parashuffle}(\para_2,\para_1)[j]$ for $j = 1,\ldots,\npvals$.
 
 
 Any block production epoch $e$ contains many shorter epochs $(e,k)$ in which we compute some parachain validator assignment $\para.\mathsf{id} \mapsto \vals_\para$.  We could however leave this topology abstract and reposition the actual assignments indices to validators and/or parachains. 
