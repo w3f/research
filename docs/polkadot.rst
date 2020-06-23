@@ -21,5 +21,5 @@ Polkadot
    polkadot/slashing
    polkadot/Parachain-Allocation
    polkadot/properties
-   polkadot/Polkadot-Runtime-Environment
+   polkadot/Polkadot-Host-Spec
    polkadot/*

@@ -17,4 +17,4 @@ Furthermore, Polkadot has a decentralised governance scheme that can change any 
 
 **For other information regarding the project please refer to the [wiki page](https://wiki.polkadot.network).**
 
-**We are working on a implementation level specification of the protocol [here](Polkadot-Runtime-Environment.md).**
+**We are working on a implementation level specification of the protocol [here](Polkadot-Host-Spec.md).**
