@@ -10,6 +10,7 @@ Research Team Members
    research_team_members/fatemeh
    research_team_members/handan
    research_team_members/jeff
+   research_team_members/Jonas
    research_team_members/leon
    research_team_members/Sergey
    research_team_members/syed
