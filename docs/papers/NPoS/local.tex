@@ -5,7 +5,7 @@ We start the section with an key property of algorithm $\balanced$ as motivation
 \begin{theorem}\label{thm:315guarantee}
 If $(A,w)$ is a balanced solution such that $supp_w(A)\geq \max_{c'\in C\setminus A} score(c')$, then it satisfies PJR and guarantees a 3.15-factor approximation for the maximin support problem. 
 Furthermore, testing the required conditions (feasibility, balancedness and the previous inequality) can be done in time $O(|E|)$. 
-Finally, the output solution of the $\balanced$ algorithm is guaranteed to have these conditions.
+Finally, the output solution of the $\balanced$ algorithm is guaranteed to satisfies these conditions.
 \end{theorem}
 \begin{proof}
 The first statement follows from Lemmas \ref{lem:localopt} and \ref{lem:candidate315}, and the third one from Lemma~\ref{lem:315localoptimality}. 

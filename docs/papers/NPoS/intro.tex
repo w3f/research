@@ -76,8 +76,8 @@ Furthermore, in Section~\ref{s:local} we show that the output solution of our pr
 %
 In Section~\ref{s:local} we also adapt our heuristic into a post-computation that takes an arbitrary solution $A$ as input and returns a new solution $A'$ that a) is at least as good as $A$ in terms of the maximin support objective and b) provably satisfies PJR; the post-computation thus makes any approximation algorithm for maximin support also satisfy PJR in a black-box manner.
 
-Finally, in Section~\ref{s:objectives} we propose a specific protocol for validation election under NPoS which exploits our results. 
+Finally, in Section~\ref{s:objectives} we propose a protocol for validation election under NPoS which exploits our results. 
 In particular, several parties each run the election algorithm privately 
-and then post their solutions on the ledger, at which point the consensus protocol publicly picks the best solution and verifies it on-chain with our proposed test. 
+and post their solutions on the ledger, at which point the consensus protocol publicly ranks them and verifies them on-chain with our proposed test.  
 This results in an efficient, transparent protocol with hard and verifiable guarantees. 
-We conclude with numerical details on the performance of our proposed protocol, which is currently implemented and running in Polkadot.
+We conclude with numerical details on the performance of the validator election protocol currently running in Polkadot, which is a slight variant of the proposal presented here.
