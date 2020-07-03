@@ -1,0 +1,92 @@
+\section{Comparison to the $\phragmen$ heuristic}\label{s:phragmen}
+
+In this section we analyze the performance of the $\phragmen$ heuristic~\cite{brill2017phragmen}, particularly with respect to the maximin support objective, and we draw some comparisons between it and our heuristic. 
+We start by proving that $\phragmen$ does not offer a constant-factor approximation for maximin support.
+
+\begin{algorithm}[htb]\label{alg:phragmen}
+\SetAlgoLined
+\KwData{Bipartite approval graph $G=(N\cup C, E)$, vector $s$ of vote strengths, target committee size $k$.}
+Initialize $A=\emptyset$, $w=0\in \R^E$, $load(n)=0$ for each $n\in N$, and $load(c)=0$ for each $c\in C$\;
+\For{$i=1,2,\cdots k$}{
+\For{each candidate $c\in C\setminus A$}{
+Update $load(c) \leftarrow \frac{1+\sum_{n\in N_c} s_n\cdot load(n)}{\sum_{n\in N_c} s_n}$\;
+}
+Find $c_{\min}\in \arg\min_{c\in C\setminus A} load(c)$\;
+Update $A\leftarrow A+c_{\min}$\;
+\For{each voter $n\in N_{c_{\min}}$}{
+Update $w_{nc_{\min}} \leftarrow load(c_{\min}) - load(n)$\;
+Update $load(n)\leftarrow load(c_{\min})$\;
+}
+}
+\emph{Scaling edge weights:} for each $nc\in E$ with $w_{nc}>0$, update $w_{nc}\leftarrow w_{nc}\cdot \frac{s_n}{load(n)}$\; 
+\Return $(A,w)$\;
+\caption{$\phragmen$, proposed in~\cite{brill2017phragmen}}
+\end{algorithm}
+
+We remark that the method proposed in~\cite{brill2017phragmen} only considers unit votes, and outputs only a committee. 
+In Algorithm~\ref{alg:phragmen} we present a generalization that admits weighted votes in the input, and outputs a feasible edge weight vector along with the committee, for ease of comparison with other algorithms in this paper. 
+We remark however that the numerical example presented in Lemma~\ref{lem:phragmen} can be easily converted into another with unit votes -- where each voter $n$ is replaced with a cluster of voters with unit vote strength and where the cluster size is proportional to $s_n$ -- that would lead to the same negative result for the method in~\cite{brill2017phragmen}, 
+even when the output committee is coupled with a balanced weight vector.
+
+\begin{figure}[htb]
+\begin{center}
+\scalebox{.8}{
+
+\definecolor{rvwvcq}{rgb}{0.08235294117647059,0.396078431372549,0.7529411764705882}
+\begin{tikzpicture}[line cap=round,line join=round,>=triangle 45,x=1cm,y=1cm]
+\clip(-1,1.5) rectangle (7,7);
+\draw [-,line width=1pt] (2,6) -- (6,6);
+\draw [-,line width=1pt] (2,5) -- (6,5);
+\draw [-,line width=1pt] (2,4) -- (6,5);
+\draw [-,line width=1pt] (2,3) -- (6,5);
+\draw [-,line width=1pt] (2,2) -- (6,5);
+\draw [-,line width=1pt] (2,4) -- (6,4);
+\draw [-,line width=1pt] (2,3) -- (6,4);
+\draw [-,line width=1pt] (2,2) -- (6,4);
+\draw [-,line width=1pt] (2,3) -- (6,3);
+\draw [-,line width=1pt] (2,2) -- (6,3);
+\draw [-,line width=1pt] (2,2) -- (6,2);
+\draw (-0.5,6.3) node[anchor=north west] {$s_0=\sfrac{1}{(H_4 - \varepsilon)}$};
+\draw (-0.5,5.3) node[anchor=north west] {$s_1=1$};
+\draw (-0.5,4.3) node[anchor=north west] {$s_2=1$};
+\draw (-0.5,3.3) node[anchor=north west] {$s_3=1$};
+\draw (-0.5,2.3) node[anchor=north west] {$s_4=1$};
+\begin{scriptsize}
+\draw [fill=rvwvcq] (2,6) circle (2.5pt);
+\draw[color=rvwvcq] (2,6.3) node {$n_0$};
+\draw [fill=rvwvcq] (2,5) circle (2.5pt);
+\draw[color=rvwvcq] (2,5.3) node {$n_1$};
+\draw [fill=rvwvcq] (2,4) circle (2.5pt);
+\draw[color=rvwvcq] (2,4.3) node {$n_2$};
+\draw [fill=rvwvcq] (2,3) circle (2.5pt);
+\draw[color=rvwvcq] (2,3.3) node {$n_3$};
+\draw [fill=rvwvcq] (2,2) circle (2.5pt);
+\draw[color=rvwvcq] (2,2.3) node {$n_4$};
+\draw [fill=rvwvcq] (6,6) circle (2.5pt);
+\draw[color=rvwvcq] (6,6.3) node {$c_0$};
+\draw [fill=rvwvcq] (6,5) circle (2.5pt);
+\draw[color=rvwvcq] (6,5.3) node {$c_1$};
+\draw [fill=rvwvcq] (6,4) circle (2.5pt);
+\draw[color=rvwvcq] (6,4.3) node {$c_2$};
+\draw [fill=rvwvcq] (6,3) circle (2.5pt);
+\draw[color=rvwvcq] (6,3.3) node {$c_3$};
+\draw [fill=rvwvcq] (6,2) circle (2.5pt);
+\draw[color=rvwvcq] (6,2.3) node {$c_4$};
+\end{scriptsize}
+\end{tikzpicture}
+}
+\end{center}
+\caption{Instance of maximin support where $\phragmen$ gives an approximation ratio of $H_k - \eps$, for $k=4$.}
+\label{fig:phragmen}
+\end{figure}
+
+We exhibit now a family of instances where the approximation ratio offered by the output of Algorithm~\ref{alg:phragmen} equals the $k$-th harmonic number $H_k:=\sum_{i=1}^k 1/i = \Theta(\log k)$. This proves Lemma~\ref{lem:phragmen}.
+
+\begin{proof}[Proof of Lemma~\ref{lem:phragmen}]
+For an arbitrarily small constant $\eps>0$ and a committee size $k$, consider an instance where $N=\{n_0, \cdots, n_k\}$, $C=\{c_0, \cdots, c_k\}$, $s_{n_j}=1$ and $C_{n_j}=\{c_i: \ 1\leq i\leq j\}$ for each $1\leq j\leq k$, and $s_0=1/(H_k - \eps)$ with $C_{n_0}=\{c_0\}$; see Figure~\ref{fig:phragmen}. 
+It is easy to see that if committee $\{c_1, \cdots, c_k\}$ is selected, each member can be given a support of value $1$. On the other hand, any committee that selects candidate $c_{0}$ can only provide it a support of value $s_0$. We will prove that Algorithm~\ref{alg:phragmen} selects committee $\{c_0, c_1, \cdots, c_{k-1}\}$, and thus its approximation ratio is $1/s_0 = H_k - \eps$. 
+
+In the first round, we have that $load(c_0)=1/s_0$ and $load(c_j)=\frac{1}{k+1-j}$ for each $j\geq 1$, so we add $c_1$ to the committee, which has $load(c_1)=1/k = H_k - H_{k-1}$, and update $load(n_j)\leftarrow H_k - H_{k-1}$ for each $j\geq 1$. 
+More generally, in the $i$-th round for $1\leq i\leq k-1$, we have that $load(c_0)=s_0$ and $load(c_j)=\frac{1+(k+1-j)(H_k - H_{k+1-i})}{k+1-j}=\frac{1}{k+1-j}+H_k-H_{k+1-i}$ for each $j\geq i$, so we add $c_i$ to the committee, which has $load(c_i)=H_k - H_{k-i}$, and update $load(n_j)\leftarrow H_k - H_{k_i}$ for each $j\geq i$. 
+Finally, in the $k$-th round we have that $load(c_0)=1/s_0 = H_k - \eps$ and $load(c_k)=H_k$, thus we elect $c_0$ as the final committee member. This completes the proof.
+\end{proof}

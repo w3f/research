@@ -1,0 +1,48 @@
+\section{The $\lazy$ algorithm}\label{s:lazymms}
+
+In this section we present $\lazy$, a variant of $\MMS$ (Algorithm~\ref{alg:mms}) that is faster by a factor $\Theta(k)$ and offers virtually the same approximation guarantee, and we prove Theorem~\ref{thm:2eps}.
+
+We remark that this algorithm does not necessarily satisfy PJR, though this fact becomes irrelevant as in Section~\ref{s:local} we provide a post-computation which preserves the approximation guarantee and ensures PJR (see Theorem~\ref{thm:enabler}). The complexity of such post-computation is dominated by that of the main algorithm.
+
+Algorithm $\lazy$ is lazier than $\MMS$ in the sense that for each candidate that it explores, it decides on the spot whether to add it to the current partial solution, if the candidate is "good enough", or discard it. 
+Hence, the algorithm performs a single pass over the candidate set, instead of $k$ passes. 
+For a target support value $t\geq 0$ given as input, the algorithm either succeeds and returns a full solution $(A,w)$ with $supp_w(A)\geq t$, or it returns a failure message. 
+However, as we prove next, for low enough values of $t$ the algorithm is guaranteed to succeed.
+
+\begin{algorithm}[htb]\label{alg:lazy}
+\SetAlgoLined
+\KwData{Approval graph $G=(N\cup C, E)$, vector $s$ of vote strengths, committee size $k$, target support $t\geq 0$.}
+Initialize $A=\emptyset$\ and $w=0\in\R^E$\;
+\For{each candidate $c\in C$ (over an arbitrary traversing order in $C$)}{
+Compute a balanced edge weight vector $w_c$ for $A+c$\;
+\If{$supp_{w_c}(A+c)\geq t$}{
+Update $A\leftarrow A+c$ and $w\leftarrow w_c$\;
+\lIf{$|A|=k$}
+{
+    \Return $(A,w)$
+}
+}
+}
+\Return a failure message\;
+\caption{$\lazy$}
+\end{algorithm}
+
+\begin{lemma}\label{lem:success}
+If $(A^*, w^*)$ is an optimal solution to the given instance of maximin support, and $t^*=supp_{w^*}(A^*)$, then for any input target $t$ with $0\leq t\leq t^*/2$, Algorithm $\lazy$ is guaranteed to succeed.
+\end{lemma}
+
+\begin{proof}
+Assume by contradiction that for some input target $t\leq t^*/2$, $\lazy$ fails. Thus, after traversing the whole candidate set $C$, the algorithm ends up with a partial solution $(A,w)$ with $|A|<k$ and $supp_w(A)\geq t$. By Lemma~\ref{lem:2sols}, there must be a candidate $c'\in A^*\setminus A$ and a feasible solution $(A+c', w')$ such that $supp_{w'}(A+c')\geq t$. Notice as well that for any subset $S$ of $A+c'$, vector $w'$ provides a support of at least $t$, so any balanced weight vector for $S$ also provides a support of at least $t$. This implies that at whichever point the algorithm inspected candidate $c'$, it should have included it in the partial solution, which at that time was a subset of $A$. Hence, $c'$ should be contained in $A$, and we reach a contradiction.
+\end{proof}
+
+The idea is then to run trials of $\lazy$ over several input values of target $t$, performing binary search to converge to a value where it flips from failure to success, and return the output of the last successful trial. Each trial clearly executes in time $O(B\cdot |C|)$. 
+In the next lemma we establish the number of trials needed to achieve a solution whose value is within a factor $(2+\eps)$ from optimal for any $\eps>0$. This in turn proves Theorem~\ref{thm:2eps}.
+
+\begin{lemma}\label{lem:lazybinary}
+For any $\eps>0$, $O(\log(1/\eps))$ iterations of $\lazy$ are sufficient to obtain a solution whose value is within a factor $(2+\eps)$ from optimal.
+\end{lemma}
+
+\begin{proof}
+We start by computing an $\alpha$-factor estimate of the optimal objective value $t^*$, for some constant $\alpha$. For instance, in Section~\ref{s:315} we provide a $3.15$-approximation algorithm that executes in time $O(B\cdot k)$. If $t$ is the objective value of its output, and we initialize the variables $t'\leftarrow t/2$, $t''\leftarrow \alpha\cdot t$, then we have the properties that $t'<t''$ and that $\lazy$ succeeds for target $t'$ and fails for target $t''$. We keep these properties as loop invariants as we perform binary search over Algorithm $\lazy$, in each iteration setting the new target value to the geometric mean of $t'$ and $t''$. This way, the ratio $t''/t'$ starts with a constant value $2 \alpha$, and is square-rooted in each iteration. 
+By Lemma~\ref{lem:success}, to achieve a $(2+\eps)$-factor guarantee it suffices to find target values $t'<t''$ such that $\lazy$ succeeds for $t'$ and fails for $t''$ and whose ratio is bounded by $t''/t'\leq 1+\eps/2$, and return the output for $t'$. If it takes $r+1$ iterations for our binary search to bring this ratio below $(1+\eps/2)$, then $(2\alpha)^{1/2^r} > (1+\eps/2)$, so $r= O(\log (\eps^{-1} \log(\alpha))) = O(\log(\eps^{-1}))$. This completes the proof. 
+\end{proof}

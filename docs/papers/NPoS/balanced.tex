@@ -1,60 +1,7 @@
 \section{Properties and algorithms for balanced solutions} \label{s:balanced}
 
-Consider an instance $(G=(N\cup C, E), s, k)$ as defined in Section~\ref{s:prel}. 
-For a fixed (possibly partial) committee $A\subseteq C$, recall from Section~\ref{s:prel} that a feasible edge weight vector $w\in\R^E$ is said to be \emph{balanced for $A$} if %
-%
-\begin{enumerate}
-    \item it maximizes $\sum_{c\in A} supp_{w'}(c)$, over all feasible weight vectors $w'$, and \label{balanced1}
-    \item it minimizes $\sum_{c\in A} supp_{w'}^2(c)$, over all vectors $w'$ that satisfy the condition above. \label{balanced2}
-\end{enumerate}
 
-\begin{proof}[Proof of Lemma~\ref{lem:balanced}]
-The first statement is simply a special case of the second statement, for $r=1$. 
-We temporarily skip the second statement and start by proving the third one, which we do by contradiction. 
-We thus assume there is a voter $n\in N$ and two candidates $c\in C_n$, $c'\in C_n\cap A$, such that $w_{nc}>0$ and $supp_w(c) > supp_w(c')$. 
-Let $\eps:=\min\{w_{nc}, (supp_w(c)-supp_w(c'))/2\}>0$, and define a new vector $w'\in\mathbb{R}^E$ where $w'_{nc}=w_{nc}-\eps$, $w'_{nc'}=w_{nc'}+\eps$, and $w'_e=w_e$ for every other edge $e\in E$. 
-It can be checked that $w'$ is non-negative and feasible, and that it does not decrease the sum of member supports, i.e. $\sum_{d\in A} supp_{w'}(d)\geq \sum_{d\in A} supp_{w}(d)$, where the inequality is tight only if $c\in A$. We assume this to be the case, as otherwise the first condition on vector $w$ being balanced for $A$ is violated. On the other hand,
-\begin{align*}
-    \sum_{d\in A} supp_{w}^2(d) - \sum_{d\in A} supp_{w'}^2(d) &= supp_w^2(c) + supp_w^2(c) - supp_{w'}^2(c) - supp_{w'}^2(c') \\
-    &= supp_w^2(c) + supp_w^2(c') - (supp_w(c)-\eps)^2 - (supp_w(c')+\eps)^2 \\
-    &= 2\eps( supp_w(c) - supp_w(c')) -2\eps^2 \\
-    &\geq 2\eps(2\eps) - 2\eps^2 = 2\eps^2 >0,
-\end{align*}
-which contradicts the second condition on vector $w$ being balanced for $A$.
 
-We now prove the second statement, which says that function 
-$F_{w'}^k:=\min_{A'\subseteq A, |A'|=r} \quad \sum_{c\in A'} supp_{w'}(c)$ 
-is maximized by vector $w$ over all feasible vectors $w'\in\R^E$, for all $1\leq r\leq |A|$. 
-Assume by contradiction that there is a threshold $r$ and feasible $w'$ such that $F_r^A(w')>F_r^A(w)$. We can also assume without loss of generality that 
-\begin{enumerate}
-    \item $\sum_{c\in A} supp_{w'}(c)=\sum_{c\in A} supp_{w}(c)$, i.e. $w'$ also satisfies the first condition of a balanced weight vector; and  
-    \item we enumerate the candidates in $A=\{c_1, \cdots, c_{|A|}\}$ so that whenever $i<j$ we have that $supp_w(c_i)\leq supp_w(c_j)$, and in case of a tie, $supp_w(c_i)= supp_w(c_j)$, we have that $supp_{w'}(c_i)\leq supp_{w'}(c_j)$. 
-\end{enumerate}
-
-With a candidate enumeration as above, it follows that $F^A_r(w)=\sum_{i=1}^r supp_w(c_i)$, while for vector $w'$ we have the inequality $F^A_r(w')\leq \sum_{i=1}^r supp_{w'}(c_i)$. 
-Thus, by our assumption by contradiction, 
-$$\sum_{i=1}^r supp_{w'}(c_i) \geq F_r^A(w') > F_r^A(w) = \sum_{i=1}^r supp_{w}(c_i), \quad \text{and}$$
-\begin{align*}
-    \sum_{i=r+1}^{|A|} supp_{w'}(c_i) &= \sum_{i=1}^{|A|} supp_{w'}(c_i) - \sum_{i=1}^{r} supp_{w'}(c_i) \\
-    & = \sum_{i=1}^{|A|} supp_{w}(c_i) - \sum_{i=1}^{r} supp_{w'}(c_i) \\
-    & < \sum_{i=1}^{|A|} supp_{w}(c_i) - \sum_{i=1}^{r} supp_{w}(c_i) 
-    = \sum_{i=r+1}^{|A|} supp_{w}(c_i). \\
-\end{align*}
-Now define the edge vector $f:=w'-w\in\mathbb{R}^E$ and consider it as a flow over the network $(N\cup A, E)$. 
-We have that $f$ has a zero net demand over set $N$, by our first assumption, and the previous two inequalities show that $f$ has a positive net demand over set $\{c_1, \cdots, c_r\}$ and a positive net excess over set $\{c_{r+1}, \cdots, c_{|A|}\}$. Thus, by the flow decomposition theorem, $f$ can be decomposed into circulations and simple paths, where every path starts in a vertex with positive demand and ends in a vertex with positive excess, and there must be a simple path carrying some $\delta>0$ flow from $c_j$ to $c_i$ for some $1\leq i\leq r<j\leq |A|$. 
-Moreover, by our second assumption, it must be the case that $supp_w(c_i)<supp_w(c_j)$, because in case of a tie we would have that $supp_{w'}(c_i)<supp_{w'}(c_j)$ and so $f$ would have a net excess on $c_i$ and net demand on $c_j$, and the $c_i$-to-$c_j$ path would not exist in the flow decomposition.
-
-Let $f'$ be a sub-flow of $f$ that carries $\eps$ units of flow from $c_j$ to $c_i$, where $\eps:=\min\{\delta, \frac{1}{2}(supp_w(c_j) - supp_w(c_i))\}>0$. 
-The fact that $f'$ is a sub-flow of $f$ implies that $w'':=w+f'$ is a feasible non-negative solution,%
-\footnote{For a proof of feasibility and non-negativity, see the argument at the end of the proof in Lemma~\ref{lem:2sols}.} 
-with 
-\begin{align*}
-    \sum_{c\in A} supp_{w}^2(c) - \sum_{c\in A} supp_{w''}^2(c) &= supp_{w}^2(c_i) + supp_w^2(c_j) - (supp_{w}(c_i) +\eps)^2 - (supp_{w}(c_j) - \eps)^2\\
-    &= 2\eps(supp_w(c_j) - supp_w(c_i)) - 2\eps^2 \\
-    &\geq 2\eps(2\eps) - 2\eps^2 = 2\eps^2>0,
-\end{align*}
-which contradicts the fact that $w$ minimizes the sum of supports squared. This completes the proof. 
-\end{proof}
 
 \subsection{Algorithms to compute balanced weight vectors}
 

@@ -1,12 +1,118 @@
 
 \section{Delayed proofs}\label{s:proofs}
 
-\begin{proof}[Proof of Lemma~\ref{lem:lazybinary}]
-$\lazy$ (Algorithm~\ref{alg:lazy}) clearly executes in time $O(B\cdot k)$. Hence, we focus on proving that the claimed number of iterations is enough, for a given parameter $\eps>0$.
+\begin{proof}[Proof of Lemma~\ref{lem:balanced}]
+The first statement is simply a special case of the second statement, for $r=1$. 
+We temporarily skip the second statement and start by proving the third one, which we do by contradiction. 
+We thus assume there is a voter $n\in N$ and two candidates $c\in C_n$, $c'\in C_n\cap A$, such that $w_{nc}>0$ and $supp_w(c) > supp_w(c')$. 
+Let $\eps:=\min\{w_{nc}, (supp_w(c)-supp_w(c'))/2\}>0$, and define a new vector $w'\in\mathbb{R}^E$ where $w'_{nc}=w_{nc}-\eps$, $w'_{nc'}=w_{nc'}+\eps$, and $w'_e=w_e$ for every other edge $e\in E$. 
+It can be checked that $w'$ is non-negative and feasible, and that it does not decrease the sum of member supports, i.e. $\sum_{d\in A} supp_{w'}(d)\geq \sum_{d\in A} supp_{w}(d)$, where the inequality is tight only if $c\in A$. We assume this to be the case, as otherwise the first condition on vector $w$ being balanced for $A$ is violated. On the other hand,
+\begin{align*}
+    \sum_{d\in A} supp_{w}^2(d) - \sum_{d\in A} supp_{w'}^2(d) &= supp_w^2(c) + supp_w^2(c) - supp_{w'}^2(c) - supp_{w'}^2(c') \\
+    &= supp_w^2(c) + supp_w^2(c') - (supp_w(c)-\eps)^2 - (supp_w(c')+\eps)^2 \\
+    &= 2\eps( supp_w(c) - supp_w(c')) -2\eps^2 \\
+    &\geq 2\eps(2\eps) - 2\eps^2 = 2\eps^2 >0,
+\end{align*}
+which contradicts the second condition on vector $w$ being balanced for $A$.
 
-Let $(A^*, w^*)$ be an optimal solution with support $t^*$. We start by finding bounds for $t^*$ via a pre-computation whose running time will be dominated by that of the main algorithm. For each candidate $c\in C$, we define its "potential support" as $psupp(c):=\sum_{n\in N_c} s_n$; clearly, it holds that $psupp(c)\geq supp_w^*(c)$ for any member $c\in A^*$. We find the potential supports of all candidates in $C$, and identify the $k$-th highest one, counting repetitions, which we denote by $psupp_k$. It follows that $psupp_k\geq supp_{w^*}(A^*)=t^*$. On the other hand, we also have that $t^* \geq psupp_k /k$, as we show now: Consider the solution $(A',w')$ where $A'$ contains the $k$ candidates in $C$ with highest potential support, and $w'$ is defined by $w'_{nc}:=s_n/|A\cap C_n| \geq s_n/k$ for each edge $nc$ with $c\in A\cap C_n$; it can then be checked that vector $w'$ is feasible, and $supp_w'(c)\geq psupp(c)/k$ for each $c\in A'$, so $t^*\geq supp_w'(A')\geq psupp_k/k$. Therefore, $psupp_k/k\leq t^*\leq psupp_k$.
+We now prove the second statement, which says that function 
+$F_{w'}^k:=\min_{A'\subseteq A, |A'|=r} \quad \sum_{c\in A'} supp_{w'}(c)$ 
+is maximized by vector $w$ over all feasible vectors $w'\in\R^E$, for all $1\leq r\leq |A|$. 
+Assume by contradiction that there is a threshold $r$ and feasible $w'$ such that $F_r^A(w')>F_r^A(w)$. We can also assume without loss of generality that 
+\begin{enumerate}
+    \item $\sum_{c\in A} supp_{w'}(c)=\sum_{c\in A} supp_{w}(c)$, i.e. $w'$ also satisfies the first condition of a balanced weight vector; and  
+    \item we enumerate the candidates in $A=\{c_1, \cdots, c_{|A|}\}$ so that whenever $i<j$ we have that $supp_w(c_i)\leq supp_w(c_j)$, and in case of a tie, $supp_w(c_i)= supp_w(c_j)$, we have that $supp_{w'}(c_i)\leq supp_{w'}(c_j)$. 
+\end{enumerate}
 
-Due to Lemma~\ref{lem:success}, to achieve a $(2+\eps)$-factor guarantee it suffices to find two target values $t'<t''$ such that $\lazy$ succeeds for $t'$ and fails for $t''$, and whose ratio is bounded by $t''/t'\leq 1+\eps/2$, and return the output for $t'$. We can find such target values via binary search, within the range $[t^*/2, t^*]\subseteq [psupp_k/(2k), psupp_k]$. If we initialize these variables to $t'=psupp_k/(2k)$ and $t''=psupp_k$, then their ratio starts at $2k$, and can be square-rooted at each iteration of the binary search by always testing their geometric mean. Hence, if it takes $r+1$ iterations to bring this ratio below $(1+\eps/2)$, then $(2k)^{1/2^r} > (1+\eps/2)$, so $r=O(\log(\eps^{-1}\log k))$. This completes the proof. 
+With a candidate enumeration as above, it follows that $F^A_r(w)=\sum_{i=1}^r supp_w(c_i)$, while for vector $w'$ we have the inequality $F^A_r(w')\leq \sum_{i=1}^r supp_{w'}(c_i)$. 
+Thus, by our assumption by contradiction, 
+$$\sum_{i=1}^r supp_{w'}(c_i) \geq F_r^A(w') > F_r^A(w) = \sum_{i=1}^r supp_{w}(c_i), \quad \text{and}$$
+\begin{align*}
+    \sum_{i=r+1}^{|A|} supp_{w'}(c_i) &= \sum_{i=1}^{|A|} supp_{w'}(c_i) - \sum_{i=1}^{r} supp_{w'}(c_i) \\
+    & = \sum_{i=1}^{|A|} supp_{w}(c_i) - \sum_{i=1}^{r} supp_{w'}(c_i) \\
+    & < \sum_{i=1}^{|A|} supp_{w}(c_i) - \sum_{i=1}^{r} supp_{w}(c_i) 
+    = \sum_{i=r+1}^{|A|} supp_{w}(c_i). \\
+\end{align*}
+Now define the edge vector $f:=w'-w\in\mathbb{R}^E$ and consider it as a flow over the network $(N\cup A, E)$. 
+We have that $f$ has a zero net demand over set $N$, by our first assumption, and the previous two inequalities show that $f$ has a positive net demand over set $\{c_1, \cdots, c_r\}$ and a positive net excess over set $\{c_{r+1}, \cdots, c_{|A|}\}$. Thus, by the flow decomposition theorem, $f$ can be decomposed into circulations and simple paths, where every path starts in a vertex with positive demand and ends in a vertex with positive excess, and there must be a simple path carrying some $\delta>0$ flow from $c_j$ to $c_i$ for some $1\leq i\leq r<j\leq |A|$. 
+Moreover, by our second assumption, it must be the case that $supp_w(c_i)<supp_w(c_j)$, because in case of a tie we would have that $supp_{w'}(c_i)<supp_{w'}(c_j)$ and so $f$ would have a net excess on $c_i$ and net demand on $c_j$, and the $c_i$-to-$c_j$ path would not exist in the flow decomposition.
+
+Let $f'$ be a sub-flow of $f$ that carries $\eps$ units of flow from $c_j$ to $c_i$, where $\eps:=\min\{\delta, \frac{1}{2}(supp_w(c_j) - supp_w(c_i))\}>0$. 
+The fact that $f'$ is a sub-flow of $f$ implies that $w'':=w+f'$ is a feasible non-negative solution,%
+\footnote{For a proof of feasibility and non-negativity, see the argument at the end of the proof in Lemma~\ref{lem:2sols}.} 
+with 
+\begin{align*}
+    \sum_{c\in A} supp_{w}^2(c) - \sum_{c\in A} supp_{w''}^2(c) &= supp_{w}^2(c_i) + supp_w^2(c_j) - (supp_{w}(c_i) +\eps)^2 - (supp_{w}(c_j) - \eps)^2\\
+    &= 2\eps(supp_w(c_j) - supp_w(c_i)) - 2\eps^2 \\
+    &\geq 2\eps(2\eps) - 2\eps^2 = 2\eps^2>0,
+\end{align*}
+which contradicts the fact that $w$ minimizes the sum of supports squared. This completes the proof. 
+\end{proof}
+
+
+
+\begin{proof}[Proof of Lemma~\ref{lem:equivalence}]
+Let $A'\subseteq A$ be the non-empty subset that minimizes the expression $\frac{1}{|A'|} \sum_{n\in \cup_{c\in A'} N_c} s_n$. Hence, 
+\begin{align*}
+    supp_w(A) &\leq supp_w(A') \leq \frac{1}{|A'|} \sum_{c\in A'} supp_w(c) &\text{(by an averaging argument)}\\
+    & = \frac{1}{|A'|} \sum_{c\in A'} \sum_{n\in N_c} w_{nc} 
+     \leq \frac{1}{|A'|}  \sum_{n\in \cup_{c\in A'} N_c} \quad \sum_{c\in C_n} w_{nc} \\
+    & \leq \frac{1}{|A'|} \sum_{n\in \cup_{c\in A'} N_c} s_n &\text{(by \ref{eq:feasible})}.
+\end{align*}
+
+This proves one inequality. To prove the opposite inequality, we use the fact that $(A,w)$ is a balanced solution. 
+Let $A_{\min}\subseteq A$ be the set of committee members with least support, i.e.~those $c\in A$ with $supp_w(c)=supp_w(A)$. Then,
+\begin{align*}
+    supp_w(A_{\min}) &= \frac{1}{|A_{\min}|} \sum_{c\in A_{\min}} supp_w(c) \\
+    &= \frac{1}{|A_{\min}|} \sum_{c\in A_{\min}} \sum_{n\in N_c} w_{nc} 
+    = \frac{1}{|A_{\min}|} \sum_{n\in \cup_{c\in A_{\min}} N_c} \quad \sum_{c\in C_n\cap A_{\min}} w_{nc} \\
+    &= \frac{1}{|A_{\min}|} \sum_{n\in \cup_{c\in A_{\min}} N_c} \Big( \sum_{c\in C_n} w_{nc} - \sum_{c\in C_n \setminus A_{\min}} w_{nc}\Big).
+\end{align*}
+
+We now make two claims, one for each of the terms inside the parenthesis. 
+The first claim is that $\sum_{c\in C_n} w_{nc}=s_n$, i.e. the feasibility inequality~\eqref{eq:feasible} must be tight, for each nominator $n$ in $\cup_{c\in A_{\min}} N_c$, 
+or more generally each nominator in $\cup_{c\in A} N_c$, because balanced vector $w$ by definition maximizes the sum of supports over $A$. 
+The second claim is that the second term is zero. Indeed, if there is a nominator $n$ in $\cup_{c\in A_{\min}} N_c$ and a candidate $c$ in $C_n\setminus A_{\min}$, then there must be at least one member $c'$ in $C_n\cap A'$, and the inequality $supp_w(c')<supp_w(c)$ must hold by definition of set $A_{\min}$; hence $w_{nc}=0$ by point 3 of Lemma~\ref{lem:balanced}. 
+We obtain that 
+$$supp_w(A_{\min}) = \frac{1}{|A_{\min}|}\sum_{n\in \cap_{c\in A_{\min}} N_c} s_n \geq \min_{\emptyset\neq A'\subseteq A} \frac{1}{|A'|}\sum_{n\in \cup_{c\in A'}N_c} s_n.$$
+This proves the second inequality and completes the proof.
+\end{proof}
+
+
+\begin{proof}[Proof of Lemma~\ref{lem:subflow}]
+We prove the claim only for $w+f'$, as the proof for $w'-f'$ is similar. 
+For each edge $e\in E$, we have that $(w+f')_e$ is a value between $w_e$ and $(w+f)_e=w'_e$. As both of these values are non-negative, the same holds for $(w+f')_e$. 
+Notice now from inequality \eqref{eq:feasible} that proving feasibility corresponds to proving that the excess $(w+f')(n)$ is at most $s_n$ for each voter $n\in N$. We have 
+$$(w+f')(n) = \sum_{c\in C_n} (w+f')_{nc}= \sum_{c\in C_n} w_{nc} + \sum_{c\in C_n} f_{nc}' = w(n) + f'(n). $$
+If excess $f'(n)$ is non-positive, then $(w+f')(n)\leq w(n) \leq s_n$, since $w$ is feasible. 
+Otherwise, $f'(n)\leq f(n)$, and thus $(w+f')(n)\leq w(n) + f(n) = (w+f)(n) = w'(n) \leq s_n$, since $w'$ is feasible. This completes the proof.
+\end{proof}
+
+\begin{lemma}\label{lem:path}
+Let $w\in \R^E$ be a feasible weight vector for a given instance, let $c,c'\in C$ be two candidates with $supp_w(c)>supp_w(c')$, and suppose there is a path $p\in\mathbb{R}^E$ that carries some non-zero flow from $c$ to $c'$, with zero excess elsewhere. If $w+p$ is non-negative and feasible, then $w$ is not balanced for any committee $A$ that contains $c'$.
+\end{lemma}
+
+\begin{proof}
+Fix a committee $A\subseteq C$ that contains $c'$. If $c$ is not in $A$, then $w+p$ provides a greater sum of member supports over $A$ than $w$, so the latter is not balanced as it does not maximize this sum. Now suppose both $c$ and $c'$ are in $A$. Let $\lambda>0$ be the flow value carried by $p$, let $\eps:=\min\{\lambda, (supp_w(c) - supp_w(c'))/2\}>0$, and let $p'$ be the scalar multiple of $p$ whose flow value is $\eps$. By an application of Lemma~\ref{lem:subflow} over $w$ and $w':=w+p$, and the fact that $p'$ is a sub-flow of $p=w'-w$, we have that $w+p'$ is non-negative and feasible. Moreover, both $w$ and $w+p'$ clearly provide the same sum of member supports over $A$. Finally, if we compare their sums of member supports squared, we have that
+\begin{align*}
+\sum_{d\in A} supp_w^2(d)-\sum_{d\in A} supp^2_{w+p'}(d) &=supp_w^2(c) +supp_w^2(c')-supp^2_{w+p'}(c) -supp^2_{w+p'}(c')\\
+&= supp_w^2(c) +supp_w^2(c') - (supp_w(c) - \eps)^2 - (supp_w(c) + \eps)^2 \\
+&= 2\eps\cdot (supp_w(c) - supp_w(c') - \eps) \geq 2\eps\cdot(2\eps - \eps)=2\eps^2>0.
+\end{align*}
+
+Therefore, $w$ is not balanced for $A$, as it does not minimize the sum of member supports squared.  
+\end{proof}
+
+\begin{proof}[Proof of Lemma~\ref{lem:2balanced}]
+The second statement follows directly from the first one and the definitions of slack, pre-score and score in Section~\ref{s:heuristic}. Hence we focus on the first statement, i.e.~that $supp_w(c)\geq supp_{w'}(c)$ for each candidate $c\in A$.
+
+Consider vector $f:=w'-w\in\mathbb{R}^E$ as a flow vector over the network induced by $N\cup A'$. We need to prove that there is no candidate in $A$ with positive demand relative to $f$. Assume by contradiction that there is such a candidate $c'\in A$. By the flow decomposition theorem, $f$ can be decomposed into circulations and simple paths, where each path starts in a vertex with positive excess and ends in a vertex with positive demand. By our assumption, there must be a path $p$ carrying non-zero flow to $c'$.  
+Now, where does path $p$ start? It cannot start in $N$ nor in $A'\setminus A$, as otherwise weight vector $w+p$ is feasible by Lemma~\ref{lem:subflow}, and has a greater sum of candidate supports over $A$ than $w$, which contradicts the fact that $w$ is balanced for $A$ and thus maximizes this sum. Therefore, it must start in another candidate $c$ in $A$ with positive excess. 
+The fact that $f$ has positive excess in $c$ and positive demand in $c'$ implies that
+$$supp_{w}(c') - supp_{w'}(c') = f(c')< 0 < f(c) = supp_{w}(c) - supp_{w'}(c),$$
+which in turn implies that either $supp_w(c) > supp_w(c')$ or $supp_{w'}(c') > supp_{w'}(c)$, or both. 
+If $supp_w(c) > supp_w(c')$, then Lemma~\ref{lem:path} implies that $w$ is not balanced for $A$. 
+Similarly, if $supp_{w'}(c') > supp_{w'}(c)$, notice that $w'-p$ is non-negative and balanced by Lemma~\ref{lem:subflow}, so again Lemma~\ref{lem:path} applied over vector $w'$ and path $-p$ implies that $w'$ is not balanced for $A'$. Hence, in either case we reach a contradiction.
 \end{proof}
 
 \begin{proof}[Proof of Lemma~\ref{lem:Lebesgue}]
@@ -20,59 +126,3 @@ This is a Lebesgue integral over the measure with weights $\alpha_i$. Now, condi
 $$\sum_{i\in I} \alpha_i f(x_i) =\int_{\chi}^{\infty} \Big( \sum_{i\in I: \ x_i\geq x} \alpha_i \Big)(f'(x)dx).$$
 \end{proof}
 
-\section{Extra bits (to be removed or completed before publication)}
-
-\begin{lemma}\label{lem:list}
-Consider a list $L$ of $k$ real numbers, all within the range $[0,t]$ for some threshold $t>0$, and consider an iterative process that in each iteration: 
-1) replaces the smallest entry in $L$ with the number $t$, and then 2) alters the entries in $L$ in such a way that neither the minimum nor the average value decreases.
-For any $\eps>0$, we have that after at most $k\cdot (1+\ln (1/\eps))$ iterations the smallest entry in $L$ is at least $(1-\eps)\cdot t$.
-\end{lemma}
-
-\begin{proof}
-Fix a constant $\eps>0$. Let $a^i$ and $m^i$ be respectively the average and the minimum value of list $L$ at the end of the $i$-th iteration, where $a^0$ and $m^0$ correspond to these values for the initial list $L$. 
-We make two claims: first, that for $i\geq k\cdot \ln(1/\eps)$ we have that $a^i \geq (1-\eps) \cdot t$; 
-second, that $m^{i+k-1}\geq a^i$ for any $i\geq 0$. Notice that the lemma easily follows from these two claims.
-
-We start with the first claim. At each iteration $i\geq 1$, the first operation increases the average by an amount $(t - m^{i-1})/k$, and the second operation does not decrease the average. Hence, $a^i - a^{i-1}\geq (t-m^{i-1})/k \geq (t-a^{i-1})/k$. We thus obtain the following recursive inequality between $a^{i}$ and $a^{i-1}$:
-\begin{align*}
-a^i &\geq \frac{t}{k} + \Big( 1-\frac{1}{k} \Big) \cdot a^{i-1}\\
-  &\geq \Big[ 1-\Big( 1-\frac{1}{k} \Big)^i \Big]\cdot t + \Big(1 - \frac{1}{k}\Big)^i\cdot a^0 & \text{(by induction on $i$)} \\
-	&\geq \Big[ 1-\Big( 1-\frac{1}{k} \Big)^i \Big]\cdot t 
-	 > \big( 1 - e^{-i/k} \big) \cdot t.
-\end{align*}
-Finally, it can be checked that if $i\geq k\cdot \ln (1/\eps)$, then $a^i > (1 - e^{i/k})\cdot t \geq (1-\eps)\cdot t$. 
-
-We continue with the second claim. Fix an iteration $i\geq 0$. Our previous remark on the increase of the average value from one iteration to the next gives us 
-$$a^{i+k}\geq a^{i+k-1} + \frac{t - m^{i+ k -1}}{k} \geq a^{i+ k - 2} + \frac{2t - m^{i+k-1} - m^{i+k-2}}{k} \geq \cdots \geq a^i + t - \frac{m^{i+k-1}+\cdots + m^i}{k}.$$ 
-Notice now that neither of the two operations decreases the minimum value in the list, so the sequence of minimum values must be non-decreasing. 
-In particular, we obtain that $(m^i + \cdots +m^{i+k-1})/k \leq m^{i+k-1}$, and the inequality above yields $a^{i+k}\geq a^i + t - m^{i+k-1}$.  
-Finally, solving for $m^{i+k-1}$ we obtain that $m^{i+k-1}\geq a^i + t - a^{i+k}\geq a^i$, where we use the observation that the average must be upper bounded by $t$ in all iterations. This completes the proof.
-\end{proof}
-
-\begin{algorithm}[htb]\label{alg:unified}
-\SetAlgoLined
-\KwData{Balanced partial solution $(A,w)$ with $|A|\leq k$, error parameter $\eps>0$, Boolean $\balancing$.}
-
-Let $\hat{t}\leftarrow \sum_{n\in N} s_n / |A|$\;
-\While{True}{
-  Let $(c_{\max},t_{\max})\leftarrow \maxscore(\bar{A},\bar{w})$\;
-	\If{$|A|==k$}{
-	  Find tuple $(c_{\min}, t_{\min})$ where $c_{\min}\in A$ and $t_{\min}=supp_w(c_{\min})=supp_w(A)$\; 
-		\lIf {($t_{\min} \geq (1-\eps)\cdot t_{\max}$)} { \Return $(A,w)$ }
-		Set $A\leftarrow A-c_{\min}$;%, and $w_{nc_{\min}}\leftarrow 0$ for each $n\in N_{c_{\min}}$;
-	}
-	\eIf{$\balancing$}{
-	  Set $A\leftarrow A+c_{\max}$ and rebalance $w$ (replace $w$ with a balanced vector for $A$)\;
-	}{
-	  $(A,w)\leftarrow \ins(A,w,t_{\max})$\;
-	}
-}
-\caption{Unified algorithm}
-\end{algorithm}
-
-\begin{lemma}
-If the unified algorithm is given as input an arbitrary balanced partial solution $(A,w)$, an error parameter $\eps>0$, and a Boolean $\balancing$, it executes at most $k\cdot(1+\ln(1/\eps))$ iterations. 
-\end{lemma}
-\begin{proof}
-Consider the list of numbers $\{\min\}$
-\end{proof}

@@ -29,19 +29,22 @@
 \DeclareMathOperator{\maxprescore}{MaxPrescore}
 \DeclareMathOperator{\maxscore}{MaxScore}
 \DeclareMathOperator{\interval}{FindInterval}
-\DeclareMathOperator{\LSPJR}{PJRenabler}
 \DeclareMathOperator{\MMS}{MMS}
 \DeclareMathOperator{\lazy}{LazyMMS}
 \DeclareMathOperator{\phragmen}{seqPhragmen}
 \DeclareMathOperator{\maxphragmen}{maxPhragmen}
-\DeclareMathOperator{\balanced}{BalancedHeuristic}
+\DeclareMathOperator{\phragmms}{Phragmms}
+\DeclareMathOperator{\balanced}{BalPhragmms}
+\DeclareMathOperator{\LSPJR}{PostPhragmms}
+\DeclareMathOperator{\local}{PostPhragmms}
 \DeclareMathOperator{\balancing}{balancing}
+\DeclareMathOperator{\bal}{Bal}
 
 \newtheorem{theorem}{Theorem}
-\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{corollary}[theorem]{Corollary}
 \newtheorem{lemma}[theorem]{Lemma}
-\newtheorem{definition}{Definition}
-\newtheorem*{remark}{Remark}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
 \newtheorem*{heuristic}{Heuristic}
 
 %\title{Validator Selection in Nominated Proof of Stake}
@@ -71,6 +74,8 @@
 
 \keywords{social choice \and multiwinner election \and approximation algorithms \and proof-of-stake \and blockchain}
 
+\newpage
+
 \input{intro.tex}
 
 \input{preliminaries.tex}
@@ -81,13 +86,19 @@
 
 \input{approx315.tex}
 
-\input{localSearch.tex}
+\input{local.tex}
 
 \input{npos.tex}
 
 \appendix
 
+\input{algorithms}
+
+\input{phragmen}
+
 \input{balanced.tex}
+
+\input{lazymms.tex}
 
 \input{proofs.tex}
 

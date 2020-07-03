@@ -1,0 +1,56 @@
+\section{Extra bits (to be removed or completed before publication)}
+
+\begin{lemma}\label{lem:list}
+Consider a list $L$ of $k$ real numbers, all within the range $[0,t]$ for some threshold $t>0$, and consider an iterative process that in each iteration: 
+1) replaces the smallest entry in $L$ with the number $t$, and then 2) alters the entries in $L$ in such a way that neither the minimum nor the average value decreases.
+For any $\eps>0$, we have that after at most $k\cdot (1+\ln (1/\eps))$ iterations the smallest entry in $L$ is at least $(1-\eps)\cdot t$.
+\end{lemma}
+
+\begin{proof}
+Fix a constant $\eps>0$. Let $a^i$ and $m^i$ be respectively the average and the minimum value of list $L$ at the end of the $i$-th iteration, where $a^0$ and $m^0$ correspond to these values for the initial list $L$. 
+We make two claims: first, that for $i\geq k\cdot \ln(1/\eps)$ we have that $a^i \geq (1-\eps) \cdot t$; 
+second, that $m^{i+k-1}\geq a^i$ for any $i\geq 0$. Notice that the lemma easily follows from these two claims.
+
+We start with the first claim. At each iteration $i\geq 1$, the first operation increases the average by an amount $(t - m^{i-1})/k$, and the second operation does not decrease the average. Hence, $a^i - a^{i-1}\geq (t-m^{i-1})/k \geq (t-a^{i-1})/k$. We thus obtain the following recursive inequality between $a^{i}$ and $a^{i-1}$:
+\begin{align*}
+a^i &\geq \frac{t}{k} + \Big( 1-\frac{1}{k} \Big) \cdot a^{i-1}\\
+  &\geq \Big[ 1-\Big( 1-\frac{1}{k} \Big)^i \Big]\cdot t + \Big(1 - \frac{1}{k}\Big)^i\cdot a^0 & \text{(by induction on $i$)} \\
+	&\geq \Big[ 1-\Big( 1-\frac{1}{k} \Big)^i \Big]\cdot t 
+	 > \big( 1 - e^{-i/k} \big) \cdot t.
+\end{align*}
+Finally, it can be checked that if $i\geq k\cdot \ln (1/\eps)$, then $a^i > (1 - e^{i/k})\cdot t \geq (1-\eps)\cdot t$. 
+
+We continue with the second claim. Fix an iteration $i\geq 0$. Our previous remark on the increase of the average value from one iteration to the next gives us 
+$$a^{i+k}\geq a^{i+k-1} + \frac{t - m^{i+ k -1}}{k} \geq a^{i+ k - 2} + \frac{2t - m^{i+k-1} - m^{i+k-2}}{k} \geq \cdots \geq a^i + t - \frac{m^{i+k-1}+\cdots + m^i}{k}.$$ 
+Notice now that neither of the two operations decreases the minimum value in the list, so the sequence of minimum values must be non-decreasing. 
+In particular, we obtain that $(m^i + \cdots +m^{i+k-1})/k \leq m^{i+k-1}$, and the inequality above yields $a^{i+k}\geq a^i + t - m^{i+k-1}$.  
+Finally, solving for $m^{i+k-1}$ we obtain that $m^{i+k-1}\geq a^i + t - a^{i+k}\geq a^i$, where we use the observation that the average must be upper bounded by $t$ in all iterations. This completes the proof.
+\end{proof}
+
+\begin{algorithm}[htb]\label{alg:unified}
+\SetAlgoLined
+\KwData{Balanced partial solution $(A,w)$ with $|A|\leq k$, error parameter $\eps>0$, Boolean $\balancing$.}
+
+Let $\hat{t}\leftarrow \sum_{n\in N} s_n / |A|$\;
+\While{True}{
+  Let $(c_{\max},t_{\max})\leftarrow \maxscore(\bar{A},\bar{w})$\;
+	\If{$|A|==k$}{
+	  Find tuple $(c_{\min}, t_{\min})$ where $c_{\min}\in A$ and $t_{\min}=supp_w(c_{\min})=supp_w(A)$\; 
+		\lIf {($t_{\min} \geq (1-\eps)\cdot t_{\max}$)} { \Return $(A,w)$ }
+		Set $A\leftarrow A-c_{\min}$;%, and $w_{nc_{\min}}\leftarrow 0$ for each $n\in N_{c_{\min}}$;
+	}
+	\eIf{$\balancing$}{
+	  Set $A\leftarrow A+c_{\max}$ and rebalance $w$ (replace $w$ with a balanced vector for $A$)\;
+	}{
+	  $(A,w)\leftarrow \ins(A,w,t_{\max})$\;
+	}
+}
+\caption{Unified algorithm}
+\end{algorithm}
+
+\begin{lemma}
+If the unified algorithm is given as input an arbitrary balanced partial solution $(A,w)$, an error parameter $\eps>0$, and a Boolean $\balancing$, it executes at most $k\cdot(1+\ln(1/\eps))$ iterations. 
+\end{lemma}
+\begin{proof}
+Consider the list of numbers $\{\min\}$
+\end{proof}

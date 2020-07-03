@@ -1,13 +1,13 @@
 \section{Complexity results for maximin support}\label{s:complexity}
 
 Consider an instance $(G=(N\cup C, E), s, k)$ of a multiwinner election as defined in Section~\ref{s:prel}. 
-In this section, we present a complete analysis of the complexity of the maximin support problem, including new results both on approximability and on hardness, and conclude the section with an optimized $2$-factor approximation algorithm. As our ultimate goal is to develop algorithms that provide guarantees for both the PJR property and the maximin support objective, we also analyze how the relevant heuristics in the literature of the former fare for the latter. 
+In this section we present an analysis of the complexity of the maximin support problem, including new results both on approximability and on hardness. As our ultimate goal is to develop efficient algorithms that provide guarantees for both the PJR property and the maximin support problem, we also comment on how the relevant heuristics in the literature of the former objective fare for the latter. 
 
 The maximin support problem was introduced in~\cite{sanchez2016maximin}, where it was observed to be NP-hard. We start by showing a stronger hardness result for this problem, which rules out the existence of a PTAS.
 
-\begin{figure}[htb]
+\begin{figure}[tb]
 \begin{center}
-\scalebox{.7}{
+\scalebox{.6}{
 
 \definecolor{ffqqqq}{rgb}{1,0,0}
 \definecolor{ududff}{rgb}{0.30196078431372547,0.30196078431372547,1}
@@ -63,7 +63,6 @@ The maximin support problem was introduced in~\cite{sanchez2016maximin}, where i
 \draw [fill=ffqqqq,shift={(16.5,2.5)}] (0,0) ++(0 pt,3pt) -- ++(2.598pt,-4.5pt)--++(-5.196pt,0 pt) -- ++(2.598pt,4.5pt);
 \end{scriptsize}
 \end{tikzpicture}
-
 }
 \end{center}
 \caption{Reduction of an instance of the the $k$-independent set problem on cubic graphs to an instance of the maximin support problem. Set $N$ of voters is represented by triangles and set $C$ of candidates by circles.}
@@ -82,140 +81,50 @@ Notice that in this instance, each candidate is approved by exactly 3 voters, an
 Hence, if there is an independent set $I$ of size $k$ in $G'$, the same committee of validators in $G$ can be assigned the full vote of each of its three approving voters, so that each receives a support of 3 units, which is clearly maximal. On the other hand, if there is no independent set of size $k$ in $G'$, then for any solution $(A,w)$ of the maximin support instance there must be two committee members $c,c'\in A$ who have an approving voter in common. These two members have at most five voters approving either of them, so one of them must have a support of at most $5/2$. This shows that $supp_w(A)\leq 5/2$ for any feasible solution $(A,w)$. Finally, notice that the ratio between the objective values $3$ and $5/2$ is $6/5=1.2>\alpha$, so the assumed $\alpha$-approximation algorithm for maximin support would allow us to distinguish between these two cases and decide whether such an independent set $I$ exists. This completes the proof.
 \end{proof}
 
-Recall that prior to the present work, there were only two polynomial-time algorithms known to achieve the PJR property, namely $\phragmen$~\cite{brill2017phragmen} and $\MMS$~\cite{sanchez2016maximin}. 
-We analyze the performance of these two algorithms relative to the maximin support objective. 
-We first prove that $\phragmen$ (Algorithm~\ref{alg:phragmen}), albeit being fast with a running time of $O(|E|\cdot k)$, does not offer a constant-factor approximation. 
-
-\begin{algorithm}[htb]\label{alg:phragmen}
-\SetAlgoLined
-\KwData{Bipartite approval graph $G=(N\cup C, E)$, vector $s$ of vote strengths, target committee size $k$.}
-Initialize $A=\emptyset$, $w=0\in \R^E$, $load(n)=0$ for each $n\in N$, and $load(c)=0$ for each $c\in C$\;
-\For{$i=1,2,\cdots k$}{
-\For{each candidate $c\in C\setminus A$}{
-Update $load(c) \leftarrow \frac{1+\sum_{n\in N_c} s_n\cdot load(n)}{\sum_{n\in N_c} s_n}$\;
-}
-Find $c_{\min}\in \arg\min_{c\in C\setminus A} load(c)$\;
-Update $A\leftarrow A+c_{\min}$\;
-\For{each voter $n\in N_{c_{\min}}$}{
-Update $w_{nc_{\min}} \leftarrow load(c_{\min}) - load(n)$\;
-Update $load(n)\leftarrow load(c_{\min})$\;
-}
-}
-\emph{Scaling edge weights:} for each $nc\in E$ with $w_{nc}>0$, update $w_{nc}\leftarrow w_{nc}\cdot \frac{s_n}{load(n)}$\; 
-\Return $(A,w)$\;
-\caption{$\phragmen$, proposed in~\cite{brill2017phragmen}}
-\end{algorithm}
-
-We remark that the method proposed in~\cite{brill2017phragmen} only considers unit votes, and outputs only a committee. 
-In Algorithm~\ref{alg:phragmen} we present a generalization that admits weighted votes in the input, and outputs a feasible edge weight vector along with the committee, for ease of comparison with other algorithms in this paper. 
-We remark however that the numerical example presented in Lemma~\ref{lem:phragmen} can be easily converted into another with unit votes -- where each voter $n$ is replaced with a cluster of voters with unit vote strength where the cluster size is proportional to $s_n$ -- that would lead to the same negative result for the method in~\cite{brill2017phragmen}, 
-even when the output committee is coupled with a balanced weight vector.
-\begin{figure}[htb]
-\begin{center}
-\scalebox{.8}{
-
-\definecolor{rvwvcq}{rgb}{0.08235294117647059,0.396078431372549,0.7529411764705882}
-\begin{tikzpicture}[line cap=round,line join=round,>=triangle 45,x=1cm,y=1cm]
-\clip(-1,1.5) rectangle (7,7);
-\draw [-,line width=1pt] (2,6) -- (6,6);
-\draw [-,line width=1pt] (2,5) -- (6,5);
-\draw [-,line width=1pt] (2,4) -- (6,5);
-\draw [-,line width=1pt] (2,3) -- (6,5);
-\draw [-,line width=1pt] (2,2) -- (6,5);
-\draw [-,line width=1pt] (2,4) -- (6,4);
-\draw [-,line width=1pt] (2,3) -- (6,4);
-\draw [-,line width=1pt] (2,2) -- (6,4);
-\draw [-,line width=1pt] (2,3) -- (6,3);
-\draw [-,line width=1pt] (2,2) -- (6,3);
-\draw [-,line width=1pt] (2,2) -- (6,2);
-\draw (-0.5,6.3) node[anchor=north west] {$s_0=\sfrac{1}{(H_4 - \varepsilon)}$};
-\draw (-0.5,5.3) node[anchor=north west] {$s_1=1$};
-\draw (-0.5,4.3) node[anchor=north west] {$s_2=1$};
-\draw (-0.5,3.3) node[anchor=north west] {$s_3=1$};
-\draw (-0.5,2.3) node[anchor=north west] {$s_4=1$};
-\begin{scriptsize}
-\draw [fill=rvwvcq] (2,6) circle (2.5pt);
-\draw[color=rvwvcq] (2,6.3) node {$n_0$};
-\draw [fill=rvwvcq] (2,5) circle (2.5pt);
-\draw[color=rvwvcq] (2,5.3) node {$n_1$};
-\draw [fill=rvwvcq] (2,4) circle (2.5pt);
-\draw[color=rvwvcq] (2,4.3) node {$n_2$};
-\draw [fill=rvwvcq] (2,3) circle (2.5pt);
-\draw[color=rvwvcq] (2,3.3) node {$n_3$};
-\draw [fill=rvwvcq] (2,2) circle (2.5pt);
-\draw[color=rvwvcq] (2,2.3) node {$n_4$};
-\draw [fill=rvwvcq] (6,6) circle (2.5pt);
-\draw[color=rvwvcq] (6,6.3) node {$c_0$};
-\draw [fill=rvwvcq] (6,5) circle (2.5pt);
-\draw[color=rvwvcq] (6,5.3) node {$c_1$};
-\draw [fill=rvwvcq] (6,4) circle (2.5pt);
-\draw[color=rvwvcq] (6,4.3) node {$c_2$};
-\draw [fill=rvwvcq] (6,3) circle (2.5pt);
-\draw[color=rvwvcq] (6,3.3) node {$c_3$};
-\draw [fill=rvwvcq] (6,2) circle (2.5pt);
-\draw[color=rvwvcq] (6,2.3) node {$c_4$};
-\end{scriptsize}
-\end{tikzpicture}
-}
-\end{center}
-\caption{Instance of maximin support where $\phragmen$ gives an approximation ratio of $H_k - \eps$, for $k=4$.}
-\label{fig:phragmen}
-\end{figure}
+Recall that the $\phragmen$ heuristic~\cite{brill2017phragmen} achieves the PJR property and is very fast, with a running time of $O(|E|\cdot k)$. However, in Apendix~\ref{s:phragmen} we prove that it does not offer a constant-factor approximation for the maximin support problem. 
 
 \begin{lemma}\label{lem:phragmen}
-For the maximin support problem, the approximation ratio offered by $\phragmen$ (Algorithm~\ref{alg:phragmen}) is no better than the $k$-th harmonic number $H_k:=\sum_{i=1}^k 1/i = \Theta(\log k)$.
+For the maximin support problem, the approximation ratio offered by $\phragmen$ is no better than the $k$-th harmonic number $H_k:=\sum_{i=1}^k 1/i = \Theta(\log k)$.
 \end{lemma}
 
-\begin{proof}
-For an arbitrarily small constant $\eps>0$ and a committee size $k$, consider an instance where $N=\{n_0, \cdots, n_k\}$, $C=\{c_0, \cdots, c_k\}$, $s_{n_j}=1$ and $C_{n_j}=\{c_i: \ 1\leq i\leq j\}$ for each $1\leq j\leq k$, and $s_0=1/(H_k - \eps)$ with $C_{n_0}=\{c_0\}$; see Figure~\ref{fig:phragmen}. 
-It is easy to see that if committee $\{c_1, \cdots, c_k\}$ is selected, each member can be given a support of value $1$. On the other hand, any committee that selects candidate $c_{0}$ can only provide it a support of value $s_0$. We will prove that Algorithm~\ref{alg:phragmen} selects committee $\{c_0, c_1, \cdots, c_{k-1}\}$, and thus its approximation ratio is $1/s_0 = H_k - \eps$. 
 
-In the first round, we have that $load(c_0)=1/s_0$ and $load(c_j)=\frac{1}{k+1-j}$ for each $j\geq 1$, so we add $c_1$ to the committee, which has $load(c_1)=1/k = H_k - H_{k-1}$, and update $load(n_j)\leftarrow H_k - H_{k-1}$ for each $j\geq 1$. 
-More generally, in the $i$-th round for $1\leq i\leq k-1$, we have that $load(c_0)=s_0$ and $load(c_j)=\frac{1+(k+1-j)(H_k - H_{k+1-i})}{k+1-j}=\frac{1}{k+1-j}+H_k-H_{k+1-i}$ for each $j\geq i$, so we add $c_i$ to the committee, which has $load(c_i)=H_k - H_{k-i}$, and update $load(n_j)\leftarrow H_k - H_{k_i}$ for each $j\geq i$. 
-Finally, in the $k$-th round we have that $load(c_0)=1/s_0 = H_k - \eps$ and $load(c_k)=H_k$, thus we elect $c_0$ as the final committee member. This completes the proof.
-\end{proof}
+In contrast, we prove next that $\MMS$~\cite{sanchez2016maximin}, which also achieves the PJR property, provides a 2-factor approximation for maximin support, although with a considerably slower runtime of $O(\bal \cdot |C|\cdot k)$, where we recall that $\bal$ is the time complexity of computing a balanced weight vector; see Remark~\ref{rem:bal}. In simple terms, $\MMS$  (Algorithm~\ref{alg:mms}) starts with an empty committee $A$ and adds to it one candidate throughout $k$ iterations; in each iteration, it computes a balanced weight vector for each possible augmented committee that can be obtained from adding an unelected candidate, and then inserts the candidate whose corresponding augmented committee has the highest least member support.
 
-Next we analyze $\MMS$ (Algorithm~\ref{alg:mms}), an iterative heuristic that greedily inserts new candidates that maximize the maximin support objective. 
-We show that in fact it achieves a constant-factor approximation guarantee, though with a considerably slower running time of $O(B\cdot |C|\cdot k)$, where we recall that $B$ is the complexity of computing a balanced weight vector; see the end of Section~\ref{s:prel}. 
 
 \begin{algorithm}[htb]\label{alg:mms}
 \SetAlgoLined
 \KwData{Bipartite approval graph $G=(N\cup C, E)$, vector $s$ of vote strengths, target committee size $k$.}
 Initialize $A=\emptyset$\ and $w=0\in \R^E$\;
 \For{$i=1,2,\cdots k$}{
-\For{each $c\in C\setminus A$}{
-Compute a balanced\footnotemark ~edge weight vector $w_c$ for $A+c$\;
-}
+\lFor{each $c\in C\setminus A$}{Compute a balanced\footnotemark ~edge weight vector $w_c$ for $A+c$}
 Find $c_i\in \arg\max_{c\in C\setminus A} supp_{w_c}(A+c)$\;
-Set $A\leftarrow A+c_i$ and $w\leftarrow w_{c_i}$;
+Update $A\leftarrow A+c_i$ and $w\leftarrow w_{c_i}$;
 }
 \Return $(A,w)$\;
 \caption{$\MMS$, proposed in~\cite{sanchez2016maximin}}
 \end{algorithm}
-\footnotetext{The original algorithm in~\cite{sanchez2016maximin} does not compute balanced weight vectors, and indeed any feasible vector that maximizes $supp_w(A)$ is sufficient for our analysis. 
-However, we propose the use of balanced vectors here as they achieve further desirable properties (Lemmas \ref{lem:balanced} and \ref{lem:maximin-support-eqiv}) and because adding such requirement does not seem to cause any additional overhead in complexity.}
+\footnotetext{The original algorithm in~\cite{sanchez2016maximin} does not compute balanced weight vectors, but any vector $w$ that maximizes $supp_w(A)$, which is indeed sufficient for our analysis. 
+However, we propose the use of balanced vectors here as they achieve further desirable properties (Lemmas \ref{lem:balanced} and \ref{lem:equivalence}) and because adding such requirement does not seem to cause any additional overhead in complexity.}
 
 \begin{theorem}\label{thm:mms}
 The $\MMS$ algorithm provides a 2-approximation for maximin support.
 \end{theorem}
 
-The key to the proof is the following technical result, whose proof we delay momentarily.
+We will need the following technical result, whose proof is delayed momentarily. 
 
 \begin{lemma}\label{lem:2sols}
-If $(A,w)$ and $(A^*, w^*)$ are two feasible solutions of an instance of maximin support with $|A|< |A^*|$, then there is a candidate $c\in A^*\setminus A$ and a feasible solution $(A+c, w')$ such that 
-
-$$supp_{w'}(A+c)\geq \min\Big\{supp_w(A), \frac{1}{2} supp_{w^*}(A^*)\Big\}.$$
+If $(A^*, w^*)$ is an optimal solution to the given instance of maximin support, and $(A,w)$ is a partial solution with $|A|\leq k$ and $A\neq A^*$, then there is a candidate $c'\in A^*\setminus A$ and a feasible solution $(A+c', w')$ such that 
+$$supp_{w'}(A+c')\geq \min\Big\{supp_w(A), \frac{1}{2} supp_{w^*}(A^*)\Big\}.$$
 \end{lemma}
 
 
 \begin{proof}[Proof of Theorem~\ref{thm:mms}]
 Let $(A_i, w_i)$ be the partial solution at the end of the $i$-th round of MMS, and let $(A^*, w^*)$ be an optimal full solution. We prove by induction on $i$ that $supp_{w_i}(A_i)\geq \frac{1}{2}supp_{w^*}(A^*)$, where the base case for $i=0$ holds trivially as we use the convention that $supp_w(\emptyset)=\infty$.
+Assuming now that the inequality holds for $i$, an application of Lemma~\ref{lem:2sols} for $(A_i, w_i)$ and $(A^*, w^*)$ implies that there is a candidate $c'\in A^*\setminus A_i$ and a feasible solution $(A_i+c', w')$ such that 
 
-Assuming that the inequality holds for $i$, an application of Lemma~\ref{lem:2sols} for $(A_i, w_i)$ and $(A^*, w^*)$ implies that there is a candidate $c\in A^*\setminus A_i$ and a feasible solution $(A_i+c, w')$ such that 
+$$supp_{w'}(A_i+c')\geq \min\Big\{supp_{w_i}(A_i), \frac{1}{2} supp_{w^*}(A^*)\Big\} = \frac{1}{2} supp_{w^*}(A^*).$$
 
-$$supp_{w'}(A_i+c)\geq \min\Big\{supp_{w_i}(A_i), \frac{1}{2} supp_{w^*}(A^*)\Big\} = \frac{1}{2} supp_{w^*}(A^*).$$
-
-As the algorithm is bound to inspect candidate $c$ in round $i+1$, and compute for it a balanced weight vector $w_c$ which maximizes the support of $A_i+c$ (by Lemma~\ref{lem:balanced}), the solution $(A_{i+1}, w_{r+1})$ at the end of round $i+1$ must have an even higher support, i.e. %
+As the algorithm is bound to inspect candidate $c'$ in round $i+1$, and compute for it a balanced weight vector $w_c$ which maximizes the support of $A_i+c'$ (by Lemma~\ref{lem:balanced}), the solution $(A_{i+1}, w_{r+1})$ at the end of round $i+1$ must have an even higher support, i.e. %
 %
 $$supp_{w_{i+1}}(A_{i+1})\geq supp_{w_c}(A_i+c) 
 \geq supp_{w'}(A_i+c) \geq \frac{1}{2} supp_{w^*}(A^*).$$
@@ -224,64 +133,28 @@ This completes the proof.
 \end{proof}
 
 \begin{proof}[Proof of Lemma~\ref{lem:2sols}]
-Let $(A,w)$ and $(A^*, w^*)$ be as in the statement, let $t^*:=supp_{w^*}(A^*)$, and let $t:=\min\{supp_w(A), t^*/2\}$. To prove the lemma, it suffices to find a candidate $c\in A^*\setminus A$ and a feasible weight vector $w'\in\R^E$ such that $supp_{w'}(A+c)\geq t$.
+Let $(A,w)$ and $(A^*, w^*)$ be as in the statement, let $t^*:=supp_{w^*}(A^*)$, and let $t:=\min\{supp_w(A), t^*/2\}$. To prove the lemma, it suffices to find a candidate $c'\in A^*\setminus A$ and a feasible weight vector $w'\in\R^E$ such that $supp_{w'}(A+c)\geq t$.
 
-By decreasing some components in $w$ and $w^*$, we can assume without loss of generality that $supp_w(c)=t$ for each $c\in A$, and $supp_{w^*}(c)=t^*$ for each $c\in A^*$. Define now vector $f:=w^* - w\in\mathbb{R}^E$, which we interpret as a flow vector over the network induced by $N\cup A\cup A^*$, with positive signs corresponding to flow leaving $N$, and vice versa. We partition the network nodes into four sets: relative to $f$, we have that a) $N$ has a net excess of $|A^*|\cdot t^* - |A|\cdot t$, b) $A\setminus A^*$ has a net excess of $|A\setminus A^*|\cdot t$, c) $A^*\setminus A$ has a net demand of $|A^*\setminus A|\cdot t^*$, and d) $A\cap A^*$ has a net demand of $|A\cap A^*|\cdot (t^*-t)$.
-
-Now, using the flow decomposition theorem, we can decompose flow $f$ into circulations and simple paths, where each path starts in one of the sets with net excess and ends in one of the sets with net demand. If we define $f'$ to be the sub-flow of $f$ that contains only the simple paths that start in $N$ and end in $A^*\setminus A$, then %
+By decreasing some components in $w$ and $w^*$, we can assume without loss of generality that $supp_w(c)=t$ for each $c\in A$, and $supp_{w^*}(c)=t^*$ for each $c\in A^*$. Define now the flow vector $f:=w^* - w\in\mathbb{R}^E$. 
+We partition the network nodes into four sets: relative to $f$, we have that a) $N$ has a net excess of $|A^*|\cdot t^* - |A|\cdot t$, b) $A\setminus A^*$ has a net excess of $|A\setminus A^*|\cdot t$, c) $A^*\setminus A$ has a net demand of $|A^*\setminus A|\cdot t^*$, and d) $A\cap A^*$ has a net demand of $|A\cap A^*|\cdot (t^*-t)$.
+Now, using the flow decomposition theorem, we can decompose flow $f$ into circulations and simple paths, where each path starts in a vertex with net excess and ends in a vertex with net demand. If we define $f'$ to be the sub-flow of $f$ that contains only the simple paths that start in $N$ and end in $A^*\setminus A$, then %
 %
 \begin{align*}
-    \text{net demand in $A^*\setminus A$ w.r.t. } f' &\geq \text{ net demand in $A^*\setminus A$ w.r.t. } f - \text{ net excess in $A\setminus A^*$ w.r.t. } f\\
+    \text{net demand in $A^*\setminus A$ wrt } f' &\geq \text{ net demand in $A^*\setminus A$ wrt } f - \text{ net excess in $A\setminus A^*$ wrt } f\\
     &= |A^*\setminus A|\cdot t^* - |A\setminus A^*|\cdot t\\
     &\geq |A^*\setminus A|\cdot (t^*-t) \geq |A^*\setminus A|\cdot t,
 \end{align*}
 
-where the last two inequalities follow from $|A^*|\geq |A|$ and $t\leq t^*/2$, respectively. By an averaging argument, this implies that there is a candidate $c\in A^*\setminus A$ with a demand of at least $t$ relative to $f'$.
-
-Finally, we define weight vector $w':=w+f'$. Since $f'$ is a sub-flow of $f=w^* - w$ (meaning that for every edge $e$, $f'_e$ is of equal sign and smaller absolute value than $f_e$), it follows that $w'$ is non-negative. Moreover, as the excess of any voter $n\in N$ relative to $f'$ is smaller than its excess relative to $f$, we have that 
-$$\sum_{c\in C_n} {w'}_{nc}=\sum_{c\in C_n} (w_{nc} + f'_{nc}) \leq \sum_{c\in C_n} (w_{nc} + f_{nc})=\sum_{c\in C_n} w^*_{nc} \leq s_n,$$ 
-and thus $w'$ is feasible. Furthermore, $w'$ provides the same support as $w$ to each committee member $c\in A$, and a support of at least $t$ to candidate $c$. Hence, $supp_{w'}(A+c)\geq t$, which is what we needed to show.
+where the last two inequalities follow from $|A^*|\geq |A|$ and $t\leq t^*/2$, respectively. By an averaging argument, this implies that there is a candidate $c'\in A^*\setminus A$ with a demand of at least $t$ relative to $f'$.
+Finally, we define weight vector $w':=w+f'$. By Lemma~\ref{lem:subflow}, $w'$ is non-negative and feasible. 
+Furthermore, it provides the same support as $w$ to each committee member $c\in A$, namely $t$, and a support of at least $t$ to candidate $c'$. Hence, $supp_{w'}(A+c')\geq t$, which is what we needed to show.
 \end{proof}
 
-To conclude the section we present $\lazy$, a variant of $\MMS$ that is considerably faster (by a factor $\tilde{\Omega}(k)$) and offers virtually the same approximation guarantee. 
-This algorithm does not necessarily satisfy PJR, though this fact becomes irrelevant as in Section~\ref{s:local} we provide a post-computation which preserves the approximation guarantee and ensures PJR (see Theorem~\ref{thm:enabler}). The complexity of this post-computation is dominated by that of the algorithm.
+$\MMS$ is a standard greedy algorithm. 
+To conclude the section, we mention that a "lazy" version of it can save a factor $\Theta(k)$ in the runtime while keeping the approximation guarantee virtually unchanged. 
+In particular, in Appendix~\ref{s:lazymms} we prove the following result.
 
 \begin{theorem}\label{thm:2eps}
-For any constant $\eps>0$, $\lazy$ (Algorithm~\ref{alg:lazy}) executes in time $O(B\cdot |C|\cdot \log(\eps^{-1} \log k))$ and offers a $(2+\eps)$-approximation for the maximin support problem.
+There is an algorithm $\lazy$ that, for any $\eps>0$, offers a $(2+\eps)$-approximation for the maximin support problem, satisfies the PJR property, and executes in time $O(\bal\cdot |C|\cdot \log(1/\eps))$.
 \end{theorem}
 
-Algorithm $\lazy$ is similar to $\MMS$ (Algorithm~\ref{alg:mms}), but is lazier in the sense that for each candidate that it explores, it decides on the spot whether to add it to the current partial solution, if the candidate is "good enough", or discard it. Hence, the algorithm performs a single pass over the candidate set, instead of $k$ passes. 
-For a target support value $t\geq 0$ given as input, the algorithm either succeeds and returns a full solution $(A,w)$ with $supp_w(A)\geq t$, or it returns a failure message. 
-
-\begin{algorithm}[htb]\label{alg:lazy}
-\SetAlgoLined
-\KwData{Approval graph $G=(N\cup C, E)$, vector $s$ of vote strengths, committee size $k$, target support $t\geq 0$.}
-Initialize $A=\emptyset$\ and $w=0\in\R^E$\;
-\For{each candidate $c\in C$ (over an arbitrary traversing order in $C$)}{
-Compute a balanced edge weight vector $w_c$ for $A+c$\;
-\If{$supp_{w_c}(A+c)\geq t$}{
-Update $A\leftarrow A+c$ and $w\leftarrow w_c$\;
-\lIf{$|A|=k$}
-{
-    \Return $(A,w)$
-}
-}
-}
-\Return a failure message\;
-\caption{$\lazy$}
-\end{algorithm}
-
-\begin{lemma}\label{lem:success}
-If $(A^*, w^*)$ is an optimal solution to the given instance of the maximin support problem, and $t^*=supp_{w^*}(A^*)$, then for any input target $t$ with $0\leq t\leq t^*/2$, Algorithm $\lazy$ is guaranteed to succeed.
-\end{lemma}
-
-\begin{proof}
-Assume by contradiction that for some input target $t\leq t^*/2$, $\lazy$ fails. Thus, after traversing the whole candidate set $C$, the algorithm ends up with a partial solution $(A,w)$ with $|A|<k$ and $supp_w(A)\geq t$. By Lemma~\ref{lem:2sols}, there must be a candidate $c\in A^*\setminus A$ and a feasible solution $(A+c, w')$ such that $supp_{w'}(A+c)\geq t$. Notice as well that for any subset $S$ of $A+c$, vector $w'$ provides a support of at least $t$, so any balanced weight vector for $S$ also provides a support of at least $t$. This implies that at whichever point the algorithm inspected candidate $c$, it should have included it in the partial solution, which at that time was a subset of $A$. Hence, $c$ should be contained in $A$, and we reach a contradiction.
-\end{proof}
-
-The idea is then to run trials of $\lazy$ over several input values of target $t$, performing binary search to converge to a value where it flips from failure to success, and return the output of the last successful trial. Each trial clearly executes in time $O(B\cdot |C|)$. 
-In the next lemma, whose proof is delayed to Appendix~\ref{s:proofs}, we establish the number of trials needed to achieve a solution whose value is within a factor $(2+\eps)$ from optimal for any $\eps>0$. This in turn proves Theorem~\ref{thm:2eps}.
-
-\begin{lemma}\label{lem:lazybinary}
-For any $\eps>0$, one can execute $O(\log(\eps^{-1}\log k))$ iterations of $\lazy$, where each iteration takes time $O(B\cdot |C|)$, to obtain a solution whose value is within a factor $(2+\eps)$ from optimal.
-\end{lemma}
