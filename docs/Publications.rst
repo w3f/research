@@ -13,7 +13,7 @@ Publications
 
 * Handan Kılınç Alper, `Consensus on Clock in Universally Composable Timing Model <https://eprint.iacr.org/2019/1348>`_, in submission. 
 
-* Alistair Stewart and Lefteris Kokoris Kogias, `GRANDPA: A finality Gadget <https://github.com/w3f/research/blob/master/docs/_static/pdf/grandpa.pdf>`_, in progress. 
+* Alistair Stewart and Lefteris Kokoris Kogias, `GRANDPA: A finality Gadget <https://arxiv.org/abs/2007.01560>`_, in progress. 
 
 
 **Posters:**
