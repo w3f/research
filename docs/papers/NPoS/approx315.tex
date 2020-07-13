@@ -1,7 +1,8 @@
 \subsection{A faster constant-factor approximation algorithm for maximin support}\label{s:315}
 
 We proved in Section~\ref{s:complexity} that a 2-approximation algorithm for maximin support can be computed in time $O(\bal\cdot |C|\cdot k)$ or $O(\bal\cdot |C|)$ (Theorems \ref{thm:mms} and \ref{thm:2eps} respectively). 
-Next, we use the $\phragmms$ heuristic to develop a $3.15$-approximation algorithm that runs in time $O(\bal\cdot k)$, and satisfies PJR as well. We highlight that this constitutes the fastest known algorithm to achieve a constant-factor guarantee for maximin support, and that gains in speed are of paramount importance for our application to validator selection under NPoS, where there are hundreds of candidates and a massive number of voters.
+We use the $\phragmms$ heuristic to develop a $3.15$-approximation algorithm that runs in time $O(\bal\cdot k)$, and satisfies PJR as well. 
+We highlight that this is the fastest known algorithm to achieve a constant-factor guarantee for maximin support, and that gains in speed are of paramount importance for our application to validator election in NPoS, where there are hundreds of candidates and a massive number of voters.
 
 We propose $\balanced$ (Algorithm~\ref{alg:balanced}), an iterative greedy algorithm that starts with an empty committee and alternates between inserting a new candidate with the $\phragmms$ heuristic, and \emph{rebalancing} the weight vector, i.e. replacing it with a balanced one. This constitutes a middle ground between the approach taken in $\phragmen$ where the weight vector is never rebalanced, and the approach in $\MMS$ where $O(|C|)$ balanced vectors are computed in each iteration. 
 We formalize the procedure below. Notice that running the Insert procedure (Algorithm~\ref{alg:ins}) before rebalancing is optional, but the step simplifies the analysis, and provides a good starting point to the balancing algorithm.
@@ -24,19 +25,21 @@ Replace $w$ with a balanced weight vector for $A$\;
 $\balanced$ (Algorithm~\ref{alg:balanced}) offers a $3.15$-approximation for the maximin support problem, satisfies the PJR property, and executes in time $O(\bal\cdot k)$, assuming that $\bal= \Omega(|E|\cdot \log k)$.
 \end{theorem}
 
-The claim on runtime is straightforward: we established in Theorem~\ref{thm:runtimes} that the $\phragmms$ heuristic runs in time $O(|E|\cdot \log k)$, so each iteration of $\balanced$ has a runtime of $O(|E|\cdot \log k + \bal)=O(\bal)$, where in the last equality we assume that $\bal= \Omega(|E|\cdot \log k)$.
+This in turn proves Theorem~\ref{thm:intro1}. 
+The claim on runtime is straightforward: we established in Theorem~\ref{thm:runtimes} that the $\phragmms$ heuristic runs in time $O(|E|\cdot \log k)$, so each iteration of $\balanced$ has a runtime of $O(|E|\cdot \log k + \bal)=O(\bal)$, where in the last equality we assume that $\bal= \Omega(|E|\cdot \log k)$. 
+In fact, in Appendix~\ref{s:algorithms} we improve upon this analysis and prove that each iteration can be made to run in time $O(|E| + \bal)$.
 Next, in order to prove PJR we need the following technical lemmas.
 
 \begin{lemma}\label{lem:2balanced}
 If $(A,w)$ and $(A',w')$ are two balanced partial solutions with $A\subseteq A'$, then $supp_w(c)\geq supp_{w'}(c)$ for each candidate $c\in A$. 
-Furthermore, for each $n\in N$, $c'\in C\setminus A'$ and threshold $t\geq 0$, we have that $slack_{(A,w)}(n,t)\geq slack_{(A',w')}(n,t)$, $prescore_{(A,w)}(c',t)\geq prescore_{(A',w')}(c',t)$, and $score_{(A,w)}(c')\geq score_{(A',w')}(c')$.
+Furthermore, for each $c'\in C\setminus A'$ we have that $score_{(A,w)}(c')\geq score_{(A',w')}(c')$.
 \end{lemma}
 
 \begin{lemma}\label{lem:localopt}
 If $supp_w(A)\geq \max_{c'\in C\setminus A} score(c')$ holds for a full solution $(A,w)$, then $A$ satisfies PJR.
 \end{lemma}
 
-Lemma \ref{lem:2balanced} formalizes the intuition that as more candidates are added to committee $A$, all supports, scores, etc.~can only decrease, never increase; its proof is delayed to Appendix~\ref{s:proofs}.
+Lemma \ref{lem:2balanced} formalizes the intuition that as more candidates are added to committee $A$, supports and scores can only decrease, never increase; its proof is delayed to Appendix~\ref{s:proofs}.
 Lemma~\ref{lem:localopt} provides a sense of local optimality to solution $(A,w)$, because if the corresponding inequality did not hold we could attempt to improve the solution by swapping the member with least support for the unelected candidate with highest score; its proof is delayed to Section~\ref{s:tPJR} where we explore this notion of local optimality and its relation with the PJR property. 
 We prove now that the output of $\balanced$ satisfies the condition in Lemma~\ref{lem:localopt}, and hence satisfies PJR.
 
@@ -91,9 +94,9 @@ This is because any path in $f'$ starts in $N'$, nodes in $N'$ have no neighbors
 Therefore, the formula above is actually a lower bound on the flow going from $N'$ to $A^*\setminus A$. Finally, we notice that for each path in $f'$, the last edge goes from $N'$ to $A^*\setminus A$, so it originates in $N(a)$. This proves that $\sum_{n\in N(a)} s_n\geq \text{ flow value in } f'\geq |A^* \setminus A|\cdot (1-a) t^*$, which is the third property.
 \end{proof}
 
-\begin{figure}[tb]
+\begin{figure}[htb]
 \begin{center}
-\scalebox{.55}{
+\scalebox{.50}{
 \definecolor{wrwrwr}{rgb}{0.3803921568627451,0.3803921568627451,0.3803921568627451}
 \definecolor{aqaqaq}{rgb}{0.6274509803921569,0.6274509803921569,0.6274509803921569}
 \definecolor{cqcqcq}{rgb}{0.7529411764705882,0.7529411764705882,0.7529411764705882}

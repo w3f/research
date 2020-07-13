@@ -9,17 +9,23 @@ For any $c\in C\setminus A$, we write $A+c$ and $A-c$ as shorthands for $A\cup\{
 
 \emph{Proportional justified representation (PJR).} 
 The PJR property was introduced in~\cite{sanchez2017proportional} for voters with unit vote strength. We present its natural generalization to arbitrary vote strengths. A committee $A\subseteq C$ of $k$ members satisfies PJR if there is no group $N'\subseteq N$ of voters and integer $0<r\leq k$ such that:
-\begin{itemize}
-\item[a)] $\sum_{n\in N'} s_n \geq \frac{r}{k} \sum_{n\in N}s_n$,
-\item[b)] $|\cap_{n\in N'} C_n|\geq r$, and
-\item[c)] $|A\cap (\cup_{n\in N'} C_n)|<r$.
-\end{itemize}
-
+%\begin{itemize}
+%\item[a)] $\sum_{n\in N'} s_n \geq \frac{r}{k} \sum_{n\in N}s_n$,
+%\item[b)] $|\cap_{n\in N'} C_n|\geq r$, and
+%\item[c)] $|A\cap (\cup_{n\in N'} C_n)|<r$.
+%\end{itemize}
+%
+$$\text{a) } \sum_{n\in N'} s_n \geq \frac{r}{k} \sum_{n\in N}s_n, \quad \quad \text{b) } |\cap_{n\in N'} C_n|\geq r, 
+\quad \quad \text{and c) } |A\cap (\cup_{n\in N'} C_n)|<r.$$
+%
 In words, if there is a group $N'$ of voters with at least $r$ commonly approved candidates, and enough aggregate vote strength to provide each of them with a vote support of value $\hat{t}:=\sum_{n\in N} s_n / k$, then this group has a justified right to be represented by at least $r$ members in committee $A$, though not necessarily commonly approved. 
 Notice that $\hat{t}$ is an upper bound on the average vote support that voter set $N$ can possibly provide to any committee of $k$ members. 
 
 \emph{Maximin support objective.} 
-For the given instance, we consider a solution consisting of a tuple $(A,w)$, where $A\subseteq C$ is a committee of $k$ elected candidates, and $w\in\R^E$ is a vector of non-negative edge weights that represents a fractional distribution of each voter's vote among her approved candidates. Vector $w$ is considered \emph{feasible}%
+For the given instance, we consider a solution consisting of a tuple $(A,w)$, where $A\subseteq C$ is a committee of $k$ elected candidates, and $w\in\R^E$ is a vector of non-negative edge weights that represents a fractional distribution of each voter's vote among her approved candidates.%
+\footnote{This weight vector is related to the notions of \emph{support distribution function} in~\cite{sanchez2016maximin} and \emph{price system} in~\cite{peters2019proportionality}. In particular, all voting rules considered in this paper are \emph{priceable}, as defined in~\cite{peters2019proportionality}.} 
+For instance, for voter $n$ this distribution may assign a third of $s_n$ to $c_1$ and two thirds of $s_n$ to $c_2$, where $c_1, c_2\in C_n$.
+Vector $w$ is considered \emph{feasible}%
 \footnote{Intuitively, a feasible solution $(A,w)$ should also observe $w_{nc}=0$ for each edge $nc$ with $c\not\in A$. 
 However, as this constraint can always be enforced in post-computation, we ignore it so that the feasibility of a vector $w$ is independent of any committee.} 
 if  % 
@@ -58,7 +64,7 @@ Furthermore, a feasible solution $(A,w)$ is balanced if and only if it observes 
 \end{lemma}
 
 Notice that by setting $r=1$ on the first point, we obtain that balanced vector $w$ indeed maximizes the least member support $supp_w(A)$ over all feasible weight vectors. 
-More generally, for each $r$ the quantity defined in the first point defines a lower bound on the cost for an adversary to gain control of $r$ validators in in the network, so maximizing these objectives for all thresholds $r$ aligns with our security objective as it makes any attack as costly as possible. 
+More generally, for each $r$ the quantity defined in the first point defines a lower bound on the cost for an adversary to get $r$ representatives in the validator committee in NPoS, so maximizing these objectives for all thresholds $r$ aligns with our security objective as it makes any attack as costly as possible. 
 The second point follows from the fact that the sum of member supports is maximal, so the feasibility inequality~\eqref{eq:feasible} must be tight for each voter $n$ with approved candidates in $A$. The third point is a consequence of having the supports as evenly distributed as possible within $A$: if candidate $c$ has a higher support than another candidate $c'$, then none of $n$'s vote can go to $c$, as all of it must have been assigned to $c'$ or to other members with lower support. 
 
 In Appendix~\ref{s:balanced} we present new algorithms for computing a balanced weight vector for a given committee $A$. 

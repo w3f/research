@@ -5,7 +5,7 @@ In this section we present an analysis of the complexity of the maximin support 
 
 The maximin support problem was introduced in~\cite{sanchez2016maximin}, where it was observed to be NP-hard. We start by showing a stronger hardness result for this problem, which rules out the existence of a PTAS.
 
-\begin{figure}[tb]
+\begin{figure}[htb]
 \begin{center}
 \scalebox{.6}{
 
@@ -81,7 +81,7 @@ Notice that in this instance, each candidate is approved by exactly 3 voters, an
 Hence, if there is an independent set $I$ of size $k$ in $G'$, the same committee of validators in $G$ can be assigned the full vote of each of its three approving voters, so that each receives a support of 3 units, which is clearly maximal. On the other hand, if there is no independent set of size $k$ in $G'$, then for any solution $(A,w)$ of the maximin support instance there must be two committee members $c,c'\in A$ who have an approving voter in common. These two members have at most five voters approving either of them, so one of them must have a support of at most $5/2$. This shows that $supp_w(A)\leq 5/2$ for any feasible solution $(A,w)$. Finally, notice that the ratio between the objective values $3$ and $5/2$ is $6/5=1.2>\alpha$, so the assumed $\alpha$-approximation algorithm for maximin support would allow us to distinguish between these two cases and decide whether such an independent set $I$ exists. This completes the proof.
 \end{proof}
 
-Recall that the $\phragmen$ heuristic~\cite{brill2017phragmen} achieves the PJR property and is very fast, with a running time of $O(|E|\cdot k)$. However, in Apendix~\ref{s:phragmen} we prove that it does not offer a constant-factor approximation for the maximin support problem. 
+The $\phragmen$ heuristic~\cite{brill2017phragmen} achieves the PJR property and is very fast, with a running time of $O(|E|\cdot k)$. However, in Apendix~\ref{s:phragmen} we prove that it does not offer a constant-factor approximation for the maximin support problem. 
 
 \begin{lemma}\label{lem:phragmen}
 For the maximin support problem, the approximation ratio offered by $\phragmen$ is no better than the $k$-th harmonic number $H_k:=\sum_{i=1}^k 1/i = \Theta(\log k)$.
@@ -146,8 +146,8 @@ Now, using the flow decomposition theorem, we can decompose flow $f$ into circul
 \end{align*}
 
 where the last two inequalities follow from $|A^*|\geq |A|$ and $t\leq t^*/2$, respectively. By an averaging argument, this implies that there is a candidate $c'\in A^*\setminus A$ with a demand of at least $t$ relative to $f'$.
-Finally, we define weight vector $w':=w+f'$. By Lemma~\ref{lem:subflow}, $w'$ is non-negative and feasible. 
-Furthermore, it provides the same support as $w$ to each committee member $c\in A$, namely $t$, and a support of at least $t$ to candidate $c'$. Hence, $supp_{w'}(A+c')\geq t$, which is what we needed to show.
+Finally, we define weight vector $w':=w+f'$: by Lemma~\ref{lem:subflow}, $w'$ is non-negative and feasible. 
+Furthermore, it provides the same support as $w$ to each committee member $c\in A$, namely $t$, and a support of at least $t$ to candidate $c'$. Hence, $supp_{w'}(A+c')\geq t$. 
 \end{proof}
 
 $\MMS$ is a standard greedy algorithm. 

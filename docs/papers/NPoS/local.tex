@@ -5,7 +5,7 @@ We start the section with an key property of algorithm $\balanced$ as motivation
 \begin{theorem}\label{thm:315guarantee}
 If $(A,w)$ is a balanced solution such that $supp_w(A)\geq \max_{c'\in C\setminus A} score(c')$, then it satisfies PJR and guarantees a 3.15-factor approximation for the maximin support problem. 
 Furthermore, testing the required conditions (feasibility, balancedness and the previous inequality) can be done in time $O(|E|)$. 
-Finally, the output solution of the $\balanced$ algorithm is guaranteed to satisfies these conditions.
+Finally, the output solution of the $\balanced$ algorithm is guaranteed to satisfy these conditions.
 \end{theorem}
 \begin{proof}
 The first statement follows from Lemmas \ref{lem:localopt} and \ref{lem:candidate315}, and the third one from Lemma~\ref{lem:315localoptimality}. 
@@ -13,12 +13,12 @@ Feasibility (inequality~\ref{eq:feasible}) can clearly be checked in time $O(|E|
 Finally, if $t:=supp_w(A)$, the inequality in the statement is equivalent to $t\geq \max_{c'\in C\setminus A} prescore(c',t)$, which is tested with algorithm $\maxprescore(A,w,t)$ in time $O(|E|)$ by Theorem~\ref{thm:runtimes}.
 \end{proof}
 
-A result such as the one above is essential in a scenario where a computationally limited user (the \emph{verifier}) offloads a heavy task (in this case an election algorithm) to one or more external entities with more computational power (the \emph{prover}). Yet, as the task is executed privately and the user does not trust the entities, the user must be in condition to provably and efficiently verify the quality of the output.
-
-
-In the case of an election protocol over a decentralized blockchain, it would be very costly to run the full election algorithm as an \emph{on-chain} process, meaning that (a supermajority of) all validators must execute it simultaneously and the chain cannot progress until they have finished the execution and agreed on the output. 
+This in turn proves Theorem~\ref{thm:intro2}. 
+A result such as the one above is essential in a scenario where a computationally limited user (the \emph{verifier}) offloads a heavy task -- in this case an election algorithm -- to one or more external entities with more computational power (the \emph{prover}). Yet, as the task is executed privately and the user does not trust the entities, the user must be in condition to provably and efficiently check the quality of the output.
+%
+In the case of an election protocol over a decentralized blockchain, it would be very costly to run the full election algorithm as an \emph{on-chain} process, meaning that validators must execute it simultaneously and the chain cannot progress until they have finished the execution and agreed on the output. 
 Instead, a much more scalable solution is to execute the protocol \emph{off-chain}, meaning that one or more parties run it privately and separate from block production, and then submit the output which is approved if it passes the verification test on-chain. 
-The fact that algorithm $\balanced$ can have both of its guarantees efficiently verified on it outputs is in our opinion its most important feature relative to other algorithms in the literature of social choice. 
+The fact that algorithm $\balanced$ can have both of its guarantees efficiently verified on it outputs is in our opinion its most relevant feature. 
 
 The inequality $supp_w(A)\geq \max_{c'\in C\setminus A} score(c')$ mentioned in Lemma~\ref{lem:localopt} and Theorem~\ref{thm:315guarantee} corresponds to a notion of local optimality, for a local search variant of the $\phragmms$ heuristic. 
 In Section~\ref{s:tPJR} we explore the relation between this notion and the PJR property. 
@@ -38,6 +38,7 @@ For any $t\in\R$, a committee $A\subseteq C$ (of any size) satisfies Proportiona
 \end{definition}
 
 In words, if there is a group $N'$ of voters with at least $r$ commonly approved candidates, who can afford to provide these candidates with a support of value $t$ each, then this group is represented by at least $r$ members in committee $A$, though not necessarily commonly approved. Notice that the standard version of PJR is equivalent to $\hat{t}$-PJR for $\hat{t}:=\sum_{n\in N} s_n / |A|$ (see Section~\ref{s:prel}), and that if a committee satisfies $t$-PJR then it also satisfies $t'$-PJR for each $t'\geq t$, i.e.~the property gets stronger as $t$ decreases. 
+Notice as well that this is in contrast to the maximin support objective, which implies a stronger property as it increases; we will exploit the opposite natures of these two parameters of quality in Section~\ref{s:LS} to define a procedure that improves upon a given solution.
 
 %For instance, in the example described in Figure~\ref{fig:phragmen}, the optimal committee satisfies $(1/H_k)$-PJR, while the output of $\phragmen$ does not even satisfy $1$-PJR. However, since in this case we have that $\hat{t}=\frac{k+(1/H_k)}{k}=1+\frac{1}{k\cdot H_k}>1$ and the output does satisfy $\hat{t}$-PJR, it narrowly satisfies PJR. This example shows how much more expressive our parameterized definition of PJR is to assess the quality of a committee. 
 
@@ -85,7 +86,7 @@ By Lemma~\ref{lem:locality} above, having $\max_{c'\in C\setminus A} score(t_{\m
 
 Suppose that we know of an efficient algorithm with good guarantees for maximin support but no guarantee for PJR, or we happen to know of a high quality solution in terms of maximin support but we ignore if it satisfies PJR. Can we use it to find a new solution of no lesser quality which is also guaranteed to satisfy PJR? And can we efficiently prove to a verifier that the new solution indeed satisfies PJR? We answer these questions in the positive for the first time.
 
-We present a local search algorithm that takes an arbitrary feasible solution as input, and iteratively drops a member of least support and inserts a new candidate using the $\phragmms$ heuristic. The procedure always maintains or increases the value of the least member support, hence the quality of the solution is preserved. Furthermore, as the solution converges to a local optimum, it is guaranteed to satisfy the PJR after a certain number of iterations and continue satisfying it from that point on. 
+We present a local search algorithm that takes an arbitrary feasible solution as input, and iteratively drops a member of least support and inserts a new candidate using the $\phragmms$ heuristic. The procedure always maintains or increases the value of the least member support, hence the quality of the solution is preserved. Furthermore, as the solution converges to a local optimum, it is guaranteed to satisfy the PJR after a certain number of iterations. 
 Therefore, when used as a post-computation, this procedure can make any approximation algorithm for maximin support also satisfy PJR in a black-box manner. 
 We remark here that such an application of the $\phragmms$ heuristic goes to show the robustness of the election rule; in particular, there is no evident way to build a similar post-computation from $\phragmen$~\cite{brill2017phragmen}, as the analysis of the PJR property in that rule is heavily dependent on the way the solution is constructed. 
 
@@ -119,6 +120,7 @@ For any parameter $\eps>0$ and a feasible full solution $(A,w)$, let $(A',w')$ b
 \end{enumerate}
 \end{theorem}
 
+This proves Theorem~\ref{thm:intro3}. 
 Notice that point~\ref{item:iterations} establishes that $\LSPJR$ can be executed as a post-computation of any constant-factor approximation algorithm for maximin support in time $O(|E|\cdot k\log k)$. In particular, this complexity is dominated by that of all constant-factor approximations presented in this paper.
 By point~\ref{item:infinity}, the algorithm can be sped up if we only care about standard PJR, or run further iterations to achieve a stronger parametric PJR guarantee. 
 For the proof, we will need the following simple observation whose proof is delayed to Appendix~\ref{s:proofs}.
