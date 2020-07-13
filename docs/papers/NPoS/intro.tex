@@ -3,7 +3,7 @@
 The property of proportional representation in approval-based committee elections has been discussed in the literature of computational social choice for a long time, with new mathematical formulations recently proposed to formalize it. 
 The property is typically understood as ensuring that no minority in the electorate is underrepresented by the winning committee. 
 In this paper we complement this notion with an analysis of the opposite goal: fighting overrepresentation of any minority. 
-We establish such objective formally as an optimization problem, provide a thorough complexity analysis for it, and propose efficient approximation algorithms. 
+We establish such objective formally as an optimization problem, related to the axiom of proportional justified representation (PJR), and propose efficient approximation algorithms for it. 
 
 Our work is motivated by the problem of electing participants to the consensus protocol -- whom we refer to as \emph{validators} -- in a decentralized blockchain network, where overrepresentation may affect security. 
 More precisely, under a proof-of-stake mechanism it is assumed that a majority of the native token is in the hands of honest actors, and this proportion of honest actors is to be preserved among the elected validators; 
@@ -47,8 +47,7 @@ Only very recently have efficient algorithms that achieve PJR or EJR finally bee
 
 Among these axioms, we set to achieve \textbf{PJR}, defined formally in Section~\ref{s:prel}, for two reasons. 
 First, because it is more \emph{Sybil resistant}~\cite{douceur2002sybil} than JR, meaning that a strategic voter may be incentivized to assume several nominator identities in the network under JR, but not under PJR. 
-Second, because PJR seems to be most compatible with our security objective, as we discuss further below; in particular, our security objective turns out to be incompatible with EJR.%
-\footnote{As argued in~\cite{peters2019proportionality} and \cite{lackner2020approval}, the PJR and EJR axioms correspond to different notions of proportionality. While EJR is primarily concerned with the general welfare or satisfaction of the voters, PJR considers proportionality of the voters' decision power.} 
+Second, because PJR seems to be most compatible with our security objective, as we argue further below. Indeed, as argued in~\cite{peters2019proportionality} and \cite{lackner2020approval}, the PJR and EJR axioms correspond to different notions of proportionality: while EJR is primarily concerned with the general welfare or satisfaction of the voters, PJR considers proportionality of the voters' decision power. 
 
 \emph{The security goal: fighting overrepresentation.} 
 In a PoS-based consensus protocol, we want a guarantee that as long as most of the stake is in the hands of actors that behave honestly or rationally, carrying any attack will be very costly. If we assume that the attack requires control of some minimum number of validators to succeed, the adversary would need to use its stake to get these validators elected. The security level is hence proportional to how difficult it is for an entity to gain overrepresentation in the validator election protocol. 
@@ -83,6 +82,9 @@ We show in this paper that these two objectives complement each other well, and 
 There is an efficient election rule for approval-based committee elections that simultaneously achieves the PJR property and a 3.15-factor approximation guarantee for the maximin support objective.
 \end{theorem}
 
+Our proposed election rule is inspired in the $\phragmen$ method~\cite{brill2017phragmen}, and to the best of our knowledge corresponds to the first approximation algorithm for a Phragm\'{e}n method. 
+In contrast, several approximation algorithms for Thiele methods have been proposed; see~\cite{lackner2020approval} for a survey. 
+%
 Our optimization approach to proportional representation also provides new tools to discern between different election rules. For instance, $\MMS$~\cite{sanchez2016maximin} and $\phragmen$~\cite{brill2017phragmen} are two efficient rules that achieve the PRJ property, but while the former provides a constant-factor approximation guarantee for maximin support, the latter does not (Section~\ref{s:complexity}). 
 %
 Next comes the question of applicability: the blockchain architecture adds very stringent time constraints to computations, and may render all but the simplest algorithms unimplementable.%
