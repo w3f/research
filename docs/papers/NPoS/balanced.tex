@@ -1,12 +1,10 @@
-\section{Properties and algorithms for balanced solutions} \label{s:balanced}
+\section{Algorithms to computed a balanced solution} \label{s:balanced}
 
+Recall from Section~\ref{s:prel} that, for a given election instance $(G = (N \cup C, E), s, k)$ and a fixed committee $A\subseteq C$, a weight vector $w\in \R^E$ is balanced for $A$ if a) it maximizes the sum of member supports, $\sum_{c\in A} supp_w(c)$, over all feasible weight vectors, and b) it minimizes the sum of supports squared, $\sum_{c\in A} (supp_w(c))^2$, over all vectors that observe the previous point. 
 
-
-
-\subsection{Algorithms to compute balanced weight vectors}
-
+We start by noticing that a balanced weight vector can be computed with numerical methods for quadratic convex programs. 
 Let $E_A\subseteq E$ be the restriction of the input edge set over edges incident to committee $A$, and let $D\in\{0,1\}^{A\times E_A}$ be the vertex-edge incidence matrix for $A$. 
-For any weight vertex $w\in\R^{E_A}$, the support that $w$ assigns to candidates in $A$ is given by vector $Dw$, so that $suppw(c)=(Dw)_c$ for each $c\in A$. 
+For any weight vertex $w\in\R^{E_A}$, the support that $w$ assigns to candidates in $A$ is given by vector $Dw$, so that $supp_w(c)=(Dw)_c$ for each $c\in A$. 
 We can now write the problem of finding a balanced weight vector as a convex program:
 \begin{align*}
     \text{Minimize} \quad & \|Dw\|^2 \\
@@ -15,7 +13,8 @@ We can now write the problem of finding a balanced weight vector as a convex pro
     & \mathbbm{1}^{\intercal} Dw = \sum_{n\in \cup_{c\in A} N_c} s_n,
 \end{align*}
 where the first two lines of constraints corresponds to non-negativity and feasibility conditions (see inequality~\ref{eq:feasible}), and the last line ensures that the sum of supports is maximized, where $\mathbbm{1}\in\mathbb{R}^A$ is the all-ones vector. 
-A balanced weight vector can thus be computed with numerical methods for quadratic convex programs.
+
+
 
 However, there is a more efficient method using techniques for parametric flow, which we sketch now. Hochbaum and Hong~\cite[Section 6]{hochbaum1995strongly} consider a network resource allocation problem which generalizes the problem of finding a balanced weight vector: given a network with a single source, single sink and edge capacities, minimize the sum of squared flows over the edges reaching the sink, over all maximum flows. 
 They show that this is equivalent to a parametric flow problem called \emph{lexicographically optimal flow}, studied by Gallo, Gregoriadis and Tarjan~\cite{gallo1989fast}. 
