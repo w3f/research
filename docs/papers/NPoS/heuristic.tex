@@ -3,7 +3,7 @@
 In the previous section we established that the efficient $\phragmen$ heuristic~\cite{brill2017phragmen} fails to provide a good guarantee for the maximin support objective, whereas $\MMS$~\cite{sanchez2016maximin} guarantees a 2-factor approximation albeit with a considerably worse running time. 
 In this section we introduce $\phragmms$, a new heuristic that is inspired in $\phragmen$ and maintains a comparable runtime, yet lends itself to more robust analyses both for maximin support and for PJR. 
 
-\subsection{Inserting one candidate to a partial solution}
+\subsection{Inserting one candidate to a partial solution}\label{s:inserting}
 
 We start with a brief analysis of the approaches taken in $\MMS$ and $\phragmen$. Both are iterative greedy algorithms that start with an empty committee and add to it a new candidate over $k$ iterations, following some specific rule for candidate selection.
 For a given partial solution, $\MMS$ (Algorithm~\ref{alg:mms}) computes a balanced weight vector for each possible augmented committee resulting from adding a candidate, and keeps the one that offers the largest support. 
@@ -75,6 +75,6 @@ Furthermore, there is an algorithm $\maxscore(A,w)$ that runs in time $O(|E|\cdo
 \end{theorem}
 
 We remark that our heuristic, which finds a candidate with highest score and adds it to the current partial solution (Algorithm $\maxscore$ followed by $\ins$) executes in time $O(|E|\cdot \log k)$. 
-It thus matches, up to a logarithmic term, the running time of $\phragmen$ which is $O(|E|)$ per iteration; see Appendix~\ref{s:phragmen}. 
+It thus matches up to a logarithmic term the running time of $\phragmen$ which is $O(|E|)$ per iteration; see Appendix~\ref{s:phragmen}. 
 In Appendix~\ref{s:algorithms} we also draw parallels between the $\phragmen$ and $\phragmms$ heuristics, and explain how the latter can be seen as a natural complication of the former which always grants higher score values to candidates and thus inserts them with higher supports.
 

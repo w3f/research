@@ -90,7 +90,7 @@ We present a local search algorithm that takes an arbitrary feasible solution as
 Therefore, when used as a post-computation, this procedure can make any approximation algorithm for maximin support also satisfy PJR in a black-box manner. 
 We remark here that such an application of the $\phragmms$ heuristic goes to show the robustness of the election rule; in particular, there is no evident way to build a similar post-computation from $\phragmen$~\cite{brill2017phragmen}, as the analysis of the PJR property in that rule is heavily dependent on the way the solution is constructed. 
 
-As we did in Section~\ref{s:heuristic}, in the following algorithm we assume that the background instance $(G=(N\cup C, E), s, k)$ is known and that does not need to be passed as input. 
+As we did in Section~\ref{s:inserting}, in the following algorithm we assume that the background instance $(G=(N\cup C, E), s, k)$ is known and that does not need to be passed as input. 
 Instead, the input is a feasible full solution $(A,w)$, and a parameter $\eps>0$. 
 Our proposed algorithm $\local$ (Algorithm~\ref{alg:localpjr}) is presented below. 
 
@@ -143,7 +143,7 @@ This proves point~\ref{item:support}. Point~\ref{item:tPJR} is apparent from the
 
 We continue to point \ref{item:iterations}. Each iteration is dominated in complexity by the call to Algorithm $\maxscore$, which takes time $O(|E|\cdot \log k)$ by Theorem~\ref{thm:runtimes}. 
 Hence, it remains to give a bound on the number $T$ of total iterations. 
-To do that, we analyze the evolution of the least member support $t^i_{\min}=supp_{w^i}(A^i)$. First, we argue that if ever $t^i_{\min}=\hat{t}$, then the algorithm terminates immediately, i.e.~$i=T$; this is because in this case all members in $A^i$ must have a support of exactly $\hat{t}$, all nominators a zero slack for threshold $\hat{t}$, and all candidates in $C\setminus A^i$ a zero prescore for threshold $\hat{t}$ and hence a score strictly below $\hat{t}$, and the stopping condition is fulfilled.
+To do that, we analyze the evolution of the least member support $t^i_{\min}=supp_{w^i}(A^i)$. First, we argue that if ever $t^i_{\min}=\hat{t}$, then the algorithm terminates immediately, i.e.~$i=T$; this is because in this case all members in $A^i$ must have a support of exactly $\hat{t}$, all voters a zero slack for threshold $\hat{t}$, and all candidates in $C\setminus A^i$ a zero prescore for threshold $\hat{t}$ and hence a score strictly below $\hat{t}$, and the stopping condition is fulfilled.
 Next, we claim that for any iteration $i$ with $1\leq i<T-k$, we have $t^{i+k}_{\min}\geq (1+\eps)\cdot t^{i}_{\min}$. This is because, by Lemma~\ref{lem:insert}, in each iteration $j\geq i$ we are removing a member with least support while not increasing the number of members with support below 
 $$prescore_{(A^j - c^j_{\min}, w^j)}(c^j_{\max}, t^j_{\max})\geq t^j_{\max}\geq t^j_{stop}\geq t^i_{stop}.$$
  

@@ -1,22 +1,36 @@
 
 \section{A protocol for validator election in NPoS}\label{s:objectives}
 
-The Polkadot network will select a new validator committee in every era, where an era lasts roughly one day, in order to adapt to the ever evolving sets of validator candidates and nominators, as well as nominators' preferences and stake. 
-In order to ensure decentralization and security, the stated goal of the validator election protocol is to simultaneously ensure the PJR property and achieve a constant-factor approximation guarantee for the maximin support objective. 
+In this section we provide high-level details of a proposal for a validator election protocol in an NPoS-based blockchain network. This proposal will be the basis for an implementation in the Polkadot network.
 
-Our results make this goal possible in theory. However, such a protocol still faces many technical challenges:
+A committee of $k$ validators is selected once per era, where an era is multiple hours or days long. 
+In each era, a group of off-chain workers each privately runs the election algorithm for the next era, and submits its solution on-chain. 
+We propose that each validator act as an off-chain worker and run such computation, but this need not be the case. 
+More in detail, towards the end of each era there is an \emph{election window} where the following events occur:
+\begin{enumerate}
+\item The chain fixes the (otherwise ever-evolving) set of validator candidates and nominators' preferences and stake to be considered for the election, ignoring any further changes in the remainder of the era. 
+\item All current validators trigger an off-chain execution of the $\balanced$ election rule, separate from block production and other duties.
+\item Once the solutions are computed (after a few seconds of the start of the election window), validators submit them on-chain as a special type of transaction. 
+\item On the on-chain side, we only keep track of one solution at any given time, which is the current tentative winner. Specifically, if $(A_0,w_0)$ is the tentative winner recorded on-chain, a block producer can include a new solution $(A,w)$ to its block only if a) it is feasible, b) $supp_w(A)>supp_{w_0}(A_0)$, and c) it passes the test described in Theorem~\ref{thm:315guarantee}. If this is the case, $(A,w)$ replaces $(A_0, w_0)$ as the current tentative winner. 
+\item At the end of the election window, the current tentative winner is declared the official winner. 
+\end{enumerate}
 
+We make a few remarks about this protocol. 
 \begin{itemize}
-    \item As stated before, a typical instance will be very large in Polkadot, potentially having thousands of candidates and a massive number of nominators. In contrast, on-chain computations are very expensive for the network. Therefore, there is a need to shift this task to off-chain workers that perform computations privately. 
-    \item As the decentralized and trustless nature of the network must be maintained, any results computed off-chain must be efficiently verifiable on-chain, with minimal assumptions on the adversarial model.
-    \item Finally, any on-chain computation must observe stringent resource limitations. For simplicity, we consider a model that limits any on-chain computation per block to be linear in the size of the instance, $O(|E|)$, both in terms of time and space complexity.
+\item By Theorem \ref{thm:315guarantee}, the protocol will elect a solution that simultaneously satisfies the PJR property and a 3.15-factor approximation for the maximin support problem. These constitute strong and formal guarantees on security and proportionality. 
+\item On top of guarantees above, we are bound to elect the best solution found by anyone. In particular, validators may find diverse solutions due to different tie-breaking rules, or more explicit deviations from the suggested algorithm. However, as long as we rank solutions objectively and pick the best one, any diversity in solutions can only improve the quality of the winning committee, and thus benefits the community.
+\item The fact that the guarantees on security and proportionality are verifiable protect the network against a \emph{long range attack}, i.e. a scenario where an adversary creates a branch of the blockchain which is grown in secret, with the intention to eventually make it public and have it overtake the main chain. In particular, if the protocol limited itself to select the best solution submitted by validators without a verification of guarantees, an adversary could use a long range attack to create a branch in which, during an election window, it censors all solutions coming from honest validators and thus makes the protocol elect a committee where the adversary is heavily overrepresented.
+\item On the on-chain side, the election protocol runs in linear time $O(|E|)$ per block, by Theorem \ref{thm:315guarantee} and the fact that at most one solution is verified per block.  
 \end{itemize}
 
-
-We propose the following protocol. 
-Towards the end of the current era, there is a window of time where each current validator must privately run a constant-factor approximation algorithm for the maximin support objective (e.g. Algorithm \ref{alg:lazy} or \ref{alg:balanced}) on the instance corresponding to the next era, followed by the PJR enabler (Algorithm~\ref{alg:localpjr}), and submit their resulting tentative solution on-chain as a transaction. 
-
-On the on-chain side, at most one submission is processed per block, and a tentative solution is accepted only if it is feasible and observes PJR, as verified by the test described in Lemma~\ref{lem:locality} which runs in linear time $O(|E|)$. 
-Furthermore, a new submission is considered valid only if it is better than the current best submission in terms of the maximin support objective. This last condition is verified off-chain by the block producer, and in case of simultaneous submissions only the one with highest objective value is included. After the window of submissions is over, the current best submission is declared winner and used to define the validator committee and the stake distribution between nominators and validators for the next era. On-chain computations thus remain linear, $O(|E|)$, in each block throughout the solution submission period.
-
-This process guarantees that, although validators are mutually untrusting and compute solutions privately, as long as at least one of them is honest, does their prescribed job correctly, and is not censored, the network will pick a solution that simultaneously achieves a constant-factor approximation for the maximin support objective and satisfies the PJR property, thus ensuring decentralization and security. Furthermore, any validator can individually check that the winning solution satisfies the PJR property and has a higher objective value for maximin support than their own submission. Finally, if validators run distinct algorithms off-chain, or use different sources of randomness or tie-breaking rules, this may benefit the system as the search space is increased and the selected solution is likely to be of higher quality. 
+Next, we suggest additional variations and optimizations:
+\begin{itemize}
+\item We suggest that instead of gossiping a solution over the network as a transaction, each validator waits for its turn to be a block producer to submit its solution. Doing so saves communication overhead, as election solutions make for rather heavy transactions. In this case, it is important that the election window is long enough so that with high probability each validator gets to produce a block, and thus is not censored. 
+The system can still receive solutions as transactions from arbitrary users, but in this case the transaction fee must be high to protect against spamming attacks. 
+\item For any weight vector $w\in \R^E$, let $E_w$ denote its edge support, i.e. $E_w:=\{e\in E: \ w_e>0\}$, and notice that the size of a solution $(A,w)$ is dominated by the size of its edge support $|E_w|$. 
+However, by removing circulations, from any feasible vector $w$ one can compute another feasible vector $w'\in\R^E$ such that a) all supports are preserved, i.e. $supp_w(c)=supp_{w'}(c)$ for each $c\in C$, and b) $E_{w'}$ is a forest, and hence $|E_{w'}|< |N|+|C|=O(|N|)$, where we assume that $|N|\geq |C|$. Therefore, validators can run this post-computation off-chain to reduce the size of any solution to $O(|N|)$, thus saving space on the block.
+\item Recall that on the on-chain side, for a new solution $(A,w)$ we check a) feasibility, b) its objective value (and whether it beats the current tentative winner), and c) the test in Theorem~\ref{thm:315guarantee}. Notice that the third check runs in time $O(|E|)$ and thus is considerably slower than the first two checks, which run in time $O(|E_w|)$ (with $O(|E_w|)=O(|N|)$ if the previous suggestion is implemented). A possible optimization is to skip the third check on most submissions, and run it only on the final winner $(A_0, w_0)$ at the end of the election window. 
+Now, we can expect that this check is always passed. 
+In the unlikely case that $(A_0, w_0)$ fails the test, the election window is extended for a few more minutes, and validators are asked to run the post-computation $\local$ over it off-chain. The window ends as soon as some block producer submits a feasible solution $(A,w)$ such that $supp_{w}(A)\geq supp_{w_0}(A_0)$, and which satisfies the condition on Lemma~\ref{lem:locality} for $t=\min\{(1+\eps)\cdot supp_{w'}(A'), \hat{t}\}$, and hence $A$ satisfies $t$-PJR and standard PJR. In this case we lose the 3.15-factor approximation guarantee for maximin support, but improve the on-chain running time to $O(|N|)$ per block.
+\item In terms of incentives, the system may provide an economic reward to the submitter of the final winning committee, and possibly also to each submitter of a tentative winner. If the previous suggestion is implemented and the test in Theorem~\ref{thm:315guarantee} is checked only on the final winning committee, then a heavy fine should be charged to the submitter in case the test fails. 
+\end{itemize}

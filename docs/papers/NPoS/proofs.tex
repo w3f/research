@@ -1,52 +1,61 @@
 
 \section{Delayed proofs}\label{s:proofs}
 
-\begin{proof}[Proof of Lemma~\ref{lem:balanced}]
-The first statement is simply a special case of the second statement, for $r=1$. 
-We temporarily skip the second statement and start by proving the third one, which we do by contradiction. 
-We thus assume there is a voter $n\in N$ and two candidates $c\in C_n$, $c'\in C_n\cap A$, such that $w_{nc}>0$ and $supp_w(c) > supp_w(c')$. 
-Let $\eps:=\min\{w_{nc}, (supp_w(c)-supp_w(c'))/2\}>0$, and define a new vector $w'\in\mathbb{R}^E$ where $w'_{nc}=w_{nc}-\eps$, $w'_{nc'}=w_{nc'}+\eps$, and $w'_e=w_e$ for every other edge $e\in E$. 
-It can be checked that $w'$ is non-negative and feasible, and that it does not decrease the sum of member supports, i.e. $\sum_{d\in A} supp_{w'}(d)\geq \sum_{d\in A} supp_{w}(d)$, where the inequality is tight only if $c\in A$. We assume this to be the case, as otherwise the first condition on vector $w$ being balanced for $A$ is violated. On the other hand,
-\begin{align*}
-    \sum_{d\in A} supp_{w}^2(d) - \sum_{d\in A} supp_{w'}^2(d) &= supp_w^2(c) + supp_w^2(c) - supp_{w'}^2(c) - supp_{w'}^2(c') \\
-    &= supp_w^2(c) + supp_w^2(c') - (supp_w(c)-\eps)^2 - (supp_w(c')+\eps)^2 \\
-    &= 2\eps( supp_w(c) - supp_w(c')) -2\eps^2 \\
-    &\geq 2\eps(2\eps) - 2\eps^2 = 2\eps^2 >0,
-\end{align*}
-which contradicts the second condition on vector $w$ being balanced for $A$.
+\begin{lemma}\label{lem:path}
+Let $w\in \R^E$ be a feasible weight vector for a given instance, let $c,c'\in C$ be two candidates with $supp_w(c)>supp_w(c')$, and suppose there is a path $p\in\mathbb{R}^E$ that carries some non-zero flow from $c$ to $c'$, with zero excess elsewhere. If $w+p$ is non-negative and feasible, then $w$ is not balanced for any committee $A$ that contains $c'$.
+\end{lemma}
 
-We now prove the second statement, which says that function 
-$F_{w'}^k:=\min_{A'\subseteq A, |A'|=r} \quad \sum_{c\in A'} supp_{w'}(c)$ 
+\begin{proof}
+Fix a committee $A\subseteq C$ that contains $c'$. If $c$ is not in $A$, then $w+p$ provides a greater sum of member supports over $A$ than $w$, so the latter is not balanced as it does not maximize this sum. Now suppose both $c$ and $c'$ are in $A$. Let $\lambda>0$ be the flow value carried by $p$, let $\eps:=\min\{\lambda, (supp_w(c) - supp_w(c'))/2\}>0$, and let $p'$ be the scalar multiple of $p$ whose flow value is $\eps$. By an application of Lemma~\ref{lem:subflow} over $w$ and $w':=w+p$, and the fact that $p'$ is a sub-flow of $p=w'-w$, we have that $w+p'$ is non-negative and feasible. Moreover, both $w$ and $w+p'$ clearly provide the same sum of member supports over $A$. Finally, if we compare their sums of member supports squared, we have that
+\begin{align*}
+\sum_{d\in A} supp_w^2(d)-\sum_{d\in A} supp^2_{w+p'}(d) &=supp_w^2(c) +supp_w^2(c')-supp^2_{w+p'}(c) -supp^2_{w+p'}(c')\\
+&= supp_w^2(c) +supp_w^2(c') - (supp_w(c) - \eps)^2 - (supp_w(c) + \eps)^2 \\
+&= 2\eps\cdot (supp_w(c) - supp_w(c') - \eps) \geq 2\eps\cdot(2\eps - \eps)=2\eps^2>0.
+\end{align*}
+
+Therefore, $w$ is not balanced for $A$, as it does not minimize the sum of member supports squared.  
+\end{proof}
+
+\begin{proof}[Proof of Lemma~\ref{lem:balanced}]
+Fix a balanced partial solution $(A,w)$. The first statement says that function 
+$F_r(w'):=\min_{A'\subseteq A, |A'|=r} \sum_{c\in A'} supp_{w'}(c)$ 
 is maximized by vector $w$ over all feasible vectors $w'\in\R^E$, for all $1\leq r\leq |A|$. 
-Assume by contradiction that there is a threshold $r$ and feasible $w'$ such that $F_r^A(w')>F_r^A(w)$. We can also assume without loss of generality that 
+Assume by contradiction that there is a parameter $r$ and feasible $w'$ such that $F_r(w')>F_r(w)$. 
+We can also assume without loss of generality that 
 \begin{enumerate}
-    \item $\sum_{c\in A} supp_{w'}(c)=\sum_{c\in A} supp_{w}(c)$, i.e. $w'$ also satisfies the first condition of a balanced weight vector; and  
+    \item $\sum_{c\in A} supp_{w'}(c)=\sum_{c\in A} supp_{w}(c)$, i.e. $w'$ also maximizes the sum of member supports, as does $w$ by definition of balancedness; and  
     \item we enumerate the candidates in $A=\{c_1, \cdots, c_{|A|}\}$ so that whenever $i<j$ we have that $supp_w(c_i)\leq supp_w(c_j)$, and in case of a tie, $supp_w(c_i)= supp_w(c_j)$, we have that $supp_{w'}(c_i)\leq supp_{w'}(c_j)$. 
 \end{enumerate}
 
-With a candidate enumeration as above, it follows that $F^A_r(w)=\sum_{i=1}^r supp_w(c_i)$, while for vector $w'$ we have the inequality $F^A_r(w')\leq \sum_{i=1}^r supp_{w'}(c_i)$. 
+With a candidate enumeration as above, it follows that $F_r(w)=\sum_{i=1}^r supp_w(c_i)$, while for vector $w'$ we have the inequality $F_r(w')\leq \sum_{i=1}^r supp_{w'}(c_i)$. 
 Thus, by our assumption by contradiction, 
-$$\sum_{i=1}^r supp_{w'}(c_i) \geq F_r^A(w') > F_r^A(w) = \sum_{i=1}^r supp_{w}(c_i), \quad \text{and}$$
+$$\sum_{i=1}^r supp_{w'}(c_i) \geq F_r(w') > F_r(w) = \sum_{i=1}^r supp_{w}(c_i), \quad \text{and}$$
 \begin{align*}
     \sum_{i=r+1}^{|A|} supp_{w'}(c_i) &= \sum_{i=1}^{|A|} supp_{w'}(c_i) - \sum_{i=1}^{r} supp_{w'}(c_i) \\
     & = \sum_{i=1}^{|A|} supp_{w}(c_i) - \sum_{i=1}^{r} supp_{w'}(c_i) \\
     & < \sum_{i=1}^{|A|} supp_{w}(c_i) - \sum_{i=1}^{r} supp_{w}(c_i) 
     = \sum_{i=r+1}^{|A|} supp_{w}(c_i). \\
 \end{align*}
-Now define the edge vector $f:=w'-w\in\mathbb{R}^E$ and consider it as a flow over the network $(N\cup A, E)$. 
-We have that $f$ has a zero net demand over set $N$, by our first assumption, and the previous two inequalities show that $f$ has a positive net demand over set $\{c_1, \cdots, c_r\}$ and a positive net excess over set $\{c_{r+1}, \cdots, c_{|A|}\}$. Thus, by the flow decomposition theorem, $f$ can be decomposed into circulations and simple paths, where every path starts in a vertex with positive demand and ends in a vertex with positive excess, and there must be a simple path carrying some $\delta>0$ flow from $c_j$ to $c_i$ for some $1\leq i\leq r<j\leq |A|$. 
-Moreover, by our second assumption, it must be the case that $supp_w(c_i)<supp_w(c_j)$, because in case of a tie we would have that $supp_{w'}(c_i)<supp_{w'}(c_j)$ and so $f$ would have a net excess on $c_i$ and net demand on $c_j$, and the $c_i$-to-$c_j$ path would not exist in the flow decomposition.
 
-Let $f'$ be a sub-flow of $f$ that carries $\eps$ units of flow from $c_j$ to $c_i$, where $\eps:=\min\{\delta, \frac{1}{2}(supp_w(c_j) - supp_w(c_i))\}>0$. 
-The fact that $f'$ is a sub-flow of $f$ implies that $w'':=w+f'$ is a feasible non-negative solution,%
-\footnote{For a proof of feasibility and non-negativity, see the argument at the end of the proof in Lemma~\ref{lem:2sols}.} 
-with 
-\begin{align*}
-    \sum_{c\in A} supp_{w}^2(c) - \sum_{c\in A} supp_{w''}^2(c) &= supp_{w}^2(c_i) + supp_w^2(c_j) - (supp_{w}(c_i) +\eps)^2 - (supp_{w}(c_j) - \eps)^2\\
-    &= 2\eps(supp_w(c_j) - supp_w(c_i)) - 2\eps^2 \\
-    &\geq 2\eps(2\eps) - 2\eps^2 = 2\eps^2>0,
-\end{align*}
-which contradicts the fact that $w$ minimizes the sum of supports squared. This completes the proof. 
+Now define the edge vector $f:=w'-w\in\mathbb{R}^E$ and consider it as a flow over the network $(N\cup A, E)$. 
+We have that $f$ has a zero net demand over set $N$, by our first assumption, and the previous two inequalities show that $f$ has a positive net demand over set $\{c_1, \cdots, c_r\}$ and a positive net excess over set $\{c_{r+1}, \cdots, c_{|A|}\}$. Thus, by the flow decomposition theorem, $f$ can be decomposed into circulations and simple paths, where every path starts in a vertex with positive demand and ends in a vertex with positive excess, and there must be a simple path $p$ carrying non-zero flow from $c_j$ to $c_i$ for some $1\leq i\leq r<j\leq |A|$. 
+Moreover, by our second assumption, it must be the case that $supp_w(c_i)<supp_w(c_j)$, because in case of a tie we would have that $supp_{w'}(c_i)<supp_{w'}(c_j)$ and so $f$ would have a net excess on $c_i$ and net demand on $c_j$, and the $c_i$-to-$c_j$ path would not exist in the flow decomposition. 
+But now, by Lemma~\ref{lem:subflow}, vector $w+p$ is non-negative and feasible, and by Lemma~\ref{lem:path}, $w$ is not balanced for $A$, and we reach a contradiction. 
+
+The second statement follows directly from the fact that $w$ maximizes the sum of member supports, and thus all of the vote strength of all represented voters (i.e. all voters in $\cup_{c\in A} N_c$) must be directed to members of $A$. 
+We move on to the third statement. 
+Assume by contradiction that there is a voter $n\in N$ and two candidates $c, c'\in A\cap C_n$ such that $w_{nc}>0$ and $supp_w(c)>supp_w(c')$. 
+Let $\eps:=\min\{w_{nc}, (supp_w(c)-supp_w(c'))/2\}>0$, and define a path $p\in\mathbb{R}^E$ carrying flow $\eps$ from $c$ to $c'$ via $n$, i.e~$p_{nc'}=-p_{nc}=\eps$ and $p_e=0$ for every other edge $e\in E$. 
+It can be checked that $w+p$ is non-negative and feasible, so by Lemma~\ref{lem:path} $w$ is not balanced for $A$, which is a contradiction. 
+
+Finally, we prove that if a feasible weight vector satisfies conditions 2 and 3, then it is balanced for $A$. 
+In fact, we claim that all such weight vectors provide the same list of member supports $(supp_w(c))_{c\in A}$, and hence are all balanced. 
+Let $w, w'\in\R^E$ be two such weight vectors. It easily follows from feasibility (inequality~\ref{eq:feasible}) and condition 2 that both provide the same sum of member supports, namely $\sum_{c\in A} supp_w(c) = \sum_{c\in A} supp_{w'}(c) =\sum_{n\in \cup_{c\in A} N_c} s_n$. 
+Now, assume by contradiction and wlog that there is a candidate $c\in A$ for which $supp_{w}(c)>supp_{w'}(c)$, and consider the flow vector $f:=w'-w$ over the network induced by $N\cup A$. Clearly, all nodes in $N$ have zero excess, while $c$ has positive excess.
+By the flow decomposition theorem, $f$ can be decomposed into circulations and single paths, where every path starts in a node with net excess and ends in a node with net demand; so, there must be non-zero path $p$ that starts in $c$ and ends in a candidate $c'\in A$ with net demand. 
+Now, path $p$ alternates between candidates and voters, and there must be three consecutive nodes $c_1, n, c_2$ in it, with $c_1, c_2\in A\cap C_{n}$, such that $c_1$ has positive excess and $c_2$ does not, i.e. $supp_{w'}(c_1)<supp_w(c_2)$ and $supp_{w'}(c_2)\geq supp_w(c_2)$, which in turn implies that either $supp_{w'}(c_1)<supp_{w'}(c_2)$ or $supp_w(c_2)<supp_{w}(c_1)$ (or both). 
+If $supp_{w'}(c_1)<supp_{w'}(c_2)$, we reach a contradiction to the fact that $w'$ satisfies condition 3 and that $w'_{nc_2}$ must be positive since the flow in $p$ moves from $n$ to $c_2$; 
+and similarly if $supp_w(c_2)<supp_{w}(c_1)$ we reach a contradiction to the fact that $w$ satisfies condition 3 and that $w_{nc_1}$ must be positive since the flow in $p$ moves from $c_1$ to $n$. This completes the proof of the lemma.
 \end{proof}
 
 
@@ -66,15 +75,12 @@ Let $A_{\min}\subseteq A$ be the set of committee members with least support, i.
     supp_w(A_{\min}) &= \frac{1}{|A_{\min}|} \sum_{c\in A_{\min}} supp_w(c) \\
     &= \frac{1}{|A_{\min}|} \sum_{c\in A_{\min}} \sum_{n\in N_c} w_{nc} 
     = \frac{1}{|A_{\min}|} \sum_{n\in \cup_{c\in A_{\min}} N_c} \quad \sum_{c\in C_n\cap A_{\min}} w_{nc} \\
-    &= \frac{1}{|A_{\min}|} \sum_{n\in \cup_{c\in A_{\min}} N_c} \Big( \sum_{c\in C_n} w_{nc} - \sum_{c\in C_n \setminus A_{\min}} w_{nc}\Big).
+    &= \frac{1}{|A_{\min}|} \sum_{n\in \cup_{c\in A_{\min}} N_c} \Big( \sum_{c\in C_n\cap A} w_{nc} 
+		- \sum_{c\in C_n \cap (A\setminus A_{\min})} w_{nc}\Big)\\
+		&= \frac{1}{|A_{\min}|}\sum_{n\in \cup_{c\in A_{\min}} N_c} s_n \geq \min_{\emptyset\neq A'\subseteq A} \frac{1}{|A'|}\sum_{n\in \cup_{c\in A'}N_c} s_n,
 \end{align*}
 
-We now make two claims, one for each of the terms inside the parenthesis. 
-The first claim is that $\sum_{c\in C_n} w_{nc}=s_n$, i.e. the feasibility inequality~\eqref{eq:feasible} must be tight, for each nominator $n$ in $\cup_{c\in A_{\min}} N_c$, 
-or more generally each nominator in $\cup_{c\in A} N_c$, because balanced vector $w$ by definition maximizes the sum of supports over $A$. 
-The second claim is that the second term is zero. Indeed, if there is a nominator $n$ in $\cup_{c\in A_{\min}} N_c$ and a candidate $c$ in $C_n\setminus A_{\min}$, then there must be at least one member $c'$ in $C_n\cap A'$, and the inequality $supp_w(c')<supp_w(c)$ must hold by definition of set $A_{\min}$; hence $w_{nc}=0$ by point 3 of Lemma~\ref{lem:balanced}. 
-We obtain that 
-$$supp_w(A_{\min}) = \frac{1}{|A_{\min}|}\sum_{n\in \cap_{c\in A_{\min}} N_c} s_n \geq \min_{\emptyset\neq A'\subseteq A} \frac{1}{|A'|}\sum_{n\in \cup_{c\in A'}N_c} s_n.$$
+where we used the fact that for each voter $n\in \cup_{c\in A_{\min}} N_c$, the term $\sum_{c\in C_n\cap A} w_{nc}$ equals $s_n$ by point 2 of Lemma~\ref{lem:balanced}, and the term $\sum_{c\in C_n \cap (A\setminus A_{\min})} w_{nc}$ vanishes by point 3 of Lemma~\ref{lem:balanced} and the definition of set $A_{\min}$. 
 This proves the second inequality and completes the proof.
 \end{proof}
 
@@ -88,20 +94,7 @@ If excess $f'(n)$ is non-positive, then $(w+f')(n)\leq w(n) \leq s_n$, since $w$
 Otherwise, $f'(n)\leq f(n)$, and thus $(w+f')(n)\leq w(n) + f(n) = (w+f)(n) = w'(n) \leq s_n$, since $w'$ is feasible. This completes the proof.
 \end{proof}
 
-\begin{lemma}\label{lem:path}
-Let $w\in \R^E$ be a feasible weight vector for a given instance, let $c,c'\in C$ be two candidates with $supp_w(c)>supp_w(c')$, and suppose there is a path $p\in\mathbb{R}^E$ that carries some non-zero flow from $c$ to $c'$, with zero excess elsewhere. If $w+p$ is non-negative and feasible, then $w$ is not balanced for any committee $A$ that contains $c'$.
-\end{lemma}
 
-\begin{proof}
-Fix a committee $A\subseteq C$ that contains $c'$. If $c$ is not in $A$, then $w+p$ provides a greater sum of member supports over $A$ than $w$, so the latter is not balanced as it does not maximize this sum. Now suppose both $c$ and $c'$ are in $A$. Let $\lambda>0$ be the flow value carried by $p$, let $\eps:=\min\{\lambda, (supp_w(c) - supp_w(c'))/2\}>0$, and let $p'$ be the scalar multiple of $p$ whose flow value is $\eps$. By an application of Lemma~\ref{lem:subflow} over $w$ and $w':=w+p$, and the fact that $p'$ is a sub-flow of $p=w'-w$, we have that $w+p'$ is non-negative and feasible. Moreover, both $w$ and $w+p'$ clearly provide the same sum of member supports over $A$. Finally, if we compare their sums of member supports squared, we have that
-\begin{align*}
-\sum_{d\in A} supp_w^2(d)-\sum_{d\in A} supp^2_{w+p'}(d) &=supp_w^2(c) +supp_w^2(c')-supp^2_{w+p'}(c) -supp^2_{w+p'}(c')\\
-&= supp_w^2(c) +supp_w^2(c') - (supp_w(c) - \eps)^2 - (supp_w(c) + \eps)^2 \\
-&= 2\eps\cdot (supp_w(c) - supp_w(c') - \eps) \geq 2\eps\cdot(2\eps - \eps)=2\eps^2>0.
-\end{align*}
-
-Therefore, $w$ is not balanced for $A$, as it does not minimize the sum of member supports squared.  
-\end{proof}
 
 \begin{proof}[Proof of Lemma~\ref{lem:2balanced}]
 The second statement follows directly from the first one and the definitions of slack, pre-score and score in Section~\ref{s:heuristic}. Hence we focus on the first statement, i.e.~that $supp_w(c)\geq supp_{w'}(c)$ for each candidate $c\in A$.

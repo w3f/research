@@ -1,17 +1,15 @@
 \section{A negative example for the sequential Phragm\'{e}n heuristic}\label{s:phragmen}
 
-In this section we analyze the performance of the $\phragmen$ heuristic~\cite{brill2017phragmen}, particularly with respect to the maximin support objective, and we draw some comparisons between it and our heuristic. 
-We start by proving that $\phragmen$ does not offer a constant-factor approximation for maximin support.
+In this section we analyze the performance of $\phragmen$~\cite{brill2017phragmen} with respect to the maximin support objective. 
 
 \begin{algorithm}[htb]\label{alg:phragmen}
 \SetAlgoLined
 \KwData{Bipartite approval graph $G=(N\cup C, E)$, vector $s$ of vote strengths, target committee size $k$.}
-Initialize $A=\emptyset$, $w=0\in \R^E$, $load(n)=0$ for each $n\in N$, and $load(c)=0$ for each $c\in C$\;
+Initialize $A=\emptyset$, $w=0\in \R^E$, $load(n)=0$ for each $n\in N$, and $load(c')=0$ for each $c'\in C$\;
 \For{$i=1,2,\cdots k$}{
-\For{each candidate $c\in C\setminus A$}{
-Update $load(c) \leftarrow \frac{1+\sum_{n\in N_c} s_n\cdot load(n)}{\sum_{n\in N_c} s_n}$\;
-}
-Find $c_{\min}\in \arg\min_{c\in C\setminus A} load(c)$\;
+\lFor{each candidate $c'\in C\setminus A$}{
+update $load(c') \leftarrow \frac{1+\sum_{n\in N_{c'}} s_n\cdot load(n)}{\sum_{n\in N_{c'}} s_n}$}
+Find $c_{\min}\in \arg\min_{c'\in C\setminus A} load(c')$\;
 Update $A\leftarrow A+c_{\min}$\;
 \For{each voter $n\in N_{c_{\min}}$}{
 Update $w_{nc_{\min}} \leftarrow load(c_{\min}) - load(n)$\;
@@ -23,10 +21,11 @@ Update $load(n)\leftarrow load(c_{\min})$\;
 \caption{$\phragmen$, proposed in~\cite{brill2017phragmen}}
 \end{algorithm}
 
-We remark that the method proposed in~\cite{brill2017phragmen} only considers unit votes, and outputs only a committee. 
+The method proposed in~\cite{brill2017phragmen} only considers unit votes, and outputs only a committee. 
 In Algorithm~\ref{alg:phragmen} we present a generalization that admits weighted votes in the input, and outputs a feasible edge weight vector along with the committee, for ease of comparison with other algorithms in this paper. 
-We remark however that the numerical example presented in Lemma~\ref{lem:phragmen} can be easily converted into another with unit votes -- where each voter $n$ is replaced with a cluster of voters with unit vote strength and where the cluster size is proportional to $s_n$ -- that would lead to the same negative result for the method in~\cite{brill2017phragmen}, 
-even when the output committee is coupled with a balanced weight vector.
+We remark however that the numerical example we present below can be easily converted into another with unit votes -- where each voter $n$ is replaced with a cluster of voters with unit vote strength and where the cluster size is proportional to $s_n$ -- that would lead to the same negative result for the method in~\cite{brill2017phragmen}, even when the output committee is coupled with a balanced weight vector.
+
+We exhibit now a family of instances where the approximation ratio offered by the output of Algorithm~\ref{alg:phragmen} equals the $k$-th harmonic number $H_k:=\sum_{i=1}^k 1/i = \Theta(\log k)$. This proves Lemma~\ref{lem:phragmen}.
 
 \begin{figure}[htb]
 \begin{center}
@@ -79,8 +78,6 @@ even when the output committee is coupled with a balanced weight vector.
 \caption{Instance of maximin support where $\phragmen$ gives an approximation ratio of $H_k - \eps$, for $k=4$.}
 \label{fig:phragmen}
 \end{figure}
-
-We exhibit now a family of instances where the approximation ratio offered by the output of Algorithm~\ref{alg:phragmen} equals the $k$-th harmonic number $H_k:=\sum_{i=1}^k 1/i = \Theta(\log k)$. This proves Lemma~\ref{lem:phragmen}.
 
 \begin{proof}[Proof of Lemma~\ref{lem:phragmen}]
 For an arbitrarily small constant $\eps>0$ and a committee size $k$, consider an instance where $N=\{n_0, \cdots, n_k\}$, $C=\{c_0, \cdots, c_k\}$, $s_{n_j}=1$ and $C_{n_j}=\{c_i: \ 1\leq i\leq j\}$ for each $1\leq j\leq k$, and $s_0=1/(H_k - \eps)$ with $C_{n_0}=\{c_0\}$; see Figure~\ref{fig:phragmen}. 

@@ -18,12 +18,12 @@ Both validators and nominators thus put their tokens at stake and receive econom
 Polkadot~\cite{burdges2020overview} is a blockchain network launched in 2020 which implements NPoS.
 
 Having the nominator role in the system allows for a massive number of users to indirectly participate in the consensus protocol, in contrast to the number of elected validators which due to operational limitations remains bounded, typically in the order of hundreds. 
-This allows for an unlimited amount of stake to back validators, much higher than any single user's holding. 
+This allows for a large amount of stake to back validators, much higher than any single user's holding. 
 Intuitively, the higher the stake backing the validators, the higher the \textbf{security} of the network; we make this intuition formal further below. 
 As such, one of the goals of the validator election rule is to maximize the stake backing all elected validators. 
 The second, equally important goal is \textbf{proportionality}, i.e.~picking a committee where nominators are represented in proportion to their stake. 
 We highlight that diverse preferences and factions will naturally arise among nominators for reasons that range from economic and technical to political, geographical, etc. 
-Such diversity of points of view is expected and welcome in a distributed system, and a proportional committee will keep the system decentralized and its users satisfied.
+Such diversity of points of view is expected and welcome in a distributed system, and having a committee with proportionality guarantees helps keep the system decentralized and its users satisfied.
 
 
 \emph{Proportional representation in multiwinner elections.}
@@ -47,7 +47,7 @@ Only very recently have efficient algorithms that achieve PJR or EJR finally bee
 
 Among these axioms, we set to achieve \textbf{PJR}, defined formally in Section~\ref{s:prel}, for two reasons. 
 First, because it is more \emph{Sybil resistant}~\cite{douceur2002sybil} than JR, meaning that a strategic voter may be incentivized to assume several nominator identities in the network under JR, but not under PJR. 
-Second, because PJR seems to be most compatible with our security objective, as we argue further below. Indeed, as argued in~\cite{peters2019proportionality} and \cite{lackner2020approval}, the PJR and EJR axioms correspond to different notions of proportionality: while EJR is primarily concerned with the general welfare or satisfaction of the voters, PJR considers proportionality of the voters' decision power. 
+Second, because PJR seems to be most compatible with our security objective. Indeed, as argued in~\cite{peters2019proportionality} and \cite{lackner2020approval}, the PJR and EJR axioms correspond to different notions of proportionality: while EJR is primarily concerned with the general welfare or satisfaction of the voters, PJR considers proportionality of the voters' decision power, and our security objective aligns with the latter notion as we explain below.
 
 \emph{The security goal: fighting overrepresentation.} 
 In a PoS-based consensus protocol, we want a guarantee that as long as most of the stake is in the hands of actors that behave honestly or rationally, carrying any attack will be very costly. If we assume that the attack requires control of some minimum number of validators to succeed, the adversary would need to use its stake to get these validators elected. The security level is hence proportional to how difficult it is for an entity to gain overrepresentation in the validator election protocol. 
@@ -60,18 +60,21 @@ This gives a different objective for each value of threshold $r$.
 For example, for $r=1$, maximizing this objective is equivalent to the classical multiwinner approval voting: selecting the $k$ candidates $c\in C$ with highest total approval $\sum_{n\in N: \ c\in C_n} s_n$. 
 If we are only concerned about a particular threshold, e.g. $r=\lceil(k+1)/3\rceil$ for a $34\%$ attack%
 \footnote{This is the minimum threshold required to carry on a successful attack in classical Byzantine fault tolerant protocols~\cite{pease1980reaching}.}, 
-then we can fix the corresponding objective. However, different types of attacks require different thresholds, and some attacks succeed with higher probability with more attacking validators. Hence, a more pragmatic approach is to incorporate the threshold into the objective, and maximize \emph{the least possible per-validator cost over all thresholds}, i.e.  
+then we can fix the corresponding objective. However, different types of attacks require different thresholds, and some attacks succeed with higher probability with more attacking validators. Hence, a more pragmatic approach is to incorporate the threshold into the objective and maximize \emph{the least possible per-validator cost over all thresholds}, i.e.  
 \begin{align}\label{eq:security}
     \text{Maximize } \min_{A'\subseteq A, A'\neq \emptyset} \quad \frac{1}{|A'|} \sum_{n\in N: \ C_n\cap A' \neq \emptyset} s_n, \quad \text{over all committees $A\subseteq C$ with $|A|=k$}.
 \end{align}
 
 We establish in Lemma \ref{lem:equivalence} that this objective is equivalent to the \textbf{maximin support objective}, recently introduced by Sánchez-Fernández et al.~\cite{sanchez2016maximin}, and which we thus set to optimize. 
+We define it formally in Section~\ref{s:prel}.
 %To define this last objective, which we do formally in Section~\ref{s:prel}, one needs the election rule to establish not only a winning committee $A\subseteq C$, but also a \emph{vote distribution}; that is, a fractional distribution of each voter $n$'s vote strength $s_n$ among her approved committee members in $C_n\cap A$.%
 %\footnote{This is called a \emph{support distribution function} in~\cite{sanchez2016maximin}, and is related to the notion of a \emph{price system} in~\cite{peters2019proportionality}.} 
 %For instance, for voter $n$ the election rule may assign a third of $s_n$ to $c_1$ and two thirds of $s_n$ to $c_2$, where $c_1, c_2\in C_n\cap A$. 
 %The objective is then to maximize, over all possible committees and distributions, the least amount of vote assigned to any committee member. 
 %We observe here that unlike most other applications of multiwinner elections, in NPoS there is practical utility in computing a vote distribution from nominators to the elected validators: by reversing its sense, it establishes the exact way in which the validators' payouts or penalties must be distributed back to the nominators.
-The authors in~\cite{sanchez2016maximin} remark that the corresponding problem is NP-hard, but do not study its approximability. They also prove that in its exact version it is equivalent to another objective, $\maxphragmen$, devised by Phragm\'{e}n and recently analyzed in~\cite{brill2017phragmen}, and in this last paper it is shown that $\maxphragmen$ is incompatible with EJR. Thus, the same incompatibility holds for our security objective. 
+The authors in~\cite{sanchez2016maximin} remark that in its exact version, maximin support is equivalent to another objective, $\maxphragmen$, devised by Phragm\'{e}n and recently analyzed in~\cite{brill2017phragmen}, and in this last paper it is shown that $\maxphragmen$ is NP-hard and incompatible with EJR. 
+Thus, the same hardness and incompatibility with EJR holds true for our security objective. 
+To the best of our knowledge, the approximability of maximin support has not previously been studied.
 
 \textbf{Our contribution.}
 Our security analysis in the election of validators leads us to pursue the goal of fighting overrepresentation, and more specifically to the maximin support objective.  
@@ -85,7 +88,7 @@ There is an efficient election rule for approval-based committee elections that 
 Our proposed election rule is inspired in the $\phragmen$ method~\cite{brill2017phragmen}, and to the best of our knowledge corresponds to the first analysis of approximability for a Phragm\'{e}n-like method. 
 In contrast, several approximation algorithms for Thiele methods have been proposed; see~\cite{lackner2020approval} for a survey. 
 %
-Our optimization approach to proportional representation also provides new tools to discern between different election rules. For instance, $\MMS$~\cite{sanchez2016maximin} and $\phragmen$~\cite{brill2017phragmen} are two efficient rules that achieve the PRJ property, but while the former provides a constant-factor approximation guarantee for maximin support, the latter does not (Section~\ref{s:complexity}). 
+Our optimization approach to proportional representation also provides new tools to discern between different election rules. For instance, $\MMS$~\cite{sanchez2016maximin} and $\phragmen$~\cite{brill2017phragmen} are two efficient rules that achieve the PRJ property, but we show that while the former provides a constant-factor approximation guarantee for maximin support, the latter does not (Section~\ref{s:complexity}). 
 %
 Next comes the question of applicability: the blockchain architecture adds very stringent time constraints to computations, and may render all but the simplest algorithms unimplementable.%
 %
@@ -96,7 +99,8 @@ This is because, in order to reach consensus on a protocol, validators typically
 However, if an output can be \emph{verified} much faster than it can be computed, then it is possible to dump the computation to \emph{off-chain workers}, who execute it privately and separately from block production, leaving only the output verification task to validators. This is the case for our election rule.
 
 \begin{theorem}\label{thm:intro2}
-There is a test that takes as input an election instance and an arbitrary solution to it, such that a) the test runs in linear time in the size of the input, b) if the solution passes the test, then it simultaneously satisfies the PJR property and provides a 3.15-factor approximation guarantee for the maximin support objective, and c) the output of the election rule mentioned in Theorem~\ref{thm:intro1} always passes this test.
+There is a linear-time test that takes as input an election instance and an arbitrary solution to it, such that if the test passes then the input solution satisfies the PJR property and a 3.15-factor approximation guarantee for the maximin support objective. 
+Moreover, the output of the election rule mentioned in Theorem~\ref{thm:intro1} always passes this test.
 \end{theorem}
 
  We believe this to be the most important feature of our proposed election rule relative to others in the literature. 
@@ -114,7 +118,8 @@ There is an efficient computation that takes as input an election instance and a
 We start with a thorough complexity analysis of the maximin support problem in Section~\ref{s:complexity}, 
 where we exhibit several approximation algorithms for it, and prove as well that it does not admit a PTAS% 
     \footnote{A \emph{polynomial time approximation scheme} (PTAS) for an optimization problem is an algorithm that, for any constant $\eps>0$ and any given instance, returns a $(1+\eps)$-factor approximation in polynomial time.} %
-unless P=NP so constant-factor approximations are best possible.
+unless P=NP so constant-factor approximations are best possible. 
+Interestingly, many of our approximation analyses are based on network flow theory. 
 %
 In Section~\ref{s:heuristic} we propose a new heuristic, $\phragmms$, inspired in $\phragmen$~\cite{brill2017phragmen} but allowing for a more robust analysis and better guarantees than the latter both in terms of the PJR property and the maximin support objective. We use it to prove Theorem~\ref{thm:intro1} and obtain the fastest known algorithm that simultaneously guarantees a) the PJR property and b) a constant-factor approximation for maximin support.
 

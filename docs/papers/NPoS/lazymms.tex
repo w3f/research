@@ -1,48 +1,64 @@
-\section{The $\lazy$ algorithm}\label{s:lazymms}
+\section{A lazy greedy algorithm}\label{s:lazymms}
 
-In this section we present $\lazy$, a variant of $\MMS$ (Algorithm~\ref{alg:mms}) that is faster by a factor $\Theta(k)$ and offers virtually the same approximation guarantee, and we prove Theorem~\ref{thm:2eps}.
-
-We remark that this algorithm does not necessarily satisfy PJR, though this fact becomes irrelevant as in Section~\ref{s:local} we provide a post-computation which preserves the approximation guarantee and ensures PJR (see Theorem~\ref{thm:enabler}). The complexity of such post-computation is dominated by that of the main algorithm.
-
-Algorithm $\lazy$ is lazier than $\MMS$ in the sense that for each candidate that it explores, it decides on the spot whether to add it to the current partial solution, if the candidate is "good enough", or discard it. 
-Hence, the algorithm performs a single pass over the candidate set, instead of $k$ passes. 
-For a target support value $t\geq 0$ given as input, the algorithm either succeeds and returns a full solution $(A,w)$ with $supp_w(A)\geq t$, or it returns a failure message. 
-However, as we prove next, for low enough values of $t$ the algorithm is guaranteed to succeed.
+In this section we prove Theorem~\ref{thm:2eps} and present $\lazy$ (Algorithm~\ref{alg:lazy}), a variant of $\MMS$ (Algorithm~\ref{alg:mms}) that is faster by a factor $\Theta(k)$ and offers virtually the same approximation guarantee.
 
 \begin{algorithm}[htb]\label{alg:lazy}
 \SetAlgoLined
-\KwData{Approval graph $G=(N\cup C, E)$, vector $s$ of vote strengths, committee size $k$, target support $t\geq 0$.}
-Initialize $A=\emptyset$\ and $w=0\in\R^E$\;
-\For{each candidate $c\in C$ (over an arbitrary traversing order in $C$)}{
-Compute a balanced edge weight vector $w_c$ for $A+c$\;
-\If{$supp_{w_c}(A+c)\geq t$}{
-Update $A\leftarrow A+c$ and $w\leftarrow w_c$\;
-\lIf{$|A|=k$}
-{
-    \Return $(A,w)$
-}
-}
+\KwData{Approval graph $G=(N\cup C, E)$, vector $s$ of vote strengths, committee size $k$, threshold support $t\geq 0$.}
+Initialize $A=\emptyset$, $w=0\in\R^E$, and $U=C$ \quad \emph{// $U$ is the set of ``uninspected'' candidates} \;
+\While{$U\neq \emptyset$}{
+	Find $c_{\max}\in \argmax_{c'\in U} score(c')$ \quad \emph{// try the uninspected candidate with highest score} \;
+	Remove $c_{\max}$ from $U$\;
+	Compute a balanced edge weight vector $w'$ for $A+c_{\max}$\;
+	\If(\quad \emph{// candidate is ``good enough'' to add}){$supp_{w'}(A+c_{\max})\geq t$}{
+		Update $A\leftarrow A+c_{\max}$ and $w\leftarrow w'$ \;
+		\lIf{$|A|=k$} { \Return $(A,w)$}
+	}
 }
 \Return a failure message\;
 \caption{$\lazy$}
 \end{algorithm}
 
+Algorithm $\lazy$ is lazier than $\MMS$ in the sense that for each candidate it inspects, it decides on the spot whether to add it to the current partial solution, if the candidate is "good enough", or permanently reject it. In particular, each inspected candidate entails the computation of a single balanced weight vector, as opposed to $O(k)$ in $\MMS$. Clearly, in each of the $O(|C|)$ iterations the complexity is dominated by this computation, which takes time $\bal$ (the highest score in $U$ can be computed in time $O(|E|\log k)$ with a variant of Algorithm $\maxscore$; see Theorem~\ref{thm:runtimes}). 
+
+For a threshold $t\geq 0$ given as input, the algorithm either succeeds and returns a full solution $(A,w)$ with $supp_w(A)\geq t$, or it returns a failure message. 
+The idea is then to run trials of $\lazy$ over several input thresholds $t$, where each trial executes in time $O(\bal\cdot |C|)$, performing binary search to converge to a value of $t$ where it flips from failure to success, and return the output of the last successful trial. 
+We start by proving that for low enough values of $t$, the algorithm is guaranteed to succeed. 
+We highlight that in the following proof the order in which the candidate set is traversed (i.e.~always selecting the uninspected candidate with highest score) is irrelevant. 
+
 \begin{lemma}\label{lem:success}
-If $(A^*, w^*)$ is an optimal solution to the given instance of maximin support, and $t^*=supp_{w^*}(A^*)$, then for any input target $t$ with $0\leq t\leq t^*/2$, Algorithm $\lazy$ is guaranteed to succeed.
+If $(A^*, w^*)$ is an optimal solution to the given instance of maximin support, and $t^*=supp_{w^*}(A^*)$, then for any input threshold $t$ with $0\leq t\leq t^*/2$, Algorithm $\lazy$ is guaranteed to succeed.
 \end{lemma}
 
 \begin{proof}
-Assume by contradiction that for some input target $t\leq t^*/2$, $\lazy$ fails. Thus, after traversing the whole candidate set $C$, the algorithm ends up with a partial solution $(A,w)$ with $|A|<k$ and $supp_w(A)\geq t$. By Lemma~\ref{lem:2sols}, there must be a candidate $c'\in A^*\setminus A$ and a feasible solution $(A+c', w')$ such that $supp_{w'}(A+c')\geq t$. Notice as well that for any subset $S$ of $A+c'$, vector $w'$ provides a support of at least $t$, so any balanced weight vector for $S$ also provides a support of at least $t$. This implies that at whichever point the algorithm inspected candidate $c'$, it should have included it in the partial solution, which at that time was a subset of $A$. Hence, $c'$ should be contained in $A$, and we reach a contradiction.
+Assume by contradiction that for some input threshold $t\leq t^*/2$, $\lazy$ fails. Thus, after traversing the whole candidate set $C$, the algorithm ends up with a partial solution $(A,w)$ with $|A|<k$ and $supp_w(A)\geq t$. By Lemma~\ref{lem:2sols}, there must be a candidate $c'\in A^*\setminus A$ and a feasible solution $(A+c', w')$ such that $supp_{w'}(A+c')\geq t$. Notice as well that for any subset $S$ of $A+c'$, vector $w'$ provides a support of at least $t$, so any balanced weight vector for $S$ also provides a support of at least $t$. This implies that at whichever point the algorithm inspected candidate $c'$, it should have included it in the partial solution, which at that time was a subset of $A$. Hence, $c'$ should be contained in $A$, and we reach a contradiction.
 \end{proof}
 
-The idea is then to run trials of $\lazy$ over several input values of target $t$, performing binary search to converge to a value where it flips from failure to success, and return the output of the last successful trial. Each trial clearly executes in time $O(B\cdot |C|)$. 
-In the next lemma we establish the number of trials needed to achieve a solution whose value is within a factor $(2+\eps)$ from optimal for any $\eps>0$. This in turn proves Theorem~\ref{thm:2eps}.
+In the next lemma we establish the number of trials needed to achieve a solution whose value is within a factor $(2+\eps)$ from optimal for any $\eps>0$. 
 
 \begin{lemma}\label{lem:lazybinary}
-For any $\eps>0$, $O(\log(1/\eps))$ iterations of $\lazy$ are sufficient to obtain a solution whose value is within a factor $(2+\eps)$ from optimal.
+For any $\eps>0$, $O(\log(1/\eps))$ trials of $\lazy$ are sufficient to obtain a solution whose maximin support value is within a factor $(2+\eps)$ from optimal.
 \end{lemma}
 
 \begin{proof}
-We start by computing an $\alpha$-factor estimate of the optimal objective value $t^*$, for some constant $\alpha$. For instance, in Section~\ref{s:315} we provide a $3.15$-approximation algorithm that executes in time $O(B\cdot k)$. If $t$ is the objective value of its output, and we initialize the variables $t'\leftarrow t/2$, $t''\leftarrow \alpha\cdot t$, then we have the properties that $t'<t''$ and that $\lazy$ succeeds for target $t'$ and fails for target $t''$. We keep these properties as loop invariants as we perform binary search over Algorithm $\lazy$, in each iteration setting the new target value to the geometric mean of $t'$ and $t''$. This way, the ratio $t''/t'$ starts with a constant value $2 \alpha$, and is square-rooted in each iteration. 
-By Lemma~\ref{lem:success}, to achieve a $(2+\eps)$-factor guarantee it suffices to find target values $t'<t''$ such that $\lazy$ succeeds for $t'$ and fails for $t''$ and whose ratio is bounded by $t''/t'\leq 1+\eps/2$, and return the output for $t'$. If it takes $r+1$ iterations for our binary search to bring this ratio below $(1+\eps/2)$, then $(2\alpha)^{1/2^r} > (1+\eps/2)$, so $r= O(\log (\eps^{-1} \log(\alpha))) = O(\log(\eps^{-1}))$. This completes the proof. 
+First, we need to compute an $\alpha$-factor estimation of the optimal objective value $t^*$. 
+One way to do that is to use the $\balanced$ algorithm (Section~\ref{s:315}), which provides an approximation guarantee of $\alpha=3.15$ and runs in time $O(\bal\cdot k)$.%
+\footnote{In fact, it can be checked that the $\balanced$ algorithm is equivalent to an execution of $\lazy$ with threshold $t=0$.} 
+If $t$ is the objective value of its output, and we initialize the variables $t'\leftarrow t/2$, $t''\leftarrow \alpha\cdot t$, then we have the properties that $t'<t''$ and that $\lazy$ succeeds for threshold $t'$ and fails for threshold $t''$. We keep these properties as loop invariants as we perform binary search over Algorithm $\lazy$, in each iteration setting the new threshold value to the geometric mean of $t'$ and $t''$. This way, the ratio $t''/t'$ starts with a constant value $2 \alpha$, and is square-rooted in each iteration. 
+By Lemma~\ref{lem:success}, to achieve a $(2+\eps)$-factor guarantee it suffices to find threshold values $t'<t''$ such that $\lazy$ succeeds for $t'$ and fails for $t''$ and whose ratio is bounded by $t''/t'\leq 1+\eps/2$, and return the output for $t'$. If it takes $T+1$ iterations for our binary search to bring this ratio below $(1+\eps/2)$, then $(2\alpha)^{1/2^T} > (1+\eps/2)$, so $T= O(\log (\eps^{-1} \log(\alpha))) = O(\log(\eps^{-1}))$. This completes the proof. 
+\end{proof}
+
+Finally, we prove that whenever Algorithm $\lazy$ succeeds and returns a full solution, this solution satisfies PJR. For this, we exploit the order in which we inspected the candidates. This completes the proof of Theorem~\ref{thm:2eps}. 
+
+\begin{lemma}
+For any input threshold $t$, at the end of each iteration of Algorithm $\lazy$ we have that if $(A,w)$ is the current partial balanced solution, then $supp_w(A)\geq \max_{c'\in C\setminus A} score_{(A,w)}(c')$. 
+Therefore, if threshold $t$ is such that the algorithm succeeds and returns a full solution, this solution satisfies PJR.
+\end{lemma}
+
+\begin{proof}
+The second statement immediately follows from the first one together with Lemma~\ref{lem:localopt}, hence we focus on proving the first statement. 
+Fix an input threshold $t$ and some iteration of $\lazy$, and let $(A,w)$ be the partial solution at the end of it. 
+We consider three cases. Case 1: If all candidates inspected so far have been added to the solution, then up to this point the construction coincides with Algorithm $\balanced$, and the claim follows by Lemma~\ref{lem:315localoptimality}. 
+Case 2: Suppose the last iteration was the first to reject a candidate, and let $c'$ be this candidate. Then, $c'$ has the highest score in $C\setminus A$, and we claim that this score must be below threshold $t$, and hence below $supp_w(A)$. Otherwise, by Lemma~\ref{lem:insert} we have that Algorithm $\ins(A,w,c',t)$ could find a weight vector that gives $A+c'$ a support above $t$, so a balanced weight vector would also give $A+c'$ a support above $t$ which contradicts the fact that $c'$ was rejected. 
+Case 3: If a candidate was rejected in a previous iteration, then at the time of the first rejection we had that the highest score in $C\setminus A$ was below $t$, and this inequality must continue to hold true by Lemma~\ref{lem:2balanced}, because scores can only decrease in future iterations. This completes the proof.
 \end{proof}
