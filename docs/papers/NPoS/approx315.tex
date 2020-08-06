@@ -139,14 +139,14 @@ Therefore, the formula above is actually a lower bound on the flow going from $N
 \end{tikzpicture}
 }
 \end{center}
-\caption{Flow $f'$ can only visit nodes in $N'$, $A^*\setminus A'$ and $A^*\setminus A$.}
+\caption{Flow $f'$ can only visit nodes in $N'$, $A^*\cap A'$ and $A^*\setminus A$.}
 \label{fig:sets}
 \end{figure}
 
 As a warm-up, we show how this last result easily implies a $4$-approximation guarantee for $\balanced$.
 
 \begin{lemma}
-If $(A,w)$, $(A^*,w^*)$ and $t^*$ are as in Lemma~\ref{lem:N_a}, there is a candidate $c'\in A^*\setminus A$ with $score_w(c')\geq t^*/4$. Therefore, $\balanced$ provides a $4$-approximation for the maximin support problem.
+If $(A,w)$, $(A^*,w^*)$ and $t^*$ are as in Lemma~\ref{lem:N_a}, there is a candidate $c'\in A^*\setminus A$ with $score(c')\geq t^*/4$. Therefore, $\balanced$ provides a $4$-approximation for the maximin support problem.
 \end{lemma}
 
 \begin{proof}
@@ -173,7 +173,7 @@ $$\sum_{i\in I} a_i f(x_i) = \int_{\chi}^{\infty} f'(x) \big(\sum_{i\in I: \ x_i
 \end{lemma}
 
 \begin{lemma}\label{lem:candidate315}
-If $(A,w)$, $(A^*,w^*)$ and $t^*$ are as in Lemma~\ref{lem:N_a}, there is a candidate $c'\in A^*\setminus A$ with $score_w(c')\geq t^*/3.15$. Therefore, $\balanced$ provides a $3.15$-approximation for the maximin support problem.
+If $(A,w)$, $(A^*,w^*)$ and $t^*$ are as in Lemma~\ref{lem:N_a}, there is a candidate $c'\in A^*\setminus A$ with $score(c')\geq t^*/3.15$. Therefore, $\balanced$ provides a $3.15$-approximation for the maximin support problem.
 \end{lemma}
 
 \begin{proof}

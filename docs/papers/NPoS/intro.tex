@@ -85,14 +85,14 @@ We show in this paper that these two objectives complement each other well, and 
 There is an efficient election rule for approval-based committee elections that simultaneously achieves the PJR property and a 3.15-factor approximation guarantee for the maximin support objective.
 \end{theorem}
 
-Our proposed election rule is inspired in the $\phragmen$ method~\cite{brill2017phragmen}, and to the best of our knowledge corresponds to the first analysis of approximability for a Phragm\'{e}n-like method. 
-In contrast, several approximation algorithms for Thiele methods have been proposed; see~\cite{lackner2020approval} for a survey. 
+Our proposed election rule is inspired in the $\phragmen$ method~\cite{brill2017phragmen}, and to the best of our knowledge we present the first analysis of approximability for a Phragm\'{e}n objective. 
+In contrast, several approximation algorithms for Thiele objectives have been proposed; see~\cite{lackner2020approval} for a survey. 
 %
-Our optimization approach to proportional representation also provides new tools to discern between different election rules. For instance, $\MMS$~\cite{sanchez2016maximin} and $\phragmen$~\cite{brill2017phragmen} are two efficient rules that achieve the PRJ property, but we show that while the former provides a constant-factor approximation guarantee for maximin support, the latter does not (Section~\ref{s:complexity}). 
-%
+Our optimization approach to proportional representation also provides new tools to discern between different election rules. For instance, $\MMS$~\cite{sanchez2016maximin} and $\phragmen$~\cite{brill2017phragmen} are two efficient rules that achieve the PRJ property, but we show that while the former provides a constant-factor approximation guarantee for maximin support, the latter does not; see Section~\ref{s:complexity}. 
+
 Next comes the question of applicability: the blockchain architecture adds very stringent time constraints to computations, and may render all but the simplest algorithms unimplementable.%
 %
-\footnote{For instance, the PoS-based project EOS uses multiwinner approval voting to elect a validator committee, which is a highly efficient election rule but is known to perform poorly in terms of proportionality. This has lead to user dissatisfaction and claims of excessive centralization. 
+\footnote{For instance, the PoS-based project EOS uses multiwinner approval voting (AV) to elect a validator committee, which is a highly efficient election rule but is known to perform quite poorly in terms of proportionality. This has lead to user dissatisfaction and claims of excessive centralization. 
 For an analysis, we refer to the blogpost ``EOS voting structure encourages centralization'' by Priyeshu Garg at \url{https://cryptoslate.com/eos-voting-structure-encourages-centralization/}} %
 % 
 This is because, in order to reach consensus on a protocol, validators typically need to execute it individually, and no further blocks can be produced until most validators finish the computation and agree on the output. 
@@ -107,7 +107,7 @@ Moreover, the output of the election rule mentioned in Theorem~\ref{thm:intro1} 
 Such efficient verification helps ensure transparency in a decentralized governance process, and might be of independent interest.  
 In the context of our motivating application, it makes our election rule implementable into a fast blockchain validator election protocol which provides strong and verifiable guarantees on security and proportionality. 
 We provide details on such a protocol in Section~\ref{s:objectives}, which will be the basis for an implementation in the Polkadot network.
-%
+
 Finally, we derive from the new election rule a post-computation which, when paired with any approximation algorithm for the maximin support problem, makes it also satisfy PJR in a black-box manner.
 
 \begin{theorem}\label{thm:intro3}

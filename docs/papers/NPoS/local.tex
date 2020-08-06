@@ -123,10 +123,10 @@ For any parameter $\eps>0$ and a feasible full solution $(A,w)$, let $(A',w')$ b
 This proves Theorem~\ref{thm:intro3}. 
 Notice that point~\ref{item:iterations} establishes that $\LSPJR$ can be executed as a post-computation of any constant-factor approximation algorithm for maximin support in time $O(|E|\cdot k\log k)$. In particular, this complexity is dominated by that of all constant-factor approximations presented in this paper.
 By point~\ref{item:infinity}, the algorithm can be sped up if we only care about standard PJR, or run further iterations to achieve a stronger parametric PJR guarantee. 
-For the proof, we will need the following simple observation whose proof is delayed to Appendix~\ref{s:proofs}.
+In the proof, we use the observation below whose proof is skipped as it follows from the definitions of slack and pre-score.
 
 \begin{lemma}\label{lem:sameweight}
-For a feasible vector $w\in \R^E$, two committees $A\subseteq A'$, and any threshold $t\geq 0$ it holds that $prescore_{(A,w)}(c',t)\geq score_{(A',w)}(c',t)$ for each candidate $c'\in C\setminus A'$.
+For a feasible vector $w\in \R^E$, two committees $A\subseteq A'$, and any threshold $t\geq 0$ it holds that $prescore_{(A,w)}(c',t)\geq prescore_{(A',w)}(c',t)$ for each candidate $c'\in C\setminus A'$.
 \end{lemma}
 
 \begin{proof}[Proof of Theorem~\ref{thm:enabler}]
