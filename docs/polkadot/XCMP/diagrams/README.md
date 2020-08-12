@@ -6,5 +6,5 @@ This folder contains the diagram of the current XCMP/SPREE process. The diagram 
 
 * https://app.diagrams.net/
 * https://github.com/jgraph/drawio
-* https://github.com/jgraph/drawio-desktop/releases/tag/v13.6.2
+* https://github.com/jgraph/drawio-desktop/releases
 
