@@ -1,8 +1,12 @@
 # XCMP/SPREE Diagram
 
-This folder contains the diagram of the current XCMP/SPREE process. The diagram is created with the tool "draw.io", which is an open source project.
+The diagram of the current XCMP/SPREE process.
 
-## Links
+![XCMP/SPREE Diagram](./xcmp_spree_diagram.svg)
+
+## Editing
+
+The diagram is created with the tool "draw.io", which is an open source project.
 
 * https://app.diagrams.net/
 * https://github.com/jgraph/drawio
