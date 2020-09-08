@@ -32,7 +32,7 @@ News
     Alistair gave a `talk <https://www.youtube.com/watch?v=mk8GWCczXHo>`_ in CV labs on shared security.
 
 **01.07.20**:
-    `Jonas <https://w3f-research.readthedocs.io/en/latest/research_team_members/Jonas.html>`_ has started an internship research position to apply insights from behavioral economics and to analyze the human interaction with the protocol.
+    :doc:`Jonas <research_team_members/Jonas>` has started an internship research position to apply insights from behavioral economics and to analyze the human interaction with the protocol.
 
 **28.06.20**:
     Alistair has designed a succinct GRANDPA protocol.
@@ -86,7 +86,7 @@ News
     We published a medium blogpost on `XCMP <https://medium.com/web3foundation/polkadots-messaging-scheme-b1ec560908b7>`_ giving an overall overview of XCMP and descriping a number of design decisions.
 
 **20.12.19**
-    We updated our `XCMP implementation considerations <https://research.web3.foundation/en/latest/polkadot/XCMP.html>`_.
+    We updated our :doc:`XCMP implementation considerations <polkadot/XCMP>`.
 
 **05.12.19**
     Handan has finished a paper titled: `Consensus on Clock in Universally Composable Timing Model <https://eprint.iacr.org/2019/1348.pdf>`_. It is an updated version of Ouroboros Clepsydra that doesn’t rely on existence of some syncronized parties anymore.

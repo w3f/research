@@ -2,7 +2,7 @@
 
 ![](Jeff.jpg){: width="150px" align="right" alt="Jeff Burdges"}
 
-Jeff Burdges is an applied cryptography researcher working with the [Web3 foundation](https://research.web3.foundation/en/latest/), where he works on cryptography for decentralized and/or privacy preserving protocols.
+Jeff Burdges is an applied cryptography researcher working with the [Web3 foundation](../index.html), where he works on cryptography for decentralized and/or privacy preserving protocols.
 
 Jeff's work often involves collaborative randomness, specialized signature schemes like verifiable random functions (VRFs) or anonymous credentials, and increasingly both zero-knowledge proofs and incentives or mechanism design using VRFs.  He is also researching a peer-to-peer private messaging service that will use mix networks.
 
