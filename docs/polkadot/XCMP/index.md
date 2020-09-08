@@ -7,7 +7,7 @@
 ====================================================================
 # XCMP - Relay chain light client design
 
-In this document, we describe how messages are stored and retrieved for XCMP. This write up does not cover ICMP networking, but rather the emphasis is on what data is on-chain such that parachains and parathreads can be sure about which messages they have been received.
+In this document, we describe how messages are stored and retrieved for XCMP. This write up does not cover [XCMP networking](../networking/4-xcmp.html), but rather the emphasis is on what data is on-chain such that parachains and parathreads can be sure about which messages they have been received.
 
 ## Motivation
 Parachains and parathreads can have various reasons to send messages. To name a few examples: there can be a need for a token transfer, sharing/transferring smart contracts or providing a service by a parachain to another. This should all be accomodated for by XCMP. 
