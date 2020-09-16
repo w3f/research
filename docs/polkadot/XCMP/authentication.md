@@ -5,9 +5,9 @@
 **Last update**: 01.05.2020
 
 ====================================================================
-# XCMP - Relay chain light client design
+# XCMP Authentication
 
-In this document, we describe how messages are stored and retrieved for XCMP. This write up does not cover ICMP networking, but rather the emphasis is on what data is on-chain such that parachains and parathreads can be sure about which messages they have been received.
+In this document, we describe how messages are stored and retrieved for XCMP. This write up does not cover ICMP networking, but rather the emphasis is on what data is on the relay chain such that parachains and parathreads can be sure about which messages they have been received.
 
 ## Motivation
 Parachains and parathreads can have various reasons to send messages. To name a few examples: there can be a need for a token transfer, sharing/transferring smart contracts or providing a service by a parachain to another. This should all be accomodated for by XCMP. 
@@ -31,7 +31,7 @@ XCMP should accomodate for the following:
 
 (4) If a particular sending parachain sends a receiving parachain a message, and then this sending parachain produces blocks that do not send any messages to that receiver, then a collator of the receiving parachain does not need any data from full nodes or parachain validators of that particular sending parachain. In particular, this means that there is only parachain-parachain traffic when a receiver needs to act on new messages from a sender.
 
-## Assumptions 
+## High level design 
 
 A receiving parachain acts on messages in order of the relay chain block that includes the header of the parablocks that iniated that message. If multiple sending parachains have sent a receiving parachain messages in the same relay chain block then the order of messages that the receiving para will act on is according to a rule such as increasing parachain id, or alternatively a deterministic shuffle based the relay chain block number. It is reasonable to assume that a parachain can act on at least all messages sent by another single parachain in a single parablock. Hence, we can always assume once a receiving parachain has acted on a parablock in the relay chain it has acted on all messages associated to that parablock. 
 Thus there is well-defined *watermark=(relay chain block number, paraid)* that indicates the last parablock whose messages the receiving para has acted on. 
