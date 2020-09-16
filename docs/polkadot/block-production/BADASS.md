@@ -53,7 +53,7 @@ Each validator $v \in V$
 We aim to have at least $s$ VRF outputs (tickets) published on-chain (we can't really guarantee that, but the expected value will be $xS$).
 
 #### Randomness
-At the epoch $e_m$ we use the randomness $r_m$ as provided by [BABE](../BABE/Babe.html), namely
+At the epoch $e_m$ we use the randomness $r_m$ as provided by [BABE](../block-production/Babe.html), namely
 $$r_m=H(r_{m-1}, m, \rho),$$.
 We use $r_m$ to create inputs to the ring-VRF, and the corresponding tickets will be consumed in $e_{m+2}$.
 

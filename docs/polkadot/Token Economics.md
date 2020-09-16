@@ -1,6 +1,6 @@
 ====================================================================
 
-**Owners**: [Alfonso Cevallos](/research_team_members/alfonso.html), [Jonas Gehrlein](/research_team_members/jonas.html)
+**Owners**: [Alfonso Cevallos](/research_team_members/alfonso.html), [Jonas Gehrlein](/research_team_members/Jonas.html)
 
 ====================================================================
 
@@ -288,7 +288,7 @@ Finality gadget [GRANDPA](https://github.com/w3f/consensus/blob/master/pdf/grand
 
 The [availability scheme](Availability_and_Validity.md)
 
-Block production protocol [BABE](BABE/Babe.md)
+Block production protocol [BABE](block-production/Babe.md)
 
 [Parachain Validity](Availability_and_Validity.md) scheme
 

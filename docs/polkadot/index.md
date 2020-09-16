@@ -2,8 +2,8 @@
 
 TODO: talk about parachains overview, threat model, e.g. clarification to avoid misunderstandings with cosmos
 
-Polkadot consists of a main chain called the relay chain and multiple sharded chains called parachains. The relay chain is maintained by validators that are selected through the [NPoS scheme](NPoS/index.md#the-npos-scheme) and is responsible for producing blocks of the relay chain (via [BABE](BABE/Babe.md)) and keeping the state of all the parachains.
-These validators need to vote on the consensus, see [GRANDPA](GRANDPA.md), over all the parachains blocks. For parachains, there are additional actors called collators and fishermen that are responsible for parachain block production  and reporting invalid parachain blocks respectively. In the figure below an example cut-out of Polkadot with part of the relay chain, one parachain, three validators and five collators are shown.
+Polkadot consists of a main chain called the relay chain and multiple sharded chains called parachains. The relay chain is maintained by validators that are selected through the [NPoS scheme](NPoS/index.md#the-npos-scheme) and is responsible for producing blocks of the relay chain (via [BABE](block-production/Babe.md)) and keeping the state of all the parachains.
+These validators need to vote on the consensus, see [GRANDPA](finality.md), over all the parachains blocks. For parachains, there are additional actors called collators and fishermen that are responsible for parachain block production  and reporting invalid parachain blocks respectively. In the figure below an example cut-out of Polkadot with part of the relay chain, one parachain, three validators and five collators are shown.
 
 ![Figure 1 - Relay chain, Validators, Parachain, and Collators](images/data_structure.png)
 
@@ -69,7 +69,7 @@ The blocks are produced by parachain collators, then they get validated using th
 
 ![Finality](images/canonicality.png)
 
-Finality of the Polkadot network state machines is achieved via a combination of a block production mechanism with eventual probabilistic consistency ([BABE scheme](BABE/Babe.md)) and [GRANDPA finality gadget](GRANDPA.md).
+Finality of the Polkadot network state machines is achieved via a combination of a block production mechanism with eventual probabilistic consistency ([BABE scheme](block-production/Babe.md)) and [GRANDPA finality gadget](finality.md).
 
 This approach allows for block production (thus transaction confirmations) to be fast, while allowing for as fast as possible economic finality with compact proofs.
 
