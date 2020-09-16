@@ -1,4 +1,12 @@
-# GRANDPA
+====================================================================
+
+Owner: [Alistair Stewart](/research_team_members/alistair.html)
+
+====================================================================
+
+# Finality
+
+TODO: links instead of embedded PDFs, e.g. to arxiv
 
 ## GRANDPA Abstract paper
 <iframe src="../_static/pdfview/viewer.html?file=../pdf/GRANDPAabstract.pdf" width="100%" height="650em"></iframe>

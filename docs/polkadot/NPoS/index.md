@@ -1,3 +1,11 @@
+====================================================================
+
+**Owners**: [Alfonso Cevallos](/research_team_members/alfonso.html)
+
+====================================================================
+
+TODO: more links to other documents, e.g. slashing
+
 # Intro to Nominated Proof-of-Stake
 
 ![](NPoS_Cover.png)
@@ -46,4 +54,4 @@ The illustration represents a typical input to the election process, with nomina
 
 The election result on the right achieves a higher security level, and clearly does a better job at splitting the nominators’ stake into validators’ backings of roughly equal size. The goal of the NPoS election process is thus to provide a result that achieves fair representation and a security level that is as high as possible. This gives rise to a rather challenging optimization problem (it is [NP-complete](https://www.britannica.com/science/NP-complete-problem)), for which we have developed fast approximate heuristics with strong guarantees on security and scalability.
 
-We are excited about the technical developments brought forward by Polkadot, and the possibilities enabled by NPoS and other highly efficient schemes being developed in the blockchain space. To learn more about the operations side of the problem of electing validators in NPoS, go to the [technical overview of our results](1. Overview.md). 
+We are excited about the technical developments brought forward by Polkadot, and the possibilities enabled by NPoS and other highly efficient schemes being developed in the blockchain space. To learn more about the operations side of the problem of electing validators in NPoS, go to the [technical overview of our results](1. Overview.md).

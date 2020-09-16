@@ -16,7 +16,7 @@ We analyze existing protocols, come up with new ones and specify them. We work c
 Some of our current initiatives:
 
   - :doc:`Polkadot network protocol research <polkadot>`
-  - `Messaging for Web3 initiative <https://github.com/w3f/messaging>`_
+  - :doc:`General cryptography research <crypto>`
 
 Talk to us on Riot at #w3f:matrix.org or on our `forum <https://forum.web3.foundation/>`_.
 
@@ -24,10 +24,10 @@ Talk to us on Riot at #w3f:matrix.org or on our `forum <https://forum.web3.found
    :hidden:
 
    polkadot
+   crypto
    news
    Publications
    research_team_members
-
 
 .. The below hack is needed to force sphinx to include MathJax on md pages.
 

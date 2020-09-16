@@ -4,7 +4,8 @@ Research Team Members
 
 .. toctree::
    :glob:
-   
+   :maxdepth: 1
+
    research_team_members/alfonso
    research_team_members/alistair
    research_team_members/fatemeh

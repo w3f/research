@@ -2,8 +2,6 @@
 
 **Authors**: Rob Habermeier
 
-**Last updated**: 12.09.2019
-
 ====================================================================
 
 ## Block production broadcast

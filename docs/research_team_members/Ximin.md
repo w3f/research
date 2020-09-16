@@ -1,15 +1,14 @@
 # Ximin Luo
 
+ximin@web3.foundation
 
 Ximin is a research engineer at Web3 Foundation working on secure peer-to-peer networking.
-
 
 **Research Areas**
 
 Ultimately driven by the desire to see secure scalable and decentralised systems replace today's existing centralised computing systems that propagate hierarchical power relationships, Ximin's interests span a wide range of topics including: gossiping protocols, structured and unstructured peer-to-peer routing schemes, coding and secret-sharing schemes, consensus protocols, messaging protocols, decentralised naming schemes, distributed hash tables, verifiable distributed data structures, voting protocols, group authentication and applied cryptography.
 
 He tends to write code and documentation over papers.
-
 
 **Short Bio**
 

@@ -1,10 +1,16 @@
+====================================================================
+
+**Owners**: [Alfonso Cevallos](/research_team_members/alfonso.html)
+
+====================================================================
+
 # Slashing mechanisms
 
 ## General principles
 
 **Security threat levels.** The yearly interest rate of a validator pool is between 10% and 20%. So, slashing 1% of their stake is already a strong punishment (worth many weeks of work). With this in mind, we define the following security threat levels and corresponding punishments. Besides the security risk, here we also consider factors like likelihood of the misconduct happening in good faith, level of coordination/correlation among validators, and computational costs for the system.
 
-* Level 1. Misconducts that are likely to happen eventually to most validators, such as isolated cases of unresponsiveness. We slash up to 0.1% of the stake in the validator slot, or exercise non-slashing punishments only like kicking out the validator. 
+* Level 1. Misconducts that are likely to happen eventually to most validators, such as isolated cases of unresponsiveness. We slash up to 0.1% of the stake in the validator slot, or exercise non-slashing punishments only like kicking out the validator.
 
 * Level 2. Misconducts that can occur in good faith, but show bad practices. Examples are concurrent cases of unresponsiveness, and isolated cases of equivocation. We want culprits to seriously re-consider their practices, and we slash up to 1%.
 
@@ -18,7 +24,7 @@
 
 **Kicking out.** *Context: There is an NPoS election of candidates at the beginning of each era. Under normal circumstances, current validators are automatically considered as candidates in the next election (unless they state otherwise), and we keep the nominators' lists of trusted candidates unmodified (unless nominators state otherwise). On the other hand, unelected candidates need to re-confirm their candidacy in each era, to make sure they are online.*
 
-When a validator is found guilty of a misconduct: 
+When a validator is found guilty of a misconduct:
 
 a) We remove them from the list of candidates in the next NPoS validator election (for all misconducts).
 
@@ -62,7 +68,7 @@ We identify two types of detection mechanisms.
 
 * **Proof of misconduct.** The easy case is when there is a short proof of misconduct, which can be inserted on-chain as a transaction, and whose validity can be quickly verified by the block producer (hence both producing and verifying the proof can be done efficiently). An example is equivocation in Grandpa, where a proof consists of two signed votes by the same validator in the same round.
 
-* **Voting certificate.** When there is no proof of misconduct, we resort to a mechanism where all validators vote. At the end, we can issue a certificate of the voting decision, with the signed votes, and this can be used as an attestation of misconduct. All the mechanism occurs off-chain, with only the final certificate added on-chain. This procedure is resource expensive, so we avoid it whenever possible and use it only for level 4 misconducts. 
+* **Voting certificate.** When there is no proof of misconduct, we resort to a mechanism where all validators vote. At the end, we can issue a certificate of the voting decision, with the signed votes, and this can be used as an attestation of misconduct. All the mechanism occurs off-chain, with only the final certificate added on-chain. This procedure is resource expensive, so we avoid it whenever possible and use it only for level 4 misconducts.
 
 **Reporters and their rewards.** In general we give a reward to the actor(s) who run the protocols necessary to detect the culprits. We usually limit rewards to 10% of the total amount slashed, with the remainder going to treasury. So, if the council ever decides to reimburse a slashing event, most of the DOTS are readily available in treasury, and we only need to mint new DOTS to make up for the part that went to rewards. We consider three cases, depending on the detection mechanism and the security level.
 
@@ -71,18 +77,18 @@ We identify two types of detection mechanisms.
 * For misconducts of levels 3 and 4 that admit a proof of misconduct, we do as above, except that we only allow for *validators* to submit reports, and we require that the reward be shared among all nominators in the corresponding validator slot. We do this to dilute the reward and not let a single actor claim it, to avoid compounding wealth to a few. There may be several culprits and several reporters involved in the same mechanism (e.g. for rejecting set of votes in Grandpa); in any case, the total rewards are no more than 10% of the total slashings, and also no more than 100% of the slashed validators' self-stake. This last bound is to discourage an attack where a validator fails on purpose to have a personal gain at the expense of his nominators (e.g. if the same organization runs a validator A with 1% of self-stake and a validator B with 100% of sef-stake, it may be tempted to make B report A, if the reward is higher than A's self-stake). Finally, each validator reporter gets a reward no more than 20% of her own stake (an amount equal to her yearly interest rate), as this should be a large enough incentive.
 
 * For level 4 misconducts that require voting, we need **fishermen**. A fisherman is any staked actor which is running checks on the system anonymously, and at some point posts a **report** as a transaction, with some details of a suspected misconduct, but without proof. In this transaction, it also bonds some stake -- the "bait". The report starts an **inspection phase** which engages some of the validators, and which may or may not lead to a full blown **voting phase** by all validators. If there is a vote and the voting decision confirms the fisherman report, the latter gets rewarded a large amount of DOTs. Otherwise, the fisherman loses all of its bait. This last possibility discourages spamming by fisherman reports, which would lead to a lot of wasted resources. On the other hand, the reward should be large enough so that it is worth the inherent risk and the cost of constantly running checks on the system. There can be several fishermen reporting the same misconduct, and we weigh the seriousness of the threat by the total amount of bait. The higher this value, the more resources are assigned in the inspection phase. The reward is shared by all the fishermen that provided reports early on, before the start of the voting phase; thus, if a single fisherman detects a misconduct, it is in its interest to convince other fishermen or validators to join in asap to inspect it. We pay fishermen: no more than 10% of all the slashings, and no more than 100% of the slashed validators' self-stake; and we pay each fisherman no more than 10 times its own bait.
- 
+
 ## Network Protocol
 
 ### Unresponsiveness
 
 We propose two different methods to detect unresponsiveness.
 
-**Method 1.** Validators have an "I'm online" heartbeat, which is a signed message submitted on-chain every session. If a validator takes too long to send this message, we can mark them as inactive. 
+**Method 1.** Validators have an "I'm online" heartbeat, which is a signed message submitted on-chain every session. If a validator takes too long to send this message, we can mark them as inactive.
 
 The advantage of this method is that we can detect unresponsive validators very quickly, and act upon this information, for instance by ending the current era early. A disadvantage is that it only detects validators that are accidentally off-line, and not those who are purposely unresponsive as part of an attack on the system.
 
-**Method 2.** Recall that we keep counters of all the payable actions performed by each validator (blocks produced in Babe, uncle references, validity statements), and we use these counters to compute the payouts at the end of each era. In particular, validators should be able to sign validity statements of parachain blocks consistently. Thus, we can use this counter as a measure of responsiveness. Let $c_v$ be the number of validity statements signed by validator $v$ during an era. Our proposal is to consider $v$ unresponsive if 
+**Method 2.** Recall that we keep counters of all the payable actions performed by each validator (blocks produced in Babe, uncle references, validity statements), and we use these counters to compute the payouts at the end of each era. In particular, validators should be able to sign validity statements of parachain blocks consistently. Thus, we can use this counter as a measure of responsiveness. Let $c_v$ be the number of validity statements signed by validator $v$ during an era. Our proposal is to consider $v$ unresponsive if
 
 $$c_v < \frac{1}{4}\cdot \max_{v'} c_{v'},$$
 
@@ -92,9 +98,9 @@ where the maximum is taken over all validators in the same era.
 
 *Proof.* (We critically assume in this proof that validators are shuffled among parachains often enough so that, in every era, any two validators have the opportunity to validate a similar amount of parachain blocks, even if some parachains have a higher block production rate than others. If this assumption is incorrect, the threshold of $1/4$ can be lowered and the analysis can be adjusted accordingly.)
 
-Fix an era, and let $n$ be the total number of parachain blocks that a validator can *potentially* validate. Being conservative, we have $n\geq 1000$ (3 blocks per minute, 60 min per hour, 6 hours per era). Now fix a responsive validator $v$, and let $p$ be the probability that $v$ successfully issues a validity statement for any of these blocks. The value of $p$ will depend on many factors, but it should be the case that $p\geq 1/2$ if $v$ is responsive. Therefore, the number $c_v$ of validity statements produced by $v$ follows a binomial distribution with expected value $p\cdot n \geq 500$. 
+Fix an era, and let $n$ be the total number of parachain blocks that a validator can *potentially* validate. Being conservative, we have $n\geq 1000$ (3 blocks per minute, 60 min per hour, 6 hours per era). Now fix a responsive validator $v$, and let $p$ be the probability that $v$ successfully issues a validity statement for any of these blocks. The value of $p$ will depend on many factors, but it should be the case that $p\geq 1/2$ if $v$ is responsive. Therefore, the number $c_v$ of validity statements produced by $v$ follows a binomial distribution with expected value $p\cdot n \geq 500$.
 
-The crux of the argument is that this distribution is highly concentrated around its expectation. Notice that the maximum number of validity statements over all validators in this era is at most $n$. Hence, $v$ would be wrongfully considered unresponsive only if it produces $c_v < n/4\leq p\cdot n/2$ validity statements. Using Chernoff's inequality to bound the tail of the binomial distribution, we get that the probability of this occurence is at most 
+The crux of the argument is that this distribution is highly concentrated around its expectation. Notice that the maximum number of validity statements over all validators in this era is at most $n$. Hence, $v$ would be wrongfully considered unresponsive only if it produces $c_v < n/4\leq p\cdot n/2$ validity statements. Using Chernoff's inequality to bound the tail of the binomial distribution, we get that the probability of this occurence is at most
 
 $$e^{-\frac{(p\cdot n - c_v)^2}{2p\cdot n}} \leq e^{- \frac{(p\cdot n/2)^2}{2p\cdot n}} = e^{-\frac{p\cdot n}{8}}\leq e^{-\frac{500}{8}}\approx 7\cdot 10^{-28}.$$
 
@@ -105,14 +111,14 @@ We use the following slashing mechanism, which has no reporters. If at the end o
 
 $0.05\cdot \min\{\frac{3(k-1)}{n}, 1\}$
 
-from each one of them. Notice that this fraction is zero for isolated cases, less than one third of a percent for two concurrent cases (assuming $n\geq 50$), growing to 5% for the critical case when around 1/3 of all validators are unresponsive (we don't want to punish too harshly for concurrent unresponsiveness, as it could potentially happen in good faith. The parameter of 5% can be adjusted). We consider it a misconduct of level 2 if the slashing fraction is at most 1%, and of level 3 otherwise. However, we do not immediately remove unresponsive validators from the current era, as removing a validator is equivalent to marking it as unresponsive (so the cure would not be better than the disease), and because it is algorithmically simpler to just check at the end of each era. 
- 
+from each one of them. Notice that this fraction is zero for isolated cases, less than one third of a percent for two concurrent cases (assuming $n\geq 50$), growing to 5% for the critical case when around 1/3 of all validators are unresponsive (we don't want to punish too harshly for concurrent unresponsiveness, as it could potentially happen in good faith. The parameter of 5% can be adjusted). We consider it a misconduct of level 2 if the slashing fraction is at most 1%, and of level 3 otherwise. However, we do not immediately remove unresponsive validators from the current era, as removing a validator is equivalent to marking it as unresponsive (so the cure would not be better than the disease), and because it is algorithmically simpler to just check at the end of each era.
+
 ## Grandpa
 
 
 ### Unjustified vote
 
-Relative to a block $B$ that was finalized in Grandpa round $r_B$, an unjustified vote is either a pre-vote or a pre-commit signed by a validator $v$ in some round $r_v>r_B$, for a chain that does not contain $B$. Simply put, it means voting for a chain that is incompatible with the current chain of finalized blocks. 
+Relative to a block $B$ that was finalized in Grandpa round $r_B$, an unjustified vote is either a pre-vote or a pre-commit signed by a validator $v$ in some round $r_v>r_B$, for a chain that does not contain $B$. Simply put, it means voting for a chain that is incompatible with the current chain of finalized blocks.
 
 
 It follows from Grandpa paper that this can only occur if either the validator $v$ is not following the standard protocol (level 3 misconduct), or $v$ observed a *rejecting set of votes* (defined further below) for $B$ in a prior round. The detection mechanism thus works as follows. It starts when another validator $v'$ submits a transaction $T$ containing a reference to block $B$ with a proof that it is finalized, and the unjustified vote (or collection or votes in case of concurrence) relative to $B$. This transaction raises a public time-bound challenge. If the challenge goes unanswered for some time (to be defined), we slash 10% from the signer(s) of the unjustified vote(s), and reward $v'$ 10% of the slashings (as the signer(s) should be in capacity to answer the challenge if they are honest). Otherwise, any validator $v''$ can answer the challenge by, in turn, starting a detection mechanism for a *rejecting set of votes* (defined below). In that case, we finalize the current mechanism without penalizing anybody, and we keep a register of all the validators that have raised or answered challenges so far (i.e. $v'$ and $v''$), as they will all be rewarded when the culprits are eventually found.
@@ -125,7 +131,7 @@ As mentioned before, we slash 10% if a single validator is guilty of an unjustif
 
 Relative to a block $B$ finalized in round $r_B$, a rejecting set of votes is a set $S$ of votes of the same type (either pre-votes or pre-commits) and on the same round $r_S\geq r_B$, for which it is impossible to have a supermajority for $B$.
 
-Such a set implies the collusion of $>1/3$ of validators, and is one of the most dangerous attacks on the system as it can lead to finalizing blocks in different chains (see Section 4.1 in Grandpa paper). We consider it of level 4 and slash 100% from all culprits. 
+Such a set implies the collusion of $>1/3$ of validators, and is one of the most dangerous attacks on the system as it can lead to finalizing blocks in different chains (see Section 4.1 in Grandpa paper). We consider it of level 4 and slash 100% from all culprits.
 
 The detection mechanism is somewhat involved. It starts when a validator $v$ submits a transaction $T$ containing a) the rejecting set of votes $S$ in round $r_S$, b) a reference to block $B$ together with a set $C_B$ of pre-commit votes in round $r_B$ having supermajority for $B$ (proving that $B$ was finalized), and c) a reference to a previous challenge, if the current transaction is an answer to it. We now explain how to process this transaction, depending on the value of $(r_S-r_B)$ and the type of votes in $S$.
 
@@ -161,7 +167,7 @@ The rewards given to the reporters do not grow with $k$. Namely, they receive 10
 
 An invalid vote is defined as a vote (either pre-vote or pre-commit) for a chain that contains a non-validated block, i.e. a block which contains a reference to a parachain blob that is not fully validated.
 
-For the time being we propose not to slash this misconduct, because it does not lead to a dangerous attack, assuming an honest majority of Grandpa voters, and because there does not seem to be an efficient detection mechanism. 
+For the time being we propose not to slash this misconduct, because it does not lead to a dangerous attack, assuming an honest majority of Grandpa voters, and because there does not seem to be an efficient detection mechanism.
 
 As a safeguard, we only advise adjusting the Grandpa protocol so that each voter keeps track of the validity status of all relay chain blocks (and of all parachain blobs), and that by default a voter A ignores any vote from a voter B for a chain which, from the point of view of A, contains non-validated blocks. Similarly, a Grandpa voter should ignore any vote that is either currently being challenged or found to be faulty, by a procedure of unjustified vote or rejecting set of votes (see sections above).
 
@@ -171,7 +177,7 @@ As a safeguard, we only advise adjusting the Grandpa protocol so that each voter
 
 An equivocation in Babe corresponds to a block producer producing two or more relay chain blocks in the same time slot. It admits a short proof of misconduct containing references to both blocks. It can occur in good faith if a validator node is run in several computers and there is bad coordination among them, so we consider it of level 2. We ignore additional equivocations by the same validator in the same era.
 
-Equivocations do not pose a threat to Babe, unless there is a long sequence of colluding block producers who grow two branches of a fork simultaneously, but such an attack is highly unlikely to succeed as long as the colluding party is a minority. For this reason, we propose to disregard concurrent equivocations in the same era. Alternatively, we could keep a counter $k$ on the number of block producers that have equivocated so far in the current era, and slash new culprits a fraction of their stake equal to 
+Equivocations do not pose a threat to Babe, unless there is a long sequence of colluding block producers who grow two branches of a fork simultaneously, but such an attack is highly unlikely to succeed as long as the colluding party is a minority. For this reason, we propose to disregard concurrent equivocations in the same era. Alternatively, we could keep a counter $k$ on the number of block producers that have equivocated so far in the current era, and slash new culprits a fraction of their stake equal to
 
 $$\min\{(3k/n)^2, 1\},$$
 
@@ -181,7 +187,7 @@ where $n$ is the number of validators. Once this fraction is above 1%, we consid
 
 An invalid block can occur, for instance, if the block producer adds a reference to a parachain blob which has no validity statements. Invalid blocks do not pose a threat to Babe, unless there is a large fraction of block producers who decide to build on top of an invalid block, but this attack is unlikely to succeed. For this reason, we suggest not to slash this misconduct.
 
-If we eventually decide to have a slashing mechanism, we could either have all validators vote on the validity of the block. Alternatively, a block producer can include the whole invalid block in a new block, as proof of misconduct. 
+If we eventually decide to have a slashing mechanism, we could either have all validators vote on the validity of the block. Alternatively, a block producer can include the whole invalid block in a new block, as proof of misconduct.
 
 ## Parachain validity-availability protocol
 
@@ -191,7 +197,7 @@ This misconduct is defined as a parachain validator who issues a validity statem
 
 The detection mechanism is as follows. Inspection phase: in the current standard protocol, Babe block producers will add references to *minimally validated* blobs (having one validity statement). After a blob has been added to a relay chain block, the protocol will randomly select some extra validators to check the blob and provide more validity statements, until there are sufficiently many statements to make the blob *fully validated*. If one or more fishermen submit reports with a reference to certain blob, the protocol automatically adjusts, making the bar to get fully validated higher and selecting more validators to inspect that blob. These validators get paid for issuing these extra validity statements, as these are payable actions, but only the validators selected by the protocol have the right to issue them. On the other hand, fishermen are checking for the validity of blobs all the time.
 
-Voting phase: the voting phase starts as soon as there is at least one statement of validity and one statement of invalidity issued by validators for the same blob. This can happen before or after the blob is referred to in a Babe block (if before, the inspection phase is skipped; and in any case, fishermen reports are ignored once there is a statment of invalidity). When a validator sees a statement of validity and a statement of invalidity for a blob, she inspects it as well and issues a statement, so eventually most of the relay chain validators will vote (and will get paid for it as payable actions). We count the number of statement of validity, and the number of statements of invalidity: as soon as one of these numbers is $>n/3$ (where $n$ is the number of validators), and the other is not, we take the plurality vote as official. If it is decided that the blob is invalid, we slash all validators that stated otherwise and we reward all fishermen; if it is decided that the blob is valid, we slash fishermen and all validators that stated otherwise. 
+Voting phase: the voting phase starts as soon as there is at least one statement of validity and one statement of invalidity issued by validators for the same blob. This can happen before or after the blob is referred to in a Babe block (if before, the inspection phase is skipped; and in any case, fishermen reports are ignored once there is a statment of invalidity). When a validator sees a statement of validity and a statement of invalidity for a blob, she inspects it as well and issues a statement, so eventually most of the relay chain validators will vote (and will get paid for it as payable actions). We count the number of statement of validity, and the number of statements of invalidity: as soon as one of these numbers is $>n/3$ (where $n$ is the number of validators), and the other is not, we take the plurality vote as official. If it is decided that the blob is invalid, we slash all validators that stated otherwise and we reward all fishermen; if it is decided that the blob is valid, we slash fishermen and all validators that stated otherwise.
 
 If it happens that both the number of statements of validity and the number of statements of invalidity are $>n/3$, we unfortunately don't know who the culprits are (this should never happen). In this case we slash no-one (and reimburse any slashing done), and consider the blob as invalid to err on the safe side.
 

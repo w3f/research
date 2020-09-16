@@ -1,9 +1,11 @@
 # Handan Kılınç Alper
 <img style="float: right;" src="https://i.imgur.com/dNlMcBu.jpg" width = '160'>
 
+handan@web3.foundation
+
 **Tasks in Web3 Foundation:**
 
-* Designing security models for the protocols in Polkadot 
+* Designing security models for the protocols in Polkadot
 * Protocol construction and formal security analysis/proofs
 
 Some protocols in Polkadot that I work:  block production mechanism of relay chains (BABE), availability and validity and bridges.
@@ -20,7 +22,7 @@ I joined the Web3 Foundation as a research scientist at the end of 2018. Before 
 
 **Selected Publications:**
 
-* Handan Kılınç and Alptekin Küpçü. [Optimally efficient multi-party fair exchange and fair secure multi-party computation](https://eprint.iacr.org/2015/064.pdf). CT-RSA, 2015. 
+* Handan Kılınç and Alptekin Küpçü. [Optimally efficient multi-party fair exchange and fair secure multi-party computation](https://eprint.iacr.org/2015/064.pdf). CT-RSA, 2015.
 * Handan Kılınç and Alptekin Küpçü. [Efficiently Making Secure Two-Party Computation Fair](https://eprint.iacr.org/2014/896.pdf). Financial Cryptography and Data Security, 2016.
 * Handan Kılınç and Serge Vaudenay. [Efficient Public-Key Distance Bounding Protocol](https://link.springer.com/chapter/10.1007/978-3-662-53890-6_29). Asiacrypt, 2016
 * Handan Kılınç and Serge Vaudenay. [Formal Analysis of Distance Bounding with Secure Hardware](https://infoscience.epfl.ch/record/256167). ACNS, 2018.
