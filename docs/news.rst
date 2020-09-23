@@ -1,6 +1,10 @@
 ====
 News
 ====
+
+**23.09.20**:
+    Register today for `DISC 2020 <http://www.disc-conference.org/wp/disc2020/registration/>`_ (October 12-16, 2020)! W3F will host a `Workshop on Blockchain Interoperability and Sharding <https://disc2020-sharding-and-interoperability-workshop.w3f.community/>`_. Participation is free and the conference is held online.
+
 **27.08.20**:
     Fatemeh has been program committee member of USENIX Security 2021.
 
