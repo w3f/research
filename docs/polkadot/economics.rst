@@ -11,3 +11,4 @@ systems that make up Polkadot.
    :maxdepth: 1
 
    Token Economics
+   Parachain-Allocation

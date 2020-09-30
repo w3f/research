@@ -13,4 +13,3 @@ TODO: additional page about wasm execution model
    :maxdepth: 1
 
    index
-   Parachain-Allocation
