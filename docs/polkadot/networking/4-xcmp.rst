@@ -6,9 +6,9 @@
 
 \====================================================================
 
-====
-XCMP
-====
+=====================
+Cross-chain messaging
+=====================
 
 This subprotocol runs whenever the relay chain block production protocol has output a new candidate block, similar to the A&V protocol.
 
@@ -37,7 +37,7 @@ The queue is maintained by the sending parachain; it tells the relay chain what 
 
 The recipient parachain collators must monitor the state of the relay chain, in order to know if it has new incoming messages, and what messages are currently in the queue (relative to a given relay chain block head). Similarly, the sending parachain collators may monitor the state of the relay chain, in order to know if its outgoing messages have been acknowledged, and what messages remain in the queue. These are also done outside of the scope of XCMP networking; however the XCMP networking relies on the former at least to be done correctly.
 
-The relay chain & parachain validators together verify that the channel grows & is consumed, in a consistent & reliable way; this is done outside of the scope of XCMP networking. Specifically, messages must be acknowledged in the correct order for a given channel. Additionally, a recipient parachain must acknowledge at least one new message from a block, if it has any new messages (from different senders) in that block. To ensure fairness, the order in which messages from different senders are acknowledged, is pre-determined and out of the control of the recipient parachain.
+The relay chain & parachain validators together verify that the channel grows & is consumed, in a consistent & reliable way; this is done outside of the scope of XCMP networking. Specifically, messages must be acknowledged in the correct order for a given channel. Additionally, a recipient parachain must acknowledge at least one new message from a block, if it has any new messages (from different senders/channels) in that block. To ensure **fairness**, the order in which messages from different senders/channels must be acknowledged, is pre-determined and out of the control of the recipient parachain. In other words, multiple incoming channels for a given recipient are multiplexed into a single ingress queue, and the recipient must process this queue in the aforementioned pre-determined order.
 
 Expected usage profile
 ----------------------
@@ -120,16 +120,20 @@ Potential attacks in this scenario include:
   Whoever we choose to be the point-of-contact of the recipient collators, will
   be responsible for defending against these types of attacks.
 
+- Malicious sending or recipient validators receiving messages, then throwing
+  them away - similar to the above point. This is similar to our availability
+  concern in :doc:`3-avail-valid` - if we designate either sending or recipient
+  validators to forward messages on behalf of a sending parachain, they must
+  store the messages until the recipient parachain has acknowledged them. If a
+  validator group is all-malicious then we need a fallback retrieval mechanism
+  for this; unlike in :doc:`1-parachains` it is not sufficient to just wait
+  until our assigned group rotates into one that is hopefully good.
+
 XCMP networking is *not* concerned with the following:
 
-- Malicious sending or recipient validators receiving messages, then throwing
-  them away - similar to the above point. However, we do not cover this as part
-  of XCMP networking - since this is merely a special case of :doc:`parachain
-  networking <1-parachains>`, and will be solved as part of that component.
-
-- Malicious sending collators, or sending or recipient validators, sending
-  invalid messages - since recipient collators :doc:`can verify these
-  <../XCMP/index>` against the relay chain state.
+- Malicious collators sending or validators forwarding invalid messages - since
+  recipient collators :doc:`can verify these <../XCMP/index>` against the relay
+  chain state.
 
   Performing this verification requires waiting for the sent messages to appear
   on the relay chain, which takes time. It would save time, if these two
@@ -169,10 +173,13 @@ Though Polkadot does not assume any networking structure for parachains, in the
 :doc:`parachain block submission <1-parachains>` protocol we are able to
 distinguish honest vs malicious sending collators by (1) checking that they
 actually send us valid blocks and (2) measuring the throughput of valid blocks
-being sent by different collators. However with XCMP networking, we are unable
-to distinguish honest vs malicious recipient collators, since there is no
-simple way to know whether they have passed on the message body to the rest of
-the parachain (honest) or if they have dropped the message (malicious). TODO.
+being sent by different collators. However with XCMP networking, it is much
+harder to distinguish honest vs malicious recipient collators, since there is
+no simple way to know whether they have passed on the message body to the rest
+of the parachain (honest) or if they have dropped the message (malicious). We
+explore this in more detail below, including giving various concrete high-level
+proposals for addressing this, with different tradeoffs.
+
 
 Comparison with A&V
 -------------------
@@ -249,6 +256,15 @@ paras, or even collators and validators of the same para. So $R$ may have to be
 Proposal: XCMP networking, initial iteration
 ============================================
 
+FIXME. expand; also describe transition to this, from sending-validators-only.
+describe its complexity costs regarding validator-collator connections.
+
+FIXME: validators (and the sending parachain) should store each message until
+it's been acked, but what if the receiving parachain never does this? Then
+presumably the sending parachain needs to store it, and expose an interface for
+the receiving parachain to retrieve it later, but we haven't specified this
+anywhere as part of XCMP yet.
+
 Introduce the idea of recipient validator group, even for parathreads.
 
 Sending collators send message bodies to their sending validator group, as part
@@ -262,10 +278,141 @@ Recipient collators pull message bodies from their recipient validator group.
 As an optimisation, recipient validators may push to any recipient collators
 that they are already connected to.
 
+Since ingress queues may be long, recipient collators should request messages
+from (near) the front of the queue to ensure that their parachain can process
+the messages in the correct order in a timely fashion. Validators may enforce
+this at their discretion by refusing to transfer messages too far forward in
+the queue; we leave the details of this open for now - but we note that the
+mechanism described in the next section ought to discourage this without any
+explicit enforcement at this level.
+
 TODO: chains can only communicate when they've opened a channel to each other,
 the state of which is stored on-chain. We can potentially use this information
 to derive more efficient topologies for XCMP.
 
-TODO: clarify what happens during validator group rotation. This is also a
-concern of parachain networking, but the requirements here are quantitatively
-different.
+Distinguishing honest vs malicious recipient collators
+------------------------------------------------------
+
+As mentioned earlier, the lack of structure we assume about parachains, gives
+us fewer options to determine if a recipient collator is "honest" vs
+"malicious". Despite this we do still have some information we can make use of
+for this purpose, that is related to the fundamental high-level requirement of
+this part of XCMP. Recall that the purpose of having collators receive
+messages, is for their parachain to act on them, and acknowledge this to the
+Polkadot relay chain. This is an observable effect that can be observed by the
+validator, albeit indirectly and also dependent on other factors outside of
+XCMP receipt, and so we can introduce heuristics based on this to
+probabilistically distinguish honest vs malicious collators.
+
+This is analogous to the mechanism in the block submission protocol, where we
+measure bandwidth used by sending collators, vs the actual useful throughput
+(of validated PoV blocks) that the bandwidth is used for. Instead of counting
+the (potentially spammy) bandwidth consumed by the sending collator, we judge
+the receiving collator based on how quickly their parachain's ack-watermark
+advances.
+
+There are key differences to bear in mind however: in XCMP, by its very nature
+the test criteria here is more indirect and cannot be determined while the
+actual data transfer happens. Also the test criteria is not solely the
+responsibility of the particular recipient under test, so there is less of a
+competitive mechanic that incentivises honesty [#]_ - if one malicious
+recipient drops the message but another honest recipient passes it on
+correctly, the test will pass for both collators. Nevertheless, in the absence
+of other structures to make use of, this is the most direct test we can think
+of, that begins to capture the underlying characteristic of honesty.
+
+.. [#] If the ingress queue is long, then (as mentioned earlier) messages near
+  the front of the queue will be processed by the parachain first. Receiving
+  collators that behave according to protocol, i.e. choose messages near the
+  front of the queue that are more likely to be processed earlier by their
+  parachain, are less likely to end up on a validator's blacklist. So this
+  could be said to provide a weak incentive and competitive mechanism; we do
+  not rely on this fact.
+
+The rest of our protection follows a similar high-level idea as the block
+submission protocol:
+
+1. For every collator, we track which messages we send to them, as well as the
+   time it takes before we observe each message to be acknowledged on the relay
+   chain via watermark advancement. From this we can build up a whitelist and
+   a blacklist.
+
+   - For the purposes of the whitelist, we count the "time taken" from the time
+     we send the message to *any* recipient, to avoid malicious collators e.g.
+     requesting a message just before they know it will get acked on the relay
+     chain to register a low "time taken" dishonestly.
+
+     (Honest collators may sometimes get a worse "time taken" result than they
+     should have got, but this is only significant if they somehow received the
+     message much later than the initial malicious collator did, which would
+     suggest that they were inefficient anyhow.)
+
+   - For the purposes of the blacklist, we count the "time taken" from the time
+     we send the message to that particular recipient. This avoids penalising
+     honest collators who properly distributed a message quickly, even if a
+     malicious collator had previously received and dropped a message.
+
+     (Malicious collators may sometimes get a better "time taken" result than
+     they should have got, however for the purposes of the blacklist this does
+     not gain them any additional benefit, so this is OK.)
+
+     If the time taken as defined above is "too large", then we will add that
+     recipient to the blacklist and disconnect from them.
+
+2. The whitelist and blacklists are maintained and used in a similar way as in
+   the block submission protocol - the whitelist helps validators from new
+   groups "break the tie" regarding which collators to communicate with first,
+   and the blacklist helps validators avoid potentially malicious collators,
+   e.g. via usage of an IP address heat map.
+
+   As with the block submission protocol, these whitelists and blacklists are
+   not intended for use outside of this protocol, e.g. to justify rewards or
+   slashing elsewhere. They are merely heuristics and are not actual hard
+   evidence of any good or bad behaviour.
+
+FIXME: this is fiddly to implement. discuss real-world attacks and the
+possibility of omitting this protection. however future development should not
+conflict with the possibility of adding it later, in response to real-world
+attacks.
+
+One outstanding question is how specifically to choose "too large" for the
+purposes of the blacklist. It's possible to go into quite some depth on this,
+but we suspect it is best not to overthink it: more complex ways of choosing
+this limit give diminishing returns in terms of protection against attacks, the
+overall protection mechanism is an heuristic anyway, and these types of attacks
+are currently only theoretical.
+
+Therefore for an initial implementation we suggest a cutoff of 5 relay chain
+blocks for the blacklist - in other words, if a message does not appear acked
+on the relay chain after 5 relay chain blocks after a collator receives it, we
+will disconnect from that collator and choose another one to accept an incoming
+connection from. This is based on the fact that 2 is the best possible case,
+plus a small additional grace period in case parachains want to experiment with
+receiving messages slightly out-of-order for performance under parallelism.
+
+(TODO: 5 is probably too small for parathreads.)
+
+If necessary, in the future we can explore further refinements
+on top of this, based on real-world usage & experience of attacks:
+
+1. based on the average ack-gap across all paras
+2. based on historical ack-gap for that given para
+3. allow the para to securely specify what a good cut-off should be
+4. allow each validator operator to specify what the cut-off should be.
+
+or a weighted combination of these. Of course the details of (1) and (2) have
+to be chosen carefully, so as to not allow an attacker to gradually affect the
+value being used in their favour.
+
+Rotation of validator groups
+----------------------------
+
+FIXME; link with other sections
+
+A group should be active for more than the cutoff period mentioned above,
+otherwise the mechanism becomes subject to abuse by malicious validators that
+give incorrect whitelist/blacklist information.
+
+(Even with a large group rotation period, abuse is still possible but its
+effect is greatly reduced as validators have enough time to reach their own
+conclusions.)

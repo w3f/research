@@ -4,7 +4,7 @@
 
 ====================================================================
 
-# Availability and Validity (A&V) networking
+# Availability and Validity
 
 This subprotocol occurs whenever the relay chain block production protocol has output a candidate block for the current relay chain height.
 
