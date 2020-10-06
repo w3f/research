@@ -10,63 +10,36 @@
 Cross-chain messaging
 =====================
 
-This subprotocol runs whenever the relay chain block production protocol has output a new candidate block, similar to the A&V protocol.
+:doc:`/polkadot/XCMP` is Polkadot's subprotocol that enables a parachain to
+communicate with another. Like the :doc:`A&V protocol <3-avail-valid>`, an
+instance of this subprotocol starts when the relay chain block production
+protocol has :doc:`output a new candidate block <2-block-production>`.
 
-This candidate block references a bunch of parachain blocks, that might indicate that those parachains wish to send messages to other parachains. To save bandwidth, and since no other parachains need to receive the data, the message bodies are not contained within these blocks, and must be transferred separately. The purpose of this subprotocol is to do that.
+To recap, this candidate block references a bunch of parachain blocks. As
+defined by XCMP, each of those blocks might indicate that the parachain wishes
+to send messages to another parachain. To save bandwidth, and since no other
+parachains need to receive the data, the message bodies are not contained
+within these blocks, and must be transferred separately. The purpose of XCMP
+networking is to perform these transfers for the overall XCMP protocol.
 
 
 Background
 ==========
 
-TODO: much the section below should be moved to the main XCMP document.
+High-level requirements
+-----------------------
 
-XCMP high-level overview
-------------------------
-
-To recap, :doc:`XCMP <../XCMP/index>` is designed to achieve ordered, reliable, and fair delivery, under the constraint of trying to minimise the data stored on the relay chain.
-
-Terminology note: all the messages for a given (sender, block) are processed in a single batch by the recipient, so to simplify discussion without losing generality, from here on we will refer to "the" (logical) message at a given (sender, block) even though in practise this consists of multiple smaller physical messages.
-
-(Sender, recipient) parachains that wish to communicate, register with the relay chain to open a channel. This channel comprises a bounded queue of ordered messages that have been sent but not yet acknowledged by the recipient.
-
-The queue is maintained by the sending parachain; it tells the relay chain what the current head of the queue is, by including it in their next submission to the relay chain. Thus the relay chain only stores the current heads of the channels. [1]_ Every message is associated with a merkle co-path that proves it belongs to the channel, as defined by the head in the relay chain block. When the recipient acts on the message, they acknowledge this to the relay chain, by including the merkle co-path in their next submission to the relay chain.
-
-.. [1] In practise this is compressed even further across multiple channels for the same sender - we omit the details here as they are not relevant to XCMP networking; the overall "shape" is similar to the oversimplified version just described.
-
-**The main task of XCMP networking** therefore, is to distribute these messages and copaths from the senders to the recipients.
-
-The recipient parachain collators must monitor the state of the relay chain, in order to know if it has new incoming messages, and what messages are currently in the queue (relative to a given relay chain block head). Similarly, the sending parachain collators may monitor the state of the relay chain, in order to know if its outgoing messages have been acknowledged, and what messages remain in the queue. These are also done outside of the scope of XCMP networking; however the XCMP networking relies on the former at least to be done correctly.
-
-The relay chain & parachain validators together verify that the channel grows & is consumed, in a consistent & reliable way; this is done outside of the scope of XCMP networking. Specifically, messages must be acknowledged in the correct order for a given channel. Additionally, a recipient parachain must acknowledge at least one new message from a block, if it has any new messages (from different senders/channels) in that block. To ensure **fairness**, the order in which messages from different senders/channels must be acknowledged, is pre-determined and out of the control of the recipient parachain. In other words, multiple incoming channels for a given recipient are multiplexed into a single ingress queue, and the recipient must process this queue in the aforementioned pre-determined order.
-
-Expected usage profile
-----------------------
-
-Every sending parachain may send up to ~1 MB per chain height in total, to all parachains. In the most unbalanced case, this will be all to a single recipient parachain.
-
-Across all chains then, the worst case is that (C-1) parachains will each send ~1 MB to the same receiver parachain in a single block; however this need not be all distributed during the time slot for that block - see fairness below.
-
-Fairness
---------
-
-Fairness means that receivers must process received messages fairly across all senders, and we chose this mostly to ensure that no message will be left unprocessed for an infinite delay - the sender knows that the receiver must least ack its contents eventually, though they can drop the message after that. This is a value judgement made at the point-of-design of XCMP; we'll monitor its performance in practise.
-
-Although different from the internet's recipient-controlled processing, fairness does not introduce much overhead since for global ordering and reliability, message-passing is co-ordinated via the relay chain anyways, and enforcing fairness on top of this is straightforward.
-
-If recipient parachains feel that they are being spammed by certain sending parachains, they may selectively close these channels.
-
-
-Requirements
-============
-
-R1. At least one message from every (non-empty) ingress queue must be transferred to the corresponding recipient parachain, so that they may perform their obligation to ack at least one message.
+R1. At least one message from every (non-empty) ingress queue must be
+transferred to the corresponding recipient parachain, so that they may perform
+their obligation to ack at least one message.
 
 R1a. We must distribute it to *enough* collators of the recipient parachain so
-that the parachain cannot be attacked by malicious collators. TODO: currently
+that the parachain cannot be attacked by malicious collators. (TODO: currently
 "enough" is not well-defined, as Polkadot does not assume any structure in a
-parachain in order to begin defining this.
+parachain in order to begin defining this.)
 
-R2. Ideally, allow recipients to select which message(s) to receive first, subject to the fairness constraints mentioned above.
+R2. Ideally, allow recipients to select which message(s) to receive first,
+subject to the fairness constraints mentioned above.
 
 See also `security considerations`_ below.
 
@@ -85,30 +58,54 @@ the Polkadot relay chain to have actually been sent by the sending parachain.
 The Polkadot Host software should contain a concrete reference implementation
 of a gossip protocol that implements this logic.
 
+Assumptions
+-----------
+
+Polkadot (at the time of writing) does not assume much about the structure of
+parachains. The flexibility here however, means we are less flexible when
+designing how Polkadot can interface with parachains. Specifically, parachains
+in general do not have a list of specific peers that validators can initiate
+contact with; as a consequence contact must be initiated by the parachain
+collators to the Polkadot validators.
+
+This is mainly due to the fact that Polkadot wants to support permissionless
+parachains where there is no fixed membership set - it is an open research
+question how to fairly & securely select a subset of peers in such a context,
+and we are working on it separately.
+
+Our initial proposal will be built on top of this lack of structure, but we
+will briefly mention alternate design possibilities that require additional
+networking structure, that give better properties (e.g. more efficient) and may
+be feasible once we have resolved these hard questions.
+
 
 Evaluation of options
 =====================
 
-We have four obvious parties in the situation, two of which are essential to
-the existential goal:
+Since we cannot initiate connections to collators, we need to specify some
+validators that both sending collators and receiving collators can both connect
+to, that stores the message temporarily for them.
 
-[sending collators] --- [sending validators] --- [recipient validators] -- [recipient collators]
+The Polkadot design already assigns validator groups to parachains, and they
+are used in the :doc:`block submission protocol <1-parachains>` to receive PoV
+blocks sent by parachains. The PoV block includes outgoing XCMP messages, so
+via this process these validators already have the messages. So using them is
+"free" from the perspective of XCMP networking, and an obvious candidate.
 
-Therefore we have 4 primary options to look at, based on whether we omit or
-include the {sending, recipient} validators in the data flow.
+One downside of this is that receiving collators will have to connect to a
+different validator for every incoming sending parachain. So another option is
+to assign particular validators to store *incoming* messages for particular
+collators - as opposed to outgoing messages, in the previous paragraph.
+
+So these two options (or using both), are our primary options for the initial
+design. Of course, there are infinitely many other options - but for now we'll
+focus on these simple "obvious" ones and consider the consequences and
+properties of them in detail, below.
 
 Security considerations
 -----------------------
 
-Independently of any particular design choices for XCMP networking, we have the
-following security concerns.
-
-Recall that Polkadot (at the time of writing) does not assume that parachains
-have any permission system that can distinguish *at the point of initial
-communication* whether a collator is honest or malicious, or indeed if it even
-"actually belongs to" the parachain in any sense of that word.
-
-Potential attacks in this scenario include:
+We are concerned about the following threats:
 
 - Malicious recipient collators receiving messages (either via push or pull),
   then throwing them away. There is a sliding scale as to the severity of these
@@ -129,31 +126,64 @@ Potential attacks in this scenario include:
   for this; unlike in :doc:`1-parachains` it is not sufficient to just wait
   until our assigned group rotates into one that is hopefully good.
 
-XCMP networking is *not* concerned with the following:
+XCMP networking is not directly concerned with the following:
 
 - Malicious collators sending or validators forwarding invalid messages - since
-  recipient collators :doc:`can verify these <../XCMP/index>` against the relay
-  chain state.
+  by other (non-networking) parts of XCMP, collators can verify these against
+  the relay chain state.
 
-  Performing this verification requires waiting for the sent messages to appear
-  on the relay chain, which takes time. It would save time, if these two
-  processes happen in parallel:
+  However the verification process needs to inform the networking layer about
+  peers that send invalid messages, so that actions can be taken against them.
 
-  1. XCMP networking distributes message bodies from sending to recipient parachain
-  2. XCMP authentication includes sent messages onto the relay chain
+----
 
-  However (1) is initially unable to use security information from (2), and so
-  we'll need to figure out how to buffer unverifiable message bodies in a
-  secure way, as we wait for the relevant security information to arrive. A
-  future iteration of XCMP networking may attempt to cover this.
+In terms of the two main options above:
+
+- Using sending-validators only (which as we said before, is "free"), results
+  in more collator-validator connections - since every collator (of a receiving
+  parachain) must talk to a validator of every parachain sending to it.
+
+  This makes it harder to detect malicious collators - in general if you talk
+  to lots of different peers, you observe less of their behaviour, i.e. you
+  have less information to determine if they're doing the right thing or not.
+  The general principle to aim for, is to limit the different number of peers
+  you have to talk to - this makes it easier to build up an idea of how
+  efficient each peer is. (See :ref:`net-XCMP-distinguish-malicious-collators`
+  to see this applied to XCMP.)
+
+- However, using recipient-validators introduces another problem: if these
+  validators are malicious then the XCMP message may get lost entirely, which
+  would freeze that parachain - since our Fairness_ property blocks them
+  from progressing until they have processed this message.
+
+  Actually, this problem exists for sending validators as well, but since they
+  are processing the messages as part of A&V already, they have less incentive
+  to perform this type of attack. (TODO: is this true? are both validators not
+  equally incentivised?) Note that the checks in A&V only ensure availability
+  of the whole PoV block across all validators, and do not ensure it at any
+  specific validators, so is not useful here.
+
+  Therefore, we will need to specify a backup retrieval mechanism for receiving
+  collators in the event that all assigned validators are malicious and block
+  them from receiving their rightful messages.
+
+Pipelining
+----------
+
+As just mentioned, verifying incoming XCMP messages requires waiting for the
+sent messages to appear on the relay chain, which takes time. It would save
+time, if these two processes happen in parallel:
+
+1. XCMP networking distributes message bodies from sending to recipient parachain
+2. XCMP authentication includes sent messages onto the relay chain
+
+However (1) is initially unable to use security information from (2), and so
+we'll need to figure out how to buffer unverifiable message bodies in a secure
+way, as we wait for the relevant security information to arrive. A future
+iteration of XCMP networking may attempt to cover this.
 
 Other considerations
 --------------------
-
-Sending validators already have the message bodies, since they are included in
-the PoV block and distributed as part of the :doc:`A&V distribution process
-<3-avail-valid>`. So making using of them is "free" from the perspective of
-XCMP networking.
 
 Parathreads do not have an associated validator group until after they have
 produced a block. So there are no "recipient validators" in this scenario -
@@ -164,34 +194,12 @@ Whether we choose push vs pull primarily affects which parties must be publicly
 reachable - if push then the recipients must be reachable, if pull then it is
 the sender (responding to the pull request) that must be reachable.
 
-- Pull can also make it easier to protect against certain types of spam
-  attacks, but these are not relevant in the initial iteration of XCMP
-  networking, since we opted to send message bodies only after they are added
-  to the relay chain, which provides an anti-spam mechanism already.
+Pull can also make it easier to protect against certain types of spam attacks,
+but these are not relevant in the initial iteration of XCMP networking - since
+we opted to send message bodies only after they are added to the relay chain
+(i.e. forego the possibility of pipelining), which provides an anti-spam
+mechanism already.
 
-Though Polkadot does not assume any networking structure for parachains, in the
-:doc:`parachain block submission <1-parachains>` protocol we are able to
-distinguish honest vs malicious sending collators by (1) checking that they
-actually send us valid blocks and (2) measuring the throughput of valid blocks
-being sent by different collators. However with XCMP networking, it is much
-harder to distinguish honest vs malicious recipient collators, since there is
-no simple way to know whether they have passed on the message body to the rest
-of the parachain (honest) or if they have dropped the message (malicious). We
-explore this in more detail below, including giving various concrete high-level
-proposals for addressing this, with different tradeoffs.
-
-
-Comparison with A&V
--------------------
-
-Similarities:
-
-- Data flow pattern (qualitative), i.e. outboxes to inboxes
-
-Differences:
-
-- Data usage profile (quantitative) - Less overall traffic, but much greater variability
-- Latency not such a big deal, can be similar to A&V, but in practise should complete quicker due to less overall traffic.
 
 Communication complexity
 ------------------------
@@ -252,20 +260,35 @@ redundancy factor of 1. However we cannot pair off collators of different
 paras, or even collators and validators of the same para. So $R$ may have to be
 3 or 4 or even higher, which increases the associated costs.
 
+Comparison with A&V
+-------------------
+
+Similarities:
+
+- Data flow pattern (qualitative), i.e. outboxes to inboxes
+
+Differences:
+
+- Data usage profile (quantitative) - Less overall traffic, but much greater variability
+- Latency not such a big deal, can be similar to A&V, but in practise should complete quicker due to less overall traffic.
+
 
 Proposal: XCMP networking, initial iteration
 ============================================
 
-FIXME. expand; also describe transition to this, from sending-validators-only.
-describe its complexity costs regarding validator-collator connections.
+FIXME: this section needs to be updated & re-written
 
-FIXME: validators (and the sending parachain) should store each message until
-it's been acked, but what if the receiving parachain never does this? Then
-presumably the sending parachain needs to store it, and expose an interface for
-the receiving parachain to retrieve it later, but we haven't specified this
-anywhere as part of XCMP yet.
+1. sending-validators-only, easy to implement
 
-Introduce the idea of recipient validator group, even for parathreads.
+2. sending-validators with some way to reduce number of connections. TODO
+
+3. sending and receiving validators, with some availability checks. TODO
+
+   - Introduce the idea of recipient validator group, even for parathreads.
+
+If watermarks do not advance for e.g. 10 blocks, then the relay chain will
+accept the message body as a backup. This provides some assurance against
+malicious or inefficient validators not forwarding XCMP messages. (issue #601)
 
 Sending collators send message bodies to their sending validator group, as part
 of the :doc:`parachain block submission <1-parachains>` and :doc:`A&V
@@ -290,26 +313,28 @@ TODO: chains can only communicate when they've opened a channel to each other,
 the state of which is stored on-chain. We can potentially use this information
 to derive more efficient topologies for XCMP.
 
+.. _net-XCMP-distinguish-malicious-collators:
+
 Distinguishing honest vs malicious recipient collators
 ------------------------------------------------------
 
-As mentioned earlier, the lack of structure we assume about parachains, gives
-us fewer options to determine if a recipient collator is "honest" vs
-"malicious". Despite this we do still have some information we can make use of
-for this purpose, that is related to the fundamental high-level requirement of
-this part of XCMP. Recall that the purpose of having collators receive
-messages, is for their parachain to act on them, and acknowledge this to the
-Polkadot relay chain. This is an observable effect that can be observed by the
-validator, albeit indirectly and also dependent on other factors outside of
-XCMP receipt, and so we can introduce heuristics based on this to
-probabilistically distinguish honest vs malicious collators.
+The lack of structure we assume about parachains, gives us fewer options to
+determine if a recipient collator is "honest" vs "malicious". Despite this we
+do still have some information we can make use of for this purpose, that is
+related to the fundamental high-level requirement of this part of XCMP. Recall
+that the purpose of having collators receive messages, is for their parachain
+to act on them, and acknowledge this to the Polkadot relay chain. This is an
+observable effect that can be observed by the validator, albeit indirectly and
+also dependent on other factors outside of XCMP receipt, and so we can
+introduce heuristics based on this to probabilistically distinguish honest vs
+malicious collators.
 
-This is analogous to the mechanism in the block submission protocol, where we
-measure bandwidth used by sending collators, vs the actual useful throughput
-(of validated PoV blocks) that the bandwidth is used for. Instead of counting
-the (potentially spammy) bandwidth consumed by the sending collator, we judge
-the receiving collator based on how quickly their parachain's ack-watermark
-advances.
+This is analogous to the mechanism in the :doc:`block submission protocol
+<1-parachains>`, where we measure bandwidth used by sending collators, vs the
+actual useful throughput (of validated PoV blocks) that the bandwidth is used
+for. Instead of counting the (potentially spammy) bandwidth consumed by the
+sending collator, we judge the receiving collator based on how quickly their
+parachain's ack-watermark advances.
 
 There are key differences to bear in mind however: in XCMP, by its very nature
 the test criteria here is more indirect and cannot be determined while the
@@ -416,3 +441,43 @@ give incorrect whitelist/blacklist information.
 (Even with a large group rotation period, abuse is still possible but its
 effect is greatly reduced as validators have enough time to reach their own
 conclusions.)
+
+Appendix
+========
+
+XCMP overview
+-------------
+
+TODO: much the section below should be moved to the main XCMP document.
+
+To recap, :doc:`XCMP <../XCMP/index>` is designed to achieve ordered, reliable, and fair delivery, under the constraint of trying to minimise the data stored on the relay chain.
+
+Terminology note: all the messages for a given (sender, block) are processed in a single batch by the recipient, so to simplify discussion without losing generality, from here on we will refer to "the" (logical) message at a given (sender, block) even though in practise this consists of multiple smaller physical messages.
+
+(Sender, recipient) parachains that wish to communicate, register with the relay chain to open a channel. This channel comprises a bounded queue of ordered messages that have been sent but not yet acknowledged by the recipient.
+
+The queue is maintained by the sending parachain; it tells the relay chain what the current head of the queue is, by including it in their next submission to the relay chain. Thus the relay chain only stores the current heads of the channels. [1]_ Every message is associated with a merkle co-path that proves it belongs to the channel, as defined by the head in the relay chain block. When the recipient acts on the message, they acknowledge this to the relay chain, by including the merkle co-path in their next submission to the relay chain.
+
+.. [1] In practise this is compressed even further across multiple channels for the same sender - we omit the details here as they are not relevant to XCMP networking; the overall "shape" is similar to the oversimplified version just described.
+
+**The main task of XCMP networking** therefore, is to distribute these messages and copaths from the senders to the recipients.
+
+The recipient parachain collators must monitor the state of the relay chain, in order to know if it has new incoming messages, and what messages are currently in the queue (relative to a given relay chain block head). Similarly, the sending parachain collators may monitor the state of the relay chain, in order to know if its outgoing messages have been acknowledged, and what messages remain in the queue. These are also done outside of the scope of XCMP networking; however the XCMP networking relies on the former at least to be done correctly.
+
+The relay chain & parachain validators together verify that the channel grows & is consumed, in a consistent & reliable way; this is done outside of the scope of XCMP networking. Specifically, messages must be acknowledged in the correct order for a given channel. Additionally, a recipient parachain must acknowledge at least one new message from a block, if it has any new messages (from different senders/channels) in that block. To ensure **fairness**, the order in which messages from different senders/channels must be acknowledged, is pre-determined and out of the control of the recipient parachain. In other words, multiple incoming channels for a given recipient are multiplexed into a single ingress queue, and the recipient must process this queue in the aforementioned pre-determined order.
+
+Expected usage profile
+``````````````````````
+
+Every sending parachain may send up to ~1 MB per chain height in total, to all parachains. In the most unbalanced case, this will be all to a single recipient parachain.
+
+Across all chains then, the worst case is that (C-1) parachains will each send ~1 MB to the same receiver parachain in a single block; however this need not be all distributed during the time slot for that block - see fairness below.
+
+Fairness
+````````
+
+Fairness means that receivers must process received messages fairly across all senders, and we chose this mostly to ensure that no message will be left unprocessed for an infinite delay - the sender knows that the receiver must least ack its contents eventually, though they can drop the message after that. This is a value judgement made at the point-of-design of XCMP; we'll monitor its performance in practise.
+
+Although different from the internet's recipient-controlled processing, fairness does not introduce much overhead since for global ordering and reliability, message-passing is co-ordinated via the relay chain anyways, and enforcing fairness on top of this is straightforward.
+
+If recipient parachains feel that they are being spammed by certain sending parachains, they may selectively close these channels.
