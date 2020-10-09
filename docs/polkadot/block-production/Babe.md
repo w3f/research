@@ -24,11 +24,11 @@
 In Polkadot, we produce relay chain blocks using our
  **B**lind **A**ssignment for **B**lockchain **E**xtension protocol,
  abbreviated BABE.
-BABE assigns blocks production slots, according to stake,
+BABE assigns block production slots
  using roughly the randomness cycle from Ouroboros Praos [2].
 
 In brief, all block producers have a verifiable random function (VRF)
-keys which they register with locked stake.  These VRFs produce secret
+keys which they register with the locked stake.  These VRFs produce secret
 randomness which determines when they produce blocks.  A priori, there
 is a risk that block producers could grind through VRF keys to bias
 results, so VRF inputs must include public randomness created only
@@ -38,9 +38,11 @@ revealed in block creation during the epoch.  In this way, we cycle
 between private but verifiable randomness and collaborative public
 randomness.
 
-... TODO ...
 
-In Ouroboros [1] and Ouroboros Praos [2], the best chain (valid chain) is the longest chain. In Ouroboros Genesis, the best chain can be the longest chain or the chain which is forked long enough and denser than the other chains in some interval.  We have a different approach for the best chain selection based on GRANDPA and longest chain.  In addition, we do not assume that all parties can access the current slot number which is more realistic assumption.
+The main differences of BABE from Ouroboros Praos [2] are the best chain selection mechanism and slot synchronization assumption i.e.,
+
+1. BABE's best chain selection is based on GRANDPA and longest chain.
+2. Block producers in BABE does not have access to a central authority (e.g. Network Time Protocol (NTP)) to count slots instead they construct their own clock to follow the slots.
 
 ## 2. BABE
 
@@ -49,7 +51,7 @@ In BABE, we have sequential non-overlaping epochs $(e_1, e_2,\ldots)$, each of w
 Each party $P_j$ has as *session key* containing at least two types of secret/public key pair:
 
 * a verifiable random function (VRF) key $(\skvrf_{j}, \pkvrf_{j})$, and
-* a signing key for blocks $(\sksgn_j,\pksgn_j)$, possibly the same as the VRF key.
+* a signing key for blocks $(\sksgn_j,\pksgn_j)$.
 
 We favor VRF keys being relatively long lived because new VRF keys cannot be used until well after creation and submission to the chain.  Yet, parties should update their associated signing keys from time to time to provide forward security against attackers who might exploit from creating slashable equivocations.  There are more details about session key available [here](https://github.com/w3f/research/tree/master/docs/polkadot/keys).
 
@@ -58,20 +60,14 @@ Each party $P_j$ keeps a local set of blockchains $\mathbb{C}_j =\{C_1, C_2,...,
 We assume that each party has a local buffer that contains the transactions to be added to blocks. All transactions in a block is validated with a transaction validation function.
 
 
-### BABE with GRANDPA Validators $\approx$ Ouroboros Praos
+In BABE, we would like to achieve that  each validator has the same chance to be selected as a block producer on a slot. Therefore, we define the probability that a validator is selected on a slot as
 
-BABE is almost the same as Ouroboros Praos [2] except chain selection rule and the slot time adjustment.
+$$p = \phi_c(\theta) = 1-(1-c)^{\frac{1}{n}}$$
+
+where $c$ is a constant parameter and $n$ is the number of validators.
 
 
-Given that the weight (i.e., stake) of a validator $V_i$ is $w_i$ and the total weigh is $W = w_1 + w_2 + ... + w_n$ where $n$ is the number of validators, the parameter $\theta_i = \frac{w_i}{W}$ and the probability of a validator $V_i$ selected is
-
-$$p = \phi_c(\theta_i) = 1-(1-c)^{\theta_i}$$
-
-where $c$ is a constant.
-
-In BABE, all validators have same amount of stake so their probability of being selected as slot leaders is equal. Therefore, $\theta_1 = \theta_2 = ... = \theta_n = \theta = \frac{1}{n}$.
-
-The threshold used in BABE for each validator $P_i$ is
+In order to achieve the eqauality of validators in BABE, we define a threshold parameter as in [2] for the slot assigment:
 
 $$\tau = 2^{\ell_{vrf}}\phi_c(\theta)$$
 
@@ -83,65 +79,53 @@ BABE consists of three phases:
 
 In this phase, we manually produce the unique genesis block.
 
-The genesis block contain a random number $r_1$ for use during the first epoch for slot leader assignments. Session public keys of initial validators are ($\pkvrf_{1}, \pkvrf_{2},..., \pkvrf_{n}$), $(\pksgn_{1}, \pksgn_{2},..., \pksgn_{n}$).
+The genesis block contain a random number $r_1$ for use during the first two epochs for slot leader assignments. Session public keys of initial validators are ($\pkvrf_{1}, \pkvrf_{2},..., \pkvrf_{n}$), $(\pksgn_{1}, \pksgn_{2},..., \pksgn_{n}$).
 
-We might reasonably set $r_1 = 0$ for the initial chain randomness, by assuming honesty of all validators listed in the genesis block.  We could use public random number from the Tor network instead however.
-
-TODO: In the delay variant, there is an implicit commit and reveal phase provided some suffix of our genesis epoch consists of *every* validator producing a block and *all* produced blocks being included on-chain, which one could achieve by adjusting paramaters.
 
 #### 2. Normal Phase
 
-We assume that each validator divided their timeline in slots after receiving the genesis block. They determine the current slot number according to their timeline. If a new validator joins to BABE after the genesis block, this validator divides his timeline into slots with the Median algorithm we give in Section 4.
+We assume that each validator divided their timeline in slots after receiving the genesis block. They determine the current slot number according to their timeline as exlained in [Section 4](https://w3f-research.readthedocs.io/en/latest/polkadot/block-production/Babe.html#-4.-clock-adjustment--relative-time-algorithm-). Similarly, when a new validator joins to BABE after the genesis block, this validator divides his timeline into slots as explained in [Section 4](https://w3f-research.readthedocs.io/en/latest/polkadot/block-production/Babe.html#-4.-clock-adjustment--relative-time-algorithm-).
 
 In normal operation, each slot leader should produce and publish a block.  All other nodes attempt to update their chain by extending with new valid blocks they observe.
 
-We suppose each validator $P_j$ has a set of chains $\mathbb{C}_j$ in the current slot $sl_k$ in the epoch $e_m$.  We have a best chain $C$ selected in $sl_{k-1}$ by our selection scheme, and the length of $C$ is $\ell\text{-}1$.
+We suppose each validator $V_j$ has a set of chains $\mathbb{C}_j$ in the current slot $sl_k$ in the epoch $e_m$ and has a best chain $C$ selected in $sl_{k-1}$ by our selection scheme in Section 3, and the length of $C$ is $\ell\text{-}1$.
 
-Each validator $P_j$ produces a block if he is the slot leader of $sl_k$.  If the first output ($d$) of the following VRF is less than the threshold $\tau$ then he is the slot leader.
+Each validator $V_j$ produces a block if he is the slot leader of $sl_k$.  If the first output ($d$) of the following VRF computation is less than the threshold $\tau$ then he is the slot leader.
 
 $$\vrf_{\skvrf_{j}}(r_m||sl_{k}) \rightarrow (d, \pi)$$
 
-If $P_j$ is the slot leader, $P_j$ generates a block to be added on $C$ in slot $sl_k$. The block $B_\ell$ should contain the slot number $sl_{k}$, the hash of the previous block $H_{\ell\text{-}1}$, the VRF output  $d, \pi$, transactions $tx$, and the signature $\sigma = \sgn_{\sksgn_j}(sl_{k}||H_{\ell\text{-}1}||d||pi||tx))$. $P_i$ updates $C$ with the new block and sends $B_\ell$.
-
-
-![ss](https://i.imgur.com/Yb0LTJN.png =250x )
+If $P_j$ is the slot leader, $P_j$ generates a block to be added on $C$ in slot $sl_k$. The block $B_\ell$ should at least contain the slot number $sl_{k}$, the hash of the previous block $H_{\ell\text{-}1}$, the VRF output  $d, \pi$, transactions $tx$, and the signature $\sigma = \sgn_{\sksgn_j}(sl_{k}||H_{\ell\text{-}1}||d||pi||tx))$. $P_i$ updates $C$ with the new block and sends $B_\ell$.
 
 
 
-In any case (being a slot leader or not being a slot leader), when $P_j$ receives a block $B = (sl, H, d', \pi', tx', \sigma')$ produced by a validator $P_t$, it validates the block  with $\mathsf{Validate}(B)$. $\mathsf{Validate}(B)$ should check the followings in order to validate the block:
+In any case (being a slot leader or not being a slot leader), when $V_j$ receives a block $B = (sl, H, d', \pi', tx', \sigma')$ produced by a validator $V_t$, it validates the block  with $\mathsf{Validate}(B)$. $\mathsf{Validate}(B)$ must at least check the followings in order to validate the block:
 
 * if $\mathsf{Verify}_{\pksgn_t}(\sigma')\rightarrow \mathsf{valid}$ (signature verification),
 
-* if the party is the slot leader: $\mathsf{Verify}_{\pkvrf_t}(\pi', r_m||sl) \rightarrow \mathsf{valid}$ and $d' < \tau_t$ (verification with the VRF's verification algorithm).
-
-* if $P_t$ did not produce another block for another chain in slot $sl$ (no double signature),
+* if the validator is the slot leader: $\mathsf{Verify}_{\pkvrf_t}(\pi', r_m||sl) \rightarrow \mathsf{valid}$ and $d' < \tau$ (verification with the VRF's verification algorithm).
 
 * if there exists a chain $C'$ with the header $H$,
 
 * if the transactions in $B$ are valid.
 
-If the validation process goes well, $P_j$ adds $B$ to $C'$. Otherwise, it ignores the block.
+If the validation process goes well, $V_j$ adds $B$ to $C'$. Otherwise, it ignores the block.
 
 
 At the end of the slot, $P_j$ decides the best chain with the chain selection rule we give in Section 3.
 
 
-
-
 #### 3. Epoch Update
 
-Before starting a new epoch $e_m$, there are certain things to be completed in the current epoch $e_{m-1}$.
-* Validators update
-* (Session keys)
-* Epoch randomness
+Starting from first slot, in every $R$ slots, the new epoch starts.  
+Before starting a new epoch $e_m$, validors should obtain the new epoch randomness and active validators set for the new epoch.
 
-If there is a validator update in BABE, this update has to be done until the end of the last block of the current epoch $e_{m-1}$ so that they are able to actively participate the block production in epoch $e_{m+2}$. So, any validator update will valid in the BABE after at least two epoch's later.
+The the  validator set for the epoch $e_m$ has to be included to the relay chain until the end of the last block of the epoch $e_{m-3}$ so that they are able to actively participate the block production in epoch $e_{m}$. So, a new validator can actively join the block production  at earliest two epochs later after included to relay chain.
 
-The new randomness for the new epoch is computed as in Ouroboros Praos [2]: Concatenate all the VRF outputs of blocks in the current epoch $e_{m-1}$ (let us assume  the concatenation is $\rho$). Then the randomness in epoch $e_{m+1}$:
+A fresh randomness for the epoch $e_m$  is computed as in Ouroboros Praos [2]: Concatenate all the VRF outputs of blocks in epoch $e_{m-2}$ (let us assume  the concatenation is $\rho$). Then the randomness in epoch $e_{m}$:
 
-$$r_{m+1} = H(r_{m-1}||m+1||\rho)$$
+$$r_{m} = H(r_{m-2}||m||\rho)$$
 
-This also can be combined with VDF output to prevent little bias by the adversaries for better security bounds. BABE is secure without VDF but if we combine VDF with the randomness produced by blocks, we have better parachain allocation.
+The reason of including a validator after two epochs later is to make sure that the VRF keys of the new validators added to the chain before the randomness of the epoch that they are going to be active is revealed.
 
 ## 3. Best Chain Selection
 
@@ -153,7 +137,7 @@ We do not use the chain selection rule as in Ouroboros Genesis [3] because this 
 
 ## 4. Clock Adjustment (Relative Time Algorithm)
 
-It is important for parties to know the current slot  for the security and completeness of BABE. For this, validators can use their computer clocks which is adjusted by the Network Time Protocol. However, in this case, we need to trust servers of NTP. If an attack happens to one of these servers than we cannot claim anymore that BABE is secure. Therefore, we show how a party realizes the notion of slots without using NTP. Here, we assume we have a partial synchronous channel meaning that any message sent by a validator arrives at most $\D$-slots later. $\D$ is an unknown parameter.
+It is important for parties to know the current slot  for the security and completeness of BABE. For this, validators can use their computer clocks which is adjusted by the Network Time Protocol. However, in this case, we need to trust servers of NTP. If an attack happens to one of these servers than we cannot claim anymore that BABE is secure. Therefore, we show how a validator realizes the notion of slots without using NTP. Here, we assume we have a partial synchronous network meaning that any message sent by a validator arrives at most $\D$-slots later. $\D$ is an unknown parameter.
 
 
 Each party has a local clock and this clock is not updated by any extarnal source such as NTP or GPS. When a validator receives the genesis block, it stores the arrival time as $t_0$ as a reference point of the beginning of the first slot. We are aware of the beginning of the first slot is not same for everyone. We assume that the maximum difference of start time of the first slot between validators is at most $\delta$. Then each party divides their timeline in slots and update periodically its local clock with the following algorithm.
