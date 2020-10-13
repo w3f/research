@@ -2,6 +2,8 @@
 
 ![](Alfonso.jpg)
 
+alfonso@web3.foundation
+
 I work in the analysis and optimization of decentralized algorithms, making sure that both scalability and security goals, often at odds, are met. Another area of active work is adding the incentives layer (rewards, slashings, handling of reports) to decentralized protocols, to ensure that all dishonest behaviors are discouraged. Finally, I study multi-agent decision-making mechanisms such as committee elections, referenda, auctions, and general on-chain governance. In these processes, I work on properties such as proportional representation, transparency, strategy proofness, and participation encouragement.
 
 **Areas of interest.** Complexity theory, approximation algorithms, algorithmic game theory, mechanism design, computational social choice, crypto economics, and governance. On a lesser level: consensus protocols, finality gadgets, inter-operability across blockchains, zero-knowledge proofs.

@@ -1,14 +1,72 @@
 ====
 News
 ====
-**09.05.20**: 
-    Fatemeh is giving guest lecture on Interoperability at CAS courses organised by University of Applied Science of Zurich (ZHAW).
-    
-**06.05.20**:
-    Al will give a talk at Layer One online conference titled “Polkadot’s cross-chain Messaging Protocol”. 
 
-**04.05.20**: 
-    Jeff gave a talk at Layer One online conference titled “Availability & Validity on Polkadot”. 
+**23.09.20**:
+    Register today for `DISC 2020 <http://www.disc-conference.org/wp/disc2020/registration/>`_ (October 12-16, 2020)! W3F will host a `Workshop on Blockchain Interoperability and Sharding <https://disc2020-sharding-and-interoperability-workshop.w3f.community/>`_. Participation is free and the conference is held online.
+
+**27.08.20**:
+    Fatemeh has been program committee member of USENIX Security 2021.
+
+**21.08.20**:
+    After the first `democratic vote <https://medium.com/polkadot-network/the-first-polkadot-vote-1fc1b8bd357b>`_ in Polkadot the community decided that the “DOT” token will undergo a redenomination (1 DOT will now hold 1e10 plancks, instead of 1e12). More information can be found `here <https://polkadot.network/denomination-day-ecosystem-project-guidance/>`_.
+
+**18.08.20-20.08.20**:
+    W3F researchers and some Parity Technology developers joined together for a 2 day workshop in Berlin discussing implementations details of Polkadot components such as the AnV and XCMP protocols.
+
+**18.08.20**:
+    Token transferrability in Polkadot was enabled at block number 1,205,128.
+
+**10.08.20**:
+    Alistair has developed a design for ultralight clients that can be used for Ethereum bridges.
+
+**01.08.20**:
+    Oana joined the research team and will be working on security and privacy projects, with a focus on (ZK)snarks.
+
+**31.07.20**:
+    Our proposal to organize a workshop on Sharding and Interoperability at `DISC 2020 <http://www.disc-conference.org/wp/disc2020/>`_ got accepted.
+
+**22.07.20**:
+    Alfonso gave a talk on “Incentive Schemes and Blockchain Security” in CAS summer school organised by University of Zurich.
+
+**20.07.20**
+    The sudo module was removed by council motion and Polkadot officially becomes a self-governed and permissionless blockchain!
+
+**02.07.20**:
+    Alistair gave a `talk <https://www.youtube.com/watch?v=mk8GWCczXHo>`_ in CV labs on shared security.
+
+**01.07.20**:
+    :doc:`Jonas <research_team_members/Jonas>` has started an internship research position to apply insights from behavioral economics and to analyze the human interaction with the protocol.
+
+**28.06.20**:
+    Alistair has designed a succinct GRANDPA protocol.
+
+**23.06.20**:
+    Alfonso and Alistair came up with an efficient algorithm to test the quality of solutions that can be submitted for a validator-nominatior setup on chain.
+
+**15.06.20**:
+    Jeff got invited to be on the program committee of the Financial Cryptography 2021 conference.
+
+**09.06.20**:
+    Alistair has designed a succinct GRANDPA protocol.
+
+**01.06.20**:
+    Samuel has started a part-time researcher position to analyze the theoretical properties of the auctions, which will be used to allocate parachain slots.
+
+**26.05.20**:
+    After many years of hard work, the initial version of Polkadot has finally `launched <https://polkadot.network/web3-foundation-initiates-launch-polkadot-is-live/>`_ today! During this phase, we retain superuser control of the network via a “sudo module”, which can be used easily deploy runtime upgrades containing fixes.
+
+**15.05.20**:
+    Aleixo will start his Master thesis at W3F desiging a private interoperability protocol between Polkadot and zCash.
+
+**09.05.20**:
+    Fatemeh is giving guest lecture on Interoperability at CAS courses organised by University of Applied Science of Zurich (ZHAW).
+
+**06.05.20**:
+    Al will give a talk at Layer One online conference titled “Polkadot’s cross-chain Messaging Protocol”.
+
+**04.05.20**:
+    Jeff gave a talk at Layer One online conference titled “Availability & Validity on Polkadot”.
 
 **02.05.20**:
     The first version of the `Polkadot Overview paper <https://github.com/w3f/research/blob/master/docs/papers/OverviewPaper-V1.pdf>`_ is ready. Have a look!
@@ -17,22 +75,22 @@ News
     Alfonso and Alistair prepared the first draft of the `NPoS paper <https://arxiv.org/abs/2004.12990>`_. Have a look!
 
 **27.03.20**:
-    Fatemeh is programm committee member of IWPE 2020. 
-    
+    Fatemeh is programm committee member of IWPE 2020.
+
 **05.03.20**:
-    The interlay (http://interlay.io) project has been comissioned by Web3 Foundation to work on Bitcoin-Polkadot bridge specification. 
+    The interlay (http://interlay.io) project has been comissioned by Web3 Foundation to work on Bitcoin-Polkadot bridge specification.
 
 **19-20.02.20**:
     Alistair is going to attend the Standford Blockchain Conference 2020 and a co-located `Polkadot meetup <https://www.meetup.com/Polkadot-San-Francisco/events/268426884/>`_ organized by Web3 Foundation.
 
 **10.02.20**
-    Handan and Jeff attended Financial Crypto 2020 and presented their posters. 
+    Handan and Jeff attended Financial Crypto 2020 and presented their posters.
 
 **13.01.20**
-    We published a medium blogpost on `XCMP <https://medium.com/web3foundation/polkadots-messaging-scheme-b1ec560908b7>`_ giving an overall overview of XCMP and descriping a number of design decisions. 
+    We published a medium blogpost on `XCMP <https://medium.com/web3foundation/polkadots-messaging-scheme-b1ec560908b7>`_ giving an overall overview of XCMP and descriping a number of design decisions.
 
 **20.12.19**
-    We updated our `XCMP implementation considerations <https://research.web3.foundation/en/latest/polkadot/XCMP.html>`_. 
+    We updated our :doc:`XCMP implementation considerations <polkadot/XCMP>`.
 
 **05.12.19**
     Handan has finished a paper titled: `Consensus on Clock in Universally Composable Timing Model <https://eprint.iacr.org/2019/1348.pdf>`_. It is an updated version of Ouroboros Clepsydra that doesn’t rely on existence of some syncronized parties anymore.

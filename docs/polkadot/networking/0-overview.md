@@ -1,8 +1,8 @@
 ====================================================================
 
-**Authors**: Fatemeh Shirazi, Rob Habermeier, Ximin Luo
+**Owners**: [Ximin Luo](/research_team_members/Ximin.html)
 
-**Last updated**: 24.09.2019
+**Other authors**: Fatemeh Shirazi, Rob Habermeier
 
 ====================================================================
 
