@@ -26,16 +26,17 @@ A fork of the Polkadot relay chain defines a history of Polkadot. Chains may act
 
 1. A collator should find out from the relay chain what the latest messages for their parachain are, and then try to obtain those messages from the sending parachain. They can get these from validators who validated the sending parablock, full nodes of the sending chain or nodes of the receiving chain that already have them.
 
-2. The collator needs to obtain enough data from the relay chain and from the sending chain to produce a proof that they received the right messages as in 1. Messages are distributed along with messages proofs, which contain the data from the sending chain. 
+2. The collator needs to obtain enough data from the relay chain and from the sending chain to produce a proof that they received the right messages as in the previous step. Messages are distributed along with messages proofs, which contain the data from the sending chain. 
 
 Once they are inlcuded, the parachain will act on messages in order. 
 
 
 ## Channels
+Polkadot allows parahchians to send each other mesages as long as they have established messagng channels with each other.
 
-Being able to send and receive messages to or from many chains requires resoucres. The authentication requires that the sending chain informs the relay chain which chains it is sending messages to. A collator of the receiving chain needs to look up data on the relay chain for every chain that could send a message. Both the sending and receiving side may need to implement queues in their state.
+Polkadot restricts how many different chains a chain can send messages. This is because sending and receiving messages to or from many chains requires resources. The authentication requires that the sending chain informs the relay chain which chains it is sending messages to. A collator of the receiving chain needs to look up data on the relay chain for every chain that could send a message. Both the sending and receiving side may need to implement queues in their state.
 
-As a consequence, Polkadot restricts how many different chains a chain can send messages to. 
+This restriction is enfocred by allowing XCMP only between pairs of parachain who have set up channels with each other. A parathread is restricted to have at most a 100 channels. We also restrcit the total number of channels accross all chains in Polkadot by requiring a deposit for each channel. 
 
 ## Networking
 
