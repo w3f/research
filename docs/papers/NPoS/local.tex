@@ -59,7 +59,7 @@ We prove the contrapositive of the claim. If $A$ does not satisfy $t$-PJR, there
 We will prove that for any feasible weight vector $w\in \R^E$, it holds that $prescore(c',t)\geq t$, and consequently $score(c')\geq t$ by the definition of score. We have
 %
 \begin{align*} 
-prescore(c',t) &= \sum_{n\in N_{C'}}  slack(n,t) \geq \sum_{n\in N'} slack(n,t) & (\text{as } N'\subseteq N_{c'}) \\
+prescore(c',t) &= \sum_{n\in N_{c'}}  slack(n,t) \geq \sum_{n\in N'} slack(n,t) & (\text{as } N'\subseteq N_{c'}) \\
 &\geq \sum_{n\in N'} \Big(s_n - t\cdot \sum_{c\in A\cap C_n} \frac{w_{nc}}{supp_w(c)}\Big)  
 & (\text{by definition \ref{eq:slack}})\\
 &= \sum_{n\in N'} s_n - t \cdot \sum_{c\in A\cap (\cup_{n\in N'} C_n)} 

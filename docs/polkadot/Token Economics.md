@@ -1,8 +1,6 @@
 ====================================================================
 
-**Authors**: Alfonso Cevallos, Fatemeh Shirazi (minor)
-
-**Last updated**: 19.11.2019
+**Owners**: [Alfonso Cevallos](/research_team_members/alfonso.html), [Jonas Gehrlein](/research_team_members/Jonas.html)
 
 ====================================================================
 
@@ -16,14 +14,14 @@ Polkadot will have a native token called DOT. Its main functions are as follows:
 
 3. Governance: DOTs are also used as voting power, to let DOT holders express their opinion in governance decisions via referenda.
 
-3. Parachain allocation: Finally, DOTs are used to decide which projects are allocated a parachain slot, via auctions and deposits. 
+3. Parachain allocation: Finally, DOTs are used to decide which projects are allocated a parachain slot, via auctions and deposits.
 
 
-In this section we focus on the first use above, while each of the other three uses is analyzed in a separate section. 
+In this section we focus on the first use above, while each of the other three uses is analyzed in a separate section.
 
 ## Introduction
 
-Polkadot is a proof-of-stake based platform where a set of validators, who have staked DOTs, produce blocks and reach consensus.  If a validator steers away from the protocol, some of his DOTs are slashed, but otherwise he gets paid for their contribution (roughly) proportional to his staked DOTs. The set of nodes elected as validators changes constantly (in each era, i.e. around once a day), but the number remains limited. However, any number of DOT holders can also participate indirectly in the decision-making processes as *nominators*, in what we call *nominated proof-of-stake*. A nominator indicates which validator candidates she trusts, and puts some DOTs at stake to support her nomination. If one or more of her nominated candidates are elected as validators in an era, she shares with them any economical rewards or punishments, proportional to her stake. Being a nominator is a way of investing one's DOTs, and of helping in the security of the system. Indeed, the larger the total amount of DOTs staked by nominators and validators, the higher the system security, because an adversary needs that much more stake -- or nominators' trust -- before it gets any nodes elected as validators. 
+Polkadot is a proof-of-stake based platform where a set of validators, who have staked DOTs, produce blocks and reach consensus.  If a validator steers away from the protocol, some of his DOTs are slashed, but otherwise he gets paid for their contribution (roughly) proportional to his staked DOTs. The set of nodes elected as validators changes constantly (in each era, i.e. around once a day), but the number remains limited. However, any number of DOT holders can also participate indirectly in the decision-making processes as *nominators*, in what we call *nominated proof-of-stake*. A nominator indicates which validator candidates she trusts, and puts some DOTs at stake to support her nomination. If one or more of her nominated candidates are elected as validators in an era, she shares with them any economical rewards or punishments, proportional to her stake. Being a nominator is a way of investing one's DOTs, and of helping in the security of the system. Indeed, the larger the total amount of DOTs staked by nominators and validators, the higher the system security, because an adversary needs that much more stake -- or nominators' trust -- before it gets any nodes elected as validators.
 
 We therefore aim at having a considerable percentage of the total DOT supply be staked by validators and nominators. Another large percentage of the DOT supply will be frozen as deposits by the commercial blockchains who get a parachain slot. We originally aim to have around 50% of DOTs staked in NPoS, and 30% in parachain deposits. As a reference, the percentage staked in other PoS-based projects is as follows.
 - Tezos is 65.73% staked
@@ -121,19 +119,19 @@ In the branch of block production, we reward:
 * the block producer for each reference to a previously unreferenced uncle, and
 * the producer of each referenced uncle block.
 
-These are thus considered "payable actions". We define a point system where a validator earns a certain amount of points for each payable action executed, and at the end of each era they are paid proportional to their earned points. (The exact DOT value of each point is not known in advance because it depends on the total number of points earned by all validators in a given era. This is because we want the total payout per era to depend on the inflation model established above, and not on the number of payable actions executed). 
+These are thus considered "payable actions". We define a point system where a validator earns a certain amount of points for each payable action executed, and at the end of each era they are paid proportional to their earned points. (The exact DOT value of each point is not known in advance because it depends on the total number of points earned by all validators in a given era. This is because we want the total payout per era to depend on the inflation model established above, and not on the number of payable actions executed).
 
-__Adjustable parameters:__ We propose the following point system: 
+__Adjustable parameters:__ We propose the following point system:
 
 * 20 points for each validity statement,
 * 20 points for each (non-uncle) block produced,
 * 2 points (to the block producer) for each reference to a previously unreferenced uncle, and
 * 1 point to the producer of each referenced uncle.
 
-Notice that what is important here is not the absolute points but the point ratios, which establish the reward ratios of the payable actions. These points are parameters to be adjusted by governance. 
+Notice that what is important here is not the absolute points but the point ratios, which establish the reward ratios of the payable actions. These points are parameters to be adjusted by governance.
 
-In each era $e$, and for each validator $v$, we keep a counter $c_v^e$ on the number of points earned by $v$. Let $c^e = 
-\sum_{\text{validators } v} c_v^e$ be the total number of points earned by all validators in era $e$, and let $P^e_{NPoS}$ be our target total payout to all validators -- and their nominators -- in that era (see previous section on inflation model to see how to establish $P^e_{NPoS}$). Then, at the end of era $e$, the payout corresponding to validator $v$ and his nominators is given by 
+In each era $e$, and for each validator $v$, we keep a counter $c_v^e$ on the number of points earned by $v$. Let $c^e =
+\sum_{\text{validators } v} c_v^e$ be the total number of points earned by all validators in era $e$, and let $P^e_{NPoS}$ be our target total payout to all validators -- and their nominators -- in that era (see previous section on inflation model to see how to establish $P^e_{NPoS}$). Then, at the end of era $e$, the payout corresponding to validator $v$ and his nominators is given by
 
 $$\frac{c_v^e}{c^e} \cdot P^e_{NPoS}.$$
 
@@ -141,7 +139,7 @@ We remark that we can also use the counters to combat unresponsiveness: if a val
 
 ### Distribution of payment within a validator slot
 
-In any given era, the stake of a nominator $n$ is typically distributed among several validators, e.g. 70% of $n$'s stake is assigned to validator 1, 20% to validator 2, 10% to validator 3, etc. This distribution is decided automatically by the NPoS validator election mechanism that runs at the beginning of each era (see notes on NPoS for details). 
+In any given era, the stake of a nominator $n$ is typically distributed among several validators, e.g. 70% of $n$'s stake is assigned to validator 1, 20% to validator 2, 10% to validator 3, etc. This distribution is decided automatically by the NPoS validator election mechanism that runs at the beginning of each era (see notes on NPoS for details).
 
 If there are $m$ validators, then this stake distribution partitions the global stake pool into $m$ slots: one per validator. The stake in each validator slot is comprised of 100% of that validator's stake, and some fraction (possibly zero) of the stake of each nominator that approved of the validator. We sometimes refer to a validator's stake as "self-stake", to distinguish it from the *validator slot's stake*, which is typically much larger. In the previous subsection we explained how the payouts are assigned to each validator slot in a given era. In this subsection, we explain how this payout is distributed within a slot, i.e. among the validator and the nominators in it. Ultimately, a nominator's payout in a given era corresponds to the sum of her payouts with respect to each slot that contains some of her stake.
 
@@ -180,20 +178,20 @@ We identify four resources which can be consumed when processing a tx:
 
 Notice that unlike the other three resources which are consumed only once, state storage has a permanent cost over the network. Hence for state storage we could have rent or other Runtime mechanisms, to better match fees with the true cost of a tx, and ensure the state size remains bounded. This needs further consideration. We could also consider a mechanism that doesn't impose a hard limit on state increase but rather controls it via fees; however we prefer to add a limit for soundness, in order to avoid edge cases where the state grows out of control.
 
-**Adjustable parameters.** For the time being, we suggest the following limits on resource usage when processing a block. These parameters are to be further adjusted via governance based on real-life data or more sophisticated mechanisms. 
+**Adjustable parameters.** For the time being, we suggest the following limits on resource usage when processing a block. These parameters are to be further adjusted via governance based on real-life data or more sophisticated mechanisms.
 
 * Length: 5MB
 * Time: 2 seconds
 * Memory: 10 GB
-* State: 1 MB increase 
+* State: 1 MB increase
 
-In principle, a tx consumes some amount of the last three resources depending on its length, type, input arguments, and current state. However, for simplicity we decided to consider, for each transaction type, only the worst-case state, and only the byte length of its input arguments. Consequently, we classify transactions based on length, type and argument length, and run tests (based on worst-case state) to examine their typical resource usage. 
+In principle, a tx consumes some amount of the last three resources depending on its length, type, input arguments, and current state. However, for simplicity we decided to consider, for each transaction type, only the worst-case state, and only the byte length of its input arguments. Consequently, we classify transactions based on length, type and argument length, and run tests (based on worst-case state) to examine their typical resource usage.
 
-For the time being, we are considering a model where every transaction within a block is processed in sequence. So, in order to ensure the block memory bound above, it is sufficient to ensure that each tx observes the memory bound. We make sure this is the case. However, in the future we may consider parallelism. 
+For the time being, we are considering a model where every transaction within a block is processed in sequence. So, in order to ensure the block memory bound above, it is sufficient to ensure that each tx observes the memory bound. We make sure this is the case. However, in the future we may consider parallelism.
 
 To simplify our model further, we define a tx *weight* as a parameter that captures the time usage and state increase of a tx. Specifically, we define a tx weight as the *max* of its typical time and state usage, each measured as a fraction of the corresponding block limit. Then, given a collection of txs, we will sum up their lengths on one hand, and their weights on the other hand, and we will allow them within the same block only if both limits are respected. This is a hard constraint on resource usage which must be respected in each block.
 
-We add a further constraint on resource usage. We distinguish between "normal" txs and "operational" txs, where the latter type corresponds to high-priority txs such a fisherman reports. A collection of normal txs is allowed within the same block only if both their sum of lengths and their sum of weights are below 75% of the respective limits. This is to ensure that each block has a guaranteed space for operational txs (at least 25% of resources). 
+We add a further constraint on resource usage. We distinguish between "normal" txs and "operational" txs, where the latter type corresponds to high-priority txs such a fisherman reports. A collection of normal txs is allowed within the same block only if both their sum of lengths and their sum of weights are below 75% of the respective limits. This is to ensure that each block has a guaranteed space for operational txs (at least 25% of resources).
 
 **Details about establishing typical resource usage for txs.** Length is easy to determine by inspection. For time and memory usage, we prepare the chain with the worst-case state (the state for which the time and memory requirements to import this tx type should be the largest). We generate 10k transactions for a given transaction type with input which should take the longest to import for that state, and we measure the mean and standard deviation for the resource usage with the Wasm environment. If the standard deviation is greater than 10% of the mean, we increase the sample space above 10k. Finally, state increase is by inspection, based on worst cases for a large sample of txs.
 
@@ -210,7 +208,7 @@ $$fee(tx) = base\_fee + type(tx)\cdot length(tx) + c_{traffic} \cdot \Big[ weigh
 
 where $c_{traffic}$ is a parameter independent from the transaction, that evolves over time depending on the network traffic; we explain this parameter in the next subsection. Parameter $type(tx)$ depends on the transaction type only; in particular for operational transactions, we currently set $type(tx)$ to zero.
 
-Intuitively, the term $weight(tx)$ covers the processing cost of the block producer, while the term $type(tx) \cdot length(tx)$ covers the opportunity cost of processing one transaction instead of another one in a block. 
+Intuitively, the term $weight(tx)$ covers the processing cost of the block producer, while the term $type(tx) \cdot length(tx)$ covers the opportunity cost of processing one transaction instead of another one in a block.
 
 ### Adjustment of fees over time
 
@@ -222,13 +220,13 @@ To deal with peaks of activity, we face a trade-off between hiking up transactio
 
 In this mechanism the transaction fees vary greatly through time, but are fixed for all users at each block (no tipping).
 
-Recall that we set a hard limit on the sum of lengths and weights of all transactions allowed on a block. We also set a second hard limit, this time on the sum of lengths and weights of "normal" txs (non-operational txs), which is equal to 75% of the first limit. 
+Recall that we set a hard limit on the sum of lengths and weights of all transactions allowed on a block. We also set a second hard limit, this time on the sum of lengths and weights of "normal" txs (non-operational txs), which is equal to 75% of the first limit.
 
 **Definition.** We define a block's saturation level (relative to normal txs) as a fraction $s$ between 0 and 1 which describes how close the limit on normal txs is from being full. Explicitly, the saturation level of a block $B$ is
 
 $$s(B):=\max\{\frac{\sum_{\text{normal } tx \in B} length(tx)}{\text{normal length limit}}, \frac{\sum_{\text{normal } tx \in B} weight(tx)}{\text{normal weight limit}}\},$$
 
-where the normal length limit (the block length limit on normal transactions) is 75% of the overall length limit, and the normal weight limit is 75% of the overall weight limit. 
+where the normal length limit (the block length limit on normal transactions) is 75% of the overall length limit, and the normal weight limit is 75% of the overall weight limit.
 
 **Adjustable parameter** Let \(s^*\) be our target block saturation level. This is our desired long-term average of the block saturation level (relative to normal txs). We originally suggest \(s^*=0.25\), so that blocks are 25% full on average and the system can handle sudden spikes of up to 4x the average volume of normal transactions. This parameter can be adjusted depending on the observed volumes during spikes compared to average volumes, and in general it provides a trade-off between higher average fees and longer transaction inclusion times during spikes.
 
@@ -290,7 +288,7 @@ Finality gadget [GRANDPA](https://github.com/w3f/consensus/blob/master/pdf/grand
 
 The [availability scheme](Availability_and_Validity.md)
 
-Block production protocol [BABE](BABE/Babe.md)
+Block production protocol [BABE](block-production/Babe.md)
 
 [Parachain Validity](Availability_and_Validity.md) scheme
 

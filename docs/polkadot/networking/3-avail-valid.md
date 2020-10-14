@@ -1,12 +1,10 @@
 ====================================================================
 
-**Authors**: Ximin Luo
-
-**Last updated**: 2020-05-08
+**Owners**: [Ximin Luo](/research_team_members/Ximin.html)
 
 ====================================================================
 
-# Availability and Validity (A&V) networking
+# Availability and Validity
 
 This subprotocol occurs whenever the relay chain block production protocol has output a candidate block for the current relay chain height.
 

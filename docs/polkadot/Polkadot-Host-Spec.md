@@ -1,12 +1,18 @@
 ====================================================================
 
-Author: Syed Hosseini, Fabio Lama, Florian Franzen
+**Owners**: [Syed Hosseini](/research_team_members/syed.html)
 
-Last updated: 22.11.2019
-
-Contact with: syed@web3.foundation
+**Other authors**: Fabio Lama, Florian Franzen
 
 ====================================================================
-# Polkadot Host Specification
+
+# Specification
+
+This page contains the Polkadot Host Specification, a document mostly of
+interest to implementers and/or other engineers wishing to interoperate with
+Polkadot. It goes into full low-level detail; high-level design ideas are
+presented in a more readable way in preceding documents.
+
+TODO: move to publications
 
 <iframe src="../_static/pdfview/viewer.html?file=../pdf/polkadot-host-spec.pdf" width="100%" height="650em"></iframe>
