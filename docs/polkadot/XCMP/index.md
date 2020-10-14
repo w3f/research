@@ -1,10 +1,10 @@
 # XCMP
 
-XCMP is Polkadot's cross chain message passing protocol. It allows one parachain to send messages to another parachain and provides guarantees about the delivery of these messages.
+XCMP is Polkadot's cross chain message passing protocol. It allows one parachain to send messages to another parachain and provides guarantees about the delivery of these messages. Polkadot allows parahchians to send each other mesages as long as they have established messagng channels with each other. In this document we review first the core priciple of the XCMP deisgn and then review authentication, network delivery, channels, and SPREE that can be used for example trustless token transfers. 
 
 ## Core design principles
 
-It is difficult to code a smart contract in the same way you would code a web application. To do the latter, one needs to deal with unordered delivery and messages that do not arrive at all. This involves having message acknowledgements and timeouts. To build atomic transactions on such a layer requires a lot of work. Polkadot's shared security allows us to get much stronger guarantees than TCP/IP does. These include: 
+Parachain will host dapps on them and interoperability among dapps is highly facilitated by ordered and timely delivery messages. Polkadot delivery gurantees include: 
 
 - guaranteed message delivery - a chain will receive the message as long as it keeps producing blocks.
 
@@ -12,7 +12,12 @@ It is difficult to code a smart contract in the same way you would code a web ap
 
 - ordered delivery - messages arrive in a definied order.
 
-The trade off for these is that non-availability of XCMP messages can halt a parachain, so Polkadot needs to ensure that this never happens. We want all this while maintaining scalability, in that the relay chain should not be overwhelemed if 100 parachains send messages to 10,000 destinations in a single relay chain block. 
+Ordered and timely delivery of messages is not given in many applications such as some web applciatin or. This is because TCP/IP gives weaker guarantees about delivery and hence the web application eeds to deal with these issues. 
+This involves having message acknowledgements and timeouts. To build atomic transactions on such a layer requires a lot of work. Polkadot's shared security allows us to get much stronger guarantees than TCP/IP does.
+While Cosmos allows the choice of havig ordered delivery, there are no guranatees that messages will arrive ever due lack of an general incentive model for this purpose. 
+The trade off for Polkadot however is that non-availability of XCMP messages can halt a parachain, so Polkadot needs to ensure that this never happens.
+
+We want all these properties while maintaining scalability, in that the relay chain should not be overwhelemed if 100 parachains send messages to 10,000 destinations in a single relay chain block, which we discuss in the next sections.
 
 
 ## Authentication 
