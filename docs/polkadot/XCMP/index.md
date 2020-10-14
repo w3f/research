@@ -44,7 +44,9 @@ This restriction is enfocred by allowing XCMP only between pairs of parachain wh
 
 Polkadot's shared security ensures that all parachains correctly execute their code. This means that if we trust a parachain's code, we can trust its behaviour as long as we trust Polkadot's security. SPREE gives a way of further reducing this trust, byu allowing parachains to use shared code. SPREE modules are pieces of code in parachain's logic that are shared between many chains. Their execution and state are sandboxed away from the other parachain logic and state.
 
-XCMP will allow a SPREE module on one chain to send a message to a SPREE module on another chain and ensure that this message arrives correctly whatever the rest of the parachain logic is on either side.
+XCMP will allow a SPREE module on one chain to send a message to a SPREE module on another chain and ensure that this message arrives correctly whatever the rest of the parachain logic is on either side. This ensures that knowing only the code of the SPREE module is enough to determine how a particular message will be acted on and any guarantees that this gives will be respected.
+
+For example, there may be a cross-chain token SPREE module. This would allow permissions on which chains can mint a partcular oken to be managed. In particular, using such a module would allow token transfers between chains without informing the home chain for this token, while still guaranteeing that only the home chain can mint the token. The SPREE module on the chain holding the tokens would have an account for the chain, rather than home chain having accounts for all chains.  For this to work, it is important that we have a sandboxed delivery mechanism, so that the amount of tokens transferred by a message cannot be changed en route. 
 
 
 
