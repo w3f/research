@@ -1,9 +1,7 @@
 \section{Complexity results for the maximin support objective}\label{s:complexity}
 
-Consider an instance $(G=(N\cup C, E), s, k)$ of a multiwinner election as defined in Section~\ref{s:prel} 2. 
+Consider an instance $(G=(N\cup C, E), s, k)$ of a multiwinner election as defined in Section~\ref{s:prel}. 
 In this section we present an analysis of the complexity of the maximin support problem, including new results both on approximability and on hardness. 
-We also comment on how common election rules fare for this objective.
-
 
 The maximin support problem was introduced in~\cite{sanchez2016maximin}, where it was observed to be NP-hard. We start by showing a stronger hardness result for this problem, which in particular rules out the existence of a PTAS.%
 \footnote{A \emph{polynomial time approximation scheme} (PTAS) for an optimization problem is an algorithm that, for any constant $\eps>0$ and any given instance, returns a $(1+\eps)$-factor approximation in polynomial time.} 
@@ -85,17 +83,12 @@ Notice that in this instance, each candidate is approved by exactly 3 voters, an
 Hence, if there is an independent set $I$ of size $k$ in $G'$, the same committee of validators in $G$ can be assigned the full vote of each of its three approving voters, so that each receives a support of 3 units, which is clearly maximal. On the other hand, if there is no independent set of size $k$ in $G'$, then for any solution $(A,w)$ of the maximin support instance there must be two committee members $c,c'\in A$ who have an approving voter in common. These two members have at most five voters approving either of them, so one of them must have a support of at most $5/2$. This shows that $\supp_w(A)\leq 5/2$ for any feasible solution $(A,w)$. Finally, notice that the ratio between the objective values $3$ and $5/2$ is $6/5=1.2>\alpha$, so the assumed $\alpha$-approximation algorithm for maximin support would allow us to distinguish between these two cases and decide whether such an independent set $I$ exists. This completes the proof.
 \end{proof}
 
-Next, we compare the performance of several popular election rules relative to a numerical example. 
-Fix a large committee size $k$ and a small parameter $\eps>0$ such that $\eps k$ is a positive integer, and consider an instance with $k+1$ voters and $2k$ candidates. 
-For $1\leq i\leq k$, the $i$-th voter has a vote strength of 1 and supports the candidate set $\{c_1, \cdots, c_i\}$, and the last voter has a vote strength of $\eps k$ and supports the candidate set $\{c_{k+1}, \cdots, c_{2k}\}$.%
-\footnote{An unweighted version of this example can be created by replacing the last voter with $\eps k$ voters with identical ballots.} 
-See Figure~\ref{fig:example}.
-
-
-We assume that an adversarial minority controls the last voter and the last $k$ candidates, and will use any elected representatives to boycott the regular duties of the committee. 
-What fraction of the $k$ elected candidates will be adversarial? 
-For this particular example, we define the \emph{overrepresentation factor} to be the ratio between the fraction of elected candidates that is adversarial, and the fraction of vote strength that is adversarial (this last fraction is $\eps/(1+\eps)<\eps$).
-Clearly, the adversary does a much better job in terms of cohesiveness than honest voters, and because of this it gains considerable overrepresentation under traditional election rules.
+Next, we compare the performance of some popular election rules via a particular example, and highlight the effectiveness of the maximin support objective for fighting overrepresentation. 
+Fix a committee size $k$ and consider an unweighted instance with $k+1$ voters and $2k$ candidates. 
+For $1\leq i\leq k$, voter $n_i$ supports the candidate set $\{c_1, \cdots, c_i\}$, and the last voter $n'$ supports the candidate set $\{c_1', \cdots, c_k'\}$. See Figure~\ref{fig:example}.
+%
+We assume that an adversary controls the last voter and the last $k$ candidates, and will use any elected representatives to attempt to disrupt the duties of the committee. 
+How many representatives will it get? 
 
 \begin{figure}[htb]
 \begin{center}
@@ -104,7 +97,7 @@ Clearly, the adversary does a much better job in terms of cohesiveness than hone
 \definecolor{ffqqqq}{rgb}{1,0,0}
 \definecolor{ududff}{rgb}{0.30196078431372547,0.30196078431372547,1}
 \begin{tikzpicture}[line cap=round,line join=round,>=triangle 45,x=1cm,y=1cm]
-\clip(1,0.5) rectangle (10,9);
+\clip(1,0.5) rectangle (10,8.5);
 \draw [line width=2pt] (3,8)-- (7,8);
 \draw [line width=2pt] (7,8)-- (3,7);
 \draw [line width=2pt] (3,7)-- (7,7);
@@ -123,16 +116,16 @@ Clearly, the adversary does a much better job in terms of cohesiveness than hone
 \draw (7.258,7.2) node[anchor=north west] {$c_2$};
 \draw (7.258,6.2) node[anchor=north west] {$\cdots$};
 \draw (7.258,5.2) node[anchor=north west] {$c_k$};
-\draw (7.258,4.2) node[anchor=north west] {$c_{k+1}$};
-\draw (7.258,3.2) node[anchor=north west] {$c_{k+2}$};
+\draw (7.258,4.2) node[anchor=north west] {$c_1'$};
+\draw (7.258,3.2) node[anchor=north west] {$c_2'$};
 \draw (7.258,2.2) node[anchor=north west] {$\cdots$};
-\draw (7.258,1.2) node[anchor=north west] {$c_{2k}$};
-\draw (2.154,8.2) node[anchor=north west] {$1$};
-\draw (2.154,7.2) node[anchor=north west] {$1$};
+\draw (7.258,1.2) node[anchor=north west] {$c_k'$};
+\draw (2.154,8.2) node[anchor=north west] {$n_1$};
+\draw (2.154,7.2) node[anchor=north west] {$n_2$};
 \draw (2.154,6.2) node[anchor=north west] {$\cdots$};
-\draw (2.154,5.2) node[anchor=north west] {$1$};
-\draw (2.154,2.7) node[anchor=north west] {$\varepsilon k$};
-\draw (1.56,8.9) node[anchor=north west] {vote strengths};
+\draw (2.154,5.2) node[anchor=north west] {$n_k$};
+\draw (2.154,2.7) node[anchor=north west] {$n'$};
+%\draw (1.56,8.9) node[anchor=north west] {vote strengths};
 \begin{scriptsize}
 \draw [fill=ududff] (3,8) circle (2.5pt);
 \draw [fill=ududff] (7,8) circle (2.5pt);
@@ -151,27 +144,35 @@ Clearly, the adversary does a much better job in terms of cohesiveness than hone
 \end{tikzpicture}
 }
 \end{center}
-\caption{Numerical example highlighting the relevance of election rules that achieve constant-factor approximation guarantees for the maximin support objective. The last voter and the last $k$ candidates are considered adversarial.}
+\caption{In this example, the last voter and the last $k$ candidates are considered adversarial.}
 \label{fig:example}
 \end{figure}
 
 \begin{lemma}
-In the example above, for any $\alpha>1$ we have that an $\alpha$-approximation algorithm for maximin support provides an overrepresentation factor of at most $\alpha$.
-On the other hand, each of the following committee election rules provides an overrepresentation factor that is not bounded by a constant: $\phragmen$, proportional approval voting (PAV), and Rule X. Hence, none of these rules provides a constant-factor approximation guarantee for maximin support. 
+In the example above, for any $\alpha \geq 1$ we have that the number of adversarial candidates elected by an $\alpha$-approximation algorithm for maximin support is at most $\lfloor \alpha \rfloor$. 
+On the other hand, this number is $\Omega(\sqrt{k})$ for proportional approval voting (PAV), and $\Omega(\log k)$ for both $\phragmen$ and Rule X. 
+Hence, none of these three rules provides a constant-factor approximation guarantee for maximin support. 
 \end{lemma}
 
 \begin{proof}
-Clearly, in the example of Figure~\ref{fig:example} the optimum value with respect to the maximin support objective is 1, achieved for instance by choosing the $k$ honest candidates. 
-So, if an $\alpha$-approximation algorithm elects $j$ adversarial candidates, each of these candidates receives a support of $\eps k/j \geq 1/\alpha$, so $j\leq \alpha \cdot \eps k$, and the overrepresentation factor is $\frac{j/k}{\eps/(1+\eps)}< \alpha$. This proves the first claim.
+In the example of Figure~\ref{fig:example}, the optimum value with respect to the maximin support objective is clearly 1, achieved for instance by choosing the $k$ honest candidates. 
+So, if an $\alpha$-approximation algorithm elects $j$ adversarial candidates, each of these candidates receives a support of $1/j \geq 1/\alpha$. This proves the first claim.
 
-We continue with $\phragmen$. We take the continuous formulation where every voter $n$ starts with a budget of zero and gains currency at a constant speed of $s_n$ units per minute, and a candidate is elected as soon as its supporters can afford it; see~\cite{lackner2020approval}.  
-It will take $1/k+1/(k-1)+\cdots + 1/(k-i)= H_k - H_{k-i-1}$ minutes for the rule to elect $i+1$ honest candidates, where $H_i=\sum_{t=1}^i 1/t$ is the $i$-th harmonic number, and it will take $j/(\eps k)$ seconds to elect $j$ adversarial candidates, where honest and adversarial candidates are elected independently. 
-So, assuming that there are currently $i$ honest and $j-1$ adversarial candidates with $i+j=k$, the last elected candidate will be adversarial -- and thus we elect $j$ adversarial candidates in total -- if $j/(\eps k)\leq H_k - H_{k-i-1} = H_k - H_{j-1}=\ln(\frac{k}{j}) +o(1)$.
-From this, it can be checked that the overrepresentation factor is  $(1-o(1)) \ln (1/\eps)$, which is not bounded by a constant. 
-In particular, the only constraint on $\eps$ relative to $k$ is that $\eps k\geq 1$, so this proves that $\phragmen$ achieves an approximation guarantee no better than $(1-o(1)) \ln k$ for maximin support.
+We continue with the PAV rule. In this example, it can be checked that PAV yields the same result as sequential-PAV, and that honest candidates are elected in order, i.e., $c_1$, $c_2$, and so on. 
+Now, if at some point the rule has elected $i$ honest and $j-1$ adversarial members, with $i+j=k$, the score of the next honest candidate is $(k-1)/(i+1)$, and the score of the next adversarial candidate is $1/j$. 
+As we always pick the candidate with highest score, the last candidate will be adversarial -- and hence there will be $j$ adversarial candidates elected -- if $1/j > (k-i)/(i+1)=j/(k-j+1)$. 
+It can be checked that $j=\sqrt{k}-1/2$ satisfies this inequality, so the rule elects at least this many adversarial representatives. 
+
+We analyze $\phragmen$ next. We take the continuous formulation where every voter $n$ starts with a budget of zero and gains currency at a constant speed of one unit per second, and a candidate is elected as soon as its supporters can afford it; see~\cite{lackner2020approval}.  
+It will take $1/k+1/(k-1)+\cdots + 1/(k-i)= H_k - H_{k-i-1}$ seconds for the rule to elect $i+1$ honest candidates, where $H_i=\sum_{t=1}^i 1/t$ is the $i$-th harmonic number, and it will take $j$ seconds to elect $j$ adversarial candidates, where honest and adversarial candidates are elected in independent time frames. 
+Assuming that at some point there are $i$ honest and $j-1$ adversarial candidates with $i+j=k$, the last elected candidate will be adversarial -- and thus there will be $j$ adversarial candidates elected -- if $j< H_k - H_{k-i-1} = H_k - H_{j-1}=\ln(\frac{k}{j}) +o(1)$. 
+From this it follows that the rule elects at least $(1-o(1)) \ln k$.
+
+We finally pass to Rule X. 
 \end{proof}
 
-The proof is delayed to Appendix~\ref{s:proofs}. For definitions of these rules, we direct the reader to the survey paper~\cite{lackner2020approval}, and remark only that Rule X is a recently proposed rule that achieves the EJR property~\cite{peters2019proportionality}. 
+For definitions of these rules, we direct the reader to the survey paper~\cite{lackner2020approval}.
+The proof is delayed to Appendix~\ref{s:proofs}, and we remark only that Rule X~\cite{peters2019proportionality} is a recently proposed rule that is inspired in $\phragmen$ (much as our own heuristic presented in the next section) and achieves the EJR property. 
 
 %The $\phragmen$ heuristic~\cite{brill2017phragmen} achieves the PJR property and is very fast, with a running time of $O(|E|\cdot k)$. However, in Apendix~\ref{s:phragmen} we prove that it does not offer a constant-factor approximation for the maximin support problem. 
 
