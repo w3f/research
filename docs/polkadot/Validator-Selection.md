@@ -10,7 +10,7 @@
 
 Validator selection is a tedious and demanding task. nominators need to invest substantial cognitive resources to evaluate the various available validators and process all information to come up with a satisfactory selection. To help nominators with that challenge, we can provide an algorithm which learns the user's preferences and, based on that, give a recommendation on an optimal selection.
 
-# Problem
+## Problem
 In addition to the issue that nominators have limited cognitive resources, it is not desirable to provide an exogenous recommendation on a good set of validators. One reason is that it is outside our competence to decide on various trade-offs of the selection process on behalf of nominators. This means, the preferences of nominators (e.g. risk-preferences) are quite different for individual nominators. To illustrate this issue, consider the following example:
 
 | | Commission | Self-Stake | Identity | Era-Points |
@@ -22,12 +22,12 @@ In addition to the issue that nominators have limited cognitive resources, it is
 All validators in the table have different profiles, where none is pareto-dominated (i.e. there is no Validator which is worse in every dimension than another). Validator 3 potentially yield high profits but does not have much self-stake (skin-in-the-game) and is without registered identity. Validator 1 charges a higher fee for their service but leverages a registered identity. Validator 2 requires substantial fees but has the most skin-in-the-game. We could easily think of different preferences of users who would prefer any one of those validators. While probably every user could make a choice from that table, the problem gets increasingly difficult for a table with 200-1000 validators.
 
 
-## Requirements on an algorithm
+### Requirements on an algorithm
 As mentioned before, we cannot and do not want to give an exogenous recommendation to the users. We prefer a method which uses some user input and generates a recommendation based on their stated preferences.
 
-# Solution: UTAStar
+## Solution: UTAStar
 
-## Overview
+### Overview
 UTA (UTilité Additive) belongs to the methods of preference disaggregation ([Jacquet-Lagrèze & Siskos, 1982](https://www.sciencedirect.com/science/article/abs/pii/0377221782901552)). UTAStar is an improvement on the original algorithm. The general idea is that the marginal utility functions of a decision makers (DM) on each dimension of an alternative (i.e. criterion) can be deduced from a-priori ranked lists of alternatives. It uses linear programming to search for utility functions which satisfy the initial ranking of the DM while giving other properties (such as the maximum utility is normalized to 1).
 
 ### Some notation:
