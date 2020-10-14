@@ -20,15 +20,15 @@ The trade off for Polkadot however is that non-availability of XCMP messages can
 We want all these properties while maintaining scalability, in that the relay chain should not be overwhelemed if 100 parachains send messages to 10,000 destinations in a single relay chain block, which we discuss in the next sections.
 
 
-## Authentication 
+## Authentication for consistent history
 
-A fork of the Polkadot relay chain defines a history of Polkadot. Chains may act on messages before the sending of this message was finalised. We want to act on those messages and only those that were sent in this history. This means that we must use the relay chain to authenticate messages. 
+A fork of the Polkadot relay chain defines a history of Polkadot. Chains may act on messages before the sending of this message was finalised. We want to act on those messages and only those that were sent in this history. This means that we must use the relay chain to authenticate messages. To make this efficient and sclable we make it as light in computation and data storage as possible for the relay chain. To autheticate messages, a collator can include messages in a PoW block as follows:
 
 1. A collator should find out from the relay chain what the latest messages for their parachain are, and then try to obtain those messages from the sending parachain. They can get these from validators who validated the sending parablock, full nodes of the sending chain or nodes of the receiving chain that already have them.
 
 2. The collator needs to obtain enough data from the relay chain and from the sending chain to produce a proof that they received the right messages as in 1. Messages are distributed along with messages proofs, which contain the data from the sending chain. 
 
-3. Messages are acted on in order. 
+Once they are inlcuded, the parachain will act on messages in order. 
 
 
 ## Channels
