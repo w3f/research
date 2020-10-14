@@ -14,15 +14,3 @@ I am a microeconomist with an interest in contracts, auctions, and contests. I h
 *Games and Economic Behavior*, 104, 2017, pp. 372-391.
 - [Payoff Shares in Two-Player Contests](http://www.mdpi.com/2073-4336/7/3/25/pdf) (with Georg Nöldeke).  
 *Games*, Volume 7(3), 2016, p. 25.
-
-
-### Current Research:
-- [Crossing the Valley of Death: An R&D Race with Moral Hazard and Multiple Prizes](http://ssrn.com/abstract=3564033).  
-First Version: March 2020. Latest Version: August 2020.  
-- [On Young Turks and Yes Men: Optimal Contracting for Advice](https://dx.doi.org/10.2139/ssrn.3229927) (with Curtis Taylor).  
- First Version: August 2018. Latest Version: September 2019. *R&R RAND*.   
-- [Risk Aversion in Share Auctions: Estimating Import Rents from TRQs in Switzerland](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3397027).  
-First Version: May 2019. Latest Version: August 2020.   
-[[Supplementary Appendix](https://samuelhaefner.github.io/SupplementaryAppendix.pdf)] [[Replication Files](https://github.com/SamuelHaefner/RiskAversionInShareAuctions)].  
-- [Allocating Tariff-Rate Quotas: The Case of Domestic Purchase Requirement](https://dx.doi.org/10.2139/ssrn.3293534) (with Yvan Lengwiler).  
- First Version: November 2018. Latest Version: May 2020. 
