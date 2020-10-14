@@ -1,7 +1,7 @@
 # Samuel Häfner
 samuel@web3.foundation
 
-I am a microeconomist with an interest in contracts, auctions, and contests. I hold a PhD from the University of Basel. For more information, see my personal webpage at [samuelhaefner.github.io](samuelhaefner.github.io).
+I am a microeconomist with an interest in contracts, auctions, and contests. I hold a PhD from the University of Basel. For more information, see my personal webpage at [samuelhaefner.github.io](https://samuelhaefner.github.io).
 
 ### Publications
 - [Eternal Peace in the Tug-of-War?](https://doi.org/10.1007/s00199-020-01287-9)  
