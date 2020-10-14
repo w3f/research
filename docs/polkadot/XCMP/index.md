@@ -8,13 +8,13 @@ Parachain will host dapps on them and interoperability among dapps is highly fac
 
 - guaranteed message delivery - a chain will receive the message as long as it keeps producing blocks.
 
-- trustless delivery - Polkadot's shared security ensures the correctness of message delivery and autehenticity as long as we trust the code that produces and consumes them.
+- trustless delivery - Polkadot's shared security ensures the correctness of message delivery and authenticity as long as we trust the code that produces and consumes them.
 
 - ordered delivery - messages arrive in a definied order.
 
-Ordered and timely delivery of messages is not given in many applications such as some web applciatin or. This is because TCP/IP gives weaker guarantees about delivery and hence the web application eeds to deal with these issues. 
+Ordered and timely delivery of messages is not given in many applications such as some web applciatin. This is because TCP/IP gives weaker guarantees about delivery and hence the web application eeds to deal with these issues. 
 This involves having message acknowledgements and timeouts. To build atomic transactions on such a layer requires a lot of work. Polkadot's shared security allows us to get much stronger guarantees than TCP/IP does.
-While Cosmos allows the choice of havig ordered delivery, there are no guranatees that messages will arrive ever due lack of an general incentive model for this purpose. 
+While Cosmos allows the choice of havig ordered delivery, there may be no gurantees that messages will ever arrive due lack of an general incentive model for this purpose. 
 The trade off for Polkadot however is that non-availability of XCMP messages can halt a parachain, so Polkadot needs to ensure that this never happens.
 
 We want all these properties while maintaining scalability, in that the relay chain should not be overwhelemed if 100 parachains send messages to 10,000 destinations in a single relay chain block, which we discuss in the next sections.
@@ -32,11 +32,11 @@ Once they are inlcuded, the parachain will act on messages in order.
 
 
 ## Channels
-Polkadot allows parahchians to send each other mesages as long as they have established messagng channels with each other.
+Polkadot allows parachains to send each other mesages as long as they have established messagng channels with each other.
 
 Polkadot restricts how many different chains a chain can send messages. This is because sending and receiving messages to or from many chains requires resources. The authentication requires that the sending chain informs the relay chain which chains it is sending messages to. A collator of the receiving chain needs to look up data on the relay chain for every chain that could send a message. Both the sending and receiving side may need to implement queues in their state.
 
-This restriction is enfocred by allowing XCMP only between pairs of parachain who have set up channels with each other. A parathread is restricted to have at most a 100 channels. We also restrcit the total number of channels accross all chains in Polkadot by requiring a deposit for each channel. 
+This restriction is enfocred by allowing XCMP only between pairs of parachain who have set up channels with each other. A parathread is restricted to have at most a 100 channels. We also restrict the total number of channels accross all chains in Polkadot by requiring a deposit for each channel. Since a channel requires an ongoing commitment from both sides, setting up a channel requires the permission of both chains.
 
 ## Networking
 
@@ -46,7 +46,7 @@ Polkadot's shared security ensures that all parachains correctly execute their c
 
 XCMP will allow a SPREE module on one chain to send a message to a SPREE module on another chain and ensure that this message arrives correctly whatever the rest of the parachain logic is on either side. This ensures that knowing only the code of the SPREE module is enough to determine how a particular message will be acted on and any guarantees that this gives will be respected.
 
-For example, there may be a cross-chain token SPREE module. This would allow permissions on which chains can mint a partcular oken to be managed. In particular, using such a module would allow token transfers between chains without informing the home chain for this token, while still guaranteeing that only the home chain can mint the token. The SPREE module on the chain holding the tokens would have an account for the chain, rather than home chain having accounts for all chains.  For this to work, it is important that we have a sandboxed delivery mechanism, so that the amount of tokens transferred by a message cannot be changed en route. 
+For example, there may be a cross-chain token SPREE module. This would allow permissions on which chains can mint a particular token to be managed. In particular, using such a module would allow token transfers between chains without informing the home chain for this token, while still guaranteeing that only the home chain can mint the token. The SPREE module on the chain holding the tokens would have an account for the chain, rather than home chain having accounts for all chains.  For this to work, it is important that we have a sandboxed delivery mechanism, so that the amount of tokens transferred by a message cannot be changed en route. 
 
 
 
