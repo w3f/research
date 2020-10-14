@@ -12,10 +12,9 @@ Parachains will host dapps on them, and interoperability between dapps is highly
 
 - ordered delivery - messages arrive in a well-defined order.
 
-Ordered and timely delivery of messages is not given in many applications such as some web applications. This is because TCP/IP gives weaker guarantees about delivery and hence the web application needs to deal with these issues.
-This involves having message acknowledgements and timeouts. To build atomic transactions on such a layer requires a lot of work. Polkadot's shared security allows us to get much stronger guarantees than TCP/IP does.
-While Cosmos allows the choice of having ordered delivery, there may be no gurantees that messages will ever arrive due to the lack of a general incentive model for this purpose.
-The trade off for Polkadot however is that non-availability of XCMP messages can halt a parachain, so Polkadot needs to ensure that this never happens.
+Ordered and timely delivery of messages is not a given in many applications such as some web applications. This is because TCP gives weaker guarantees about delivery and hence the web application needs to deal with these issues. Specifically, TCP's guarantees do not cover application-level problems such as crashes. To build atomic transactions on such a layer requires a lot of work, involving acknowledgements and timeouts that persist across process lifetimes. The trade off for Polkadot however is that non-availability of XCMP messages can halt a parachain, so Polkadot needs to ensure that this never happens.
+
+(For comparison, while Cosmos allows the choice of having ordered delivery, there may be no guarantees that messages will ever arrive due to the lack of a general incentive model for this purpose.)
 
 We want all these properties while maintaining scalability, in that the relay chain should not be overwhelemed if 100 parachains send messages to 10,000 destinations in a single relay chain block, which we discuss in the next sections.
 
