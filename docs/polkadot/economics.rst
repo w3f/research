@@ -11,3 +11,4 @@ Another research field is behavioral economics, which focuses on human interacti
 
    Token Economics
    Parachain-Allocation
+   Validator-Selection
