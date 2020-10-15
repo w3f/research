@@ -59,7 +59,6 @@ and similarly if $supp_w(c_2)<supp_{w}(c_1)$ we reach a contradiction to the fac
 \end{proof}
 
 
-
 \begin{proof}[Proof of Lemma~\ref{lem:equivalence}]
 Let $A'\subseteq A$ be the non-empty subset that minimizes the expression $\frac{1}{|A'|} \sum_{n\in \cup_{c\in A'} N_c} s_n$. Hence, 
 \begin{align*}
@@ -94,7 +93,27 @@ If excess $f'(n)$ is non-positive, then $(w+f')(n)\leq w(n) \leq s_n$, since $w$
 Otherwise, $f'(n)\leq f(n)$, and thus $(w+f')(n)\leq w(n) + f(n) = (w+f)(n) = w'(n) \leq s_n$, since $w'$ is feasible. This completes the proof.
 \end{proof}
 
+\begin{proof}[Proof of Lemma~\ref{lem:badexamples}]
+In the example of Figure~\ref{fig:example}, the optimum value for the maximin support objective is clearly 1, achieved for instance by choosing the $k$ honest candidates. 
+So, if an $\alpha$-approximation algorithm elects $j$ adversarial candidates, one of these candidates is given a support of at least $1/\alpha$ and at most $1/j$, so $j\leq \alpha$. This proves the first claim.
 
+We continue with the PAV rule. In this example, it can be checked that PAV yields the same result as sequential-PAV, and that honest candidates are elected in order, i.e., $c_1$, then $c_2$, and so on. 
+Now, if at some point the rule has elected $i$ honest and $j-1$ adversarial members, with $i+j=k$, the score of the next honest candidate is $(k-i)/(i+1)$, and that of the next adversarial candidate is $1/j$. 
+As we always pick the candidate with highest score, the last candidate will be adversarial -- and hence there will be $j$ adversarial candidates elected -- if $1/j > (k-i)/(i+1)=j/(k-j+1)$. 
+It can be checked that $j=\sqrt{k}-1/2$ satisfies this inequality, so the rule elects at least this many adversarial representatives. 
+
+We analyze $\phragmen$ next. We take the continuous formulation where every voter starts with zero vote strength and gains strength at a constant speed of one unit per second, candidates have unit cost, and a candidate is elected as soon as its supporters can afford it, spending the corresponding vote strength; see~\cite{lackner2020approval}.  
+It will take $1/k+1/(k-1)+\cdots + 1/(k-i)= H_k - H_{k-i-1}$ seconds for the rule to elect $i+1$ honest candidates, where $H_i=\sum_{t=1}^i 1/t$ is the $i$-th harmonic number, and $j$ seconds to elect $j$ adversarial candidates, where honest and adversarial candidates are elected with independent time frames. 
+If at some point there are $i$ honest and $j-1$ adversarial candidates with $i+j=k$, the last elected candidate will be adversarial -- and thus there will be $j$ adversarial candidates elected -- if $j< H_k - H_{k-i-1} = H_k - H_{j-1}=\ln(\frac{k}{j}) -o(1)$. 
+From this it follows that the rule elects at least $(1-o(1)) \ln k$ adversarial candidates.
+
+We finally consider Rule X, which consists of two phases. 
+In the first phase, $k$ units of vote strength are evenly distributed among the $k+1$ voters, i.e., $k/(k+1)$ units per voter, and candidates have a unit cost as before. 
+The vote distribution from voters to candidates is somewhat involved, but it suffices to notice that the adversary cannot afford any candidates, honest candidates are elected in order, and the cost of each new candidate is evenly shared among its supporters. 
+At the beginning of the election of the $i$-th honest candidate, each of its $k-i+1$ supporters has a vote strength of $k/(k+1) - 1/k - \cdots - 1/(k-i+1)=1-H_{k+1}-H_{k-i}$, so the candidate can be afforded if and only if $(k-i+1)(1-H_{k+1} - H_{k-i})\geq 1$. As a result, there will be $k[1- e^{-1-o(1)}]$ honest candidates elected in the first phase. 
+Now, the rule is not specific about how to elect the remaining candidates in the second phase, so it could elect up to $k/e^{1+o(1)}=\Omega(k)$ adversarial candidates. 
+If the remaining seats are filled by running $\phragmen$, as suggested by the authors of Rule X~\cite{peters2019proportionality}, then the rule selects at least as many adversarial candidates as $\phragmen$ does, since the adversarial voter still has all of its budget available. This completes the proof.
+\end{proof}
 
 \begin{proof}[Proof of Lemma~\ref{lem:2balanced}]
 The second statement follows directly from the first one and the definitions of slack, pre-score and score in Section~\ref{s:heuristic}. Hence we focus on the first statement, i.e.~that $supp_w(c)\geq supp_{w'}(c)$ for each candidate $c\in A$.

@@ -148,31 +148,14 @@ How many representatives will it get?
 \label{fig:example}
 \end{figure}
 
-\begin{lemma}
+\begin{lemma}\label{lem:badexamples}
 In the example above, for any $\alpha \geq 1$ we have that the number of adversarial candidates elected by an $\alpha$-approximation algorithm for maximin support is at most $\lfloor \alpha \rfloor$. 
 On the other hand, this number is $\Omega(\sqrt{k})$ for proportional approval voting (PAV), and $\Omega(\log k)$ for both $\phragmen$ and Rule X. 
 Hence, none of these three rules provides a constant-factor approximation guarantee for maximin support. 
 \end{lemma}
 
-\begin{proof}
-In the example of Figure~\ref{fig:example}, the optimum value with respect to the maximin support objective is clearly 1, achieved for instance by choosing the $k$ honest candidates. 
-So, if an $\alpha$-approximation algorithm elects $j$ adversarial candidates, each of these candidates receives a support of $1/j \geq 1/\alpha$. This proves the first claim.
-
-We continue with the PAV rule. In this example, it can be checked that PAV yields the same result as sequential-PAV, and that honest candidates are elected in order, i.e., $c_1$, $c_2$, and so on. 
-Now, if at some point the rule has elected $i$ honest and $j-1$ adversarial members, with $i+j=k$, the score of the next honest candidate is $(k-1)/(i+1)$, and the score of the next adversarial candidate is $1/j$. 
-As we always pick the candidate with highest score, the last candidate will be adversarial -- and hence there will be $j$ adversarial candidates elected -- if $1/j > (k-i)/(i+1)=j/(k-j+1)$. 
-It can be checked that $j=\sqrt{k}-1/2$ satisfies this inequality, so the rule elects at least this many adversarial representatives. 
-
-We analyze $\phragmen$ next. We take the continuous formulation where every voter $n$ starts with a budget of zero and gains currency at a constant speed of one unit per second, and a candidate is elected as soon as its supporters can afford it; see~\cite{lackner2020approval}.  
-It will take $1/k+1/(k-1)+\cdots + 1/(k-i)= H_k - H_{k-i-1}$ seconds for the rule to elect $i+1$ honest candidates, where $H_i=\sum_{t=1}^i 1/t$ is the $i$-th harmonic number, and it will take $j$ seconds to elect $j$ adversarial candidates, where honest and adversarial candidates are elected in independent time frames. 
-Assuming that at some point there are $i$ honest and $j-1$ adversarial candidates with $i+j=k$, the last elected candidate will be adversarial -- and thus there will be $j$ adversarial candidates elected -- if $j< H_k - H_{k-i-1} = H_k - H_{j-1}=\ln(\frac{k}{j}) +o(1)$. 
-From this it follows that the rule elects at least $(1-o(1)) \ln k$.
-
-We finally pass to Rule X. 
-\end{proof}
-
 For definitions of these rules, we direct the reader to the survey paper~\cite{lackner2020approval}.
-The proof is delayed to Appendix~\ref{s:proofs}, and we remark only that Rule X~\cite{peters2019proportionality} is a recently proposed rule that is inspired in $\phragmen$ (much as our own heuristic presented in the next section) and achieves the EJR property. 
+The proof is delayed to Appendix~\ref{s:proofs}, and we remark only that Rule X~\cite{peters2019proportionality} is a recently proposed rule that is inspired in $\phragmen$ -- much as our own heuristic presented in the next section -- and achieves the EJR property. 
 
 %The $\phragmen$ heuristic~\cite{brill2017phragmen} achieves the PJR property and is very fast, with a running time of $O(|E|\cdot k)$. However, in Apendix~\ref{s:phragmen} we prove that it does not offer a constant-factor approximation for the maximin support problem. 
 
@@ -181,14 +164,14 @@ The proof is delayed to Appendix~\ref{s:proofs}, and we remark only that Rule X~
 %\end{lemma}
 
 
-In contrast, we prove next that $\MMS$~\cite{sanchez2016maximin}, a recently proposed rule known to achieve the PJR property, provides a 2-factor approximation for maximin support, although with a somewhat slow runtime of $O(\bal \cdot |C|\cdot k)$, where we recall that $\bal$ is the time complexity of computing a balanced weight vector; see Remark~\ref{rem:bal}. In simple terms, $\MMS$ (Algorithm~\ref{alg:mms}) starts with an empty committee $A$ and iteratively adds candidates to it; in each iteration, it computes a balanced weight vector for each possible augmented committee that can be obtained by adding an unelected candidate, and then inserts the candidate whose corresponding augmented committee has the highest least member support.
+In contrast, we prove next that the recently proposed rule of $\MMS$~\cite{sanchez2016maximin}, known to achieve the PJR property, also provides a 2-factor approximation for maximin support. In simple terms, $\MMS$ (Algorithm~\ref{alg:mms}) starts with an empty committee $A$ and iteratively adds candidates to it; in each iteration, it computes a balanced weight vector for each possible augmented committee that can be obtained by adding an unelected candidate, and then inserts the candidate whose corresponding augmented committee has the highest least member support.
 
 
 \begin{algorithm}[htb]\label{alg:mms}
 \SetAlgoLined
 \KwData{Bipartite approval graph $G=(N\cup C, E)$, vector $s$ of vote strengths, target committee size $k$.}
 Initialize $A=\emptyset$\ and $w=0\in \R^E$\;
-\For{$i=1,2,\cdots k$}{
+\For{$i=1,2,\cdots, k$}{
 \lFor{each`candidate $c\in C\setminus A$}{Compute a balanced\footnotemark ~edge weight vector $w_c$ for $A+c$}
 Find $c_i\in \arg\max_{c\in C\setminus A} \supp_{w_c}(A+c)$\;
 Update $A\leftarrow A+c_i$ and $w\leftarrow w_{c_i}$;
@@ -206,7 +189,7 @@ The $\MMS$ algorithm provides a 2-approximation for maximin support.
 We will need the following technical result, whose proof is delayed momentarily. 
 
 \begin{lemma}\label{lem:2sols}
-If $(A^*, w^*)$ is an optimal solution to the given instance of maximin support, and $(A,w)$ is a partial solution with $|A|\leq k$ and $A\neq A^*$, then there is a candidate $c'\in A^*\setminus A$ and a feasible solution $(A+c', w')$ such that 
+If $(A^*, w^*)$ is an optimal solution to the given instance of maximin support, and $(A,w)$ is a partial solution with $|A|\leq k$ and $A\neq A^*$, then there is a candidate $c'\in A^*\setminus A$ and feasible solution $(A+c', w')$ such that 
 $$\supp_{w'}(A+c')\geq \min\Big\{\supp_w(A), \frac{1}{2} \supp_{w^*}(A^*)\Big\}.$$
 \end{lemma}
 
@@ -226,9 +209,9 @@ This completes the proof.
 \end{proof}
 
 \begin{proof}[Proof of Lemma~\ref{lem:2sols}]
-Let $(A,w)$ and $(A^*, w^*)$ be as in the statement, let $t^*:=\supp_{w^*}(A^*)$, and let $t:=\min\{\supp_w(A), t^*/2\}$. To prove the lemma, it suffices to find a candidate $c'\in A^*\setminus A$ and a feasible weight vector $w'\in\R^E$ such that $\supp_{w'}(A+c)\geq t$.
+Let $(A,w)$ and $(A^*, w^*)$ be as in the statement, and let $t^*:=\supp_{w^*}(A^*)$ and $t:=\min\{\supp_w(A), t^*/2\}$. To prove the lemma, it suffices to find a candidate $c'\in A^*\setminus A$ and a feasible weight vector $w'\in\R^E$ such that $\supp_{w'}(A+c)\geq t$.
 
-By decreasing some components in $w$ and $w^*$, we can assume without loss of generality that $\supp_w(c)=t$ for each $c\in A$, and $\supp_{w^*}(c)=t^*$ for each $c\in A^*$. Define now the flow vector $f:=w^* - w\in\mathbb{R}^E$. 
+By decreasing some components in $w$ and $w^*$, we can assume without loss of generality that $\supp_w(c)=t$ for each $c\in A$ and $\supp_{w^*}(c)=t^*$ for each $c\in A^*$. Define now the flow vector $f:=w^* - w\in\mathbb{R}^E$. 
 We partition the network nodes into four sets: relative to $f$, we have that a) $N$ has a net excess of $|A^*|\cdot t^* - |A|\cdot t$, b) $A\setminus A^*$ has a net excess of $|A\setminus A^*|\cdot t$, c) $A^*\setminus A$ has a net demand of $|A^*\setminus A|\cdot t^*$, and d) $A\cap A^*$ has a net demand of $|A\cap A^*|\cdot (t^*-t)$.
 Now, using the flow decomposition theorem, we can decompose flow $f$ into circulations and simple paths, where each path starts in a vertex with net excess and ends in a vertex with net demand. If we define $f'$ to be the sub-flow of $f$ that contains only the simple paths that start in $N$ and end in $A^*\setminus A$, then %
 %
@@ -243,7 +226,7 @@ Finally, we define weight vector $w':=w+f'$: by Lemma~\ref{lem:subflow}, $w'$ is
 Furthermore, it provides the same support as $w$ to each committee member $c\in A$, namely $t$, and a support of at least $t$ to candidate $c'$. Hence, $\supp_{w'}(A+c')\geq t$. 
 \end{proof}
 
-$\MMS$ is a standard greedy algorithm. 
+$\MMS$ is an iterative greedy algorithm with a runtime of $O(\bal \cdot |C|\cdot k)$, where we recall that $\bal$ is the time complexity of computing a balanced weight vector; see Remark~\ref{rem:bal}. 
 To conclude the section, we mention that a "lazy" version of it can save a factor $\Theta(k)$ in the runtime while keeping the approximation guarantee virtually unchanged. 
 In particular, in Appendix~\ref{s:lazymms} we prove the following result.
 
