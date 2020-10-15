@@ -31,6 +31,7 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
     'sphinx.ext.githubpages',
+    'sphinx.ext.autosectionlabel',
     'sphinx_material',
 ]
 
@@ -75,6 +76,8 @@ mathjax_config = {
 }
 
 # -- Extension configuration -------------------------------------------------
+
+autosectionlabel_prefix_document = True
 
 # -- Options for intersphinx extension ---------------------------------------
 

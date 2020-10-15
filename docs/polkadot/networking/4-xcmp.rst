@@ -39,7 +39,7 @@ that the parachain cannot be attacked by malicious collators. (TODO: currently
 parachain in order to begin defining this.)
 
 R2. Ideally, allow recipients to select which message(s) to receive first,
-subject to the fairness constraints mentioned above.
+subject to the :ref:`XCMP fairness constraints <polkadot/XCMP/index:fairness>`.
 
 See also `security considerations`_ below.
 
@@ -169,7 +169,7 @@ In terms of the three main options above:
 - On the other hand, using more validator groups introduces more places at
   which messages can get lost or censored: if the entire validator group is
   malicious then the XCMP message may get lost entirely, which would freeze
-  that parachain - since our Fairness_ property blocks them from progressing
+  that parachain - since our fairness property blocks them from progressing
   until they have processed this message.
 
   Therefore, we would need to specify a backup retrieval mechanism for
@@ -461,43 +461,3 @@ give incorrect whitelist/blacklist information.
 (Even with a large group rotation period, abuse is still possible but its
 effect is greatly reduced as validators have enough time to reach their own
 conclusions.)
-
-Appendix
-========
-
-XCMP overview
--------------
-
-FIXME: much the section below should be moved to the main XCMP document.
-
-To recap, :doc:`XCMP <../XCMP/index>` is designed to achieve ordered, reliable, and fair delivery, under the constraint of trying to minimise the data stored on the relay chain.
-
-Terminology note: all the messages for a given (sender, block) are processed in a single batch by the recipient, so to simplify discussion without losing generality, from here on we will refer to "the" (logical) message at a given (sender, block) even though in practise this consists of multiple smaller physical messages.
-
-(Sender, recipient) parachains that wish to communicate, register with the relay chain to open a channel. This channel comprises a bounded queue of ordered messages that have been sent but not yet acknowledged by the recipient.
-
-The queue is maintained by the sending parachain; it tells the relay chain what the current head of the queue is, by including it in their next submission to the relay chain. Thus the relay chain only stores the current heads of the channels. [1]_ Every message is associated with a merkle co-path that proves it belongs to the channel, as defined by the head in the relay chain block. When the recipient acts on the message, they acknowledge this to the relay chain, by including the merkle co-path in their next submission to the relay chain.
-
-.. [1] In practise this is compressed even further across multiple channels for the same sender - we omit the details here as they are not relevant to XCMP networking; the overall "shape" is similar to the oversimplified version just described.
-
-**The main task of XCMP networking** therefore, is to distribute these messages and copaths from the senders to the recipients.
-
-The receiving parachain collators must monitor the state of the relay chain, in order to know if it has new incoming messages, and what messages are currently in the queue (relative to a given relay chain block head). Similarly, the sending parachain collators may monitor the state of the relay chain, in order to know if its outgoing messages have been acknowledged, and what messages remain in the queue. These are also done outside of the scope of XCMP networking; however the XCMP networking relies on the former at least to be done correctly.
-
-The relay chain & parachain validators together verify that the channel grows & is consumed, in a consistent & reliable way; this is done outside of the scope of XCMP networking. Specifically, messages must be acknowledged in the correct order for a given channel. Additionally, a receiving parachain must acknowledge at least one new message from a block, if it has any new messages (from different senders/channels) in that block. To ensure **fairness**, the order in which messages from different senders/channels must be acknowledged, is pre-determined and out of the control of the receiving parachain. In other words, multiple incoming channels for a given recipient are multiplexed into a single ingress queue, and the recipient must process this queue in the aforementioned pre-determined order.
-
-Expected usage profile
-``````````````````````
-
-Every sending parachain may send up to ~1 MB per chain height in total, to all parachains. In the most unbalanced case, this will be all to a single receiving parachain.
-
-Across all chains then, the worst case is that (C-1) parachains will each send ~1 MB to the same receiver parachain in a single block; however this need not be all distributed during the time slot for that block - see fairness below.
-
-Fairness
-````````
-
-Fairness means that receivers must process received messages fairly across all senders, and we chose this mostly to ensure that no message will be left unprocessed for an infinite delay - the sender knows that the receiver must least ack its contents eventually, though they can drop the message after that. This is a value judgement made at the point-of-design of XCMP; we'll monitor its performance in practise.
-
-Although different from the internet's recipient-controlled processing, fairness does not introduce much overhead since for global ordering and reliability, message-passing is co-ordinated via the relay chain anyways, and enforcing fairness on top of this is straightforward.
-
-If receiving parachains feel that they are being spammed by certain sending parachains, they may selectively close these channels.
