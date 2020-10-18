@@ -3,7 +3,7 @@ samuel@web3.foundation
 
 I am a microeconomist with an interest in contracts, auctions, and contests. I hold a PhD from the University of Basel. For more information, see my personal webpage at [samuelhaefner.github.io](https://samuelhaefner.github.io).
 
-#### Publications
+**Publications**
 - [Eternal Peace in the Tug-of-War?](https://doi.org/10.1007/s00199-020-01287-9)  
 *Economic Theory*, 2020 (online first).
 - [Sorting in Iterated Incumbency Contests](https://doi.org/10.1007/s00199-019-01205-8) (with Georg Nöldeke).  
