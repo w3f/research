@@ -107,9 +107,11 @@ TODO:  Import any discussion from Alfonso's text
 
 ## Rewards for slashable offense reports
 
-Interestingly, we find that monotonicity also constrains our rewards for offense reports that result in slashing:  If a validator $\nu$ gets slashed, then they could freely equivocate more and report upon themselves to earn back some of the slashed value.
+Interestingly, we find that monotonicity also constrains our rewards for offense reports that result in slashing:  If a validator $\nu$ gets slashed, then they could freely equivocate more and report upon themselves to earn back some of the slashed value.  It follows that slashes should always slash the validator's self stake more than the reward for the slash.
 
 ### Rewards based on slashing nominators
+
+We quickly give an inefficient straw-man that describes issuing rewards based upon slashing nominators.
 
 We define $f_\infty$ to be the maximum proportion of a slash that ever gets paid out, presumably $f_\infty < 0.1$.  We also define $f_1 \le {1\over2}$ to be the proportion of $f_\infty$ paid out initially on the first offence detection.  So a fresh slash of value $s$ results in a payout of $f_\infty f_1 s$.  Set $f_0 := {1-f_1 \over f_1} f_\infty$ so that $f_\infty = {f_1 \over 1-f_1} f_0$.
 
@@ -117,16 +119,17 @@ We consider a slash of value $s := p_{\nu,e} x_{\eta,\nu,e}$ being applied to th
 
 We track the value $s_{\eta,i}$ in $\eta$'s slashing span record, but we also track another value $t_{\eta,i} < s_{\eta,i}$ that represents the total amount paid out so far.  If $s_{\eta,i+1} > s_{\eta,i}$ then we pay out $r := f_1 (f_0 s_{\eta,i+1} - t_{\eta,i})$ and increase $t_{\eta,i}$ by this amount.  If $s_{\eta,i+1} = s_{\eta,i}$ then we pay out $r := f_1 \max(f_0 s - t_{\eta,i},0)$.  In either case, we store $t_{\eta,i+1} := t_{\eta,i} + r$.
 
-In this way, our validator $\nu$ cannot reclaim more than $f_{\infty} f_1 s$ from a slash of value $s$, even by repeatedly equivocations.  Any slash of size $s_{\eta,i}$ always results in some payout, but slashes less than $t_{\eta,i}$ never pay out.
+In this way, our validator $\nu$ cannot reclaim more than $f_{\infty} f_1 s$ from a slash of value $s$, even by repeatedly equivocations, so $f_{\infty} f_1$ should remain below the required self stake.  Any slash of size $s_{\eta,i}$ always results in some payout, but slashes less than $t_{\eta,i}$ never pay out.
 
 ### Rewards based on slashing only validators
 
-We dislike that the above reward scheme requires considering all impacted $\eta$ when doing payouts, so we propose to compute rewards only for validators being slashed instead.  We shall require that validators always get slashed whenever their nominators get slashed, which means validators cannot be slashed 100% without their nominators all also being slashed 100%.
+We dislike that the above reward scheme requires both considering all impacted $\eta$ when doing payouts, and imposing the bound that $f_{\infty} f_1$ remain below the self stake remains tricky.  
+
+We therefore propose to compute rewards only for validators being slashed instead.  We shall require that validators always get slashed whenever their nominators get slashed, which means validators cannot be slashed 100% without their nominators all also being slashed 100%.
 
 We have some minimum exposure aka stake $x'$ that validator operators must provide themselves, meaning $x_{\nu,\nu,e} \ge x'$.  As a simplifying assumption, we ask that $f_\infty$ be kept small enough that rewards can always be covered by the validators' exposure, meaning $x' \ge f_{\infty} \sum_\eta x_{\eta,\nu,e}$.  We do not explore any cases where this fails here, but doing so requires a subtle definition of some $x' > x_{\nu,\nu,e}$ such that rewards still cannot create inflation.
 
 We now define $f' > f_0$ such that $f' x' = {1-f_1 \over f_1} f_{\infty} x_{\min}$ where $x_{\min} = \sum_\eta x_{\eta,\nu,e}$ is our required minimum total stake for any validator.  In the above scheme, we shall replace $f_{\infty}$ by $f'$ and only apply the payouts to slashes against validator operators minimum exposure $x'$, meaning replace the slash value $p_{\nu,e} x_{\eta,\nu,e}$ by $\max_{e \in \bar{e}} p_{\nu,e} x'$.
-
 
 We consider a slash of value $s := p_{\nu,e} x_{\nu,\nu,e}$ being applied to the validator $\nu$.  We define the _minimum validator adjusted slash_ value $s' := p_{\nu,e} x'$ to be the fraction of this slash applied to the minimum validator stake $x'$.  We have a _total minimum validator adjusted slash_ given by $\max_{e \in \bar{e}} p_{\nu,e} x'$, which provides an analog of total regular slashes but only considering the validator themselves.
 

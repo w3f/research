@@ -120,6 +120,8 @@ future, we would like to look into possible additional but minimal networking
 structure for parachains, that can achieve these protections more efficiently
 whilst retaining an acceptable and maximal level of flexibility.
 
+.. _net-real-world-attacks:
+
 Real-world attacks
 ------------------
 
@@ -142,10 +144,10 @@ So it's prudent to consider these attacks in advance, as we do in this section.
 However, the precise incentives of attackers are hard to model and can change
 over time, and so our suggestions should be considered carefully in conjunction
 with operational experience of real-world attackers and how they behave. In
-particular, our suggestions are rather heavyweight - though they are intended
-to protect against the very worst attacks, they also carry complexity cost of
-development. Depending on the operational environment, they may be simplified
-or skipped, or implemented in incrementally in stages as we have outlined.
+particular, some of our suggestions below are rather heavyweight - though they
+are intended to protect against the worst attacks, they also carry additionaly
+development cost. Depending on the operational environment, they may be skipped
+or simplified, or implemented in incrementally in stages as we have outlined.
 
 
 Proposal: parachain networking, initial iteration
