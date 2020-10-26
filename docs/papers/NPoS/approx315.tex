@@ -2,10 +2,10 @@
 
 We proved in Section~\ref{s:complexity} that a 2-approximation algorithm for maximin support can be computed in time $O(\bal\cdot |C|\cdot k)$ or $O(\bal\cdot |C|)$ (Theorems \ref{thm:mms} and \ref{thm:2eps} respectively). 
 We use the $\phragmms$ heuristic to develop a $3.15$-approximation algorithm that runs in time $O(\bal\cdot k)$, and satisfies PJR as well. 
-We highlight that this is the fastest known algorithm to achieve a constant-factor guarantee for maximin support, and that gains in speed are of paramount importance for our application to validator election in NPoS, where there are hundreds of candidates and a massive number of voters.
+We highlight that this is the fastest known algorithm to achieve a constant-factor guarantee for maximin support, and that gains in speed are of paramount importance for our blockchain application, where there are hundreds of candidates and a massive number of voters.
 
-We propose $\balanced$ (Algorithm~\ref{alg:balanced}), an iterative greedy algorithm that starts with an empty committee and alternates between inserting a new candidate with the $\phragmms$ heuristic, and \emph{rebalancing} the weight vector, i.e. replacing it with a balanced one. This constitutes a middle ground between the approach taken in $\phragmen$ where the weight vector is never rebalanced, and the approach in $\MMS$ where $O(|C|)$ balanced vectors are computed in each iteration. 
-We formalize the procedure below. Notice that running the Insert procedure (Algorithm~\ref{alg:ins}) before rebalancing is optional, but the step simplifies the analysis, and provides a good starting point to the balancing algorithm.
+We propose $\balanced$ (Algorithm~\ref{alg:balanced}), an iterative greedy algorithm that starts with an empty committee and alternates between inserting a new candidate with the $\phragmms$ heuristic, and \emph{fully rebalancing} the weight vector, i.e., replacing it with a balanced one. This constitutes a middle ground between the approach taken in $\phragmen$ where the weight vector is never rebalanced, and the approach in $\MMS$ where $O(|C|)$ balanced vectors are computed in each iteration. 
+We formalize the procedure below. Notice that running the Insert procedure (Algorithm~\ref{alg:ins}) before rebalancing is optional, but the step simplifies the analysis and may provide a better starting point to the balancing algorithm.
 
 \begin{algorithm}[htb]\label{alg:balanced}
 \SetAlgoLined
@@ -22,21 +22,21 @@ Replace $w$ with a balanced weight vector for $A$\;
 \end{algorithm}
 
 \begin{theorem}\label{thm:315}
-$\balanced$ (Algorithm~\ref{alg:balanced}) offers a $3.15$-approximation for the maximin support problem, satisfies the PJR property, and executes in time $O(\bal\cdot k)$, assuming that $\bal= \Omega(|E|\cdot \log k)$.
+$\balanced$ offers a $3.15$-approximation guarantee for the maximin support problem, satisfies the PJR property, and executes in time $O(\bal\cdot k)$, assuming that $\bal= \Omega(|E|\cdot \log k)$.
 \end{theorem}
 
 This in turn proves Theorem~\ref{thm:intro1}. 
-The claim on runtime is straightforward: we established in Theorem~\ref{thm:runtimes} that the $\phragmms$ heuristic runs in time $O(|E|\cdot \log k)$, so each iteration of $\balanced$ has a runtime of $O(|E|\cdot \log k + \bal)=O(\bal)$, where in the last equality we assume that $\bal= \Omega(|E|\cdot \log k)$. 
+The claim on runtime is straightforward: we established in Theorem~\ref{thm:runtimes} that the $\phragmms$ heuristic runs in time $O(|E|\cdot \log k)$, so each one of the $k$ iterations of $\balanced$ has a runtime of $O(|E|\cdot \log k + \bal)=O(\bal)$, where in the last equality we assume that $\bal= \Omega(|E|\cdot \log k)$. 
 In fact, in Appendix~\ref{s:algorithms} we improve upon this analysis and prove that each iteration can be made to run in time $O(|E| + \bal)$.
-Next, in order to prove PJR we need the following technical lemmas.
+Next, in order to prove the PJR property we need the following technical lemmas.
 
 \begin{lemma}\label{lem:2balanced}
-If $(A,w)$ and $(A',w')$ are two balanced partial solutions with $A\subseteq A'$, then $supp_w(c)\geq supp_{w'}(c)$ for each candidate $c\in A$. 
-Furthermore, for each $c'\in C\setminus A'$ we have that $score_{(A,w)}(c')\geq score_{(A',w')}(c')$.
+If $(A,w)$ and $(A',w')$ are two balanced partial solutions with $A\subseteq A'$, then $\supp_w(c)\geq \supp_{w'}(c)$ for each candidate $c\in A$. 
+Furthermore, for each $c'\in C\setminus A'$ we have that $\score_{(A,w)}(c')\geq \score_{(A',w')}(c')$.
 \end{lemma}
 
 \begin{lemma}\label{lem:localopt}
-If $supp_w(A)\geq \max_{c'\in C\setminus A} score(c')$ holds for a full solution $(A,w)$, then $A$ satisfies PJR.
+If $\supp_w(A)\geq \max_{c'\in C\setminus A} \score(c')$ holds for a full solution $(A,w)$, then $A$ satisfies PJR.
 \end{lemma}
 
 Lemma \ref{lem:2balanced} formalizes the intuition that as more candidates are added to committee $A$, supports and scores can only decrease, never increase; its proof is delayed to Appendix~\ref{s:proofs}.
@@ -44,16 +44,16 @@ Lemma~\ref{lem:localopt} provides a sense of local optimality to solution $(A,w)
 We prove now that the output of $\balanced$ satisfies the condition in Lemma~\ref{lem:localopt}, and hence satisfies PJR.
 
 \begin{lemma}\label{lem:315localoptimality}
-At the end of each one of the $k$ iterations of Algorithm $\balanced$, if $(A,w)$ is the current partial balanced solution, we have that $supp_{w}(A)\geq \max_{c'\in C\setminus A} score_{(A,w)}(c')$.
+At the end of each one of the $k$ iterations of Algorithm $\balanced$, if $(A,w)$ is the current partial balanced solution, we have that $\supp_{w}(A)\geq \max_{c'\in C\setminus A} \score_{(A,w)}(c')$.
 \end{lemma}
 \begin{proof}
-Let $(A_i,w_i)$ be the partial solution at the end of the $i$-th iteration. We prove the claim by induction on $i$, where the base case for $i=0$ holds trivially as we use the convention that $supp_{w_0}(\emptyset)=\infty$ for any $w_0$. For $i\geq 1$, suppose that on iteration $i$ we insert a candidate $c_i$ with highest score, and let $w'$ be the weight vector obtained from running $\ins(A_{i-1}, w_{i-1}, c_i, score_{(A_{i-1}, w_{i-1})}(c_i))$ (Algorithm~\ref{alg:ins}). Then
+Let $(A_i,w_i)$ be the partial solution at the end of the $i$-th iteration. We prove the claim by induction on $i$, where the base case for $i=0$ holds trivially as we use the convention that $\supp_{w_0}(\emptyset)=\infty$ for any $w_0$. For $i\geq 1$, suppose that on iteration $i$ we insert a candidate $c_i$ with highest score, and let $w'$ be the weight vector obtained from running $\ins(A_{i-1}, w_{i-1}, c_i, \score_{(A_{i-1}, w_{i-1})}(c_i))$ (Algorithm~\ref{alg:ins}). Then
 
 \begin{align*}
-supp_{w_i}(A_i) &\geq supp_{w'}(A_i) &\text{(as $w_i$ is balanced for $A_i$)}\\
-&\geq \min\{ supp_{w_{i-1}}(A_{i-1}), score_{(A_{i-1}, w_{i-1})}(c_i) \} &\text{(by Lemma~\ref{lem:insert})}\\
-&\geq \max_{c'\in C\setminus A_{i-1}} score_{(A_{i-1}, w_{i-1})}(c') &\text{(by induction hyp.~and by choice of $c_i$)}\\
-&\geq \max_{c'\in C\setminus A_{i}} score_{(A_{i}, w_{i})}(c'). &\text{(by Lemma~\ref{lem:2balanced})}
+\supp_{w_i}(A_i) &\geq \supp_{w'}(A_i) &\text{(as $w_i$ is balanced for $A_i$)}\\
+&\geq \min\{ \supp_{w_{i-1}}(A_{i-1}), \score_{(A_{i-1}, w_{i-1})}(c_i) \} &\text{(by Lemma~\ref{lem:insert})}\\
+&\geq \max_{c'\in C\setminus A_{i-1}} \score_{(A_{i-1}, w_{i-1})}(c') &\text{(by induction hyp.~and choice of $c_i$)}\\
+&\geq \max_{c'\in C\setminus A_{i}} \score_{(A_{i}, w_{i})}(c'). &\text{(by Lemma~\ref{lem:2balanced})}
 \end{align*}
 This completes the proof.
 \end{proof}
@@ -63,25 +63,25 @@ It remains to prove the claimed approximation guarantee of Algorithm $\balanced$
 To do that, we need the following technical result which, informally speaking, establishes that if a partial solution is balanced, then there must be a subset of voters with large slacks, and neighboring unelected candidates with high pre-scores and scores.   
 
 \begin{lemma}\label{lem:N_a}
-Let $(A^*, w^*)$ be an optimal solution to the maximin support instance, $t^*=supp_{w^*}(A^*)$, and let $(A,w)$ be a balanced solution with $|A|\leq k$ and $A\neq A^*$. For each $0\leq a\leq 1$, there is a subset $N(a)\subseteq N$ of voters such that 
+Let $(A^*, w^*)$ be an optimal solution to the maximin support instance, $t^*=\supp_{w^*}(A^*)$, and let $(A,w)$ be a balanced solution with $|A|\leq k$ and $A\neq A^*$. For each $0\leq a\leq 1$, there is a subset $N(a)\subseteq N$ of voters such that 
 \begin{enumerate}
 	\item each voter $n\in N(a)$ has a neighbor in $A^*\setminus A$;
-	\item for each voter $n\in N(a)$, we have that $supp_w(A\cap C_n):=\min_{c\in A\cap C_n} supp_w(c)\geq at^*$;
+	\item for each voter $n\in N(a)$, we have that $\supp_w(A\cap C_n):=\min_{c\in A\cap C_n} \supp_w(c)\geq at^*$;
 	\item $\sum_{n\in N(a)} s_n \geq |A^* \setminus A|\cdot (1-a) t^*$; and
 	\item for any $b$ with $a\leq b\leq 1$ we have that $N(b)\subseteq N(a)$, and for each $n\in N(a)$ we have that $n$ is also in $N(b)$ if and only if property 2 above holds for $n$ with parameter $a$ replaced by $b$.
 \end{enumerate}
 \end{lemma}
 
 \begin{proof}
-Fix a parameter $0\leq a\leq 1$ and define the set $N':=\{n\in N: \ supp_w(A\cap C_n)\geq at^*\}$, where $supp_w(\emptyset)=\infty$ by convention. If we define $N(a)\subseteq N'$ as those voters in $N'$ that have a neighbor in $A^*\setminus A$, then properties 1, 2 and 4 become evident. Hence, it only remains to prove the third property.
+Fix a parameter $0\leq a\leq 1$ and define the set $N':=\{n\in N: \ \supp_w(A\cap C_n)\geq at^*\}$, where $\supp_w(\emptyset)=\infty$ by convention. If we define $N(a)\subseteq N'$ as those voters in $N'$ that have a neighbor in $A^*\setminus A$, then properties 1, 2 and 4 become evident. Hence, it only remains to prove the third property.
 
-We claim that there is no edge with non-zero weight between $N\setminus N'$ and $A':=\{c\in A: \ supp_w(c)\geq at^*\}$. 
-Indeed, if there was a pair $n\in N\setminus N'$, $c\in A'$ with $w_{nc}>0$, then by point 3 of Lemma~\ref{lem:balanced} we would have that $supp_w(A\cap C_n)=supp_w(c)\geq at^*$, contradicting the fact that $n\not\in N$. 
+We claim that there is no edge with non-zero weight between $N\setminus N'$ and $A':=\{c\in A: \ \supp_w(c)\geq at^*\}$. 
+Indeed, if there was a pair $n\in N\setminus N'$, $c\in A'$ with $w_{nc}>0$, then by point 3 of Lemma~\ref{lem:balanced} we would have that $\supp_w(A\cap C_n)=\supp_w(c)\geq at^*$, contradicting the fact that $n\not\in N$. 
 Thus, we get the inequality
-$$\sum_{n\in N\setminus N'} s_n \leq \sum_{c\in A\setminus A'} supp_w(c) < |A\setminus A'|\cdot at^*< |A^*\setminus A'|\cdot at^*.$$
+$$\sum_{n\in N\setminus N'} s_n \leq \sum_{c\in A\setminus A'} \supp_w(c) < |A\setminus A'|\cdot at^*< |A^*\setminus A'|\cdot at^*.$$
 
-By reducing some components in vectors $w$ and $w^*$, we can assume without loss of generality that $supp_{w^*}(c)=t^*$ if $c\in A^*$, zero otherwise, and $supp_{w}(c)=a t^*$ if $c\in A^*\cap A'$, zero otherwise. Define $f:=w^* - w\in\mathbb{R}^E$, which we interpret as a vector of flows over the network induced by $N\cup A^*$, with positive signs corresponding to flow leaving $N$, and vice-versa. We partition the network nodes into four sets: $N'$, $N\setminus N'$, $A^*\cap A'$, and $A^*\setminus A'$. Relative to $f$, we have that a) $N$ has a net excess of $|A^*|\cdot t^* - |A^*\cap A'|\cdot a t^*$, b) $N\setminus N'$ has a net excess of at most $\sum_{n\in N\setminus N'} s_n < |A^*\setminus A'|\cdot at^*$ (by the previous inequality), and c) $A^*\cap A'$ has a net demand of $|A^*\cap A'|\cdot (1-a) t^*$. 
-
+By reducing some components in vectors $w$ and $w^*$, we can assume without loss of generality that $\supp_{w^*}(c)=t^*$ if $c\in A^*$, zero otherwise, and $\supp_{w}(c)=a t^*$ if $c\in A^*\cap A'$, zero otherwise -- we call this the ``wlog assumption''.
+Define $f:=w^* - w\in\mathbb{R}^E$, which we interpret as a vector of flows over the network induced by $N\cup A^*$, with positive signs corresponding to flow leaving $N$, and vice-versa. We partition the network nodes into four sets: $N'$, $N\setminus N'$, $A^*\cap A'$, and $A^*\setminus A'$. Relative to $f$, we have that a) $N$ has a net excess of $|A^*|\cdot t^* - |A^*\cap A'|\cdot a t^*$, b) $N\setminus N'$ has a net excess of at most $\sum_{n\in N\setminus N'} s_n < |A^*\setminus A'|\cdot at^*$ (by the previous inequality), and c) $A^*\cap A'$ has a net demand of $|A^*\cap A'|\cdot (1-a) t^*$. 
 Using the flow decomposition theorem, we can decompose flow $f$ into circulations and simple paths. If we define $f'$ to be the sub-flow of $f$ that contains only the simple paths that start in $N'$ and end in $A^*\setminus A'$, then %
 %
 \begin{align*}
@@ -89,10 +89,10 @@ Using the flow decomposition theorem, we can decompose flow $f$ into circulation
     &\geq |A^*|\cdot t^* - |A^*\cap A'|\cdot a t^* -|A^*\setminus A'|\cdot a t^* -|A^*\cap A'|\cdot (1-a) t^*\\
     & = |A^*\setminus A'|\cdot (1-a)t^* \geq |A^* \setminus A|\cdot (1-a)t^*.
 \end{align*}
-%
+
 A key observation now is that none of the flow in $f'$ can pass by any node in $N\setminus N'$ or $A^*\cap A\setminus A'$; see Figure~\ref{fig:sets}. 
-This is because any path in $f'$ starts in $N'$, nodes in $N'$ have no neighbors in $A\setminus A'$ (by definitions of $N'$ and $A'$), and furthermore there is no flow possible from $(A^*\setminus A)\cup (A^*\cap A')$ to $N\setminus N'$ in $f=w^*-w$, because $w$ has no flow from $N\setminus N'$ toward $A'$ (by our claim) nor toward $A^*\setminus A$ (by our assumption wlog on $w$).
-Therefore, the formula above is actually a lower bound on the flow going from $N'$ to $A^*\setminus A$. Finally, we notice that for each path in $f'$, the last edge goes from $N'$ to $A^*\setminus A$, so it originates in $N(a)$. This proves that $\sum_{n\in N(a)} s_n\geq \text{ flow value in } f'\geq |A^* \setminus A|\cdot (1-a) t^*$, which is the third property.
+This is because any path in $f'$ starts in $N'$, nodes in $N'$ have no neighbors in $A\setminus A'$ (by definitions of $N'$ and $A'$), and furthermore there is no flow possible from $(A^*\setminus A)\cup (A^*\cap A')$ to $N\setminus N'$ in $f=w^*-w$, because $w$ has no flow from $N\setminus N'$ toward $A'$ (by our claim) nor toward $A^*\setminus A$ (by the wlog assumption).
+Therefore, the formula above is actually a lower bound on the flow going from $N'$ to $A^*\setminus A$. Finally, we notice that for each path in $f'$, the last edge goes from $N'$ to $A^*\setminus A$, so it originates in $N(a)$. This proves that $\sum_{n\in N(a)} s_n\geq \text{ flow value in } f'\geq |A^* \setminus A|\cdot (1-a) t^*$%, which is the third property.
 \end{proof}
 
 \begin{figure}[htb]
@@ -146,55 +146,55 @@ Therefore, the formula above is actually a lower bound on the flow going from $N
 As a warm-up, we show how this last result easily implies a $4$-approximation guarantee for $\balanced$.
 
 \begin{lemma}
-If $(A,w)$, $(A^*,w^*)$ and $t^*$ are as in Lemma~\ref{lem:N_a}, there is a candidate $c'\in A^*\setminus A$ with $score(c')\geq t^*/4$. Therefore, $\balanced$ provides a $4$-approximation for the maximin support problem.
+If $(A,w)$, $(A^*,w^*)$ and $t^*$ are as in Lemma~\ref{lem:N_a}, there is a candidate $c'\in A^*\setminus A$ with $\score(c')\geq t^*/4$. Therefore, $\balanced$ provides a $4$-approximation for the maximin support problem.
 \end{lemma}
 
 \begin{proof}
 Apply Lemma~\ref{lem:N_a} with $a=1/2$. In what follows we refer to the properties stated in that lemma. We have that
 
 \begin{align*}
-    \sum_{c'\in A^*\setminus A} prescore(c',t^*/4) &=\sum_{c'\in A^*\setminus A} \sum_{n\in N_{c'}} slack(n,t^*/4)
-    \geq \sum_{n\in N(a)} slack(n,t^*/4) & \text{(by property 1)}\\
-    &\geq \sum_{n\in N(a)} \Big[ s_n - \frac{t^*}{4}\sum_{c\in A\cap C_n} \frac{w_{nc}}{supp_w(c)} \Big] &\text{(by equation \ref{eq:slack})}\\
+    \sum_{c'\in A^*\setminus A} \prescore(c',t^*/4) &=\sum_{c'\in A^*\setminus A} \sum_{n\in N_{c'}} \slack(n,t^*/4)
+    \geq \sum_{n\in N(a)} \slack(n,t^*/4) & \text{(by property 1)}\\
+    &\geq \sum_{n\in N(a)} \Big[ s_n - \frac{t^*}{4}\sum_{c\in A\cap C_n} \frac{w_{nc}}{\supp_w(c)} \Big] &\text{(by equation \ref{eq:slack})}\\
     &\geq \sum_{n\in N(a)} \Big[ s_n - \frac{1}{2}\sum_{c\in A\cap C_n} w_{nc} \Big] &\text{(by property 2)}\\
     &\geq \frac{1}{2}\sum_{n\in N(a)} s_n 
 		\geq \frac{1}{2} (|A^*\setminus A|\cdot t^*/2) = |A^*\setminus A|\cdot t^*/4. 
     &\text{(by ineq.~\ref{eq:feasible} and property 3)}
 \end{align*}
 
-Therefore, by an averaging argument, there must be a candidate $c'\in A^*\setminus A$ with $prescore(c',t^*/4)\geq t^*/4$, which implies that $score(c')\geq t^*/4$, by definition of score. The $4$-approximation guarantee for Algorithm $\balanced$ easily follows by induction on the $k$ iterations, using Lemma~\ref{lem:insert} and the fact that rebalancing a partial solution never decreases its least member support.
+Therefore, by an averaging argument, there must be a candidate $c'\in A^*\setminus A$ with $\prescore(c',t^*/4)\geq t^*/4$, which implies that $\score(c')\geq t^*/4$, by definition of score. The $4$-approximation guarantee for Algorithm $\balanced$ easily follows by induction on the $k$ iterations, using Lemma~\ref{lem:insert} and the fact that rebalancing a partial solution never decreases its least member support.
 \end{proof}
 
 To get a better approximation guarantee for Algorithm $\balanced$ and finish the proof of Theorem~\ref{thm:315}, we apply Lemma~\ref{lem:N_a} with a different parameter $a$. For this, we will use the following result whose proof is delayed to Apppendix~\ref{s:proofs}.
 
 \begin{lemma}\label{lem:Lebesgue}
 Consider a strictly increasing and differentiable function $f:\mathbb{R}\rightarrow \mathbb{R}$, with a unique root $\chi$. For a finite sum $\sum_{i\in I} \alpha_i f(x_i)$ where $\alpha_i\in\mathbb{R}$ and $ x_i\geq \chi$ for each $i\in I$, we have that
-$$\sum_{i\in I} a_i f(x_i) = \int_{\chi}^{\infty} f'(x) \big(\sum_{i\in I: \ x_i\geq x} a_i\big)dx.$$
+$$\sum_{i\in I} \alpha_i f(x_i) = \int_{\chi}^{\infty} f'(x) \big(\sum_{i\in I: \ x_i\geq x} \alpha_i\big)dx.$$
 \end{lemma}
 
 \begin{lemma}\label{lem:candidate315}
-If $(A,w)$, $(A^*,w^*)$ and $t^*$ are as in Lemma~\ref{lem:N_a}, there is a candidate $c'\in A^*\setminus A$ with $score(c')\geq t^*/3.15$. Therefore, $\balanced$ provides a $3.15$-approximation for the maximin support problem.
+If $(A,w)$, $(A^*,w^*)$ and $t^*$ are as in Lemma~\ref{lem:N_a}, there is a candidate $c'\in A^*\setminus A$ with $\score(c')\geq t^*/3.15$. Therefore, $\balanced$ provides a $3.15$-approximation for the maximin support problem.
 \end{lemma}
 
 \begin{proof}
 Again we apply Lemma~\ref{lem:N_a} and its properties, for a parameter $0\leq a\leq 1$ to be defined later. We have
 \begin{align*}
-    \sum_{c'\in A^*\setminus A} prescore(c',at^*) &= \sum_{c'\in A^*\setminus A} \sum_{n\in N_c} slack(n, at^*) 
-    \geq \sum_{n\in N(a)} slack_w(n, at^*) & \text{(by property 1)}\\
-    &\geq \sum_{n\in N(a)} \Big[ s_n - at^* \sum_{c\in A\cap C_n} \frac{w_{nc}}{supp_w(c)} \Big] &\text{(by equation \ref{eq:slack})}\\
-    &\geq \sum_{n\in N(a)} \Big[ s_n - \frac{at^*}{supp_w(A\cap C_n)} \sum_{c\in A\cap C_n} w_{nc} \Big] &\text{(by property 2)}\\
-    &\geq \sum_{n\in N(a)} s_n\Big[ 1- \frac{at^*}{supp_w(A\cap C_n)} \Big], &\text{(by ineq.~\ref{eq:feasible})}
+    \sum_{c'\in A^*\setminus A} \prescore(c',at^*) &= \sum_{c'\in A^*\setminus A} \sum_{n\in N_c} \slack(n, at^*) 
+    \geq \sum_{n\in N(a)} \slack(n, at^*) & \text{(by property 1)}\\
+    &\geq \sum_{n\in N(a)} \Big[ s_n - at^* \sum_{c\in A\cap C_n} \frac{w_{nc}}{\supp_w(c)} \Big] &\text{(by equation \ref{eq:slack})}\\
+    &\geq \sum_{n\in N(a)} \Big[ s_n - \frac{at^*}{\supp_w(A\cap C_n)} \sum_{c\in A\cap C_n} w_{nc} \Big] &\text{(by property 2)}\\
+    &\geq \sum_{n\in N(a)} s_n\Big[ 1- \frac{at^*}{\supp_w(A\cap C_n)} \Big], &\text{(by ineq.~\ref{eq:feasible})}
 \end{align*}
 %
-where $supp_w(\emptyset)=\infty$ by convention. 
-At this point, we apply Lemma~\ref{lem:Lebesgue} over function $f(x):=1-a/x$, which has the unique root $\chi=a$, and index set $I=N(a)$ with $\alpha_n=s_n$ and $x_n=supp_w(A\cap C_n)/t^*$. We obtain
+where $\supp_w(\emptyset)=\infty$ by convention. 
+At this point, we apply Lemma~\ref{lem:Lebesgue} over function $f(x):=1-a/x$, which has the unique root $\chi=a$, and index set $I=N(a)$ with $\alpha_n=s_n$ and $x_n=\supp_w(A\cap C_n)/t^*$. We obtain
 \begin{align*}
-    \sum_{c'\in A^*\setminus A} prescore(c',at^*) &\geq \int_{a}^{\infty} f'(x) \Big( \sum_{n\in N(a): \ supp_w(A\cap C_n)\geq xt^*} s_n \Big)dx\\
+    \sum_{c'\in A^*\setminus A} \prescore(c',at^*) &\geq \int_{a}^{\infty} f'(x) \Big( \sum_{n\in N(a): \ \supp_w(A\cap C_n)\geq xt^*} s_n \Big)dx\\
     &=\int_{a}^{\infty} \frac{a}{x^2}\Big( \sum_{n\in N(x)} s_n \Big)dx & \text{(by property 4)}\\
     &\geq \int_{a}^1 \frac{a}{x^2} \Big( |A^*\setminus A|\cdot (1-x)t^* \Big)dx & \text{(by property 3)}\\
     & = |A^*\setminus A|\cdot at^* \int_{a}^1 \Big( \frac{1}{x^2} - \frac{1}{x} \Big)dx \\
 		&= |A^*\setminus A|\cdot at^*\Big(\frac{1}{a} - 1 + \ln  a\Big).
 \end{align*}
 
-If we now set $a=1/3.15$, we have that $1/a - 1 + \ln a\geq 1$, and thus by an averaging argument there is a candidate $c'\in A^*\setminus A$ for which $prescore(c',at^*)\geq at^*$, and hence $score(c')\geq at^*$. The approximation guarantee for Algorithm $\balanced$ follows by induction on the $k$ iterations, as before.
+If we now set $a=1/3.15$, we have that $1/a - 1 + \ln a\geq 1$, and thus by an averaging argument there is a candidate $c'\in A^*\setminus A$ for which $\prescore(c',at^*)\geq at^*$, and hence $\score(c')\geq at^*$. The approximation guarantee for Algorithm $\balanced$ follows by induction on the $k$ iterations, as before.
 \end{proof}

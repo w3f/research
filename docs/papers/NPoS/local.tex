@@ -1,16 +1,16 @@
-\section{Exploiting local optimality}\label{s:local}
+\section{Efficient verification of properties}\label{s:local}
 
 We start the section with an key property of algorithm $\balanced$ as motivation.
 
 \begin{theorem}\label{thm:315guarantee}
-If $(A,w)$ is a balanced solution such that $supp_w(A)\geq \max_{c'\in C\setminus A} score(c')$, then it satisfies PJR and guarantees a 3.15-factor approximation for the maximin support problem. 
+If $(A,w)$ is a balanced solution such that $\supp_w(A)\geq \max_{c'\in C\setminus A} \score(c')$, then it satisfies a) the PJR property and b) a 3.15-factor guarantee for the maximin support objective. 
 Furthermore, testing the required conditions (feasibility, balancedness and the previous inequality) can be done in time $O(|E|)$. 
 Finally, the output solution of the $\balanced$ algorithm is guaranteed to satisfy these conditions.
 \end{theorem}
 \begin{proof}
 The first statement follows from Lemmas \ref{lem:localopt} and \ref{lem:candidate315}, and the third one from Lemma~\ref{lem:315localoptimality}. 
 Feasibility (inequality~\ref{eq:feasible}) can clearly be checked in time $O(|E|)$, as can balancedness by Lemma~\ref{lem:balanced}, because properties 2 and 3 in that lemma can both be tested in this time. 
-Finally, if $t:=supp_w(A)$, the inequality in the statement is equivalent to $t\geq \max_{c'\in C\setminus A} prescore(c',t)$, which is tested with algorithm $\maxprescore(A,w,t)$ in time $O(|E|)$ by Theorem~\ref{thm:runtimes}.
+Finally, if $t:=\supp_w(A)$, the inequality in the statement is equivalent to $t\geq \max_{c'\in C\setminus A} \prescore(c',t)$, which is tested with algorithm $\maxprescore(A,w,t)$ in time $O(|E|)$ by Theorem~\ref{thm:runtimes}.
 \end{proof}
 
 This in turn proves Theorem~\ref{thm:intro2}. 
@@ -18,11 +18,11 @@ A result such as the one above is essential in a scenario where a computationall
 %
 In the case of an election protocol over a decentralized blockchain, it would be very costly to run the full election algorithm as an \emph{on-chain} process, meaning that validators must execute it simultaneously and the chain cannot progress until they have finished the execution and agreed on the output. 
 Instead, a much more scalable solution is to execute the protocol \emph{off-chain}, meaning that one or more parties run it privately and separate from block production, and then submit the output which is approved if it passes the verification test on-chain. 
-The fact that algorithm $\balanced$ can have both of its guarantees efficiently verified on it outputs is in our opinion its most relevant feature. 
+The fact that the $\balanced$ election rule can have both of its guarantees efficiently verified on its output is in our opinion its most relevant feature. 
 
-The inequality $supp_w(A)\geq \max_{c'\in C\setminus A} score(c')$ mentioned in Lemma~\ref{lem:localopt} and Theorem~\ref{thm:315guarantee} corresponds to a notion of local optimality, for a local search variant of the $\phragmms$ heuristic. 
+The inequality $\supp_w(A)\geq \max_{c'\in C\setminus A} \score(c')$ mentioned in Lemma~\ref{lem:localopt} and Theorem~\ref{thm:315guarantee} corresponds to a notion of local optimality for a local search variant of the $\phragmms$ heuristic. 
 In Section~\ref{s:tPJR} we explore the relation between this notion and the PJR property. 
-Then, in Section~\ref{s:LS} we use the corresponding local search algorithm to devise a post-computation which takes an arbitrary solution $(A,w)$ as input, and returns an output $(A',w')$ which observes $supp_{w'}(A')\geq supp_w(A)$ and provably satisfies PJR.
+Then, in Section~\ref{s:LS} we use the corresponding local search algorithm to devise a post-computation which takes an arbitrary solution $(A,w)$ as input, and returns an output $(A',w')$ which observes $\supp_{w'}(A')\geq \supp_w(A)$ and provably satisfies PJR.
 
 \subsection{A parametric version of proportional justified representation}\label{s:tPJR}
 
@@ -30,37 +30,39 @@ We define next a parametric version of the PJR property that measures just how w
 
 \begin{definition}
 For any $t\in\R$, a committee $A\subseteq C$ (of any size) satisfies Proportional Justified Representation with parameter $t$ ($t$-PJR for short) if there is no group $N'\subseteq N$ of voters and integer $0<r\leq |A|$ such that:
-\begin{itemize}
-\item[a)] $\sum_{n\in N'} s_n \geq r\cdot t$,
-\item[b)] $|\cap_{n\in N'} C_n|\geq r$, and
-\item[c)] $|A\cap (\cup_{n\in N'} C_n)|<r$.
-\end{itemize}
+%\begin{itemize}
+%\item[a)] $\sum_{n\in N'} s_n \geq r\cdot t$,
+%\item[b)] $|\cap_{n\in N'} C_n|\geq r$, and
+%\item[c)] $|A\cap (\cup_{n\in N'} C_n)|<r$.
+%\end{itemize}
+$$\text{a) } \sum_{n\in N'} s_n \geq r\cdot t, \quad \quad \text{b) } |\cap_{n\in N'} C_n|\geq r, 
+\quad \quad \text{and c) } |A\cap (\cup_{n\in N'} C_n)|<r.$$
 \end{definition}
 
-In words, if there is a group $N'$ of voters with at least $r$ commonly approved candidates, who can afford to provide these candidates with a support of value $t$ each, then this group is represented by at least $r$ members in committee $A$, though not necessarily commonly approved. Notice that the standard version of PJR is equivalent to $\hat{t}$-PJR for $\hat{t}:=\sum_{n\in N} s_n / |A|$ (see Section~\ref{s:prel}), and that if a committee satisfies $t$-PJR then it also satisfies $t'$-PJR for each $t'\geq t$, i.e.~the property gets stronger as $t$ decreases. 
-Notice as well that this is in contrast to the maximin support objective, which implies a stronger property as it increases; we will exploit the opposite natures of these two parameters of quality in Section~\ref{s:LS} to define a procedure that improves upon a given solution.
+In words, if there is a group $N'$ of voters with at least $r$ commonly approved candidates, who can afford to provide these candidates with a support of value $t$ each, then this group must be represented by at least $r$ members in committee $A$, though not necessarily commonly approved. Notice that the standard version of PJR is equivalent to $\hat{t}$-PJR for $\hat{t}:=\sum_{n\in N} s_n / |A|$ (see Section~\ref{s:prel}), and that if a committee satisfies $t$-PJR then it also satisfies $t'$-PJR for each $t'\geq t$, i.e., the property gets stronger as $t$ decreases. 
+This is in contrast to the maximin support objective, which implies a stronger property as it increases; we will exploit the opposite natures of these two parameters of quality in Section~\ref{s:LS} to define a procedure that improves upon a given solution.
 
 %For instance, in the example described in Figure~\ref{fig:phragmen}, the optimal committee satisfies $(1/H_k)$-PJR, while the output of $\phragmen$ does not even satisfy $1$-PJR. However, since in this case we have that $\hat{t}=\frac{k+(1/H_k)}{k}=1+\frac{1}{k\cdot H_k}>1$ and the output does satisfy $\hat{t}$-PJR, it narrowly satisfies PJR. This example shows how much more expressive our parameterized definition of PJR is to assess the quality of a committee. 
 
 We remark that in~\cite{sanchez2017proportional} the related notion of \emph{average satisfaction} is introduced, also to quantify the level of proportional representation achieved by a committee. Roughly speaking, that notion measures the average number of representatives in the committee that each voter in a group has, for any group of voters with sufficiently high vote strength and cohesiveness level. 
 In contrast, with parametric PJR we focus on providing sufficient representatives to the group as a whole and not to each individual voter, and we measure the required vote strength for a group to achieve it.
-Interestingly, the average satisfaction measure is closely linked to the property of extended justified representation (EJR)~\cite{aziz2017justified}, and in~\cite{aziz2018complexity} that measure is used to prove that a local search algorithm achieves EJR. 
+Interestingly, the average satisfaction measure is closely linked to the EJR property, and in particular in~\cite{aziz2018complexity} this measure is used to prove that a local search algorithm achieves EJR. 
 Similarly, we use parametric PJR to prove that a local search algorithm achieves standard PJR.
 
 Testing whether an arbitrary solution satisfies standard PJR is known to be coNP-complete~\cite{aziz2018complexity}, hence the same remains true for its parametric version.
 We provide next a sufficient condition for a committee to satisfy $t$-PJR, which is efficiently testable, based on our definitions of pre-score and score.  
 
 \begin{lemma} \label{lem:locality}
-If for a feasible solution $(A,w)$ there is a parameter $t\in\R$ such that $\max_{c'\in C\setminus A} prescore(c',t)<t$, or equivalently, such that $\max_{c'\in C\setminus A} score(c') <t$, then committee $A$ satisfies $t$-PJR. 
+If for a feasible solution $(A,w)$ there is a parameter $t\in\R$ such that $\max_{c'\in C\setminus A} \prescore(c',t)<t$, or equivalently, such that $\max_{c'\in C\setminus A} \score(c') <t$, then committee $A$ satisfies $t$-PJR. 
 \end{lemma}
 
 \begin{proof} 
 We prove the contrapositive of the claim. If $A$ does not satisfy $t$-PJR, there must be a subset $N'\subseteq N$ of voters and an integer $r>0$ that observe points a) through c) in the definition above. By points b) and c), set $(\cap_{n\in N'} C_n)\setminus A$ must be non-empty: let $c'$ be a candidate in it. 
-We will prove that for any feasible weight vector $w\in \R^E$, it holds that $prescore(c',t)\geq t$, and consequently $score(c')\geq t$ by the definition of score. We have
+We will prove that for any feasible weight vector $w\in \R^E$, it holds that $\prescore(c',t)\geq t$, and consequently $\score(c')\geq t$ by the definition of score. We have
 %
 \begin{align*} 
-prescore(c',t) &= \sum_{n\in N_{c'}}  slack(n,t) \geq \sum_{n\in N'} slack(n,t) & (\text{as } N'\subseteq N_{c'}) \\
-&\geq \sum_{n\in N'} \Big(s_n - t\cdot \sum_{c\in A\cap C_n} \frac{w_{nc}}{supp_w(c)}\Big)  
+\prescore(c',t) &= \sum_{n\in N_{c'}}  \slack(n,t) \geq \sum_{n\in N'} \slack(n,t) & (\text{as } N'\subseteq N_{c'}) \\
+&\geq \sum_{n\in N'} \Big(s_n - t\cdot \sum_{c\in A\cap C_n} \frac{w_{nc}}{\supp_w(c)}\Big)  
 & (\text{by definition \ref{eq:slack}})\\
 &= \sum_{n\in N'} s_n - t \cdot \sum_{c\in A\cap (\cup_{n\in N'} C_n)} 
 \frac{\sum_{n\in N'\cap N_c} w_{nc}}{\sum_{n\in N_c} w_{nc}} 
@@ -69,17 +71,17 @@ prescore(c',t) &= \sum_{n\in N_{c'}}  slack(n,t) \geq \sum_{n\in N'} slack(n,t) 
 & \geq t\cdot r - t\cdot (r-1) = t & (\text{by c)}). 
 \end{align*}
 %
-This proves that $prescore(c',t) \geq t$, which is what we needed to show.
+This proves that $\prescore(c',t) \geq t$, which is what we needed to show.
 \end{proof}
 
 For a given solution $(A,w)$ and parameter $t$, one can verify the condition above in time $O(|E|)$ by checking whether $\maxprescore(A,w,t)<t$; see Theorem~\ref{thm:runtimes}. Alternatively, from just solution $(A,w)$ one can execute $\maxscore(A,w)$ in time $O(|E|\cdot \log k)$ to obtain the highest score $t_{\max}$ and ascertain that $A$ satisfies $t$-PJR for each $t>t_{\max}$. 
 The proof of Lemma~\ref{lem:localopt} now follows as a corollary.
 
 \begin{proof}[Proof of Lemma~\ref{lem:localopt}]
-Let $t_{\max}:=\max_{c'\in C\setminus A} score(t_{\max})$ and let $c_{\max}\in C\setminus A$ be a candidate with such highest score. 
-If $supp_w(A)\geq t_{\max}$, it follows from Lemma~\ref{lem:insert} that if we execute $\ins(A,w,c_{\max}, t_{\max})$, we obtain a solution $(A+c_{\max}, w')$ with $supp_{w'}(A+c_{\max})=t_{\max}$. 
-Now, by feasibility of vector $w'$, we have the inequality $\sum_{n\in N} s_n \geq \sum_{c\in A+c_{\max}} supp_{w'}(c) \geq (k+1)\cdot t_{\max}$, and thus $t_{\max}\leq \sum_{n\in N} s_n / (k+1) < \sum_{n\in N} s_n / k = \hat{t}$. 
-By Lemma~\ref{lem:locality} above, having $\max_{c'\in C\setminus A} score(t_{\max}) < \hat{t}$ implies that $A$ satisfies $\hat{t}$-PJR, which is standard PJR.
+Let $t_{\max}:=\max_{c'\in C\setminus A} \score(t_{\max})$ and let $c_{\max}\in C\setminus A$ be a candidate with such highest score. 
+If $\supp_w(A)\geq t_{\max}$, it follows from Lemma~\ref{lem:insert} that if we execute $\ins(A,w,c_{\max}, t_{\max})$, we obtain a solution $(A+c_{\max}, w')$ with $\supp_{w'}(A+c_{\max})=t_{\max}$. 
+Now, by feasibility of vector $w'$, we have the inequality $\sum_{n\in N} s_n \geq \sum_{c\in A+c_{\max}} \supp_{w'}(c) \geq (k+1)\cdot t_{\max}$, and thus $t_{\max}\leq \sum_{n\in N} s_n / (k+1) < \sum_{n\in N} s_n / k = \hat{t}$. 
+By Lemma~\ref{lem:locality} above, having $\max_{c'\in C\setminus A} \score(t_{\max}) < \hat{t}$ implies that $A$ satisfies $\hat{t}$-PJR, which is standard PJR.
 \end{proof}
 
 \subsection{A local search algorithm}\label{s:LS}
@@ -92,16 +94,16 @@ We remark here that such an application of the $\phragmms$ heuristic goes to sho
 
 As we did in Section~\ref{s:inserting}, in the following algorithm we assume that the background instance $(G=(N\cup C, E), s, k)$ is known and that does not need to be passed as input. 
 Instead, the input is a feasible full solution $(A,w)$, and a parameter $\eps>0$. 
-Our proposed algorithm $\local$ (Algorithm~\ref{alg:localpjr}) is presented below. 
+Our proposed algorithm $\local$ is presented in Algorithm~\ref{alg:localpjr}. 
 
 \begin{algorithm}[htb]\label{alg:localpjr}
 \SetAlgoLined
 \KwData{Full feasible solution $(A,w)$, parameter $\eps>0$.}
 
-Let $\hat{t}\leftarrow \sum_{n\in N} s_n / |A|$\;
+Let $\hat{t}\leftarrow \sum_{n\in N} s_n / |A|$ \quad \emph{// a constant value} \;
 \While{True}{
-  Find tuple $(c_{\min}, t_{\min})$ so that $c_{\min}\in A$ and $t_{\min}=supp_w(c_{\min})=supp_w(A)$\;
-  Let $(c_{\max}, t_{max})\leftarrow \maxscore(A,w)$ \quad \emph{// the candidate with highest score, and its score}\;
+  Find tuple $(c_{\min}, t_{\min})$ so that $c_{\min}\in A$ and $t_{\min}=\supp_w(c_{\min})=\supp_w(A)$ \emph{// member with lowest support} \;
+  Let $(c_{\max}, t_{max})\leftarrow \maxscore(A,w)$ \quad \emph{// candidate with highest score}\;
   \lIf {($t_{\max}< \min\{ (1+\eps)\cdot t_{\min}, \hat{t}\}$)} {\Return $(A,w)$}
   Update $(A,w)\leftarrow \ins(A-c_{\min},w,c_{\max},t_{\max})$\;
 }
@@ -111,8 +113,8 @@ Let $\hat{t}\leftarrow \sum_{n\in N} s_n / |A|$\;
 \begin{theorem}\label{thm:enabler}
 For any parameter $\eps>0$ and a feasible full solution $(A,w)$, let $(A',w')$ be the output solution to $\LSPJR(A,w,\eps)$. Then: 
 \begin{enumerate}
-    \item solution $(A',w')$ is feasible and full, and $supp_{w'}(A')\geq supp_w(A)$; \label{item:support}
-    \item solution $(A', w')$ satisfies the condition on Lemma~\ref{lem:locality} for parameter $t=\min\{(1+\eps)\cdot supp_{w'}(A'), \hat{t}\}$, where $\hat{t}=\sum_{n\in N} s_n / k$, so $A'$ satisfies $t$-PJR and standard PJR; 
+    \item solution $(A',w')$ is feasible and full, and $\supp_{w'}(A')\geq \supp_w(A)$; \label{item:support}
+    \item solution $(A', w')$ satisfies the condition on Lemma~\ref{lem:locality} for parameter $t=\min\{(1+\eps)\cdot \supp_{w'}(A'), \hat{t}\}$, where $\hat{t}=\sum_{n\in N} s_n / k$, so $A'$ satisfies $t$-PJR and standard PJR; 
 		\label{item:tPJR}
 		\item if $(A,w)$ has an $\alpha$-approximation guarantee for the maximin support objective, for some $\alpha\geq 1$, then the algorithm performs at most $k\cdot (1+\log_{1+\eps} \alpha)+1$ iterations, each taking time $O(|E|\cdot \log k)$; and \label{item:iterations}
 		\item by setting $\eps\rightarrow\infty$, the algorithm finds a solution satisfying standard PJR in at most $k+1$ iterations. \label{item:infinity}
@@ -126,7 +128,7 @@ By point~\ref{item:infinity}, the algorithm can be sped up if we only care about
 In the proof, we use the observation below whose proof is skipped as it follows from the definitions of slack and pre-score.
 
 \begin{lemma}\label{lem:sameweight}
-For a feasible vector $w\in \R^E$, two committees $A\subseteq A'$, and any threshold $t\geq 0$ it holds that $prescore_{(A,w)}(c',t)\geq prescore_{(A',w)}(c',t)$ for each candidate $c'\in C\setminus A'$.
+For a feasible vector $w\in \R^E$, two committees $A\subseteq A'$, and any threshold $t\geq 0$ it holds that $\prescore_{(A,w)}(c',t)\geq \prescore_{(A',w)}(c',t)$ for each candidate $c'\in C\setminus A'$.
 \end{lemma}
 
 \begin{proof}[Proof of Theorem~\ref{thm:enabler}]
@@ -134,23 +136,23 @@ We start with some notation. We use $i$ as a superscript to indicate the value o
 
 We prove point~\ref{item:support} by induction on $i$. 
 If the stopping condition does not hold then $t^i_{\max} \geq t^i_{stop}\geq t^i_{\min}$. 
-Next, by Lemma~\ref{lem:sameweight} we have $prescore_{(A^i-c_{\min}^i, w^i)}(c^i_{\max}, t^i_{\max}) \geq prescore_{(A^i, w^i)}(c^i_{\max}, t^i_{\max})=t^i_{\max}\geq t^i_{\min}$. 
-On the other hand, it is evident that $supp_{w^i}(A^i-c^i_{\min})\geq supp_{w^i}(A^i)=t^i_{\min}$. 
+Next, by Lemma~\ref{lem:sameweight} we have $\prescore_{(A^i-c_{\min}^i, w^i)}(c^i_{\max}, t^i_{\max}) \geq \prescore_{(A^i, w^i)}(c^i_{\max}, t^i_{\max})=t^i_{\max}\geq t^i_{\min}$. 
+On the other hand, it is evident that $\supp_{w^i}(A^i-c^i_{\min})\geq \supp_{w^i}(A^i)=t^i_{\min}$. 
 Therefore, by Lemma~\ref{lem:insert} we have that  
-$$supp_{w^{i+1}}(A^{i+1})\geq \min\{supp_{w^i}(A^i-c^i_{\min}), prescore_{(A^i-c_{\min}^i, w^i)}(c^i_{\max}, t^i_{\max})\} \geq t^i_{\min},$$
+$$\supp_{w^{i+1}}(A^{i+1})\geq \min\{\supp_{w^i}(A^i-c^i_{\min}), \prescore_{(A^i-c_{\min}^i, w^i)}(c^i_{\max}, t^i_{\max})\} \geq t^i_{\min},$$
 and that $(A^{i+1},w^{i+1})$ is feasible.  
 This proves point~\ref{item:support}. Point~\ref{item:tPJR} is apparent from the stopping condition. 
 
 We continue to point \ref{item:iterations}. Each iteration is dominated in complexity by the call to Algorithm $\maxscore$, which takes time $O(|E|\cdot \log k)$ by Theorem~\ref{thm:runtimes}. 
 Hence, it remains to give a bound on the number $T$ of total iterations. 
-To do that, we analyze the evolution of the least member support $t^i_{\min}=supp_{w^i}(A^i)$. First, we argue that if ever $t^i_{\min}=\hat{t}$, then the algorithm terminates immediately, i.e.~$i=T$; this is because in this case all members in $A^i$ must have a support of exactly $\hat{t}$, all voters a zero slack for threshold $\hat{t}$, and all candidates in $C\setminus A^i$ a zero prescore for threshold $\hat{t}$ and hence a score strictly below $\hat{t}$, and the stopping condition is fulfilled.
+To do that, we analyze the evolution of the least member support $t^i_{\min}=\supp_{w^i}(A^i)$. First, we argue that if ever $t^i_{\min}=\hat{t}$, then the algorithm terminates immediately, i.e., $i=T$; this is because in this case all members in $A^i$ must have a support of exactly $\hat{t}$, all voters a zero slack for threshold $\hat{t}$, and all candidates in $C\setminus A^i$ a zero prescore for threshold $\hat{t}$ and hence a score strictly below $\hat{t}$, and the stopping condition is fulfilled.
 Next, we claim that for any iteration $i$ with $1\leq i<T-k$, we have $t^{i+k}_{\min}\geq (1+\eps)\cdot t^{i}_{\min}$. This is because, by Lemma~\ref{lem:insert}, in each iteration $j\geq i$ we are removing a member with least support while not increasing the number of members with support below 
-$$prescore_{(A^j - c^j_{\min}, w^j)}(c^j_{\max}, t^j_{\max})\geq t^j_{\max}\geq t^j_{stop}\geq t^i_{stop}.$$
+$$\prescore_{(A^j - c^j_{\min}, w^j)}(c^j_{\max}, t^j_{\max})\geq t^j_{\max}\geq t^j_{stop}\geq t^i_{stop}.$$
  
 As there are only $k$ candidates, we must have that 
 $t^{i+k}_{\min}\geq t^i_{stop}=\min\{(1+\eps)\cdot t^i_{\min}, \hat{t}\}$. 
 Thus $t^{i+k}_{\min}$ is either at least $(1+\eps)\cdot t^i_{\min}$, or it is $\hat{t}$, but it cannot be the latter by the previous claim and the fact that $i+k<T$. This proves the new claim. Therefore, if the algorithm outputs a solution $(A^T,w^T)$ and has an input solution $(A^1, w^1)$ with an $\alpha$-approximation guarantee for the maximin support objective, then 
-$$\alpha\cdot supp_{w^1}(A^1) \geq supp_{w^T}(A^T) \geq (1+\eps)^{\lfloor (T-1)/k \rfloor} \cdot supp_{w^1}(A^1).$$
+$$\alpha\cdot \supp_{w^1}(A^1) \geq \supp_{w^T}(A^T) \geq (1+\eps)^{\lfloor (T-1)/k \rfloor} \cdot \supp_{w^1}(A^1).$$
 Hence, $\alpha\geq (1+\eps)^{\lfloor (T-1)/k \rfloor}$, and $T\leq k\cdot(1+\log_{1+\eps} \alpha)+1$. This completes the proof of point \ref{item:iterations}.
 
 For point \ref{item:infinity}, we consider again the previous inequality $t^{i+k}_{\min}\geq t^i_{stop}=\min\{(1+\eps)\cdot t^i_{\min}, \hat{t}\}$. By setting $i=1$ and $\eps\rightarrow \infty$, we have that either the stopping condition is triggered before the $(k+1)$-st iteration, or it must be the case that $t^{k+1}_{\min}\geq \hat{t}$, and the algorithm terminates immediately as argued previously. In either case, the claim on standard PJR follows from point~\ref{item:tPJR}.
