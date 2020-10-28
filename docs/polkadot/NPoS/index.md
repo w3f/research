@@ -1,10 +1,10 @@
+# Nominated Proof-of-Stake
+
 ====================================================================
 
 **Owners**: [Alfonso Cevallos](/research_team_members/alfonso.html)
 
 ====================================================================
-
-TODO: more links to other documents, e.g. slashing
 
 Many blockchain projects launched in recently years substitute the highly inefficient Proof-of-Work (PoW) component of Nakamoto’s consensus protocol with Proof-of-Stake (PoS), in which validators participate in block production with a frequency proportional to their token holdings, as opposed to their computational power. While a pure PoS system allows any token holder to participate directly, most projects propose some level of centralized operation, whereby the number of validators with full participation rights is limited. Arguments for this design choice are that a) the increase in operational costs and communication complexity eventually outmatches the increase in decentralization benefits as k grows, b) while many token holders may want to contribute in maintaining the system, the number of candidates with the required knowledge and equipment to ensure a high quality of service is limited, and c) it is typically observed in networks (both PoW- and PoS-based) with a large number of validators that the latter tend to form pools anyway, in order to decrease the variance of their revenue and profit from economies of scale. As an alternative, the system allows users to vote with their stake to elect validators that represent them and act on their behalf; networks following this approach include Polkadot, Cardano, EOS, Tezos, and Cosmos, among many others. While similar in spirit, the approaches in these networks vary in terms of design choices such as the incentive structure, the number of validators elected, and the election rule used to select them. 
 
