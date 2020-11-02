@@ -2,7 +2,7 @@
 
 samuel@web3.foundation
 
-I am a microeconomist with an interest in contracts, auctions, and contests. I hold a PhD from the University of Basel. For more information, see my personal webpage at [samuelhaefner.github.io](https://samuelhaefner.github.io).
+I am a microeconomist with an interest in contracts, auctions, and contests. I hold a PhD from the University of Basel. 
 
 **Publications** 
 
@@ -11,3 +11,5 @@ I am a microeconomist with an interest in contracts, auctions, and contests. I h
 * [Stable Biased Sampling](https://doi.org/10.1016/j.geb.2017.11.006). *Games and Economic Behavior*, 107, 2018, pp. 109-122.
 * [A Tug-of-War Team Contest](https://doi.org/10.1016/j.geb.2017.04.013). *Games and Economic Behavior*, 104, 2017, pp. 372-391.
 * [Payoff Shares in Two-Player Contests](http://www.mdpi.com/2073-4336/7/3/25/pdf) (with Georg Nöldeke). *Games*, Volume 7(3), 2016, p. 25.
+
+For more information, see my personal webpage at [samuelhaefner.github.io](https://samuelhaefner.github.io).
