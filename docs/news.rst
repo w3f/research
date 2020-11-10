@@ -1,7 +1,7 @@
 ====
 News
 ====
-** 10.11.20**:
+**10.11.20**:
     Is slashing a good idea? Alistair `talks <https://www.youtube.com/watch?v=F8q16k4U2fA>`_ about slashing and how to apply it to scaling in proof of stake at the DISC 2020 workshop on "Blockchain Interoperability and Sharding".
 
 **23.09.20**:
