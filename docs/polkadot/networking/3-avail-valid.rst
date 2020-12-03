@@ -1,8 +1,8 @@
-====================================================================
+\====================================================================
 
 **Owners**: :doc:`/research_team_members/Ximin`
 
-====================================================================
+\====================================================================
 
 Availability and Validity
 =========================
@@ -126,13 +126,42 @@ P2SB  N            Y
 
 In all phases, there is the following general behaviour:
 
-Every message has an associated context, namely the hash of the candidate block being distributed. This allows multiple instances of this protocol to run concurrently. In other words, there is a data dependency from the data and metadata messages, to the candidate block (outside of this protocol). When a recipient detects such a condition, they should reply with the error message and ignore the incoming message - i.e. not process it fully (they may buffer it in a bounded buffer) and not forward it via gossip. When a sender receives this error message, they should take steps to ensure the recipient has the depended-upon data (i.e. the candidate block) and resend the original message after this is done, or if this is not feasible then resend after a reasonable timeout.
+Every message carries an associated context, namely the hash of the candidate block being distributed. This allows multiple instances of this protocol to run concurrently. In other words, there is a data dependency from the data and metadata messages, to the candidate block (outside of this protocol). When a recipient detects such a condition, they should reply with the error message and ignore the incoming message - i.e. not process it fully (they may buffer it in a bounded buffer) and not forward it via gossip. When a sender receives this error message, they should take steps to ensure the recipient has the depended-upon data (i.e. the candidate block) and resend the original message after this is done, or if this is not feasible then resend after a reasonable timeout.
 
 Data pieces are unique and immutable, and there are a bounded number of them for each instance of this protocol. Whenever a recipient receives a piece, they should immediately send a receipt to the sender as an application-level acknowledgement of that specific piece. Separately every few seconds, they should broadcast a receipt (either type 2a or 2b depending on the phase, as described below) informing the whole network of their current status, on the outgoing links described above.
 
 Not everyone needs to receive all pieces; this is what makes our protocol efficient. Generally, if any sender has already received a receipt for that piece by the potential recipient, they must not send the piece again - even if it would otherwise be appropriate to, according to the protocol descriptions below. If a recipient receives an unexpected piece, they should disconnect the sender if this is a breach of protocol (if they already issued a receipt to the sender that implies it’s redundant, or in phase 1 having the wrong validator-index, or in phase 2 having the wrong chain-index), or else ignore it without sendnig a receipt.
 
 Receipts are authored and signed by a particular validator to indicate their current status; the information content grows monotonically and hence the messages do not need explicit metadata about their ordering - “larger” receipts override smaller receipts. Specifically, for (type 2a) multiple receipts from the same author should be set-unioned for the current status; for (type 2b) there is only one possible message indicating “yes” so no special update logic is needed.
+
+In summary, the message types have the following fields:
+
+1. Data pieces:
+
+   - candidate hash, described above
+   - piece-index, described below
+   - payload, described by the higher-level A&V protocol and opaque to this networking layer
+
+2. Metadata:
+
+   a. Receipt of specific pieces:
+
+      - candidate hash, described above
+      - author, described above
+      - bitfield, over all received & verified piece-indexes
+      - signature, over the rest of this message as described above
+
+   b. Receipt of enough pieces:
+
+      - candidate hash, described above
+      - author, described above
+      - signature, over the rest of this message as described above
+
+3. Error messages:
+
+   a. Candidate hash not recognised
+
+      - candidate hash, described above
 
 Topology
 ~~~~~~~~
