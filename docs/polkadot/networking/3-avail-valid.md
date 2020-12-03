@@ -69,26 +69,36 @@ S1: Some validator nodes are running behind sentry nodes, who must act as their 
 
 To help implementation be divided into stages, the main proposal is defined without this consideration. Parts of it that will need to be changed or extended for this, are marked [[TBX S1](#sentry-node-proxies) #($ref)], TBX standing for "to be extended".
 
-## Protocol overview
+## Protocol proposal
+
+### Overview
 
 We assume that all nodes can reach each other directly via the underlay topology, e.g. the internet layer. For an extension that relaxes this assumption, see [Sentry node proxies](#sentry-node-proxies).
 
-Part of this protocol relies on some pre-existing medium that allows us to broadcast various metadata to every node of the relay chain, namely:
+The protocol has the following message types:
 
-1. receipts of specific pieces ("I have pieces X, Y and Z")
-2. receipts of "enough" pieces ("I have >1/3 of pieces, I don't need more"). This could also double as an attestation to everyone else, that there is availability from the attester's position on the network.
+1. Data pieces
+2. Metadata, namely:
+    - a. Receipts of specific pieces ("I have pieces X, Y and Z").
+    - b. Receipts of "enough" pieces ("I have >1/3 of pieces, I don't need more"). This also doubles as an attestation to everyone else, that there is availability from the attester's position on the network.
+3. Error messages
+    - a. "data dependency temporary error: candidate hash not recognised"
 
-These should be gossiped every few seconds, and allows the participants to know when the stages of the protocol begin and end, details below.
+and the following types of communication mediums:
 
-The data of the pieces are distributed via the following communication links:
+- B: Broadcast medium, for small (~2KiB) metadata, to all nodes of the relay chain.
 
-1. all validators in their in- and out-neighbour sets, as defined by in the overlay topology below
-2. all other validators in the same preliminary-check set; this is the same as the parachain validator set
-3. all other validators in the same approval-checking set
+    - In Polkadot, this is a gossip network, so each peer has a few dozen neighbours.
 
-In addition to data, the aforementioned metadata may also be passed along links (2) and (3), to improve performance.
+- D: Direct links, for larger (~32KiB) data, between:
 
-These links represent the majority of traffic flow in our A&V networking protocol. They are short-term [QUIC](https://quicwg.org/base-drafts/draft-ietf-quic-transport.html) connections. These have a low connection setup latency (0- or 1-RTT), and maintaining a connection also uses up no OS-level resources. So it is generally unproblematic to have a few hundred of them open at once, or to repeatedly open and close them. Empirical runtime performance data will be needed to properly choose the best approach.
+    1. all validators in their in- and out-neighbour sets, as defined by in the overlay topology below
+    2. all other validators in the same preliminary-checking set; this is the same as the parachain validator set
+    3. all other validators in the same approval-checking set
+
+Data pieces are sent over the direct links (D1-3), details specified in sections further below. Receipts are sent over the broadcast medium, as well as direct links type (D2) and (D3) to improve latency. Receipts also act as a signal on when the phases of the protocol begin and end, details further below. The error message type, "data dependency temporary error" may be sent over all links.
+
+The direct links represent the majority of traffic flow in our A&V networking protocol. They are short-term [QUIC](https://quicwg.org/base-drafts/draft-ietf-quic-transport.html) connections. These have a low connection setup latency (0- or 1-RTT), and maintaining a connection also uses up no OS-level resources. So it is generally unproblematic to have a few hundred of them open at once, or to repeatedly open and close them. Empirical runtime performance data will be needed to properly choose the best approach.
 
 The protocol runs in several phases and stages. Every node acts both in the distributor and distributee role, but not every role is active in every stage. A summary follows:
 
@@ -99,9 +109,17 @@ P1SB  | Y            | Y
 P2SA  | Y            | N
 P2SB  | N            | Y
 
-Note that there is also background activity, as described below.
+In all phases, there is the following general behaviour:
 
-## Overlay topology
+Every message has an associated context, namely the hash of the candidate block being distributed. This allows multiple instances of this protocol to run concurrently. In other words, there is a data dependency from the data and metadata messages, to the candidate block (outside of this protocol). When a recipient detects such a condition, they should reply with the error message and ignore the incoming message - i.e. not process it fully (they may buffer it in a bounded buffer) and not forward it via gossip. When a sender receives this error message, they should take steps to ensure the recipient has the depended-upon data (i.e. the candidate block) and resend the original message after this is done, or if this is not feasible then resend after a reasonable timeout.
+
+Data pieces are unique and immutable, and there are a bounded number of them for each instance of this protocol. Whenever a recipient receives a piece, they should immediately send a receipt to the sender as an application-level acknowledgement of that specific piece. Separately every few seconds, they should broadcast a receipt (either type 2a or 2b depending on the phase, as described below) informing the whole network of their current status, on the outgoing links described above.
+
+Not everyone needs to receive all pieces; this is what makes our protocol efficient. Generally, if any sender has already received a receipt for that piece by the potential recipient, they must not send the piece again - even if it would otherwise be appropriate to, according to the protocol descriptions below. If a recipient receives an unexpected piece, they should disconnect the sender if this is a breach of protocol (if they already issued a receipt to the sender that implies it's redundant, or in phase 1 having the wrong validator-index, or in phase 2 having the wrong chain-index), or else ignore it without sendnig a receipt.
+
+Receipts are authored and signed by a particular validator to indicate their current status; the information content grows monotonically and hence the messages do not need explicit metadata about their ordering - "larger" receipts override smaller receipts. Specifically, for (type 2a) multiple receipts from the same author should be set-unioned for the current status; for (type 2b) there is only one possible message indicating "yes" so no special update logic is needed.
+
+### Topology
 
 This section defines the topology where most of the data passes through.
 
@@ -131,7 +149,7 @@ Additionally, links are used in a bidirectional way as much as possible, helping
 
 Note: in general, KDFs require an additional input, the "security context". Typically this should be a string that is not used in any other context globally. For example the string `"polkadot A&V topology master seed, generating validator-index"`, `"polkadot A&V chain seed for chain $chain-id"`, etc, will be sufficient.
 
-### Notational definitions
+#### Notational definitions
 
 In the protocol phases descriptions below, we use some shorthand notation for convenience:
 
@@ -141,7 +159,7 @@ When we have to iterate through a out-neighbour-set of some validator `(c, i)`, 
 
 Note that for out-neighbour sets, there might be several `v` with the same `chain-index(v)`, in which case we can go through these in any order, e.g. the key-id of `v` itself.
 
-## Protocol phase 1: initial distribution
+### Protocol phase 1: initial distribution
 
 As described in detail above, every validator is both a distributor of roughly C pieces and a distributee (recipient) of (C-1) pieces. Every piece has one source parachain and one main target-storer, and so we can index pieces with a tuple `piece(c_s, v_t)` which would read as *the piece with source parachain `c_s` and destination validator `v_t`*. `c_s` is a chain-index, and `v_t` is a validator-index as defined previously.
 
@@ -179,7 +197,7 @@ For distributors `(c, i)` when distributing to another set `out-neighbour(c, i')
 
 For example, with `C == 100` and `N/C == 10`, a distributor (57, 3) who has finished distributing to `out-neighbour(57, 3)` and observes that `out-neighbour(57, 2)`, `out-neighbour(57, 4)`, `out-neighbour(57, 7)` are missing too many receipts, would proceed to distribute to validators from `out-neighbour(57, 4)` with chain-index `69 == 57 + 1 + 1*(99/9)`, then 70, 71 and so on, skipping anyone whose receipts have already been received.
 
-## Protocol phase 2: approval checking
+### Protocol phase 2: approval checking
 
 In phase 2, a higher layer defines a set of approval checkers for every parachain. The size of the set starts at a given baseline N/C, the same as the parachain validators, but may be increased dynamically after the initial selection, up to potentially several times the baseline. At least ceil(N/3) of the pieces of that parachain's block must be distributed to these approval checkers.
 
@@ -193,7 +211,7 @@ Stage A of phase 2 proceeds similarly to stage A of phase 1, except that:
 
 - Each distributor `(c, i)` only distributes to half of its out-neighbour set, instead of the whole set. This is 3/2 of the minimum `ceil(N/3)` required, which should give a generous margin for success. As a concrete decision, this would be the first half of the standard iteration order as described previously, of length `ceil(C/2) - 1`.
 
-- Each distributor `(c, i)`, when sending to target `v` does not send piece `(c, v)` as they would in phase 1, but rather `piece(c, v')` for all `v'` in `out-neighbour(c, i)`) where `chain-index(v') == c_v` and `v` is an approval checker for `c_v`, and for which they have not received a gossiped receipt from `v` for. The number of parachains assigned to each approval checker will be not too much higher than 1.
+- Each distributor `(c, i)`, when sending to target `v` does not send piece `(c, v)` as they would in phase 1, but rather piece `(c, v')` for all `v'` in `out-neighbour(c, i)`) where `v` is an approval checker for `chain-index(v')`, and for which they have not received a gossiped receipt from `v` for. The number of parachains assigned to each approval checker will be not too much higher than 1.
 
 By re-using the basic structure from phase 1, we also automatically gain its other nice properties such as load-balancing.
 
@@ -209,7 +227,45 @@ At any time, if the distributee receives `ceil(N/3)` or more pieces of the block
 
 Each distributor is responsible for a smaller fraction of the required pieces for each block, by design. Therefore, we don't need a separate follow-up part for distributors.
 
-## Design explanation
+### Resource usage and bounds
+
+#### Incoming messages
+
+For each candidate block, every validator expects to receive:
+
+- in phase 1, up to `C-1` pieces for their parachain (that they are a preliminary checker of)
+- in phase 2, up to `ceil(N/3) * A` pieces, where `A` is the number of parachain they are assigned to perform approval checks for
+
+Implementations should ensure they have enough memory available for these incoming messages, and not allow inappropriate messages to use up this reserved memory.
+
+We assume that the block production protocol also has some way to bound the number of candidate blocks under simultaneous consideration, and make use of this bound here.
+
+Implementations MAY reserve additional memory for messages that would otherwise generate a "data dependency temporary error", to potentially speed up later processing, but this must not interfere or reduce the available memory for the above.
+
+#### Outgoing messages
+
+As per normal flow control requirements, the application layer should not send directly onto the network, but rather maintain an outgoing buffer *for each outgoing stream* which the network layer can take items from when it detects (via QUIC flow control) that the peer is able to receive more items on that stream. If the recipient is slow then a buffer may become full, in which case the application layer must define a drop/retention policy for maintaining these buffers at their maximum size; this generally may require the buffer to have some application-specific structure. We suggest a policy below:
+
+For broadcast medium streams, we are sending receipts (type 2a and 2b) periodically. For the outgoing buffer therefore, for each possible receipt-issuer (i.e. validator, of which there are `N`), we should retain only the "latest" status update as per the update logic described in the overview. This implies the buffer must have capacity `2*N`.
+
+For direct link streams, we are sending up to `A` pieces plus `A` receipts as responses, where `A` is the number of parachains they are assigned to perform approval checks for, `A` being not too much higher than 1. For the outgoing buffer therefore, we can just buffer all of them, and don't have to worry about a retention policy.
+
+Error messages should go on the outgoing buffer corresponding to the incoming stream the error message is a reply to. The exact behaviour is not so important, but since each message can generate up to 1 error, it would be reasonable to reserve the same amount of space for errors as for the other messages (assuming your peer is behaving the same way). There is no good reason to consume error messages slowly, so if this part of the buffer becomes full then we should just disconnect the peer.
+
+The network layer should take items from the buffer, in the order in which they were added to the buffer by the application layer, but starting with error messages first.
+
+Since the same messages may be sent to multiple recipients, the items in the buffers should be references to the actual message raw bytes rather than a copy, that prevent the message from being garbage-collected. So in terms of raw data each validator will store up to:
+
+- `N` receipts of type 2a
+- `N` receipts of type 2b
+- `N` pieces for the validator's parachain
+- `C-1` pieces received in phase 1, meant to be stored long-term
+- `ceil(N/3) * A` pieces received in phase 2
+- optional space for other pieces received spuriously
+
+for each instance of the protocol.
+
+### Design explanation
 
 We directly use the underlying network (i.e. the internet) for transport, and not an overlay network, because we considered the latter choice unsuitable for our high-level requirements:
 
@@ -234,18 +290,7 @@ In practise, we assume that everyone will be entering the stage at different tim
 
 The other details follow quite naturally from these design choices and the initial requirements. Of course there is room for further optimisation in many of the details, for the future.
 
-## Analysis of bandwidth usage
-
-We defined the following sources of incoming data:
-
-- phase 1 stage A: 1 piece from every other validator in your own ring
-- phase 1 stage B: several pieces
-
-TODO
-
-TODO discuss rate-limiting based on the expected number of piecese
-
-## Implementation notes
+### Implementation notes
 
 TODO
 
@@ -253,11 +298,11 @@ Push vs pull
 
 Rate-limiting, including for proxies [TBX S1 #3]
 
-### Possible layers
+#### Possible layers
 
 TODO
 
-### Erasure coding
+#### Erasure coding
 
 As mentioned in the background, each block is divided into pieces which are then distributed. In practise this is done by an erasure code, but this networking layer does not need to know the details of that. The only knowledge it requires is:
 
