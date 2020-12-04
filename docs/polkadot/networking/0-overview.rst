@@ -12,114 +12,36 @@ Networking for Polkadot
 Overview
 --------
 
-In Polkadot we need to send a number of messages to a number of entities. First let’s recap the different entity types:
+To recap, :doc:`Polkadot </polkadot>` consists of a unique relay chain interacting with many different parachains and providing them with security services. These require the following network-level functionality, generally for distribution and availability:
 
--  User - create and submit transactions to parachains or the relay chain.
+1. As with all blockchain-like protocols, the relay chain requires:
 
--  Collator - these belong to a specific parachain. They collate parachain transactions into blocks, generate proofs-of-validity and propose them to parachain validators as candidates for the next block. The latter two tasks (relating to validity) are part of Polkadot’s rules, but how collation is done is chosen autonomously by the parachain.
+   a. accepting transactions from users and other external data (collectively known as *extrinsic data*), and distributing them
+   b. distributing artefacts of the :doc:`collation subprotocol </polkadot/block-production>`
+   c. distributing artefacts of the :doc:`finalisation subprotocol </polkadot/finality>`
+   d. synchronising previously-finalised state
 
--  Validator - these belong to the relay chain and follow Polkadot’s rules. Distinct subsets of validators are also assigned to specific parachains in order to validate those chains, and then we refer to them as a “parachain validator”. They also collate transactions submitted to the relay chain.
+   As an important special case, parachains may choose to implement themselves according to the above structure, perhaps even re-using the same subprotocols. Part of the Polkadot implementation is architected as a separate library called `substrate` for them to do just this.
 
-Next, we have several subprotocols between these entities, each serving one abstract part of the process of executing transactions:
+2. For interaction between the relay chain and the parachains, we require:
 
-1. Transaction submission - users find the relevant entities to contact for submitting a transaction, and submit them if they are reachable.
+   a. accepting parachain blocks from parachain collators
+   b. distributing parachain block metadata including validity attestations
+   c. distributing parachain block data and making these :doc:`available for a time </polkadot/Availability_and_Validity>`, for auditing purposes
 
-2. Parachain collation - parachain collators collect transactions into blocks, the internals of which are outside the scope of Polkadot, chosen by each parachain for themselves.
+3. For interaction between parachains, we require:
 
-3. Parachain block attestation: collators also generate additional proof-data and pass this to the parachain validators. The ultimate aim of this is for the parachain validators to efficiently check that every parachain block satisfies the parachain validation function. To generate the proof-data, the collators also need data from the relay chain, sent back by the parachain validators in an earlier stage of this process.
+   a. distributing :doc:`messages between parachains </polkadot/XCMP>`, specifically from the relevant senders to the relevant recipients
 
-4. Relay-chain protocols: parachain validators attest to the validity of any parachain blocks they have been sent, and distribute these attestations to the other validators. Then all the validators collate attested blocks plus relay chain transactions into a relay chain block, and finalise the block.
+For each of the above functionality requirements, we satisfy them with the following:
 
-5. Inter-chain messaging: after a relay chain block is finalised and this fact is communicated back to the parachains, they check if these blocks contain new messages from other parachains, and retrieve and react them if so.
+- 1(b), 1(c), 2(b) - artefacts are broadcast as-is (i.e. without further coding) via `Bounded gossip`_ - see also :doc:`2-block-production` and :doc:`5-consensus` for details specific to those protocols.
+- 1(a), 1(d) - effectively, a set of nodes provide the same distributed service to clients. For accepting extrinsics or blocks, clients send these directly to the serving node; for synchronisation, clients receive verifiable data directly from the serving node.
+- 2(a) - this is another type of distributed service, but is a special case from the previous type due to information travelling across a trust boundary, see :doc:`1-parachains`.
+- 2(c) - special case, see :doc:`3-avail-valid`. Briefly, data is erasure-encoded and different recipients each receive a small part of the whole data; pieces are sent directly via QUIC over a topology custom-designed for this purpose.
+- 3(a) - special case, see :doc:`4-xcmp`. Briefly, messages are transferred from the sending parachain to the recipient parachain via validators who act as proxies; in the process outboxes containing messages to many recipients, are assembled into inboxes containing messages from many senders.
 
-6. Parachain synchronisation: when a collator becomes connected for the first time or after being disconnected for a long time, it must retrieve and validate the latest state of the parachain, including transactions submitted in the interim and information about the latest state of the relay chain.
-
-7. Relay-chain synchronisation: when validator becomes connected for the first time or after being disconnected for a long time, it must retrieve and validate the latest state of the relay chain, including transactions submitted in the interim.
-
-Details have been abstracted away in the descriptions above, in an effort to remain valid even if those details change. At the time of writing, subprotocols (3-5) and 7 are, and are expected to remain, the largest and most complex components that the Polkadot networking layer needs to be able to serve.
-
-Message types
--------------
-
-Below we give a more precise and detailed overview of where and how each type of message is sent, according to the subprotocol designs as of 2019 October:
-
-TODO: convert the below into a nicer-looking table, needs conversion away from markdown into something more powerful like reStructuredText.
-
-Key for notation:
-
-+--------------------------------+------------------------------------------------------------------------------------------+
-| symbol                         | meaning                                                                                  |
-+================================+==========================================================================================+
-| –>                             | send, to specific recipient(s)                                                           |
-+--------------------------------+------------------------------------------------------------------------------------------+
-| ->>                            | send, to non-specific recipients                                                         |
-+--------------------------------+------------------------------------------------------------------------------------------+
-| >>>                            | gossip, to everyone eventually                                                           |
-+--------------------------------+------------------------------------------------------------------------------------------+
-| S:                             | sender is the source of the message (this includes new messages derived from other data) |
-+--------------------------------+------------------------------------------------------------------------------------------+
-| F:                             | sender is forwarding the message, received from someone else                             |
-+--------------------------------+------------------------------------------------------------------------------------------+
-
--  From users / light clients (subprotocol 1):
-
-   -  Users ->> Collator:
-
-      -  S : P-transactions
-
-   -  Users ->> Validators:
-
-      -  S : R-transactions
-
--  Within a parachain (subprotocol 2):
-
-   -  Collators >>> Collators:
-
-      -  F : R-blocks
-      -  F : P-transactions
-      -  SF : P-blocks
-      -  SF : P-block-PoV
-
-   -  note: gossip protocol details chosen by the parachain, not polkadot
-
--  Relay chain <-> parachain (subprotocol 3)
-
-   -  PValidators ->> Collator:
-
-      -  F : R-blocks
-
-   -  PValidators –> Validators:
-
-      -  S : PoV block, erasure coded pieces
-
-   -  Collator ->> PValidators:
-
-      -  SF : P-blocks
-      -  SF : P-block-PoV
-
--  Within the relay chain (subprotocol 3)
-
-   -  Validators >>> Validators:
-
-      -  F : R-transactions
-      -  SF : P-block-PoV-attestation-and-other-metadata (“candidate receipt”)
-
--  Within the relay chain (subprotocol 4)
-
-   -  Validators >>> Validators:
-
-      -  SF : R-blocks
-      -  SF : GRANDPA votes
-
--  Between different parachains (subprotocol 5)
-
-   -  PValidator-1 ->> Collator-2:
-
-      -  F : ICMP messages
-
-   -  Collator-1 ->> Collator-2:
-
-      -  S : ICMP messages
+We go into these in more detail in the next few subpages. Finally, we talk about the lower layers underpinning all of these subprotocols, namely :doc:`L-authentication` and :doc:`L-discovery`.
 
 Message keys and sizes
 ----------------------
@@ -138,19 +60,14 @@ The following message types are expected to contain an arbitrary number of membe
 
 -  P-transactions
 -  R-transactions
--  ICMP messages
+-  XCMP messages
 
 In order to deduplicate them while gossiping, a more formal or rigorous set-reconciliation protocol will be needed, perhaps involving bloom filters.
 
 TODO: consider the above issues and propose something concrete
 
-Peer Discovery
+Bounded gossip
 --------------
-
-TODO: entities from different sources/groups (e.g. parachain vs relay chain) might need their own prefixes in the DHT.
-
-Bounded Gossip Protocols
-------------------------
 
 We treat the goals of our networking protocols as black-boxes. While gossip may not be the most efficient way to implement many of them, it will fulfill the black-box functionality.
 
@@ -178,16 +95,3 @@ Nodes can additionally issue a command :math:`propagateTopic(k,t)` to propagate 
 Multiple bounded-gossip protocols can be safely joined by a short-circuiting binary OR over each of the :math:`allowed_k` functions, provided that they do not overlap in the topics that they claim.
 
 Note that while we cannot stop peers from sending us disallowed messages, such behavior can be detected, considered impolite, and will lead to eventual disconnection from the peer.
-
-Main subprotocols
------------------
-
-The are three main networking protocols we require for Polkadot as follows:
-
-i)   GRANDPA gossiping
-
-ii)  Parachain networking, which includes: gossiping parachain blocks (attestation gossip) and sending/ receiving erasure coded pieces
-
-iii) Interchain message-passing
-
-Next, the schemes will be described in detail.
