@@ -1,6 +1,6 @@
 # Samuel Häfner
 
-![](samuel.png){: width="150px" align="right" alt="Samuel Häfner"}
+![](samuel.png){width="150px" align="right" alt="Samuel Häfner"}
 
 samuel@web3.foundation
 
