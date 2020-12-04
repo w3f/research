@@ -1,7 +1,5 @@
 # Samuel Häfner
 
-![](samuel.png){width="150px" align="right" alt="Samuel Häfner"}
-
 samuel@web3.foundation
 
 I am a microeconomist with an interest in market design, primarily in contracts, auctions, and contests. My main task is to analyze the upcoming parachain auctions. I am also interested in questions pertaining to token price formation and the incentives involved in proof-of-stake protocols. 
