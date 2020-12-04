@@ -1,8 +1,12 @@
 # Samuel Häfner
 
+<img align="right" src="samuel.png" width="160" />
+
 samuel@web3.foundation
 
-I am a microeconomist with an interest in contracts, auctions, and contests. I hold a PhD from the University of Basel. 
+I am a microeconomist with an interest in market design, primarily in contracts, auctions, and contests. My main task is to analyze the upcoming parachain auctions. I am also interested in questions pertaining to token price formation and the incentives involved in proof-of-stake protocols. 
+
+I hold a PhD from the University of Basel. I spent postdoc years at Duke University, Basel, Zurich, and St. Gallen.
 
 **Publications** 
 
