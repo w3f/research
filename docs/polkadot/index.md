@@ -11,7 +11,7 @@ TODO: make image smaller
 
 Validators are assigned to parachains, which are responsible for validating parachain blockd and keeping them available via the [A&V scheme](Availability_and_Validity.md). Moreover, another feature of Polkadot is enabling interchain messaging among parachains, called [XCMP](XCMP.md).
 
-The security goal of Polkadot is to be Byzantine fault tolerant when the participants are rational. Rewards are given out when validators behave correctly and validators misbehaviour is punished via the [Slashing mechanism](slashing.md). More details on incentives and economics are reviewed [here](Token%20Economics.md).
+The security goal of Polkadot is to be Byzantine fault tolerant when the participants are rational. Rewards are given out when validators behave correctly and validators misbehaviour is punished via the [Slashing mechanism](slashing.md). More details on incentives and economics are reviewed [here](./economics/1-token-economics.md).
 
 Furthermore, Polkadot has a decentralised governance scheme that can change any Polkadot design decisions and parameterisation. Details on low-level cryptographic primitives can be found [here](keys/index.md) and Polkadot's networking schemes is in progress with some details being reviewed [here](networking.html).
 
