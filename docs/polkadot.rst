@@ -14,6 +14,5 @@ Polkadot
    polkadot/protocols
    polkadot/networking
    polkadot/economics
-   polkadot/behavioral-economics
    polkadot/security
    polkadot/Polkadot-Host-Spec
