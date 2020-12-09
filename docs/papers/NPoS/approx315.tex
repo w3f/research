@@ -76,7 +76,7 @@ Let $(A^*, w^*)$ be an optimal solution to the maximin support instance, $t^*=\s
 Fix a parameter $0\leq a\leq 1$ and define the set $N':=\{n\in N: \ \supp_w(A\cap C_n)\geq at^*\}$, where $\supp_w(\emptyset)=\infty$ by convention. If we define $N(a)\subseteq N'$ as those voters in $N'$ that have a neighbor in $A^*\setminus A$, then properties 1, 2 and 4 become evident. Hence, it only remains to prove the third property.
 
 We claim that there is no edge with non-zero weight between $N\setminus N'$ and $A':=\{c\in A: \ \supp_w(c)\geq at^*\}$. 
-Indeed, if there was a pair $n\in N\setminus N'$, $c\in A'$ with $w_{nc}>0$, then by point 3 of Lemma~\ref{lem:balanced} we would have that $\supp_w(A\cap C_n)=\supp_w(c)\geq at^*$, contradicting the fact that $n\not\in N$. 
+Indeed, if there was a pair $n\in N\setminus N'$, $c\in A'$ with $w_{nc}>0$, then by point 3 of Lemma~\ref{lem:balanced} we would have that $\supp_w(A\cap C_n)=\supp_w(c)\geq at^*$, contradicting the fact that $n\not\in N'$. 
 Thus, we get the inequality
 $$\sum_{n\in N\setminus N'} s_n \leq \sum_{c\in A\setminus A'} \supp_w(c) < |A\setminus A'|\cdot at^*< |A^*\setminus A'|\cdot at^*.$$
 
@@ -92,7 +92,7 @@ Using the flow decomposition theorem, we can decompose flow $f$ into circulation
 
 A key observation now is that none of the flow in $f'$ can pass by any node in $N\setminus N'$ or $A^*\cap A\setminus A'$; see Figure~\ref{fig:sets}. 
 This is because any path in $f'$ starts in $N'$, nodes in $N'$ have no neighbors in $A\setminus A'$ (by definitions of $N'$ and $A'$), and furthermore there is no flow possible from $(A^*\setminus A)\cup (A^*\cap A')$ to $N\setminus N'$ in $f=w^*-w$, because $w$ has no flow from $N\setminus N'$ toward $A'$ (by our claim) nor toward $A^*\setminus A$ (by the wlog assumption).
-Therefore, the formula above is actually a lower bound on the flow going from $N'$ to $A^*\setminus A$. Finally, we notice that for each path in $f'$, the last edge goes from $N'$ to $A^*\setminus A$, so it originates in $N(a)$. This proves that $\sum_{n\in N(a)} s_n\geq \text{ flow value in } f'\geq |A^* \setminus A|\cdot (1-a) t^*$%, which is the third property.
+Therefore, the formula above is actually a lower bound on the flow going from $N'$ to $A^*\setminus A$. Finally, we notice that for each path in $f'$, the last edge goes from $N'$ to $A^*\setminus A$, so it originates in $N(a)$. This proves that $\sum_{n\in N(a)} s_n\geq \text{ flow value in } f'\geq |A^* \setminus A|\cdot (1-a) t^*$.%, which is the third property.
 \end{proof}
 
 \begin{figure}[htb]
