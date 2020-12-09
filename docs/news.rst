@@ -1,6 +1,8 @@
 ====
 News
 ====
+**10.11.20**:
+    Is slashing a good idea? Alistair `talks <https://www.youtube.com/watch?v=F8q16k4U2fA>`_ about slashing and how to apply it to scaling in proof of stake at the DISC 2020 workshop on "Blockchain Interoperability and Sharding".
 
 **23.09.20**:
     Register today for `DISC 2020 <http://www.disc-conference.org/wp/disc2020/registration/>`_ (October 12-16, 2020)! W3F will host a `Workshop on Blockchain Interoperability and Sharding <https://disc2020-sharding-and-interoperability-workshop.w3f.community/>`_. Participation is free and the conference is held online.

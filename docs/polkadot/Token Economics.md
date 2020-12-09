@@ -34,7 +34,7 @@ We therefore aim at having a considerable percentage of the total DOT supply be 
 
 This note contains the following subsections.
 
-* **NPoS payment and inflation:** We describe how we reward well-behaving validators and nominators in our nominated proof-of-stake. Since the DOT minting for this end is the main cause of inflation in the system, we also describe our inflation model here.
+* **NPoS payment and inflation:** We describe how we reward well-behaving validators and nominators in our nominated proof-of-stake. Since the DOT minting for this end is the main cause of inflation in the system, we also describe our inflation model here. **Note, that the currently implemented inflation model has different parameters.**
 * **Transaction fees:** We analyse the optimal transaction fees on the relay chain to cover for costs, discourage harmful behaviors, and handle eventual peaks of activity and long inclusion times.
 * **Treasury:** We discuss how and when to raise DOTs to pay for the continued maintenance of the network.
 
@@ -44,20 +44,20 @@ Finally, in the last paragraph of the note we provide links to additional releva
 
 We consider here payments to validators and nominators for their participation in the protocols of block production (BABE) and finality (GRANDPA). We consider only the payments coming from minting new tokens, in normal circumstances. In particular we do not consider slashings, rewards to misconduct reporters and fishermen, or rewards from transaction fees. These will be considered in other sections.
 
-As these payments are the main driver of inflation in the system, we first study our inflation model.
+As these payments are the main driver of inflation in the system, we first study our inflation model. Note that we suggest two sets of adjustable parameters: One for the eventual situation of launched parachains and one for the meantime, where liquidity is not constrained by parachain bonds.
 
 ### Inflation model
 
 Let \(x\) be the *staking rate* in NPoS at a particular point in time, i.e. the total amount of tokens staked by nominators and validators, divided by the total token supply. \(x\) is always a value between 0 and 1.
 
-__Adjustable parameter:__ Let \(\chi_{ideal}\) be the staking rate we would like to attain ideally in the long run. This value should probably lie between 0.3 and 0.6, and we originally set it at \(\chi_{ideal}=0.5\). If it falls, the security is compromised, so we should give strong incentives to DOT holders to stake more. If it rises, we lose liquidity, which is also undesirable, so we should decrease the incentives sharply.
+__Adjustable parameter:__ Let \(\chi_{ideal}\) be the staking rate we would like to attain ideally in the long run. This value should probably lie between 0.3 and 0.6, and we originally set it at \(\chi_{ideal}=0.5\). If it falls, the security is compromised, so we should give strong incentives to DOT holders to stake more. If it rises, we lose liquidity, which is also undesirable, so we should decrease the incentives sharply. In the absence of parachains, we suggest an \(\chi_{ideal}=0.75\), as liquidity is not constrained by locked parachain bonds.
 
 Let \(i=i(x)\) be the yearly *interest rate* in NPoS; i.e., the total yearly amount of tokens minted to pay all validators and nominators for block production and Grandpa, divided by the total amount of tokens staked by them. We consider it as a function of \(x\). Intuitively, \(i(x)\) corresponds to the incentive we give people to stake. Hence, \(i(x)\) should be a monotone decreasing function of \(x\), as less incentive is needed when \(x\) increases.
 
 * We study the yearly interest rate (instead of the interest rate per block or per epoch) for ease of comprehension. This means that \(i(x)\) is the total payout perceived by somebody that continuously stakes one DOT during a year. The interest rate per block can be easily computed from it. **(Q: do we consider compound interest in this computation? In other words, can the staked parties immediately reinvest their payment into stake?)**
 * Not every staked party will be paid proportional to their stake. For instance, a validator will be paid more than a nominator with equal stake, and a validator producing a block will be temporarily paid more than a validator not producing a block. So, \(i(x)\) only works as a guide of the average interest rate.
 
-__Adjustable parameter:__ Let \(i_{ideal}:=i(\chi_{ideal})\) be the interest rate we pay in the ideal scenario where \(x=\chi_{ideal}\). This is the interest rate we should be paying most of the time. We suggest the value \(i_{ideal}=0.2\), i.e. an ideal yearly interest rate of 20%.
+__Adjustable parameter:__ Let \(i_{ideal}:=i(\chi_{ideal})\) be the interest rate we pay in the ideal scenario where \(x=\chi_{ideal}\). This is the interest rate we should be paying most of the time. We suggest the value \(i_{ideal}=0.2\), i.e. an ideal yearly interest rate of 20%. In the absence of parachains, we suggest an \(i_{ideal}=0.1\).
 
 Let \(I\) be the yearly *inflation rate*; i.e.
 
@@ -100,10 +100,15 @@ It can be checked that $I_{NPoS}\geq I_0$ for all $0\leq x \leq 1$ with equality
 
 These functions can be plotted for different parameters following this link: https://www.desmos.com/calculator/2om7wkewhr
 
-As an example, when $I_0=0.025$, $\chi_{ideal}=0.5$, $i_{ideal}=0.2$ and $d=0.05$, we obtain the following plots, with $i(x)$ in green and $I_{NPoS}(x)$ in blue.
+### Inflation model with parachains
+Following our suggestions for the economics after the implementation with parachains we show the graph with the following adjustable parameters: $I_0=0.025$, $\chi_{ideal}=0.5$, $i_{ideal}=0.2$ and $d=0.05$. We obtain the following plots, with $i(x)$ in green and $I_{NPoS}(x)$ in blue.
 
 ![](https://i.imgur.com/Kk1MLJH.png)
 
+### Inflation model without parachains (current implementation)
+In the absence of parachains, we suggest the following adjustable parameters: $I_0=0.025$, $\chi_{ideal}=0.75$, $i_{ideal}=0.1$ and $d=0.05$,. With the adjusted parameter we obtain the following plot, with $i(x)$ in green and $I_{NPoS}(x)$ in blue.
+
+![](https://i.imgur.com/i8t1Q5y.png)
 
 ### Payment details
 
