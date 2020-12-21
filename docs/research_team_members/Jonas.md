@@ -4,7 +4,7 @@
 
 jonas@web3.foundation
 
-Jonas has joined the team of the Web3 Foundation at the beginning of July as a research scientist intern, where he will be working on economic questions regarding the Polkadot ecosystem. He will focus especially on the analysis and optimization of the interplay between human behavior with the protocol.
+Jonas has joined the team of the Web3 Foundation at the beginning of July 2020 as a research scientist, where he will be working on economic questions regarding the Polkadot ecosystem. He will focus especially on the analysis and optimization of the interplay between human behavior with the protocol.
 
 **Short Biography**:  Before joining W3F, Jonas earned his Ph.D. in Behavioral and Experimental Economics from the University of Bern, where he investigated human behavior in markets and organizations. Before that, he obtained an MSc degree in Quantitative Economics at the University of Konstanz.
 
