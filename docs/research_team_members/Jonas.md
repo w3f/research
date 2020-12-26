@@ -3,6 +3,7 @@
 <img src="https://i.imgur.com/jbZJR52.jpg" alt="drawing" style="width:200px;"/>
 
 jonas@web3.foundation
+
 PGP Fingerprint: 16C2 2CBD 92E4 E7A1 7D79 D0D0 1F79 CDDC 0A5F FC5B
 
 Jonas has joined the team of the Web3 Foundation at the beginning of July 2020 as a research scientist, where he will be working on economic questions regarding the Polkadot ecosystem. He will focus especially on the analysis and optimization of the interplay between human behavior with the protocol.
