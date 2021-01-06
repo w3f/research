@@ -23,7 +23,7 @@ It is not desirable to provide an exogenous recommendation of a set of validator
 | Validator 2 | 7% | 280 DOTs | No | Average - 1%|
 | Validator 3 | 1% | 1 DOT | No | Average + 5% |
 
-All validators in the table have different profiles, where none is pareto-dominated (see LINK). Validator 3 potentially yield high profits but does not have much self-stake (skin-in-the-game) and is without registered identity. Validator 1 charges a higher fee for their service but might leverage a reputable identity. Validator 2 requires substantial fees but has the most self-stake. One could easily think of different preferences of users, who would prefer any one of those validators. While probably every user could make a choice from that selection, the problem gets increasingly difficult for a set of 200-1000 validators.
+All validators in the table have different profiles, where none is dominated. Validator 3 potentially yield high profits but does not have much self-stake (skin-in-the-game) and is without registered identity. Validator 1 charges a higher fee for their service but might leverage a reputable identity. Validator 2 requires substantial fees but has the most self-stake. One could easily think of different preferences of users, who would prefer any one of those validators. While probably every user could make a choice from that selection, the problem gets increasingly difficult for a set of 200-1000 validators.
 
 
 ### Code of conduct for recommendations
@@ -86,8 +86,8 @@ If $z > 1.645$ we can say that the respective validator outperforms significantl
 
 # Filtering Phase
 
-## Pareto-Dominance
-After constructing the dataset as elaborated in the section "underlying data" (LINK), we can start reducing the set of validators to reduce the amount of information a nominator has to process. One concept is to remove pareto-dominated validators. As we do not make qualitative judgements e.g., which "identity" is better or worse than another, we can remove validators who are inferior to another. Consider the following example:
+## Dominance-Filtering
+After constructing the dataset as elaborated in the section "underlying data", we can start reducing the set of validators to reduce the amount of information a nominator has to process. One concept is to remove dominated validators. As we do not make qualitative judgements e.g., which "identity" is better or worse than another, we can remove validators who are inferior to another, since there is no rational reason to nominate them. A validator is dominated by another validator if all her properties are equal and at least one property is worse. Consider the following example:
 
 ## Example:
 | Number 	| Public Address 	| Identity 	| Self-stake 	| Nominators 	| Relative Performance 	| Outperformer 	| Active Eras 	| Operator Size 	|
@@ -97,9 +97,7 @@ After constructing the dataset as elaborated in the section "underlying data" (L
 | 3 	| 1xgFnMhdOui 	| 1 	| 100 	| 89 	| 0.3 	| 0 	| 16 	| 3 	|
 | 4 	| 1vO7JLtSm4F 	| 1 	| 5000 	| 89 	| 1 	| 1 	| 29 	| 3 	|
 
-Validator 1 is pareto-dominated by Validator 2, which means that it is worse in every dimension (note, as mentioned above a user might prefer larger operators in which case this would not be true). Validator 3 is dominated by Validator 3 and therefore can be removed from the set. By this process the set can be reduced to two validators. In practice, this shows to be quite powerful to vastly reduce the set size.
-
-An implementation of the process described can be found [here](https://github.com/w3f/validator-selection).
+Validator 1 is dominated by Validator 2, which means that it is worse in every dimension (note, as mentioned above a user might prefer larger operators in which case this would not be true). Validator 3 is dominated by Validator 3 and therefore can be removed from the set. By this process the set can be reduced to two validators. In practice, this shows to be quite powerful to vastly reduce the set size.
 
 ## Further curation 
 Here we have the opportunity to do additional cleanup to the remaining set. As mentioned in the code of conduct, those should be optional but we can suggest default values for users.
@@ -108,7 +106,7 @@ Here we have the opportunity to do additional cleanup to the remaining set. As m
 * Remove validators who run on the same machine (some analysis of IP addresses possible?).
 
 # Manual selection
-After the set has been reduced by removing pareto-dominated validators and giving some filter option the user can easily select preferred validators manually. In this step, the selection is purely based on personal preferences and for example a nominator might order the validators by their relative performance and select those who also satisfy some requirements on a minimum self-stake.
+After the set has been reduced by removing dominated validators and giving some filter option the user can easily select preferred validators manually. In this step, the selection is purely based on personal preferences and for example a nominator might order the validators by their relative performance and select those who also satisfy some requirements on a minimum self-stake.
 
 
 # UTAStar
