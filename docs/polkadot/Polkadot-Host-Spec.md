@@ -6,7 +6,7 @@
 
 ====================================================================
 
-# Specification
+# Host Specification
 
 This page contains the Polkadot Host Specification, a document mostly of
 interest to implementers and/or other engineers wishing to interoperate with
@@ -15,4 +15,5 @@ presented in a more readable way in preceding documents.
 
 TODO: move to publications
 
-<iframe src="../_static/pdfview/viewer.html?file=../pdf/polkadot-host-spec.pdf" width="100%" height="650em"></iframe>
+<iframe src="../_static/pdfview/viewer.html?file=https://w3f.github.io/polkadot-spec/spec/host/latest.pdf" width="100%" height="650em"></iframe>
+
