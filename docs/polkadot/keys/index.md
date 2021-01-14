@@ -1,6 +1,6 @@
 ====================================================================
 
-**Owners**: [Jeff Burdges](/research_team_members/jeff.html)
+**Owners**: [Jeff Burdges](/team_members/jeff.html)
 
 ====================================================================
 

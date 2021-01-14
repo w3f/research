@@ -1,6 +1,6 @@
 ====================================================================
 
-**Owners**: [Jeff Burdges](/research_team_members/jeff.html), [Handan Kilinc Alper](/research_team_members/handan.html)
+**Owners**: [Jeff Burdges](/team_members/jeff.html), [Handan Kilinc Alper](/team_members/handan.html)
 
 ====================================================================
 

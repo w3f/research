@@ -1,6 +1,6 @@
 ====================================================================
 
-Owner: [Alistair Stewart](/research_team_members/alistair.html)
+Owner: [Alistair Stewart](/team_members/alistair.html)
 
 ====================================================================
 

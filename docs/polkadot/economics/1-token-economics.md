@@ -1,6 +1,6 @@
 ====================================================================
 
-**Owners**: [Alfonso Cevallos](/research_team_members/alfonso.html), [Jonas Gehrlein](/research_team_members/Jonas.html)
+**Owners**: [Alfonso Cevallos](/team_members/alfonso.html), [Jonas Gehrlein](/team_members/Jonas.html)
 
 ====================================================================
 

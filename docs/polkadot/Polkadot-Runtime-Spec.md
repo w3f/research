@@ -1,6 +1,6 @@
 ====================================================================
 
-**Owners**: [Syed Hosseini](/research_team_members/syed.html)
+**Owners**: [Syed Hosseini](/team_members_research/syed.html)
 
 **Other authors**: Fabio Lama, Florian Franzen
 
