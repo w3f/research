@@ -1,8 +1,8 @@
 ====================================================================
 
-**Owners**: [Syed Hosseini](/team_members_research/syed.html)
+**Owners**: [Syed Hosseini](/team_members/syed.html)
 
-**Other authors**: Fabio Lama, Florian Franzen
+**Other authors**: [Fabio Lama](/team_members/fabio.html), [Florian Franzen](/team_members/florian.html)
 
 ====================================================================
 
@@ -15,5 +15,5 @@ presented in a more readable way in preceding documents.
 
 TODO: move to publications
 
-<iframe src="../_static/pdfview/viewer.html?file=https://w3f.github.io/polkadot-spec/spec/host/latest.pdf" width="100%" height="650em"></iframe>
+<iframe src="https://w3f.github.io/polkadot-spec/spec/host/latest.pdf" width="100%" height="650em"></iframe>
 
