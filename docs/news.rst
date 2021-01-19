@@ -1,6 +1,9 @@
 ====
 News
 ====
+**16.01.21**:
+    The Web3 Foundation successfully hosted the `Workshop on Real-World Decentralized Cryptography <http://rwc2021-real-world-decentralised-cryptography-workshop.w3f.community/>`_ with presentations of leading experts in topics such as distributed key generation, threshold cryptography, and multiparty computation. 
+
 **10.11.20**:
     Is slashing a good idea? Alistair `talks <https://www.youtube.com/watch?v=F8q16k4U2fA>`_ about slashing and how to apply it to scaling in proof of stake at the DISC 2020 workshop on "Blockchain Interoperability and Sharding".
 
