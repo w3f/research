@@ -13,5 +13,5 @@ interest to implementers and/or other engineers wishing to interoperate with
 Polkadot. It goes into full low-level detail; high-level design ideas are
 presented in a more readable way in preceding documents.
 
-<iframe src="https://w3f.github.io/polkadot-spec/spec/host/latest.pdf" width="100%" height="650em"></iframe>
+<iframe src="../../_static/pdfview/viewer.html?file=https://w3f.github.io/polkadot-spec/spec/host/latest.pdf" width="100%" height="650em"></iframe>
 
