@@ -77,8 +77,8 @@ The experiment lasts in any case until $T$ trading periods are reached. However,
 | $n_S$ 	| 6 	| Number of small bidders per auction 	|
 | $V_L$ 	| $[100,300]$ 	| Valuation for large bidders 	|
 | $V_S$ 	| $[0,50]$ 	| Valuation for small bidders 	|
-| $q_t$ 	| $1/60$ 	| Termination probability for each trading period 	|
-| $R$ 	| $3$ 	| Number of auctions a single participant plays 	|
+| $q_t$ 	| $\frac{1}{60}t$ 	| Termination probability for each trading period 	|
+| $R$ 	| $10$ 	| Number of auctions a single participant plays 	|
 | $E(t$) 	| $30$ 	| Expected trading rounds ($\hat{t}$) 	|
 
 ## Analysis: Outcome measures
@@ -88,13 +88,13 @@ We will analyse **bidding dynamics**, that is, when and how participants bid in 
 In this section, we can think about meaningful deviations from the baseline design. The following things are reasonable:
 
 1. **Smart-Contracts:** 
-   * We can include automated bidders with fixed bidding strategy and valuation. Currently, the code for those *crowdfunding modules* is already implemented and therefore gives us a straight-forward way to include them in the experiment.
+      * We can include automated bidders with fixed bidding strategy and valuation. Currently, the code for those *crowdfunding modules* is already implemented and therefore gives us a straight-forward way to include them in the experiment.
 2. **Collusion:**
-   * The outcome of auctions is influenced by bidder collusion and multi-identity bidding. Those two factors are rarely as much expressed than in the setting of an blockchain auction with anonymous bidders. 
-   * We could induce incentives (or options) to collude between the bidders and compare the result on the outcome.
+      * The outcome of auctions is influenced by bidder collusion and multi-identity bidding. Those two factors are rarely as much expressed than in the setting of an blockchain auction with anonymous bidders. 
+      * We could induce incentives (or options) to collude between the bidders and compare the result on the outcome.
 3. **Other formats:**
-   * The Vickrey-Grove-Clarke mechanism in an extension of the Vickrey auction for multi-object auctions and basically implements a second-price mechanism. 
-   * Ascending clock auctions which received some attention in the multi-object auction literature.
+      * The Vickrey-Grove-Clarke mechanism in an extension of the Vickrey auction for multi-object auctions and basically implements a second-price mechanism. 
+      * Ascending clock auctions which received some attention in the multi-object auction literature.
 
 ## Procedure
 ### Stage 1: Instructions
