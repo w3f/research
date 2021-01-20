@@ -13,6 +13,6 @@ The currently deployed mechanism is a hybrid of BABE and Aura.  We plan to repla
    :glob:
    :maxdepth: 1
 
-   block-production/BABE
+   block-production/Babe
    block-production/SASSAFRAS
    block-production/*
