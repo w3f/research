@@ -2,7 +2,8 @@
 Team Members
 ============
 
-## Research Team 
+Research Team
+=============
 
 The core Web3 Foundation research team working on various areas relevant to decentralised systems.
 
@@ -21,7 +22,8 @@ The core Web3 Foundation research team working on various areas relevant to dece
    team_members/syed
    team_members/Ximin
 
-## Specification Team
+Specification Team
+==================
 
 The spec team turns protocol designs into implementable specification and reviews implementations for discrepancies.
 

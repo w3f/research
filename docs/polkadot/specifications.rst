@@ -1,8 +1,8 @@
 \====================================================================
 
-**Owners**: [Syed Hosseini](/team_members/syed.html)
+**Owners**: :doc:`/team_members/syed`
 
-**Other authors**: [Fabio Lama](/team_members/fabio.html), [Florian Franzen](/team_members/florian.html)
+**Other authors**: :doc:`/team_members/fabio`, :doc:`/team_members/florian`
 
 \====================================================================
 

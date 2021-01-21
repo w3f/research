@@ -15,5 +15,4 @@ Polkadot
    polkadot/networking
    polkadot/economics
    polkadot/security
-   polkadot/Polkadot-Host-Spec
-   polkadot/Polkadot-Runtime-Spec
+   polkadot/specifications
