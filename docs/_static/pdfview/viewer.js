@@ -2161,35 +2161,26 @@ var PDFViewerApplication = {
 exports.PDFViewerApplication = PDFViewerApplication;
 var validateFileURL;
 {
-  var VALID_EXTERNAL_ORIGINS = ["https://w3f.github.io"];
+  var HOSTED_VIEWER_ORIGINS = ["null", "http://mozilla.github.io", "https://mozilla.github.io"];
 
   validateFileURL = function validateFileURL(file) {
+    if (file === undefined) {
+      return;
+    }
 
     try {
-      if (file === undefined) {
-        throw new Error("file to view not defined");
-      }
-
       var viewerOrigin = new URL(window.location.href).origin || "null";
 
-      if (viewerOrigin === "null") {
+      if (HOSTED_VIEWER_ORIGINS.includes(viewerOrigin)) {
         return;
       }
 
       var _URL = new URL(file, window.location.href),
-          fileOrigin = _URL.origin,
-          fileProtocol = _URL.protocol;
+          origin = _URL.origin,
+          protocol = _URL.protocol;
 
-      if (fileProtocol === "blob:") {
-        throw new Error("blob protocol disabled");
-      }
-
-      if (VALID_EXTERNAL_ORIGINS.includes(fileOrigin)) {
-        return;
-      }
-
-      if (fileOrigin !== viewerOrigin) {
-        throw new Error("file origin external and not whitelisted");
+      if (origin !== viewerOrigin && protocol !== "blob:") {
+        throw new Error("file origin does not match viewer's");
       }
     } catch (ex) {
       var message = ex && ex.message;
@@ -4669,7 +4660,7 @@ var defaultOptions = {
     kind: OptionKind.VIEWER + OptionKind.PREFERENCE
   },
   defaultUrl: {
-    value: "",
+    value: "compressed.tracemonkey-pldi-09.pdf",
     kind: OptionKind.VIEWER
   },
   defaultZoomValue: {
