@@ -24,6 +24,7 @@ Publications
 
 * Alistair Stewart, "GRANDPA: A Finality Gadget", ACM Computer and Communications Security (CCS), November 2019.
 
+
 **Blog Posts:**
 
 * Fatemeh Shirazi, Logan Saether, Alistair Stewart, Rob Habermeier, Gavin Wood, `Polkadot’s Messaging Scheme <https://medium.com/web3foundation/polkadots-messaging-scheme-b1ec560908b7>`_, Medium, Web3 Foundation, 14/01/2020.
@@ -33,5 +34,8 @@ Publications
 * Fatemeh Shirazi, Jeffrey Burdges, Edward Thomson, and Ignasi Albero, `Messaging Protocol Workshop Outcomes <https://medium.com/web3foundation/messaging-protocol-workshop-outcomes-7a827d02a81a>`_, Medium, Web3 Foundation/Status/Validity Labs meetup review, 21/02/2019.
 
 
+**Specification:**
 
+* Syed Hosseini, Fabio Lama, Florian Franzen, `Polkadot Host Specification <https://w3f.github.io/polkadot-spec/spec/host/latest.pdf>`_
 
+* Syed Hosseini, Fabio Lama, Florian Franzen, `Polkadot Runtime Specification <https://w3f.github.io/polkadot-spec/spec/runtime/latest.pdf>`_

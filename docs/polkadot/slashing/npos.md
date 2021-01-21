@@ -1,6 +1,6 @@
 ====================================================================
 
-**Owners**: [Jeffrey Burdges](/research_team_members/jeff.html)
+**Owners**: [Jeffrey Burdges](/team_members/jeff.html)
 
 **Other authors**: Robert Habermeier, Alfonso Cevallos
 
