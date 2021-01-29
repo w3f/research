@@ -54,14 +54,14 @@ __Adjustable parameter:__ Let \(\chi_{ideal}\) be the staking rate we would like
 
 Let \(i=i(x)\) be the yearly *interest rate* in NPoS; i.e., the total yearly amount of tokens minted to pay all validators and nominators for block production and Grandpa, divided by the total amount of tokens staked by them. We consider it as a function of \(x\). Intuitively, \(i(x)\) corresponds to the incentive we give people to stake. Hence, \(i(x)\) should be a monotone decreasing function of \(x\), as less incentive is needed when \(x\) increases.
 
-* We study the yearly interest rate (instead of the interest rate per block or per epoch) for ease of comprehension. This means that \(i(x)\) is the total payout perceived by somebody that continuously stakes one DOT during a year. The interest rate per block can be easily computed from it. **(Q: do we consider compound interest in this computation? In other words, can the staked parties immediately reinvest their payment into stake?)**
+* We study the yearly interest rate (instead of the interest rate per block or per epoch) for ease of comprehension. This means that \(i(x)\) is the total payout perceived by somebody that continuously stakes one DOT during a year. The interest rate per block can be easily computed from it.
 * Not every staked party will be paid proportional to their stake. For instance, a validator will be paid more than a nominator with equal stake, and a validator producing a block will be temporarily paid more than a validator not producing a block. So, \(i(x)\) only works as a guide of the average interest rate.
 
-__Adjustable parameter:__ Let \(i_{ideal}:=i(\chi_{ideal})\) be the interest rate we pay in the ideal scenario where \(x=\chi_{ideal}\). This is the interest rate we should be paying most of the time. We suggest the value \(i_{ideal}=0.2\), i.e. an ideal yearly interest rate of 20%. In the absence of parachains, we suggest an \(i_{ideal}=0.1\).
+__Adjustable parameter:__ Let \(i_{ideal}:=i(\chi_{ideal})\) be the interest rate we pay in the ideal scenario where \(x=\chi_{ideal}\). This is the interest rate we should be paying most of the time. We suggest the value \(i_{ideal}=0.2\), i.e. an ideal yearly interest rate of 20%. In the absence of parachains, we suggest an \(i_{ideal}=0.133\).
 
 Let \(I\) be the yearly *inflation rate*; i.e.
 
-$$I=\frac{\text{token supply at end of year} - \text{token supply at begining of year}}{\text{token supply at begining of year}}.$$
+$$I=\frac{\text{token supply at end of year} - \text{token supply at beginning of year}}{\text{token supply at beginning of year}}.$$
 
 The inflation rate is given by
 
@@ -106,7 +106,7 @@ Following our suggestions for the economics after the implementation with parach
 ![](https://i.imgur.com/Kk1MLJH.png)
 
 ### Inflation model without parachains (current implementation)
-In the absence of parachains, we suggest the following adjustable parameters: $I_0=0.025$, $\chi_{ideal}=0.75$, $i_{ideal}=0.1$ and $d=0.05$,. With the adjusted parameter we obtain the following plot, with $i(x)$ in green and $I_{NPoS}(x)$ in blue.
+In the absence of parachains, we suggest the following adjustable parameters: $I_0=0.025$, $\chi_{ideal}=0.75$, $i_{ideal}=0.133$ and $d=0.05$,. With the adjusted parameter we obtain the following plot, with $i(x)$ in green and $I_{NPoS}(x)$ in blue.
 
 ![](https://i.imgur.com/i8t1Q5y.png)
 
