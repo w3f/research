@@ -1,6 +1,9 @@
 ====
 News
 ====
+**29.01.21**:
+    Fatemeh shared her thoughts on "Interoperability - Where are we now and what can we expect for 2021" in an online-presentation at the Bitcoin Suisse Crypto Outlook 2021. Additionally, she features an article in the corresponding `research report <https://click.mlsend.com/link/c/YT0xNjA5OTk0MzE5NjA1Nzk4MjQ3JmM9ZTNvNCZlPTU5MTY4MzA0JmI9NTEyMjM3NDg1JmQ9djBqOHo2dw==.ngxPQKz29giu1TK1fdNRJdTJ8gEWu2BFos0tuJeD7AQ/>`_. 
+
 **16.01.21**:
     The Web3 Foundation successfully hosted the `Workshop on Real-World Decentralized Cryptography <http://rwc2021-real-world-decentralised-cryptography-workshop.w3f.community/>`_ with presentations of leading experts in topics such as distributed key generation, threshold cryptography, and multiparty computation. 
 
