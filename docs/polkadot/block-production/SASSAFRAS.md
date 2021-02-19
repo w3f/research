@@ -1,6 +1,6 @@
 ====================================================================
 
-**Owners**: [Jeff Burdges](/team_members/jeff.html), [Handan Kilinc Alper](/team_members/handan.html)
+**Owners**: [Jeff Burdges](/team_members/jeff.html), [Fatemeh Shirazi](/team_members/fatemeh.html), [Alistair Stewart](/team_members/alistair.html), [Sergey Vasilyev](/team_members/Sergey.html)
 
 ====================================================================
 
