@@ -27,4 +27,4 @@ page. The high-level concepts and design principles remain the same as GRANDPA.
 
 ## Polite GRANDPA
 
-TODO
+
