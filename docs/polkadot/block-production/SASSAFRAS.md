@@ -4,7 +4,6 @@
 
 ====================================================================
 
-TODO: this document is entirely out-of-date & needs to be rewritten
 
 # SASSAFRAS
 
