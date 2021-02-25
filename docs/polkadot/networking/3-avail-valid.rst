@@ -15,11 +15,7 @@ These approval checkers are randomly assigned by another higher-layer protocol, 
 
 Note: data from the relay chain is fully-replicated at each node, outside of this protocol. This does not need to be optimised, as there is only one relay chain and its data is not expected to be large.
 
-TODO
-----
 
--  to save time, the initial implemented version will be via gossip. Make a note of this.
--  rough performance analysis & implementation notes, at the end of the doc.
 
 Background
 ----------
@@ -68,7 +64,7 @@ A2: Constrain the use of shared OS resources, so the protocol does not interfere
 
 A3: Expected work load should be as balanced as possible under ideal conditions, and degrade reasonably under imperfect conditions e.g. network congestion. For example, every sender should send approximately (C-1) pieces, rather than some senders sending twice as many as others.
 
-A4: TODO: Protocols should not be easily spammable, or the spammers should be easily identifiable and punishable.
+A4: Protocols should not be easily spammable, or the spammers should be easily identifiable and punishable.
 
 Special considerations
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -348,16 +344,7 @@ The other details follow quite naturally from these design choices and the initi
 Implementation notes
 ~~~~~~~~~~~~~~~~~~~~
 
-TODO
 
-Push vs pull
-
-Rate-limiting, including for proxies [TBX S1 #3]
-
-Possible layers
-^^^^^^^^^^^^^^^
-
-TODO
 
 Erasure coding
 ^^^^^^^^^^^^^^

@@ -221,27 +221,5 @@ a fine topic for future research.
 As applied to Polkadot
 ======================
 
-Unauthenticated operation
--------------------------
 
-Collators without any fresh authentication instructions can only:
 
--  TODO…
-
-Validators without any fresh authentication instructions can only:
-
--  TODO…
-
-Authenticated roles
--------------------
-
-Collators need to authenticate the following:
-
--  Parachain validators
--  TODO…
-
-Validators need to authenticate the following:
-
--  TODO…
-
-etc

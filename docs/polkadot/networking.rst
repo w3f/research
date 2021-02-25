@@ -72,7 +72,6 @@ The following message types are expected to contain an arbitrary number of membe
 
 In order to deduplicate them while gossiping, a more formal or rigorous set-reconciliation protocol will be needed, perhaps involving bloom filters.
 
-TODO: consider the above issues and propose something concrete
 
 Bounded gossip
 --------------
