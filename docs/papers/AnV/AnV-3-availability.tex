@@ -24,7 +24,8 @@ We transport only authenticated pieces between nodes throughout, or full blocks 
 
 We let $\pieces_B$ denote the list of these authenticated pieces, so
 $$ \pieces_B = Listst{ (d,\receipt_{B,S},\vect{\merkleroot_B d}) }{ d \in \prepieces_B } \mathcomma $$
-with each piece signed by one member of $S$.  (TODO: Really?)
+with each piece signed by one member of $S$.  
+%TODO: Really?
 %
 We shall distribute $\pieces_B$ among the full relay chain validator set $\vals$ with $\pieces_B[i]$ going to $\vals[i]$ for $i = 1,\ldots,\nvals$.  
 
@@ -37,14 +38,16 @@ We might however see many competing parachain candidate blocks at this point, so
 \label{sec:topology}
 %TODO: "Piece distribution topology" is too long
 
-[TODO: We wrote this as if it were a separate topology section, not a subsection of availability, so maybe it should adopt that structure]
+%TODO: We wrote this as if it were a separate topology section, not a subsection of availability, so maybe it should adopt that structure
 
 We find that scalability actually depends heavily upon the topology and routing used to distribute data, but that specifics depend upon the scale.  We briefly explain the specialised topology and routing requirements for our two phases of parachain data distribution.  We caution however that routing almost always requires some capacity for multi-hop forwarding because it otherwise risks excluding some elected validators.  
 
 \smallskip
 \paragraph{Candidate blocks:}
 
-We need our network topology to permit one parachain $\para$ to distribute the authenticated erasure coded candidate pieces $\pieces_B$s relatively quickly, which amounts to a graph expansion property (TODO:Actually??).  We might want a much stronger connectivity property below if doing full reconstructions turns out to be our most efficient mechanism for block retrieval, but if not then some similar expansion property permits forwarding pieces for reconstructions (see \S\ref{sec:retrieval}).
+We need our network topology to permit one parachain $\para$ to distribute the authenticated erasure coded candidate pieces $\pieces_B$s relatively quickly, which amounts to a graph expansion property
+% TODO:Actually??). 
+We might want a much stronger connectivity property below if doing full reconstructions turns out to be our most efficient mechanism for block retrieval, but if not then some similar expansion property permits forwarding pieces for reconstructions (see \S\ref{sec:retrieval}).
 
 In \S\ref{sec:backing}, we could ask collators to send the same block to several well chosen parachain validators as well.  As an example, if our parachain validators $\vals_\para$ form a cycle then $B$ reaches all parachain validators in two hops if the collators send $B$ to one third of $\vals_\para$, but adding well chosen chords reduces our connections with collators and improves our connectivity.  
 
@@ -106,7 +109,9 @@ An honestly erasure coded $\blobB$ can be recovered from any $f+1$ pieces in $\p
 We assume throughout that $2f+1$ validators behave correctly and at most $f$ validators behave byzantine.  
 It follows that, if $2f+1$ validators claim they possess their piece, then anyone could later reconstruct an honestly erasure coded $\blobB$ from the remaining $f+1$ held by validators who claimed correctly, much like other byzantine fault tolerant voting processes.  
 
-At this point, our validators votes that they believe candidate to be available once they received their authenticated piece $(d,\receipt_{B,S},\vect{\merkleroot_B d}) \in \pieces_B$ and validate the signature (TODO) and the witness copath $\vect{\merkleroot_B d}$ to the merkle root $\merkleroot_B$ in $\receipt_{B,S}$.  We shall broadcast these {\em availability votes} via gossip and accumulate them in relay chain blocks, almost like transactions, but we briefly explain their implications first before explaining the voting mechanics.
+At this point, our validators votes that they believe candidate to be available once they received their authenticated piece $(d,\receipt_{B,S},\vect{\merkleroot_B d}) \in \pieces_B$ and validate the signature 
+%TODO
+ and the witness copath $\vect{\merkleroot_B d}$ to the merkle root $\merkleroot_B$ in $\receipt_{B,S}$.  We shall broadcast these {\em availability votes} via gossip and accumulate them in relay chain blocks, almost like transactions, but we briefly explain their implications first before explaining the voting mechanics.
 
 \smallskip
 \paragraph{Security:}

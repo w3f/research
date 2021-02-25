@@ -24,7 +24,7 @@ Assuming that the availability protocol is secure, the signature scheme is EF-CM
 \end{theorem}
 
 \begin{proof}(Sketch)
-TODO: Security reduction, Rewrite the security arguments
+%TODO: Security reduction, Rewrite the security arguments
 
 
 If there is one honest $PV$ and there is not any $f+1$ unavailability report, then at least $2f$ of the honest parties has the piece. It means that $PV$ can collect all the pieces from the honest parties in order to reconstruct the blob and check its validity. Therefore, if there is at least one honest party in $PV$, it can detect the invalidity and announce it. In the end, we will have more than $f$ invalidity signatures since the other parties also check invalidity after seeing the signature saying that the block is invalid.
