@@ -9,7 +9,8 @@ We now describe the subprotocols that provide the preliminary financial backing 
 
 Our backing protocol has nodes play three roles:
 \begin{itemize}
-\item Collators for a parachain $\para$ prepare the candidate blocks's proof-of-validity block usable with stateless validation.\footnote{TODO: Add name in previous section since state witness procedure gets too long} 
+\item Collators for a parachain $\para$ prepare the candidate blocks's proof-of-validity block usable with stateless validation.
+%TODO\footnote{TODO: Add name in previous section since state witness procedure gets too long} 
 \item Validators $\vals_\para$ assigned to back the parachain $\para$ update the block metadata and prepare the candidate receipt handled directly by the relay chain, attest to its validity, and submit it to the relay chain once it obtains sufficent backing. 
 \item Some relay chain block producer selects among any competing candidates with sufficient backing.
 \end{itemize}
@@ -76,7 +77,7 @@ We now define an {\em abridged candidate receipt} that consists of
 \item the collator's id $C.\mathsf{id}$ and signature $C.\mathsf{sig})$,
 \end{itemize}
 
-We now define an {\em (inner) candidate receipt} $\receipt_B$ that consists of this abridged candidate candidate receipt, along with the additional data computable by relay chain validators (TODO).
+We now define an {\em (inner) candidate receipt} $\receipt_B$ that consists of this abridged candidate candidate receipt, along with the additional data computable by relay chain validators. %TODO.
 
 \smallskip\paragraph{Attestation:}
 

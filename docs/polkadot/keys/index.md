@@ -1,6 +1,6 @@
 ====================================================================
 
-**Owners**: [Jeff Burdges](/research_team_members/jeff.html)
+**Owners**: [Jeff Burdges](/team_members/jeff.html)
 
 ====================================================================
 
@@ -43,7 +43,6 @@ We reduce VRF output malleability by hashing the signer's public key along side 
 
 In GRANDPA, validators shall vote using BLS signatures, which supports convenient signature aggregation and select ZCash's BLS12-381 curve for performance.  There is a risk that BLS12-381 might drops significantly below 128 bits of security, due to number field sieve advancements.  If and when this happens, we expect upgrading GRANDPA to another curve to be straightforward.  See also https://mailarchive.ietf.org/arch/msg/cfrg/eAn3_8XpcG4R2VFhDtE_pomPo2Q
 
-TODO: ImOnline ..  ref. https://github.com/paritytech/substrate/issues/3546 etc.
 
 We treat libp2p's transport keys roughly like session keys too, but they include the transport keys for sentry nodes, not just for the validator itself.  As such, the operator interacts slightly more with these.
 

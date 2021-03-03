@@ -1,13 +1,11 @@
 # Polkadot introduction
 
-TODO: talk about parachains overview, threat model, e.g. clarification to avoid misunderstandings with cosmos
 
 Polkadot consists of a main chain called the relay chain and multiple sharded chains called parachains. The relay chain is maintained by validators that are selected through the [NPoS scheme](NPoS/index.md#the-npos-scheme) and is responsible for producing blocks of the relay chain (via [BABE](block-production/Babe.md)) and keeping the state of all the parachains.
 These validators need to vote on the consensus, see [GRANDPA](finality.md), over all the parachains blocks. For parachains, there are additional actors called collators and fishermen that are responsible for parachain block production  and reporting invalid parachain blocks respectively. In the figure below an example cut-out of Polkadot with part of the relay chain, one parachain, three validators and five collators are shown.
 
 ![Figure 1 - Relay chain, Validators, Parachain, and Collators](images/data_structure.png)
 
-TODO: make image smaller
 
 Validators are assigned to parachains, which are responsible for validating parachain blockd and keeping them available via the [A&V scheme](Availability_and_Validity.md). Moreover, another feature of Polkadot is enabling interchain messaging among parachains, called [XCMP](XCMP.md).
 
@@ -21,13 +19,12 @@ Furthermore, Polkadot has a decentralised governance scheme that can change any 
 
 **For other information regarding the project please refer to the [wiki page](https://wiki.polkadot.network).**
 
-**We are working on a implementation level specification of the protocol [here](Polkadot-Host-Spec.md).**
+**We also provide implementation level specification of the protocol for the [host](specifications/host.md) as well as the [runtime](specifications/runtime.md).**
 
 ## High-level properties
 
 This section describes properties (guarantees) that users can expect of Polkadot.
 
-TODO: update, this content was c+p from old website
 
 ### State Transition Properties
 

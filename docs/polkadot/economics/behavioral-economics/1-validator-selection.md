@@ -57,7 +57,7 @@ Some of the retrieved on-chain data might be not very useful for nominators or c
 
 | Name 	| Historical 	| On-Chain 	| Description 	|
 |-	|-	|-	|-	|
-| Average Era-Points 	| Yes 	| Yes 	| The average era-points from previous eras.  	|
+| Average Adjusted Era-Points 	| Yes 	| Yes 	| The average adjusted era-points from previous eras.  	|
 | Performance 	| Yes 	| Yes 	| The performance of a validator determined by era-points and commission. 	|
 | Relative Performance* 	| Yes 	| Yes 	| The performance normalized to the set of validators. 	|
 | Outperforming MLE 	| Yes 	| Yes 	| An indicator how often a validator has outperformed the average era-points. Should be 0.5 for an average validator. 	|
@@ -66,8 +66,10 @@ Some of the retrieved on-chain data might be not very useful for nominators or c
 | Relative total stake* 	| No 	| Yes 	| The total stake normalized to the set of validators. 	|
 | Operator Size* 	| No 	| Yes 	| The number of validators which share a similar on-chain identity. 	|
 
-**Average Era-Points**
-To get a more robust estimate of the era-points, additional data from previous eras can be gathered. In the case that a validator was not active in a given era, the average value (within that era) is assigned. It is unclear how many previous eras should be used as having a too long history might bias the results towards the average while too short of a history diminishes the robustness of the metric. One idea could be to use the average of $active-eras$. 
+**Average Adjusted Era-Points**
+To get a more robust estimate of the era-points, additional data from previous eras should be gathered. Since the total era-points are distributed among all active validators, and the set of active validators might change, it could bias the results. To counter that, we can adjust the era-points of each era by the active set size of that era. As this is the only biasing factor on the theoretical per-capita era-points, we can thereby make the historic data comparable.
+
+It is unclear how many previous eras should be used as having a too long history might bias the results towards the average while too short of a history diminishes the robustness of the metric. One idea could be to use the average of $active-eras$. 
 
 **Performance**: The performance of a validator from the point of view of a nominator is determined by the amount of era-points gathered by that validator, the nominator's share of the total stake and the commission a validator is charging. In addition, the performance level is linear in the bond of the nominator and is thereby independent from that. We can combine those metrics into one:
 

@@ -1,6 +1,6 @@
 ====================================================================
 
-**Owners**: [Jeffrey Burdges](/research_team_members/jeff.html)
+**Owners**: [Jeffrey Burdges](/team_members/jeff.html)
 
 **Other authors**: Robert Habermeier, Alfonso Cevallos
 
@@ -10,11 +10,10 @@
 
 We need our slashing algorithm to be fair and effective.  We discuss how this means slashing must respect nominators' exposure, be anti-Sibel, and be monotonic.
 
-TODO:  Anything about era boundaries?
+
 
 ## Reduced rewards
 
-TODO:  How small should a slash be to ignore the slashing span system?
 
 ## Slashing within one era
 

@@ -1,6 +1,6 @@
 ====================================================================
 
-**Owners**: [Handan Kilinc Alper](/research_team_members/handan.html)
+**Owners**: [Handan Kilinc Alper](/team_members/handan.html)
 
 ====================================================================
 \(

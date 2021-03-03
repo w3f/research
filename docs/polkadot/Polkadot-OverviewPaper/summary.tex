@@ -23,9 +23,6 @@ On the network level, the relay chain is open. Any node may run the software and
 \begin{enumerate}
 \item Light client - retrieves certain user-relevant data from the network. The availability of light clients is irrelevant - they don't perform a service for others.
 \item Full node - retrieves all types of data, stores it long-term, and propagates it to others. Must be highly available.
-  \begin{enumerate}
-  \item \hyperref[sec:net_sentry]{Sentry node} - publicly-reachable full nodes that perform trusted proxying services for a private full node, run by the same operator.
-  \end{enumerate}
 Sometimes we refer to a \emph{full node} of a parachain. In the abstract sense for non-blockchain parachains, this means that they participate in it to a sufficient degree that they can verify all data passing through it.
 \end{enumerate}
 

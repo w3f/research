@@ -5,9 +5,9 @@ Publications
 
 **Papers:**
 
-* Jeff Burdges, Alfonso Cevallos, Peter Czaban, Rob Habermeier, Syed Hosseini, Fabio Lama, Handan Kılınç Alper, Ximin Luo, Fatemeh Shirazi, Alistair Stewart, Gavin Wood, `Overview of Polkadot and its Design Considerations <http://arxiv.org/abs/2005.13456>`_, first version, 29 May 2020.
+* Jeff Burdges and Luca de Feo, `Delay Encryption <https://eprint.iacr.org/2020/638>`_, EuroCrypt 2021.
 
-* Jeff Burdges and Luca de Feo, `Delay Encryption <https://eprint.iacr.org/2020/638>`_, in submission.
+* Jeff Burdges, Alfonso Cevallos, Peter Czaban, Rob Habermeier, Syed Hosseini, Fabio Lama, Handan Kılınç Alper, Ximin Luo, Fatemeh Shirazi, Alistair Stewart, Gavin Wood, `Overview of Polkadot and its Design Considerations <http://arxiv.org/abs/2005.13456>`_, first version, 29 May 2020.
 
 * Alfonso Cevallos and Alistair Stewart, `Validator Election in Nominated Proof-of-Stake <https://arxiv.org/abs/2004.12990>`_, in progress.
 
@@ -24,6 +24,7 @@ Publications
 
 * Alistair Stewart, "GRANDPA: A Finality Gadget", ACM Computer and Communications Security (CCS), November 2019.
 
+
 **Blog Posts:**
 
 * Fatemeh Shirazi, Logan Saether, Alistair Stewart, Rob Habermeier, Gavin Wood, `Polkadot’s Messaging Scheme <https://medium.com/web3foundation/polkadots-messaging-scheme-b1ec560908b7>`_, Medium, Web3 Foundation, 14/01/2020.
@@ -33,5 +34,8 @@ Publications
 * Fatemeh Shirazi, Jeffrey Burdges, Edward Thomson, and Ignasi Albero, `Messaging Protocol Workshop Outcomes <https://medium.com/web3foundation/messaging-protocol-workshop-outcomes-7a827d02a81a>`_, Medium, Web3 Foundation/Status/Validity Labs meetup review, 21/02/2019.
 
 
+**Specification:**
 
+* Syed Hosseini, Fabio Lama, Florian Franzen, `Polkadot Host Specification <https://w3f.github.io/polkadot-spec/spec/host/latest.pdf>`_
 
+* Syed Hosseini, Fabio Lama, Florian Franzen, `Polkadot Runtime Specification <https://w3f.github.io/polkadot-spec/spec/runtime/latest.pdf>`_

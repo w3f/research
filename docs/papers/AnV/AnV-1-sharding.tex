@@ -21,9 +21,17 @@ We expect that our sharded blockchain employs a Byzantine fault tolerant ``final
 As part of our security model, we assume that $\nvals \ge 3 f + 1$ where $f$ bounds the number of validators controlled by any adversary.
 
 % \begin{assumption}
-An adversary who controls some $f' \le f$ of the $n$ (relay chain) validators knows the upcoming block producer for its own upcoming block production slots of course, but we assume Bernoulli trials with probability \handan{${f' (n-f') \over n^2}$}{I think it is not correct for BABE since there are also empty slots. Do you talk about HABE here? But even for HABE it seems not correct to me since adv knows whether it is honest slot or not with prob. 1 in HABE} describe whether they know the honest block producer assigned to individual upcoming block production slots.  In particular if ${f \over n} < {1\over3}$ then they know less than \handan{${5 \over 9}$ths}{isn't it 2/9} of the upcoming honest block producers.
+An adversary who controls some $f' \le f$ of the $n$ (relay chain) validators knows the upcoming block producer for its own upcoming block production slots of course, but we assume Bernoulli trials with probability 
+${f' (n-f') \over n^2}$
+%\handan{I think it is not correct for BABE since there are also empty slots. Do you talk about HABE here? But even for HABE it seems not correct to me since adv knows whether it is honest slot or not with prob. 1 in HABE} 
+describe whether they know the honest block producer assigned to individual upcoming block production slots.  In particular if ${f \over n} < {1\over3}$ then they know less than {${5 \over 9}$ths
+%	\handan{isn't it 2/9}
+ of the upcoming honest block producers.
 % \end{assumption}
-We choose this assumption because it supports overall \handan{stronger}{in which sense it is stronger?} block production mechanisms than proof-of-work or \cite{Praos}, although those would admit a better bound here. \handan{}{is this paragraph necessary for AnV scheme? I could not see the relation between knowing whether honest or adv slot and AnV scheme. It looks confusing. }
+We choose this assumption because it supports overall {stronger}
+%\handan{in which sense it is stronger?} 
+block production mechanisms than proof-of-work or \cite{Praos}, although those would admit a better bound here.
+% \handan{}{is this paragraph necessary for AnV scheme? I could not see the relation between knowing whether honest or adv slot and AnV scheme. It looks confusing. }
 
 As in other finality gadget designs, the relay chain and each parachain $\para$ has its own block production protocol run within its own infrastructure.  We employ the simplifying assumption that the block producer list equals the validator list $\vals$.  
 
@@ -31,7 +39,7 @@ As in other finality gadget designs, the relay chain and each parachain $\para$ 
 
 A parachain $\para$ refers to its block producers as {\em collators}, which could come from $\vals$ or elsewhere.  We let $\vals_\para \subset \vals$ denote the sublist of validators assigned to parachain $\para$, which we term the {\em parachain validators} of $\para$.  We also need a bound $\npvals$ such that $|\vals_\para| \ge \npvals$.
 
-TODO: Define many methods and paramaters of parachains $\para$
+%TODO: Define many methods and paramaters of parachains $\para$
 
 In fact, we always have an epoch parameter $t$ associated to $\para$, but we subsume $t$ into $\para$ here for convenience.  Aside from time, we similarly assume the relay chain provides some randomness $r$ associated to each epoch $t$, which we similarly subsume into our $\para$ notation for convenience.
 
@@ -105,7 +113,8 @@ There are sharding protocols like ByzCoin \cite{ByzCoin} and .. in which validit
 
 At first blush, one models these protocols by saying an adversary wins the {\em naively sharded validity game} if they first learn the role assignments for all nodes $\para \mapsto \vals_\para$, only then proposes an invalid shard block $B$ for some shard $\para$, and convince the relay chain to finalize $B$, all while fewer than $\primarychecks$ of the incorrectly behaving nodes in $\vals_\para$ provide proofs of their incorrect behavior to the correctly behaving nodes.  
 
-An adversary wins some random instance of a naively sharded validity game with odds $\epsilon'_{\npvals,\primarychecks}$ of order roughly ${f' \choose \npvals} / {\nvals \choose \npvals}$ TODO:FIX \cite{??}.  
+An adversary wins some random instance of a naively sharded validity game with odds $\epsilon'_{\npvals,\primarychecks}$ of order roughly ${f' \choose \npvals} / {\nvals \choose \npvals}$ 
+%TODO:FIX \cite{??}.  
 In these, security depends upon $\epsilon'_{\npvals,\primarychecks}$ being ``negligible'' so that adversaries cannot simply wait until they win the shard assignment lottery before launching an attack.  For this, one requires that $\npvals$ be a significant fraction of $\nvals$, and that $\nvals$ itself be large enough. 
 %TODO: End of not really true part.
 %  Fix by cite ByzCoin, etc. correctly.  Eleftherios? 

@@ -14,7 +14,7 @@ These stash accounts has an unstaked balance $u \ge 0$ and a list of pending uns
  - $T_1 = \{ (t,v) \in T_0 : t > h \}$,
  - $u_1 := u_0 + \sum \{ (t,v) \in T_0 : t \le h \} - h - f$ remains positive.
 
-We might require additional metadata in $T$ so that delayed slashing cannot impact more recently added stake, but this resembles the above discussion.  TODO:  Be more detailed?
+We might require additional metadata in $T$ so that delayed slashing cannot impact more recently added stake, but this resembles the above discussion.  
 
 ### Stake controller account keys
 

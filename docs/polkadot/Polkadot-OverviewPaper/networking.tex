@@ -88,12 +88,10 @@ A simple push-based approach is implemented currently, with hash-based tracker c
 
 There are also more specific constraint rules applied to artefacts belonging to the various higher-level subprotocols using the gossip protocol, to avoid broadcasting obsolete or otherwise unneeded artefacts. For example, for GRANDPA we only allow two votes being received for each type of vote, round number, and voter; any further votes will be ignored. For block production only valid block producers are allowed to produce one block per round; any further blocks will be ignored.
 
-There is basic support for \emph{sentry nodes}, proxy servers that are essentially the only neighbour of a private server, running more security-critical operations such the validator role.
-
 The network topology is a weak point currently; nodes connect to each other on an ad-hoc basis by performing random lookups in the \hyperref[sec:net_lowlevel]{address book}. Further work will proceed along two fronts:
 
 \begin{enumerate}
-\item Trusted nodes will reserve a portion of their bandwidth and connection resources, to form a structured overlay with a deterministic but unpredictable topology that rotates every era. For nodes running behind sentries, this effectively means that their sentry nodes instead participate in this topology.
+\item Trusted nodes will reserve a portion of their bandwidth and connection resources, to form a structured overlay with a deterministic but unpredictable topology that rotates every era.
 
 \item For the remainder of trusted nodes' resource capacity, and for the whole of untrusted nodes' resource capacity, they will select neighbours via a scheme based on latency measurements, with the details to be decided. Notably, for good security properties we want a scheme that does not simply choose "closest first", but also some far links as well.
 \end{enumerate}
@@ -126,7 +124,6 @@ This subprotocol therefore aims to ensure that the threshold is available and ca
 
 \begin{itemize}
 \item With both distribution and retrieval, the set of recipients is known. Therefore, pieces can be pre-emptively pushed from validators that already have the piece, in addition to bittorrent's pull semantics.
-\item Validators behind sentry nodes will use these as proxies, rather than directly sending.
 \item Instead of a centralised tracker, tracker-like information such as who has what piece, is broadcast via the relay chain \hyperref[sec:gossiping]{gossip network}.
 \end{itemize}
 
@@ -196,47 +193,6 @@ some in-built redundancy, whereas XCMP messages have no in-built redundancy and
 must all be distributed reliably. Applying erasure coding to these as well, is
 a straightforward and obvious solution, but we will also explore alternatives.
 
-\subsubsection{Sentry nodes} \label{sec:net_sentry}
-
-Sometimes, network operators want to arrange aspects of their physical network
-for operational security reasons. Some of these arrangements are independent
-and compatible with the design of any decentralised protocol, which typically
-works in the layer above. However some other arrangements need special
-treatment by the decentralised protocol, in particular arrangements affecting
-the reachability of nodes.
-
-For such use-cases, Polkadot supports running full-nodes as the sentry nodes of
-another full-node that is only reachable by these sentry nodes. This works best
-when one runs several sentry nodes for a single private full-node. Protocol
-wise, briefly, sentry nodes are regular neighbours of their private node, with
-some additional metadata to tell others to communicate this private node via
-its sentry nodes. In direct-sending mode, they act similarly to TURN servers,
-without any resource bottleneck constraints since every sentry node is serving
-only one private node. These additions are fairly straightforward and more
-details are available elsewhere.
-
-It is not required to run sentry nodes, for example if you believe the
-aforementioned security benefits are not worth the added latency cost.
-
-A brief discussion about the security tradeoffs of this approach follows. One
-benefit of a restricted physical topology, is to support load-balancing and DoS
-protection across a number of gateway proxies. The indirection can also help to
-protect the private node if there are exploits in the software - although note
-this does not cover the most severe exploits that give arbitrary execution
-rights on the sentry node, which can then be used as a launching pad for
-attacks on the private node. So, while we don't believe that a public address
-is itself a security liability when the serving code is written well, sentry
-nodes can help to mitigate these other scenarios.
-
-(An alternative possibility is for the network operator to run lower-level
-proxies, such as IP or TCP proxies, for their private node. This certainly can
-be done without any protocol support from Polkadot. One advantage of sentry
-nodes compared to this scenario is that the traffic coming from a sentry node
-has been through some level of verification and sanitisation as part of the
-Polkadot protocol, which would be missing for a lower-level proxy. Of course
-there can be exploits against this, but these are dealt with with high priority
-since they are amplification vectors usable against the whole network.)
-
 \subsubsection{Authentication, transport, and discovery} \label{sec:net_lowlevel}
 
 In secure protocols in general, and likewise with Polkadot, entities refer to each other by their cryptographic public keys. There is no strong security association with weak references such as IP addresses since those are typically controlled not by the entities themselves but by their communications provider.
@@ -248,3 +204,37 @@ Currently, this \emph{address book} service is also used as the primary discover
 Further work will decouple the discovery mechanism from the address book, as described in \nameref{sec:gossiping}, resulting in a more security network topology. Part of this will require some fraction of transport-level connections be authenticated against the currently-trusted validator set. However we also require to retain the ability to accept incoming connections from unauthenticated entities, and this needs to be restricted on a resource basis, without starving the authenticated entities.
 
 Further work will also decouple the implementation of the address book from its interface, so that e.g. we can put part of in on-chain. This has different security tradeoffs from a Kademlia-based address book, some of which is outside of the current scope of Polkadot, such as location privacy. By offering different possibilities, we hope to satisfy a diverse set of nodes having different security requirements.
+
+\subsubsection{Deprecated: Sentry nodes} \label{sec:net_sentry}
+
+An earlier version of Polkadot included the feature of \emph{sentry nodes}.
+These were essentially proxies for validators that did not want their nodes to
+be reachable from the public internet for security reasons.
+
+We have deprecated these in the latest version moving forward. The reason is a
+complexity-benefit tradeoff:
+
+\begin{itemize}
+\item As implemented, multiple sentry nodes could be shared between multiple
+  validators on a general n-to-m basis. This has very few consequences in a
+  gossip network where everything is broadcast to everyone, however it greatly
+  increases the complexity of designing a protocol where certain artefacts must
+  be sent directly to particular validators, such as in
+  \nameref{sec:net_storage} or \nameref{sec:net_crosschain}.
+\item The security benefit of a sentry node was to provide a defense-in-depth
+  (i.e. secondary) level of protection against DoS attacks and exploits less
+  severe than arbitrary execution, such as memory leak exploits. (Arbitrary
+  execution can be used to launch an attack via the sentry node, so sentries
+  are not effective anyway in this case.) These can be achieved via other means
+  - (1) For low-level DoS attacks node operators can add physical-network-level
+  protections in conjuction with their ISP; for high-level DoS attacks we will
+  add additional protection into Polkadot itself. (2) For exploits less severe
+  than arbitrary execution, these can be mitigated by configuring a validator
+  to use remote signing capabilities (under development), performed either on
+  another machine or on a separate process or VM on the same machine depending
+  on your threat model.
+\end{itemize}
+
+If node operators wish to recover the secondary security protections of sentry
+nodes, they may now instead implement the primary security protections as
+mentioned above.
