@@ -11,7 +11,7 @@ Both are iterative greedy algorithms that start with an empty committee and add 
 For a given partial solution, $\MMS$ computes a balanced weight vector for each possible augmented committee resulting from adding a candidate, and keeps the one that offers the largest support. 
 Such a heuristic offers robust guarantees for maximin support but is slow as computing balanced vectors is costly. 
 On the other hand, $\phragmen$ forgoes balancing and replaces it with a lazy version that performs only local modifications to the current weight vector, in the neighborhood of the newly inserted candidate. 
-The $\phragmms$ heuristic takes a similar approach but uses a somewhat smarter and less lazy version of balancing, with a corresponding slight increase in runtime. 
+The $\phragmms$ heuristic takes a similar approach but uses a somewhat smarter and less lazy version of balancing, with a minimal increase in runtime. 
 
 In all algorithms described in this section we assume that there is a known background instance $(G=(N\cup C, E), s, k)$ that does not need to be passed as input. Rather, the input is a partial solution $(A,w)$ with $|A|\leq k$. We also assume that the list of committee member supports $(\supp_w(c))_{c\in A}$ is implicitly passed by reference and updated in every algorithm, so it does not need to be recomputed every time.
 %

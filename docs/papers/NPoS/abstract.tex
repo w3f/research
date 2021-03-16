@@ -1,15 +1,15 @@
 \begin{abstract}
 
-The property of proportional representation in approval-based committee elections, which has appeared in the social choice literature for over a century, is typically understood as avoiding the underrepresentation of minorities. 
+The concept of proportional representation in approval-based committee elections has appeared in the social choice literature for over a century and is typically understood as avoiding the underrepresentation of minorities. 
 However, we argue that the security of some distributed systems critically depends on the opposite goal of preventing the overrepresentation of any minority, a goal not previously formalized that leads us to an optimization objective known as \emph{maximin support}. 
-We provide a thorough analysis of its approximability, and propose a new efficient election rule 
+After a thorough analysis of its computational complexity, we propose a new efficient election rule 
 %inspired in Phragm\'{e}n's methods 
-that achieves a) a constant-factor approximation guarantee for the objective, and b) the property of \emph{proportional justified representation} (PJR). However, the most striking feature of the new rule is that one can \emph{verify in linear time} that the winning committee satisfies the two aforementioned properties, even when the algorithm is executed by an untrusted party who only communicates the output. 
-%In other words, the rule can be adapted into a verifiable computation scheme.
+that simultaneously achieves a) a constant-factor approximation guarantee for the objective, and b) the property of \emph{proportional justified representation} (PJR) --one of the strongest forms of proportional representation. However, the most striking feature of the new rule is that one can \emph{verify in linear time} in the input size that the winning committee satisfies the two aforementioned properties, even when the algorithm is executed by an untrusted party who only communicates the output. 
+As a consequence, the rule can be adapted into a \emph{verifiable computing scheme}.
 %Finally, we present an efficient post-computation that, when paired with any approximation algorithm for maximin support, returns a new solution that a) preserves the approximation guarantee and b) can be efficiently verified to satisfy PJR.
 
 Our work is motivated by an application on blockchain networks that implement \emph{nominated proof-of-stake}, where the community elects a committee of validators to participate in the consensus protocol, and where preventing overrepresentation protects the network against attacks by an adversarial minority. 
-Our election rule enables a validator election protocol with formal guarantees on security and proportionality, and its adaptation as a \emph{verifiable computing scheme} is key for its successful implementation given the computationally-limited nature of the blockchain architecture. 
+Our election rule enables a validator selection protocol with formal guarantees on security and proportionality, and its adaptation as a verifiable computing scheme proves to be key for its successful implementation given the computationally limited nature of the blockchain architecture. 
 We provide details of such an implementation in the \emph{Polkadot} network, launched in 2020.
 
 \end{abstract}
