@@ -87,7 +87,7 @@ __Adjustable parameter:__ Define the *decay rate* $d$ so that the inflation rate
 
 \begin{align}
 I_{NPoS}(x) &= \begin{cases}
-I_0 + \Big(I_{NPoS}(\chi_{ideal}) - I_0\Big)\frac{x}{\chi_{\ideal}}
+I_0 + \Big(I_{NPoS}(\chi_{ideal}) - I_0\Big)\frac{x}{\chi_{ideal}}
 &\text{for } 0<x\leq \chi_{ideal}\\
 I_0 + (I_{NPoS}(\chi_{ideal}) - I_0)\cdot 2^{(\chi_{ideal}-x)/d}
 &\text{for } \chi_{ideal} < x \leq 1
