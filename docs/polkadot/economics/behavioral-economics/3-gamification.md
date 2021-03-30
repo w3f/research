@@ -6,7 +6,7 @@
 
 ====================================================================
 
-# Gamification as non-monetary incentive for council members
+# Non-monetary incentive for council members
 
 ## Overview 
 
@@ -22,7 +22,7 @@ In comparison to that, council members are expected to be less responsive to mon
 
 ### Goals
 
-The goals is to design a mechanism which automatically applies certain tools from gamification (e.g., badges, achievements, leaderboards) to council members to...
+The goals is to design a mechanism which automatically applies certain tools from gamification (e.g., badges, achievements, levels) to council members to...
 
 * ... promote the engagement and liveness of council members.
 * ... use established techniques from the literature to improve on the whole council governance process. 
@@ -55,7 +55,6 @@ In general, the most commonly used gamification elements are ([Hamari, Koivisto 
 * Badges (Trophies)
 * Achievements
 * Levels
-* Leaderboards
 
 A very complex task is to design an automatic mechanism to award council members NFTs based on their on-chain (and potentially off-chain) behavior. On the one hand, focusing only on easily measurable outcome levels of participation (e.g., speed of voting, pure quantity of propositions) can easily backfire and are prone to be abused. In addition, it is hard to deduce the quality of a vote by those quantitative measurements. To mitigate this, it is important to observe the whole process and the later outcome of the election. 
 
@@ -65,7 +64,7 @@ In addition, the proposed NFTs should also incorporate important insights from s
 
 ### Achievements (static)
 
-Achievements are absolut steps to be reached and cannot be lost, once obtained. Potential triggers could be:
+Achievements are absolute steps to be reached and cannot be lost, once obtained. Potential triggers could be:
 
 * Become a council member
 
@@ -81,9 +80,6 @@ Those are good to include states of the situation such as:
 
 ### Levels (ranks)
 Gaining certain badges could also mean we can implement some level system which could essentially sum up all the badges and achievements into one quantifiable metric 
-
-### Leaderboards (dynamic)
-Having a design for the badges and achievements, it is rather straightforward to assign certain "points" to them and sum them up by council members and display a ranking of council members.
 
 ## NFT Gallery
 A prerequisite for NFTs to develop their motivating effect, it is necessary to visually display them and make them viewable in NFT galleries. This requires the support of wallets and explorers. Due to the popularity of NFTs, many of projects are currently working on those solutions and it is expected that solutions will further improve.
