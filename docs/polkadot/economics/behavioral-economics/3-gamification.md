@@ -6,7 +6,7 @@
 
 ====================================================================
 
-# Non-monetary incentive for council members
+# Non-monetary incentives for council members
 
 ## Overview 
 
