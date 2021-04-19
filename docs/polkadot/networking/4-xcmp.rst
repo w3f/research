@@ -1,6 +1,6 @@
 \====================================================================
 
-**Owners**: :doc:`/team_members/Ximin`
+**Owners**: Ximin Luo
 
 **Other authors**: Rob Habermeier, Fatemeh Shirazi
 

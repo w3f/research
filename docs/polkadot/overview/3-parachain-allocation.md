@@ -24,6 +24,7 @@ Once a fixed number of blocks have been produced for the auction a random number
 
 For example, let us assume we have three bidders that want to submit bids for a parachain slot. Bidder $B_1$ submits the bid (1-4,75 DOT), bidder $B_2$ submits (3-4, 90 DOTs), and bidder $B_3$ submits (1-2, 30). In this example bidder $B_1$ wins because if bidder $B_2$ and bidder $B_3$ win each unit would only be locked for an average of 60 DOTs or something else equivalent to 240 DOT-intervals, while of bidder $B_1$ wins each unit is locked for 75 DOTs.
 
+<!---
 ##  Analysis
 English auctions can be used when bidders have private/public valuations and Vickery auctions can be used when the bidders have private valuations. Both these auctions have weakly dominant strategies, where the best a bidder can do is be truthful about their valuation. 
 
@@ -89,3 +90,5 @@ EX[$U_P$]=$(1-\frac{1}{\alpha n}+\frac{1}{n})$ $\times$ $(V-(V_{max}+\alpha V))$
 We want to compare the expected utility to $V-V_{max}$, which is the most utility $P$ is guaranteed getting against any strategy. We need differentiate these two to find the value of $\alpha=\frac{1}{\sqrt[2]{n-1}}$ to assure that the winning bidder has at least the utility....
 
 Next we want to find the Nash equilibrium. 
+
+-->
