@@ -11,7 +11,7 @@
 # Introduction
 
 ## Goals
-The goal of this project is to gain some concept of the expected bidding behavior of participants in the upcoming [parachain candle auctions](../3-parachain-allocation.md) on Kusama/Polkadot. Currently, the planned format can be described as a multi-object first-price candle auction, which in that form has never been analyzed theoretically or empirically in the literature.
+The goal of this project is to gain some concept of the expected bidding behavior of participants in the upcoming [parachain candle auctions](/polkadot/overview/3-parachain-allocation.md) on Kusama/Polkadot. Currently, the planned format can be described as a multi-object first-price candle auction, which in that form has never been analyzed theoretically or empirically in the literature.
 
 We will conduct an experimental investigation, with a design which models the basic mechanisms of the auction. The implementation is off-chain and follows standard experimental economics procedures, but mimics the key features of the blockchain (i.e., six second blocks, (potentially) transaction costs). Insights from the experiment can be used to gain an understanding of the bidding behavior, learn how organize the UI and potentially improve the overall design before going live. Generally, the project has the following goals:
 
