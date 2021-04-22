@@ -79,7 +79,33 @@ Those are good to include states of the situation such as:
 * The devil's advocate (vote against the majority of other council members) 
 
 ### Levels (ranks)
-Gaining certain badges could also mean we can implement some level system which could essentially sum up all the badges and achievements into one quantifiable metric 
+Gaining certain badges could also mean we can implement some level system which could essentially sum up all the badges and achievements into one quantifiable metric.
+
+### Council actions
+The following list, composed by Raul Romanutti, illustrates several frequent actions council members can perform and build a good basis of outcome variables to be entwined in an awarding mechanism. 
+
+* Vote on a treasury proposal motion
+* Vote on a runtime upgrade motion
+* Vote on referendum 
+* Submit an external motion proposal
+* Submit a regular motion to Council
+* Submit an external motion to Council (we can have a lot of granularity here)
+* Submit a preimage for a proposal 
+* Close a motion after majority is reached
+* Submit a runtime upgrade motion to Council (external motion)
+* Vote on a treasury proposal motion (proposed by community members) - how do we judge rejections here?
+* Vote on an identity registrar proposal (proposed by community members)
+* Endorse a tip proposal (proposed by community members or councillors)
+* Open a tip to a community member
+* Propose a Technical Committee nomination (proposed by councillors)
+* Vote on a Technical Committee nomination
+* Open a bounty proposal
+* Vote on a bounty proposal
+* Vote on a Bounty curator nomination (proposed by councillors)
+* Open a motion to unassign a bounty curator
+* Become the curator of an active bounty
+* Propose an external motion for a specific chain to use a common-good chain slot
+* Vote on an external motion for a specific chain to use a common-good chain slot
 
 ## NFT Gallery
 A prerequisite for NFTs to develop their motivating effect, it is necessary to visually display them and make them viewable in NFT galleries. This requires the support of wallets and explorers. Due to the popularity of NFTs, many of projects are currently working on those solutions and it is expected that solutions will further improve.
