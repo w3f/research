@@ -10,5 +10,4 @@ research. Here are our current projects:
    :maxdepth: 1
 
    crypto/multisig
-   Light client
 
