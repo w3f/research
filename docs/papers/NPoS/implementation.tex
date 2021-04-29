@@ -1,0 +1,39 @@
+\section{Implementation details}\label{s:implement}
+
+Here be the implementation details (to complete).
+
+Explain that the edge weight vector is actually useful to us, as it establishes a precise partition of all the (nominators' and validators') stake into $k$ staking pools, where a single nominator's stake may be split fractionally across different pools. It helps establish payouts and punishments according to the individual performance of validators.
+
+Maybe explain importance of letting nominators approve of multiple candidates, as opposed to only one like other blockchain networks do. Explain the dilemma of having to choose between a popular candidate that's likely to be elected, and an unpopular one that you like better, and how solving the dilemma keeps the network more decentralized.
+
+
+We envision an implementation where the validators themselves (or at least some of them) act as off-chain workers and submit a solution as a transaction. 
+However, anyone else can submit a solution as well. Hence, the community benefits in case someone finds a better election rule than the one we suggest validators to run. We provide a reward to the author of the solution that ends up being used, but conversely every solution must be submitted with a collateral that is lost in case the solution fails the verification test, to defend from griefing attacks.
+We keep in memory the current tentative winner (the solution with highest maximin support objective among all solutions that have passed the verification test), and we verify a new solution only if its claimed objective is strictly higher.
+
+Maybe explain why checking guarantees on security and proportionality (as opposed to simply selecting the best feasible submitted solution) protects the network against a long range attack, where the adversary creates a private branch in which all honest solution submissions are censored, then selects a solution with an overrepresentation of adversarial validators, and published the fork and tries to make it the canonical one.
+
+Maybe explain the approximation to balanced solutions, and the reduction process which makes a solution always be cycle free and hence be of size $O(|N|)$.
+
+Properties of the computer running the algorithms.
+Runtimes for different number of voters, number of candidates, total number of edges of input graph.
+Time it takes to find a balanced solution approximately. Time per iteration of Phragmms. 
+Contrast those times with the fact that there's one election process per day, and we expect to receive (say) five solutions per election, and we will use (say) four consecutive blocks to verify each solution. Hopefully the numbers make the implementation look feasible.
+
+%We just check feasibility.
+%Check PJR test offchain.
+%Proof of not PJR (PJR challenge): signal one candidate with high score, also give its supporters (could have hundreds). Computing slacks only requires output graph.
+%Easy to prove that solution is not PJR, and polytime to find counterexample. 
+
+%Right now we're running Phragmen, with random number of star balancing rounds. This is what validators should run.
+%Solution is checked off-chain, solution is checked on chain for feasibility.
+%Validators fight over submitting better solutions, they need to be epsilon better and then they overwrite each other's solution.
+
+%Eventually the idea is to run Phragmms, but only once we have solutions from community + bot from W3F.
+%Chain doesn't care what algorithm is run off chain.
+
+%Idea: we need absolute notion of quality of committee
+%What if there's governance-controlled least support? Solution is rejected if this check doesn't pass.
+%That would be a good guarantee.
+%What if: lots of stake needs to be used.
+%Much safer! At least as temporary patch.

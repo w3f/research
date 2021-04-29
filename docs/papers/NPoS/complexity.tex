@@ -1,244 +1,123 @@
-\section{Complexity analysis of the maximin support objective}\label{s:complexity}
+\section{Analysis of maximin support}\label{s:complexity}
 
-Consider an instance $(G=(N\cup C, E), s, k)$ of a multiwinner election as defined in Section~\ref{s:prel}. 
-In this section we present an analysis of the complexity of the maximin support problem, including new results both on approximability and on hardness. 
+Consider a multiwinner election instance $(G=(N\cup C, E), s, k)$ as defined in Section~\ref{s:prel}. 
+In this section we present a computational complexity analysis of the maximin support problem, including new results both on approximability and on hardness. 
 
 We start by establishing that our security objective \eqref{eq:security} is indeed equivalent to maximin support.
-For this we use the fact that, in view of point 1 in Lemma~\ref{lem:balanced}, in the maximin support objective we can reduce the solution space to only balanced solutions without loss of generality. 
-The proof of the next lemma is delayed to Appendix~\ref{s:proofs}.
+For this we use the fact that, by property 1 in Lemma~\ref{lem:balanced}, in maximin support we can reduce the solution space to only balanced solutions without loss of generality. 
+The proof of the next theorem is delayed to Appendix~\ref{s:proofs}.
 
-\begin{lemma} \label{lem:equivalence} 
+\begin{theorem} \label{thm:equivalence} 
 If $(A,w)$ is a balanced solution, then
 $$\supp_w(A) = \min_{\emptyset\neq A' \subseteq A} \frac{1}{|A'|} \sum_{n\in \cup_{c\in A'} N_c} s_n.$$
-Consequently, maximin support, the problem of maximizing the left-hand side over all balanced full solutions $(A,w)$, 
-is equivalent to the problem of maximizing the right-hand side over all full committees $A$. 
+Hence maximin support, the problem of maximizing the left-hand side over all balanced full solutions $(A,w)$, 
+is equivalent to that of maximizing the right-hand side over all full committees $A$. 
 Furthermore, this equivalence preserves approximations, as any balanced solution $(A,w)$ provides the same objective value to both problems.
-\end{lemma}
+\end{theorem}
 
-The maximin support problem was introduced in~\cite{sanchez2016maximin}, where it was observed to be NP-hard. We show now a stronger hardness result for this problem, which in particular rules out the existence of a PTAS.%
-\footnote{A \emph{polynomial time approximation scheme} (PTAS) for an optimization problem is an algorithm that, for any constant $\eps>0$ and any given instance, returns a $(1+\eps)$-factor approximation in polynomial time.} 
-
-
-\begin{lemma}\label{lem:hardness}
-For any constant $\eps>0$, it is NP-hard to approximate the unweighted maximin support problem within a factor of $\alpha=1.2-\eps$.
-\end{lemma}
-
-\begin{proof}
-We present a reduction from the $k$-independent set problem on cubic graphs, which is known to be NP-hard~\cite{johnson1979computers}. In this problem, one is given a graph $G'=(V',E')$ where every vertex has degree exactly 3, and a parameter $k'$, and one must decide whether there is a vertex subset $I\subseteq V'$ of size $k'$ such that no two vertices in $I$ are adjacent, i.e., $I$ is an independent set. 
-Given such an instance, we define an instance $(G=(N\cup C, E), s, k)$ of maximin support where $k=k'$, $C=V'$ (each vertex in $V'$ corresponds to a candidate), and $N=E'$ with $s_n=1$ and $C_n=n$ for each $n\in N$ (each edge in $E'$ corresponds to a voter with unit vote that approves of the two candidates on its endpoints); see Figure~\ref{fig:hardness}.
-Notice that in this instance, each candidate is approved by exactly 3 voters, and two candidates $c, c'$ have an approving voter in common if and only if $c$ and $c'$ are adjacent in $V'$.
-
-Hence, if there is an independent set $I$ of size $k$ in $G'$, the same committee of validators in $G$ can be assigned the full vote of each of its three approving voters, so that each receives a support of 3 units, which is clearly maximal. On the other hand, if there is no independent set of size $k$ in $G'$, then for any solution $(A,w)$ of the maximin support instance there must be two committee members $c,c'\in A$ who have an approving voter in common. These two members have at most five voters approving either of them, so one of them must have a support of at most $5/2$. This shows that $\supp_w(A)\leq 5/2$ for any feasible solution $(A,w)$. Finally, notice that the ratio between the objective values $3$ and $5/2$ is $6/5=1.2>\alpha$, so the assumed $\alpha$-approximation algorithm for maximin support would allow us to distinguish between these two cases and decide whether such an independent set $I$ exists. This completes the proof.
-\end{proof}
-
-
-\begin{figure}[htb]
-%\centering
-\begin{minipage}[c]{0.55\linewidth}
-	\scalebox{.6}{
-\definecolor{ffqqqq}{rgb}{1,0,0}
-\definecolor{ududff}{rgb}{0.30196078431372547,0.30196078431372547,1}
-\begin{tikzpicture}[line cap=round,line join=round,>=triangle 45,x=1cm,y=1cm]
-\clip(0.5,-0.5) rectangle (15.5,8);
-\draw [line width=1pt] (1,4)-- (4,6);
-\draw [line width=1pt] (4,6)-- (7,4);
-\draw [line width=1pt] (7,4)-- (6,1);
-\draw [line width=1pt] (6,1)-- (2,1);
-\draw [line width=1pt] (2,1)-- (1,4);
-\draw [line width=1pt] (1,4)-- (2.4,3);
-\draw [line width=1pt] (2.4,3)-- (2,1);
-\draw [line width=1pt] (2.4,3)-- (4,4);
-\draw [line width=1pt] (4,4)-- (5.6,3);
-\draw [line width=1pt] (5.6,3)-- (6,1);
-\draw [line width=1pt] (7,4)-- (5.6,3);
-\draw [line width=1pt] (4,6)-- (4,4);
-\draw [->,line width=1pt] (7,1.5) -- (9,1.5);
-\draw [line width=1pt] (12,6)-- (9,4);
-\draw [line width=1pt] (9,4)-- (10,1);
-\draw [line width=1pt] (10,1)-- (14,1);
-\draw [line width=1pt] (14,1)-- (15,4);
-\draw [line width=1pt] (15,4)-- (13.6,3);
-\draw [line width=1pt] (13.6,3)-- (14,1);
-\draw [line width=1pt] (10,1)-- (10.4,3);
-\draw [line width=1pt] (10.4,3)-- (12,4);
-\draw [line width=1pt] (12,4)-- (13.6,3);
-\draw [line width=1pt] (9,4)-- (10.4,3);
-\draw [line width=1pt] (12,6)-- (12,4);
-\draw [line width=1pt] (12,6)-- (15,4);
-\draw (3,7) node[anchor=north west] {$G'=(V',E')$};
-\draw (11,7) node[anchor=north west] {$G=(N \cup C,E)$};
-\begin{scriptsize}
-\draw [fill=ududff] (9,4) circle (2.5pt);
-\draw [fill=ududff] (12,4) circle (2.5pt);
-\draw [fill=ududff] (12,6) circle (2.5pt);
-\draw [fill=ududff] (15,4) circle (2.5pt);
-\draw [fill=ududff] (14,1) circle (2.5pt);
-\draw [fill=ududff] (10,1) circle (2.5pt);
-\draw [fill=ududff] (10.4,3) circle (2.5pt);
-\draw [fill=ududff] (13.6,3) circle (2.5pt);
-\draw [fill=ffqqqq,shift={(10.5,5)}] (0,0) ++(0 pt,3pt) -- ++(2.598pt,-4.5pt)--++(-5.196pt,0 pt) -- ++(2.598pt,4.5pt);
-\draw [fill=ffqqqq,shift={(13.5,5)}] (0,0) ++(0 pt,3pt) -- ++(2.598pt,-4.5pt)--++(-5.196pt,0 pt) -- ++(2.598pt,4.5pt);
-\draw [fill=ffqqqq,shift={(12,5)}] (0,0) ++(0 pt,3pt) -- ++(2.598pt,-4.5pt)--++(-5.196pt,0 pt) -- ++(2.598pt,4.5pt);
-\draw [fill=ffqqqq,shift={(11.2,3.5)}] (0,0) ++(0 pt,3pt) -- ++(2.598pt,-4.5pt)--++(-5.196pt,0 pt) -- ++(2.598pt,4.5pt);
-\draw [fill=ffqqqq,shift={(9.7,3.5)}] (0,0) ++(0 pt,3pt) -- ++(2.598pt,-4.5pt)--++(-5.196pt,0 pt) -- ++(2.598pt,4.5pt);
-\draw [fill=ffqqqq,shift={(9.5,2.5)}] (0,0) ++(0 pt,3pt) -- ++(2.598pt,-4.5pt)--++(-5.196pt,0 pt) -- ++(2.598pt,4.5pt);
-\draw [fill=ffqqqq,shift={(10.2,2)}] (0,0) ++(0 pt,3pt) -- ++(2.598pt,-4.5pt)--++(-5.196pt,0 pt) -- ++(2.598pt,4.5pt);
-\draw [fill=ffqqqq,shift={(12,1)}] (0,0) ++(0 pt,3pt) -- ++(2.598pt,-4.5pt)--++(-5.196pt,0 pt) -- ++(2.598pt,4.5pt);
-\draw [fill=ffqqqq,shift={(13.8,2)}] (0,0) ++(0 pt,3pt) -- ++(2.598pt,-4.5pt)--++(-5.196pt,0 pt) -- ++(2.598pt,4.5pt);
-\draw [fill=ffqqqq,shift={(12.8,3.5)}] (0,0) ++(0 pt,3pt) -- ++(2.598pt,-4.5pt)--++(-5.196pt,0 pt) -- ++(2.598pt,4.5pt);
-\draw [fill=ffqqqq,shift={(14.3,3.5)}] (0,0) ++(0 pt,3pt) -- ++(2.598pt,-4.5pt)--++(-5.196pt,0 pt) -- ++(2.598pt,4.5pt);
-\draw [fill=ffqqqq,shift={(14.5,2.5)}] (0,0) ++(0 pt,3pt) -- ++(2.598pt,-4.5pt)--++(-5.196pt,0 pt) -- ++(2.598pt,4.5pt);
-\end{scriptsize}
-\end{tikzpicture}
-}
-  \caption{Reducing an instance of the $k$-independent set problem on cubic graphs to an instance of the maximin support problem. Set $N$ is represented by triangles and set $C$ by circles.}
-  \label{fig:hardness}
-\end{minipage}
-\hfill
-\begin{minipage}[c]{0.40\linewidth}	
-  \scalebox{.7}{
-\definecolor{ffqqqq}{rgb}{1,0,0}
-\definecolor{ududff}{rgb}{0.30196078431372547,0.30196078431372547,1}
-\begin{tikzpicture}[line cap=round,line join=round,>=triangle 45,x=1cm,y=1cm]
-\clip(1,0.5) rectangle (10,8.5);
-\draw [line width=2pt] (3,8)-- (7,8);
-\draw [line width=2pt] (7,8)-- (3,7);
-\draw [line width=2pt] (3,7)-- (7,7);
-\draw [line width=2pt] (7,7)-- (3,6);
-\draw [line width=2pt] (3,6)-- (7,6);
-\draw [line width=2pt] (7,8)-- (3,6);
-\draw [line width=2pt] (7,8)-- (3,5);
-\draw [line width=2pt] (3,5)-- (7,5);
-\draw [line width=2pt] (7,7)-- (3,5);
-\draw [line width=2pt] (7,6)-- (3,5);
-\draw [line width=2pt] (7,4)-- (3,2.5);
-\draw [line width=2pt] (7,3)-- (3,2.5);
-\draw [line width=2pt] (7,2)-- (3,2.5);
-\draw [line width=2pt] (7,1)-- (3,2.5);
-\draw (7.258,8.2) node[anchor=north west] {$c_1$};
-\draw (7.258,7.2) node[anchor=north west] {$c_2$};
-\draw (7.258,6.2) node[anchor=north west] {$\cdots$};
-\draw (7.258,5.2) node[anchor=north west] {$c_k$};
-\draw (7.258,4.2) node[anchor=north west] {$c_1'$};
-\draw (7.258,3.2) node[anchor=north west] {$c_2'$};
-\draw (7.258,2.2) node[anchor=north west] {$\cdots$};
-\draw (7.258,1.2) node[anchor=north west] {$c_k'$};
-\draw (2.154,8.2) node[anchor=north west] {$n_1$};
-\draw (2.154,7.2) node[anchor=north west] {$n_2$};
-\draw (2.154,6.2) node[anchor=north west] {$\cdots$};
-\draw (2.154,5.2) node[anchor=north west] {$n_k$};
-\draw (2.154,2.7) node[anchor=north west] {$n'$};
-%\draw (1.56,8.9) node[anchor=north west] {vote strengths};
-\begin{scriptsize}
-\draw [fill=ududff] (3,8) circle (2.5pt);
-\draw [fill=ududff] (7,8) circle (2.5pt);
-\draw [fill=ududff] (3,7) circle (2.5pt);
-\draw [fill=ududff] (7,7) circle (2.5pt);
-\draw [fill=ududff] (3,6) circle (2.5pt);
-\draw [fill=ududff] (7,6) circle (2.5pt);
-\draw [fill=ududff] (3,5) circle (2.5pt);
-\draw [fill=ududff] (7,5) circle (2.5pt);
-\draw [fill=ududff] (7,4) circle (2.5pt);
-\draw [fill=ududff] (7,3) circle (2.5pt);
-\draw [fill=ududff] (7,2) circle (2.5pt);
-\draw [fill=ududff] (7,1) circle (2.5pt);
-\draw [fill=ududff] (3,2.5) circle (2.5pt);
-\end{scriptsize}
-\end{tikzpicture}
-}
-  \caption{In this example, the last voter and the last $k$ candidates are considered adversarial.}
-  \label{fig:example}
-\end{minipage}%
-\end{figure}
-
-Next, we compare the performance of some popular election rules via a particular example, and highlight the effectiveness of the maximin support objective for fighting overrepresentation. 
+Next, we compare how some of the most relevant efficient election rules perform in terms of security, and highlight the effectiveness of the maximin support objective for preventing overrepresentation. 
 Fix a committee size $k$ and consider an unweighted instance with $k+1$ voters and $2k$ candidates. 
 For $1\leq i\leq k$, voter $n_i$ supports the candidate set $\{c_1, \cdots, c_i\}$, and the last voter $n'$ supports the candidate set $\{c_1', \cdots, c_k'\}$. See Figure~\ref{fig:example}.
 %
 We assume that an adversary controls the last voter and the last $k$ candidates, and will use any elected representatives to attempt to disrupt the duties of the committee. 
 How many representatives will it get? 
 
+\begin{figure}[tb]
+  \centering
+	\includegraphics[width={0.45\linewidth},natwidth=180,natheight=220]{figure-example.pdf}
+  \caption{In this example, the last voter and the last $k$ candidates are considered adversarial.}
+  \label{fig:example}
+\end{figure}
+
 \begin{lemma}\label{lem:badexamples}
-In the example above, for any $\alpha \geq 1$ we have that the number of adversarial candidates elected by an election rule with an $\alpha$-approximation guarantee for the maximin support objective is at most $\lfloor \alpha \rfloor$. 
+For any $\alpha \geq 1$, in the example above the number of adversarial candidates elected by a rule with an $\alpha$-approximation guarantee for maximin support is at most $\lfloor \alpha \rfloor$. 
 On the other hand, this number is $\Omega(\sqrt{k})$ for proportional approval voting (PAV), and $\Omega(\log k)$ for both $\phragmen$ and Rule X. 
-Hence, none of these three rules provides a constant-factor approximation guarantee for maximin support. 
+Hence, none of these three rules guarantees a constant-factor approximation. 
 \end{lemma}
 
+The proof is delayed to Appendix~\ref{s:proofs}. 
 For definitions of these rules, we direct the reader to the survey paper~\cite{lackner2020approval}.
-The proof is delayed to Appendix~\ref{s:proofs}, and we remark only that Rule X~\cite{peters2019proportionality} is a recently proposed rule that is inspired in $\phragmen$ -- much as our own heuristic presented in the next section -- and achieves the EJR property. 
+We only remark here that Rule X~\cite{peters2019proportionality} is a recently proposed rule inspired in $\phragmen$ -- much as our own rule presented in the next section -- that achieves the EJR property. 
 
-%The $\phragmen$ heuristic~\cite{brill2017phragmen} achieves the PJR property and is very fast, with a running time of $O(|E|\cdot k)$. However, in Apendix~\ref{s:phragmen} we prove that it does not offer a constant-factor approximation for the maximin support problem. 
-
-%\begin{lemma}\label{lem:phragmen}
-%For the maximin support problem, the approximation ratio offered by $\phragmen$ is no better than the $k$-th harmonic number $H_k:=\sum_{i=1}^k 1/i = \Theta(\log k)$.
-%\end{lemma}
+The maximin support problem was introduced in~\cite{sanchez2016maximin}, where it was observed to be NP-hard. We show now a stronger hardness result for it, which in particular rules out the existence of a PTAS.%
+\footnote{A \emph{polynomial time approximation scheme} (PTAS) for an optimization problem is an algorithm that, for any constant $\eps>0$ and any given instance, returns a $(1+\eps)$-factor approximation in polynomial time.} 
 
 
-In contrast, we prove next that the recently proposed rule of $\MMS$~\cite{sanchez2016maximin}, known to achieve the PJR property, also provides a 2-factor approximation for maximin support. In simple terms, $\MMS$ (Algorithm~\ref{alg:mms}) starts with an empty committee $A$ and iteratively adds candidates to it; in each iteration, it computes a balanced weight vector for each possible augmented committee that can be obtained by adding an unelected candidate, and then inserts the candidate whose corresponding augmented committee has the highest least member support.
+\begin{theorem}
+For any constant $\eps>0$, it is NP-hard to approximate the unweighted maximin support problem within a factor $\alpha=1.2-\eps$.
+\end{theorem}
+
+\begin{figure}[tb]
+  \centering
+	\includegraphics[width=\linewidth,natwidth=400,natheight=185]{figure-hardness.pdf}
+  \caption{Reducing an instance of the $k$-independent set problem on cubic graphs to one of the maximin support problem. Set $N$ is represented by triangles and $C$ by circles.}
+  \label{fig:hardness}
+\end{figure}
+
+\begin{proof}
+We present a reduction from the $k$-independent set problem on cubic graphs, which is known to be NP-hard~\cite{johnson1979computers}. In this problem, one is given a graph $G'=(V',E')$ where every vertex has degree exactly 3, and a parameter $k'$, and one must decide whether there is a vertex subset $I\subseteq V'$ of size $k'$ such that no two vertices in $I$ are adjacent, i.e., $I$ is an independent set. 
+Given such an instance, we define an instance $(G=(N\cup C, E), s, k)$ of maximin support where $k=k'$, $C=V'$ (each vertex in $V'$ corresponds to a candidate), and $N=E'$ with $s_n=1$ and $C_n=n$ for each $n\in N$ (each edge in $E'$ corresponds to a voter with unit vote that approves of the two candidates on its endpoints); see Figure~\ref{fig:hardness}.
+Notice that in this instance, each candidate is approved by exactly 3 voters, and two candidates $c, c'$ have an approving voter in common if and only if $c$ and $c'$ are adjacent in $V'$.
+
+Hence, if there is an independent set $I$ of size $k$ in $G'$, the same committee of validators in $G$ can be assigned the full vote of each of its three approving voters, so that each receives a support of 3 units, which is clearly maximal. On the other hand, if there is no independent set of size $k$ in $G'$, then for any solution $(A,w)$ of the maximin support instance there must be two committee members $c,c'\in A$ who have an approving voter in common. These two members have at most five voters approving either of them, so one of them must have a support of at most $5/2$. This shows that $\supp_w(A)\leq 5/2$ for any feasible solution $(A,w)$. Finally, the ratio between the objective values $3$ and $5/2$ is $6/5=1.2>\alpha$, so the assumed $\alpha$-approximation algorithm for maximin support would allow us to distinguish between these two cases and decide whether such an independent set $I$ exists. This completes the proof.
+\end{proof}
+
+In contrast, we show that the recently proposed $\MMS$ rule~\cite{sanchez2016maximin}, known to achieve the PJR property, also provides a 2-approximation for maximin support. 
+In simple terms, $\MMS$ (Algorithm~\ref{alg:mms}) starts with an empty committee $A$ and iteratively adds candidates to it; in each iteration, it computes a balanced weight vector for each possible augmented committee that can be obtained by adding a candidate, and then inserts the candidate whose corresponding augmented committee has the highest least member support.
+%
+We will need the following key technical result, whose proof uses the flow decomposition theorem and is delayed to Appendix~\ref{s:flow}. 
 
 
-\begin{algorithm}[htb]\label{alg:mms}
+\begin{algorithm}[tb]
 \SetAlgoLined
 \KwData{Bipartite approval graph $G=(N\cup C, E)$, vector $s$ of vote strengths, target committee size $k$.}
 Initialize $A=\emptyset$\ and $w=0\in \R^E$\;
 \For{$i$ from $1$ to $k$}{
-\lFor{each`candidate $c\in C\setminus A$}{Compute a balanced\footnotemark ~edge weight vector $w_c$ for $A+c$}
+	\For{each candidate $c\in C\setminus A$}{
+		Compute a balanced\footnotemark ~weight vector $w_c$ for $A+c$\;
+		}
 Find $c_i\in \arg\max_{c\in C\setminus A} \supp_{w_c}(A+c)$\;
-Update $A\leftarrow A+c_i$ and $w\leftarrow w_{c_i}$;
+Update $A\leftarrow A+c_i$ and $w\leftarrow w_{c_i}$\;
 }
 \Return $(A,w)$\;
 \caption{$\MMS$, proposed in~\cite{sanchez2016maximin}}
+\label{alg:mms}
 \end{algorithm}
 \footnotetext{The original algorithm in~\cite{sanchez2016maximin} does not compute balanced weight vectors, but any vector $w$ that maximizes $\supp_w(A)$, which is indeed sufficient for our analysis. 
-However, we propose the use of balanced vectors here as they achieve further desirable properties (Lemmas \ref{lem:balanced} and \ref{lem:equivalence}) and because adding such requirement does not seem to cause any additional overhead in complexity.}
+However, we propose the use of balanced vectors here as they achieve further desirable properties (Lemma \ref{lem:balanced} and Theorem \ref{thm:equivalence}) and because adding such requirement does not seem to cause any additional overhead in complexity.}
 
-\begin{theorem}\label{thm:mms}
-The $\MMS$ algorithm provides a 2-approximation for maximin support.
-\end{theorem}
 
-We will need the following technical result, whose proof is delayed momentarily. 
 
 \begin{lemma}\label{lem:2sols}
-If $(A^*, w^*)$ is an optimal solution to the given instance of maximin support, and $(A,w)$ is a partial solution with $|A|\leq k$ and $A\neq A^*$, then there is a candidate $c'\in A^*\setminus A$ and feasible solution $(A+c', w')$ such that 
+If $(A^*, w^*)$ is an optimal solution to maximin support, and $(A,w)$ is a partial solution with $|A|\leq k$ and $A\neq A^*$, there is a candidate $c'\in A^*\setminus A$ and feasible solution $(A+c', w')$ such that 
 $$\supp_{w'}(A+c')\geq \min\Big\{\supp_w(A), \frac{1}{2} \supp_{w^*}(A^*)\Big\}.$$
 \end{lemma}
 
+\begin{theorem}\label{thm:mms}
+The $\MMS$ rule provides a 2-approximation for maximin support.
+\end{theorem}
 
-\begin{proof}[Proof of Theorem~\ref{thm:mms}]
-Let $(A_i, w_i)$ be the partial solution at the end of the $i$-th round of MMS, and let $(A^*, w^*)$ be an optimal full solution. We prove by induction on $i$ that $\supp_{w_i}(A_i)\geq \frac{1}{2}\supp_{w^*}(A^*)$, where the base case for $i=0$ holds trivially as we use the convention that $\supp_w(\emptyset)=\infty$.
-Assuming now that the inequality holds for $i$, an application of Lemma~\ref{lem:2sols} for $(A_i, w_i)$ and $(A^*, w^*)$ implies that there is a candidate $c'\in A^*\setminus A_i$ and a feasible solution $(A_i+c', w')$ such that 
-
-$$\supp_{w'}(A_i+c')\geq \min\Big\{\supp_{w_i}(A_i), \frac{1}{2} \supp_{w^*}(A^*)\Big\} = \frac{1}{2} \supp_{w^*}(A^*).$$
-
-As the algorithm is bound to inspect candidate $c'$ in round $i+1$, and compute for it a balanced weight vector $w_{c'}$ which maximizes the support of $A_i+c'$ (by Lemma~\ref{lem:balanced}), the solution $(A_{i+1}, w_{r+1})$ at the end of round $i+1$ must have an even higher support, i.e., %
+\begin{proof}
+Let $(A_i, w_i)$ be the partial solution at the end of the $i$-th round of MMS, and let $(A^*, w^*)$ be an optimal solution. 
+We prove by induction on $i$ that $\supp_{w_i}(A_i)\geq \frac{1}{2}\supp_{w^*}(A^*)$, where the case $i=0$ holds trivially as we use the convention that $\supp_w(\emptyset)=\infty$.
+Assuming that the inequality holds for $i$, an application of Lemma~\ref{lem:2sols} for $(A_i, w_i)$ and $(A^*, w^*)$ implies that there is a candidate $c'\in A^*\setminus A_i$ and a feasible solution $(A_i+c', w')$ such that 
+\begin{align*}
+\supp_{w'}(A_i+c') &\geq \min\Big\{\supp_{w_i}(A_i), \frac{1}{2} \supp_{w^*}(A^*)\Big\} \\
+ &= \frac{1}{2} \supp_{w^*}(A^*).
+\end{align*}
 %
-$$\supp_{w_{i+1}}(A_{i+1})\geq \supp_{w_{c'}}(A_i+c) 
-\geq \supp_{w'}(A_i+c) \geq \frac{1}{2} \supp_{w^*}(A^*).$$
+As the algorithm is bound to inspect candidate $c'$ in round $i+1$, and compute for it a balanced weight vector $w_{c'}$ which maximizes the support of $A_i+c'$ (by Lemma~\ref{lem:balanced}), the solution $(A_{i+1}, w_{r+1})$ at the end of round $i+1$ must have an even higher support, i.e., %
+\begin{align*}
+\supp_{w_{i+1}}(A_{i+1}) &\geq \supp_{w_{c'}}(A_i+c) \\ 
+  &\geq \supp_{w'}(A_i+c) \geq \frac{1}{2} \supp_{w^*}(A^*).
+\end{align*}
 %
 This completes the proof.
 \end{proof}
 
-\begin{proof}[Proof of Lemma~\ref{lem:2sols}]
-Let $(A,w)$ and $(A^*, w^*)$ be as in the statement, and let $t^*:=\supp_{w^*}(A^*)$ and $t:=\min\{\supp_w(A), t^*/2\}$. To prove the lemma, it suffices to find a candidate $c'\in A^*\setminus A$ and a feasible weight vector $w'\in\R^E$ such that $\supp_{w'}(A+c)\geq t$.
-
-By decreasing some components in $w$ and $w^*$, we can assume without loss of generality that $\supp_w(c)=t$ for each $c\in A$ and $\supp_{w^*}(c)=t^*$ for each $c\in A^*$. Define now the flow vector $f:=w^* - w\in\mathbb{R}^E$. 
-We partition the network nodes into four sets: relative to $f$, we have that a) $N$ has a net excess of $|A^*|\cdot t^* - |A|\cdot t$, b) $A\setminus A^*$ has a net excess of $|A\setminus A^*|\cdot t$, c) $A^*\setminus A$ has a net demand of $|A^*\setminus A|\cdot t^*$, and d) $A\cap A^*$ has a net demand of $|A\cap A^*|\cdot (t^*-t)$.
-Now, using the flow decomposition theorem, we can decompose flow $f$ into circulations and simple paths, where each path starts in a vertex with net excess and ends in a vertex with net demand. If we define $f'$ to be the sub-flow of $f$ that contains only the simple paths that start in $N$ and end in $A^*\setminus A$, then %
-%
-\begin{align*}
-    \text{net demand in $A^*\setminus A$ wrt } f' &\geq \text{ net demand in $A^*\setminus A$ wrt } f - \text{ net excess in $A\setminus A^*$ wrt } f\\
-    &= |A^*\setminus A|\cdot t^* - |A\setminus A^*|\cdot t\\
-    &\geq |A^*\setminus A|\cdot (t^*-t) \geq |A^*\setminus A|\cdot t,
-\end{align*}
-
-where the last two inequalities follow from $|A^*|\geq |A|$ and $t\leq t^*/2$, respectively. By an averaging argument, this implies that there is a candidate $c'\in A^*\setminus A$ with a demand of at least $t$ relative to $f'$.
-Finally, we define weight vector $w':=w+f'$: by Lemma~\ref{lem:subflow}, $w'$ is non-negative and feasible. 
-Furthermore, it provides the same support as $w$ to each committee member $c\in A$, namely $t$, and a support of at least $t$ to candidate $c'$. Hence, $\supp_{w'}(A+c')\geq t$. 
-\end{proof}
-
-$\MMS$ is an iterative greedy algorithm with a runtime of $O(\bal \cdot |C|\cdot k)$, where we recall that $\bal$ is the time complexity of computing a balanced weight vector; see Remark~\ref{rem:bal}. 
-To conclude the section, we mention that a "lazy greedy" version of it can save a factor $\Theta(k)$ in the runtime while keeping the approximation guarantee virtually unchanged. 
-In particular, in Appendix~\ref{s:lazymms} we prove the following result.
+$\MMS$ is an greedy algorithm with a runtime of $O(\bal \cdot |C|\cdot k)$, where we recall that $\bal$ is the time complexity of computing a balanced weight vector; see Remark~\ref{rem:bal}. 
+To conclude the section we mention that a "lazy greedy" version of it can save a factor $\Theta(k)$ in the runtime while keeping the approximation guarantee virtually unchanged. 
+In Appendix~\ref{s:lazymms} we prove the following result.
 
 \begin{theorem}\label{thm:2eps}
 There is an algorithm $\lazy$ that, for any $\eps>0$, offers a $(2+\eps)$-approximation for the maximin support problem, satisfies the PJR property, and executes in time $O(\bal\cdot |C|\cdot \log(1/\eps))$.

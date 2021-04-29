@@ -1,0 +1,30 @@
+%!
+TeXDict begin
+/XC@red{1 0 0}XCrgb
+/XC@green{0 1 0}XCrgb
+/XC@blue{0 0 1}XCrgb
+/XC@brown{0.75 0.5 0.25}XCrgb
+/XC@lime{0.75 1 0}XCrgb
+/XC@orange{1 0.5 0}XCrgb
+/XC@pink{1 0.75 0.75}XCrgb
+/XC@purple{0.75 0 0.25}XCrgb
+/XC@teal{0 0.5 0.5}XCrgb
+/XC@violet{0.5 0 0.5}XCrgb
+/XC@cyan{1 0 0 0}XCcmyk
+/XC@magenta{0 1 0 0}XCcmyk
+/XC@yellow{0 0 1 0}XCcmyk
+/XC@olive{0 0 1 0.5}XCcmyk
+/XC@black{0}XCgray
+/XC@darkgray{0.25}XCgray
+/XC@gray{0.5}XCgray
+/XC@lightgray{0.75}XCgray
+/XC@white{1}XCgray
+/XC@ACMBlue{1 0.1 0 0.1}XCcmyk
+/XC@ACMYellow{0 0.16 1 0}XCcmyk
+/XC@ACMOrange{0 0.42 1 0.01}XCcmyk
+/XC@ACMRed{0 0.9 0.86 0}XCcmyk
+/XC@ACMLightBlue{0.49 0.01 0 0}XCcmyk
+/XC@ACMGreen{0.2 0 1 0.19}XCcmyk
+/XC@ACMPurple{0.55 1 0 0.15}XCcmyk
+/XC@ACMDarkBlue{1 0.58 0 0.21}XCcmyk
+end

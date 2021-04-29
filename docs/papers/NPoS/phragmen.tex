@@ -2,7 +2,7 @@
 
 In this section we analyze the performance of $\phragmen$~\cite{brill2017phragmen} with respect to the maximin support objective. 
 
-\begin{algorithm}[htb]\label{alg:phragmen}
+\begin{algorithm}[htb]
 \SetAlgoLined
 \KwData{Bipartite approval graph $G=(N\cup C, E)$, vector $s$ of vote strengths, target committee size $k$.}
 Initialize $A=\emptyset$, $w=0\in \R^E$, $load(n)=0$ for each $n\in N$, and $load(c')=0$ for each $c'\in C$\;
@@ -19,6 +19,7 @@ Update $load(n)\leftarrow load(c_{\min})$\;
 \emph{Scaling edge weights:} for each $nc\in E$ with $w_{nc}>0$, update $w_{nc}\leftarrow w_{nc}\cdot \frac{s_n}{load(n)}$\; 
 \Return $(A,w)$\;
 \caption{$\phragmen$, proposed in~\cite{brill2017phragmen}}
+\label{alg:phragmen}
 \end{algorithm}
 
 The method proposed in~\cite{brill2017phragmen} only considers unit votes, and outputs only a committee. 
