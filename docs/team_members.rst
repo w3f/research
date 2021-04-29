@@ -20,7 +20,6 @@ The core Web3 Foundation research team working on various areas relevant to dece
    team_members/samuel
    team_members/Sergey
    team_members/syed
-   team_members/Ximin
 
 Specification Team
 ==================
