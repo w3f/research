@@ -10,6 +10,10 @@ My main task is to analyze the upcoming parachain auctions. I am also interested
 
 I hold a PhD from the University of Basel. I spent postdoc years at Duke University, Basel, Zurich, and St. Gallen.
 
+**Recent Crypto-Related Working Papers**
+
+* [Blockchains, Front-Running, and Candle Auctions](https://ssrn.com/abstract=3846363) (with Alistair Stewart). Working Paper, Mai 2021.
+
 **Publications** 
 
 * [Eternal Peace in the Tug-of-War?](https://doi.org/10.1007/s00199-020-01287-9)&nbsp;*Economic Theory*, 2020 (online first).

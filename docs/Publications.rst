@@ -5,6 +5,8 @@ Publications
 
 **Papers:**
 
+* Samuel Häfner and Alistair Stewart, `Blockchains, Front-Running, and Candle Auctions <https://ssrn.com/abstract=3846363>`_, in submission.
+
 * Jeff Burdges and Luca de Feo, `Delay Encryption <https://eprint.iacr.org/2020/638>`_, EuroCrypt 2021.
 
 * Jeff Burdges, Alfonso Cevallos, Peter Czaban, Rob Habermeier, Syed Hosseini, Fabio Lama, Handan Kılınç Alper, Ximin Luo, Fatemeh Shirazi, Alistair Stewart, Gavin Wood, `Overview of Polkadot and its Design Considerations <http://arxiv.org/abs/2005.13456>`_, first version, 29 May 2020.

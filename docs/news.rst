@@ -1,6 +1,9 @@
 ====
 News
 ====
+**15.05.21**:
+    Alistair and Samuel finished a `working paper  <https://ssrn.com/abstract=3846363>`_ on front-running in the candle auction, showing that with many rounds the format essentially turns into a second-price auction.
+
 **29.01.21**:
     Fatemeh shared her thoughts on "Interoperability - Where are we now and what can we expect for 2021" in an online-presentation at the Bitcoin Suisse Crypto Outlook 2021. Additionally, she features an article in the corresponding `research report <https://click.mlsend.com/link/c/YT0xNjA5OTk0MzE5NjA1Nzk4MjQ3JmM9ZTNvNCZlPTU5MTY4MzA0JmI9NTEyMjM3NDg1JmQ9djBqOHo2dw==.ngxPQKz29giu1TK1fdNRJdTJ8gEWu2BFos0tuJeD7AQ/>`_. 
 
