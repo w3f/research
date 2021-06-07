@@ -26,7 +26,7 @@ $\lazy$ (Algorithm~\ref{alg:lazy}) is lazier than $\MMS$ in the sense that for e
 For a threshold $t\geq 0$ given as input, the algorithm either succeeds and returns a full solution $(A,w)$ with $\supp_w(A)\geq t$, or returns a failure message. 
 The idea is then to run trials of $\lazy$ over several input thresholds $t$, performing binary search to converge to a value of $t$ where it flips from failure to success, and return the output of the last successful trial. 
 In terms of runtime, our binary search requires only $O(\log (1/\eps))$ trials -- as we shall prove -- and in each trial each of the $O(|C|)$ iterations computes a balanced weight vector in time $\bal$, for an overall complexity of $O(\bal\cdot |C| \log (1/\eps))$. 
-In each iteration, the highest score in $U$ can be found in time $O(|E|\log k)$ with a variant of Algorithm $\maxscore$ (see Theorem~\ref{thm:runtimes}), hence this complexity is dominated by that of computing a balanced vector.  
+In each iteration, the highest score in $U$ can be found in time $O(|E|\log k)$ with a variant of Algorithm $\maxscore$, hence this complexity is dominated by that of computing a balanced vector.  
 
 We start by proving that for low values of $t$, the algorithm is guaranteed to succeed. 
 We highlight that in the following proof the order in which the candidate set $C$ is traversed is irrelevant. 

@@ -1,24 +1,36 @@
-\section{Implementation details}\label{s:implement}
+\section{A validator selection protocol}\label{s:implement}
 
-Here be the implementation details (to complete).
+Recall that our motivating application is the selection of validators for a blockchain network that implements Nominated Proof-of-Stake (NPoS). 
+In this section we sketch a proposal for such a protocol, and use the Polkadot network as a specific example.
+As of late May 2021, Polkadot selects a committee of $k\approx 300$ validators to participate in its consensus protocol, out of a set of $|C|\approx 900$ candidates, and has $|N|\approx 20000$ nominators. 
+It also bounds the number of candidates that each nominator may approve of to a constant $c=16$; 
+this way, the size of the election instance is bounded as $O(|E|)=O(c\cdot |N|)=O(|N|)$, i.e., it stays linear in the number of voters.%
+%
+\footnote{We also highlight the importance of allowing nominators to vote for multiple candidates. 
+Otherwise, they face the dilemma of having to choose between a popular candidate and a candidate that may represent them better but has a lower chance of being elected. Facing such dilemma, a rational nominator seeking to maximize staking rewards will prefer to vote for the popular candidate. This type of tactical voting will result in popular candidates being overrepresented, to the detriment of the network's security and decentralization goals.} 
+%
+Toward the end of each era --lasting roughly one day-- the protocol takes a snapshot of the current nominators' preferences and stakes and uses it as input to run a committee election rule, to select a validator committee $A$ for the following era. 
+We remark that it is advantageous for the protocol to have the election rule output a stake distribution vector $w\in \R^E$ along with committee $A$: not only will this vector $w$ play a role in the verification of the committee guarantees, but it also helps distribute the era staking rewards earned by each staking pool back to the nominators.
 
-Explain that the edge weight vector is actually useful to us, as it establishes a precise partition of all the (nominators' and validators') stake into $k$ staking pools, where a single nominator's stake may be split fractionally across different pools. It helps establish payouts and punishments according to the individual performance of validators.
+We propose running the $\phragmms$ rule as a verifiable computing scheme. 
+First, the system enters an \emph{election phase} in which the current validators --or a subset of them-- may act themselves as off-chain workers, and run $\phragmms$ as a background task logically separate from consensus, and with a relaxed time frame of (say) up to an hour. 
+Then, the system enters a \emph{submission phase}, also lasting up to an hour, in which a validator or any other user may submit a prospective solution $(A,w)$ on-chain as a transaction. 
 
-Maybe explain importance of letting nominators approve of multiple candidates, as opposed to only one like other blockchain networks do. Explain the dilemma of having to choose between a popular candidate that's likely to be elected, and an unpopular one that you like better, and how solving the dilemma keeps the network more decentralized.
+For each prospective solution received within the submission phase, the protocol executes on-chain the verification test described in Theorem~\ref{thm:315guarantee}, and declares as winner the solution that passes the test and has the highest maximin support objective. 
+By allowing anyone to submit a solution, we keep the protocol decentralized and able to profit from higher quality solutions that may be found by users running other election rules off-chain.
+Yet, in order to minimize spam we suggest to require that submitted solutions be accompanied by some collateral susceptible to being lost in case the solution fails the verification test.
+This way, we can expect to receive only a handful of submissions per era. 
+Furthermore, we suggest that the verification process of each solution be distributed over several consecutive blocks, following the parallelization presented in Lemma~\ref{lem:parallel}. 
+For example, by distributing this computation over $p=20$ blocks per solution, each block only needs to process up to $|N|/20\approx 1000$ nominators and $|C|<1000$ candidates. 
+As Polkadot produces roughly ten blocks per minute, this means that a solution would be verified within two minutes. 
 
+We claim that being able to verify the strong guarantees on security and proportionality offered by $\phragmms$ (as opposed to, e.g., simply selecting the feasible prospective solution with highest maximin support objective) protects the network against a possible long-range attack, as we explain now. 
+Consider a scenario where an adversary currently controlling a minority of validators creates a private fork (i.e., an alternative valid chain) right before the start of the submission phase, and in this fork it censors all prospective solutions except for one, fabricated by the adversary itself, in which it becomes grossly overrepresented and possibly even gains control of a majority of validators. 
+Then, after the end of the submission phase it publishes this fork and attempts to make it canonical (for instance by making it longer than all other forks, if the consensus protocol follows the longest-chain rule). 
+If this attack is successful, the adversary will have captured the network in the next era. 
+To resist such an attack, we insist in discarding all submitted solutions that do not pass the verification test, and we propose that the submission phase may extend indefinitely until at least one solution passing the test has been submitted. 
+%It is worth mentioning that Polkadot is also protected against long-range attacks by its use of a finality gadget~\cite{stewart2020grandpa}, which limits the possibility of long chain reorganizations.
 
-We envision an implementation where the validators themselves (or at least some of them) act as off-chain workers and submit a solution as a transaction. 
-However, anyone else can submit a solution as well. Hence, the community benefits in case someone finds a better election rule than the one we suggest validators to run. We provide a reward to the author of the solution that ends up being used, but conversely every solution must be submitted with a collateral that is lost in case the solution fails the verification test, to defend from griefing attacks.
-We keep in memory the current tentative winner (the solution with highest maximin support objective among all solutions that have passed the verification test), and we verify a new solution only if its claimed objective is strictly higher.
-
-Maybe explain why checking guarantees on security and proportionality (as opposed to simply selecting the best feasible submitted solution) protects the network against a long range attack, where the adversary creates a private branch in which all honest solution submissions are censored, then selects a solution with an overrepresentation of adversarial validators, and published the fork and tries to make it the canonical one.
-
-Maybe explain the approximation to balanced solutions, and the reduction process which makes a solution always be cycle free and hence be of size $O(|N|)$.
-
-Properties of the computer running the algorithms.
-Runtimes for different number of voters, number of candidates, total number of edges of input graph.
-Time it takes to find a balanced solution approximately. Time per iteration of Phragmms. 
-Contrast those times with the fact that there's one election process per day, and we expect to receive (say) five solutions per election, and we will use (say) four consecutive blocks to verify each solution. Hopefully the numbers make the implementation look feasible.
 
 %We just check feasibility.
 %Check PJR test offchain.

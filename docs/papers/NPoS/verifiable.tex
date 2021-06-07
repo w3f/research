@@ -21,7 +21,7 @@ To finish the proof of Theorem~\ref{thm:intro2}, it remains to prove Lemma~\ref{
 In particular, for a parameter $p$, we consider the distribution of this process over $p$ computing units that execute in sequence, such as $p$ consecutive blocks in a blockchain network. 
 We remark however that our description below may be easily adapted to concurrent execution if desired.
 
-\begin{lemma}
+\begin{lemma}\label{lem:parallel}
 For any integer $p\geq 1$, both the input election instance as well as any solution $(A,w)$ to it can be distributed into $p$ data sets, such that each data set is of size $O(|E|/p + |C|)$. 
 Moreover, all the tests mentioned in Theorem~\ref{thm:315guarantee} can be executed by $p$ sequential computing units such that each unit only requires access to one data set and runs in time $O(|E|/p + |C|)$. 
 Therefore, for $p$ sufficiently large, each unit can be made to run in time $O(|C|)$.
@@ -40,11 +40,11 @@ To avoid dependencies across these tests, our general strategy is to assume that
 For example, since both feasibility (inequality~\ref{eq:feasible}) and balancedness (properties 2 and 3 of Lemma~\ref{lem:balanced}) are checked on a per-voter basis, the $i$-th unit can perform these checks for its own subset of voters $N^i$, using the claimed supports to check property 3 of Lemma~\ref{lem:balanced}. 
 
 Tests c and d, on the other hand, require the cooperation of all units. 
-The $i$-th unit can compute a vector $(\supp_{w^i}(c))_{c\in A}$ of supports relative to the local voters in $N^i$, so it follows by induction that it can also compute the partial sum $(\supp_{\sum_{j\leq i}w^j}(c))_{c\in A}$, and communicate it to the $(i+1)$-st unit. The last unit can then compute the full vector $(\supp_{\sum_{j\leq p}w^j}(c))_{c\in A}=(\supp_{w}(c))_{c\in A}$, and check that it matches the claimed supports. 
+The $i$-th unit can compute a vector $(\supp_{w^i}(c))_{c\in A}$ of supports relative to the local voters in $N^i$, so it follows by induction that it can also compute the partial sum $\sum_{j\leq i} (\supp_{w^j}(c))_{c\in A}$, and communicate it to the $(i+1)$-st unit. The last unit can then compute the full vector $\sum_{j\leq p} (\supp_{w^j}(c))_{c\in A}=(\supp_{w}(c))_{c\in A}$, and check that it matches the claimed supports. 
 
-Similarly, the $i$-th unit can compute the vector $(\slack(n,t))_{n\in N^i}$ of slacks for $N_i$ (equation~\ref{eq:slack}), and use it to find a vector of parameterized scores relative to the local voters, $(\prescore^i(c',t))_{c'\in C\setminus A}$, where $\prescore^i(c', t):=\sum_{n\in N_{c'}\cap N^i} \slack(n,t)$. 
-Again by induction, this unit can also find the partial sum $(\sum_{j\leq i}\prescore^j(c',t))_{c'\in C\setminus A}$, and communicate it to the $(i+1)$-st unit. 
-The last unit then retrieves the full vector $(\sum_{j\leq p}\prescore^j(c',t))_{c'\in C\setminus A}=(\prescore(c',t))_{c'\in C\setminus A}$, and verifies that all parameterized scores are bounded by $t$. 
+Similarly, the $i$-th unit can compute the vector $(\slack(n,t))_{n\in N^i}$ of slacks for $N^i$ (equation~\ref{eq:slack}), and use it to find a vector of parameterized scores relative to the local voters, $(\prescore^i(c',t))_{c'\in C\setminus A}$, where $\prescore^i(c', t):=\sum_{n\in N_{c'}\cap N^i} \slack(n,t)$. 
+Again by induction, this unit can also find the partial sum $\sum_{j\leq i} (\prescore^j(c',t))_{c'\in C\setminus A}$, and communicate it to the $(i+1)$-st unit. 
+The last unit then retrieves the full vector $\sum_{j\leq p} (\prescore^j(c',t))_{c'\in C\setminus A}=(\prescore(c',t))_{c'\in C\setminus A}$, and verifies that all parameterized scores are bounded by $t$. 
 Clearly, each unit has a time and memory complexity of $O(|E|/p + |C|)$.
 \end{proof}
 
@@ -66,8 +66,8 @@ This is in contrast to the maximin support objective, which implies a stronger p
 We remark that the notion of \emph{average satisfaction} introduced in~\cite{sanchez2017proportional} also attempts to quantify the level of proportional representation achieved by a committee. 
 Informally speaking, that notion measures the average number of representatives in the committee that each voter in a group has, for any group of voters with sufficiently high aggregate vote strength and cohesiveness. 
 In contrast, with parametric PJR we focus on providing sufficient representatives to the group as a whole and not to each individual voter, and we measure the aggregate vote strength required to gain adequate representation.
-Interestingly, the average satisfaction measure is closely linked to the EJR property, and in particular in~\cite{aziz2018complexity} this measure is used to prove that a local search algorithm achieves EJR; 
-similarly, in Appendix~\ref{s:LS} we use parametric PJR to prove that a local search version of $\phragmms$ achieves standard PJR.
+%Interestingly, the average satisfaction measure is closely linked to the EJR property, and in particular in~\cite{aziz2018complexity} this measure is used to prove that a local search algorithm achieves EJR; 
+%similarly, in Appendix~\ref{s:LS} we use parametric PJR to prove that a local search version of $\phragmms$ achieves standard PJR.
 
 Testing whether an arbitrary solution satisfies standard PJR is known to be coNP-complete~\cite{aziz2018complexity}, hence the same remains true for its parametric version.
 We provide next a sufficient condition for a committee to satisfy $t$-PJR which is efficiently testable, based on our definitions of parameterized score and score.  

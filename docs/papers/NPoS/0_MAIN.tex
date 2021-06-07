@@ -27,12 +27,17 @@
 %\usepackage{caption}
 %\usepackage{subcaption}
 
+\hyphenation{block-chain}
+\hyphenation{demo-cracy}
+
 \newcommand{\R}{\mathbb{R}_{\geq 0}}
 \newcommand{\eps}{\varepsilon}
 \DeclareMathOperator*{\argmax}{arg\,max}
 \DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\st}{stop}
 \DeclareMathOperator{\ins}{Insert}
-\DeclareMathOperator{\maxprescore}{MaxPrescore}
+\DeclareMathOperator{\maxpscore}{MaxPscore}
+\DeclareMathOperator{\maxprescore}{MaxPscore}
 \DeclareMathOperator{\maxscore}{MaxScore}
 \DeclareMathOperator{\interval}{FindInterval}
 \DeclareMathOperator{\MMS}{MMS}
@@ -40,19 +45,21 @@
 \DeclareMathOperator{\phragmen}{seqPhragmen}
 \DeclareMathOperator{\maxphragmen}{maxPhragmen}
 \DeclareMathOperator{\phragmms}{Phragmms}
-\DeclareMathOperator{\balanced}{BalPhragmms}
-\DeclareMathOperator{\LSPJR}{PostPhragmms}
-\DeclareMathOperator{\local}{PostPhragmms}
-\DeclareMathOperator{\balancing}{balancing}
+%\DeclareMathOperator{\balanced}{BalPhragmms}
+\DeclareMathOperator{\LSPJR}{LS-Phragmms}
+\DeclareMathOperator{\local}{LS-Phragmms}
+%\DeclareMathOperator{\balancing}{balancing}
 \DeclareMathOperator{\bal}{Bal}
 \DeclareMathOperator{\supp}{supp}
 \DeclareMathOperator{\score}{score}
-\DeclareMathOperator{\prescore}{prescore}
+\DeclareMathOperator{\pscore}{pscore}
+\DeclareMathOperator{\prescore}{pscore}
 \DeclareMathOperator{\slack}{slack}
 
 \newtheorem{theorem}{Theorem}
 \newtheorem{corollary}[theorem]{Corollary}
 \newtheorem{lemma}[theorem]{Lemma}
+\newtheorem*{lemma*}{Lemma}
 \newtheorem{definition}[theorem]{Definition}
 \newtheorem{remark}[theorem]{Remark}
 \newtheorem*{heuristic}{Heuristic}
@@ -82,11 +89,10 @@
 
 \input{abstract.tex}
 
-\keywords{social choice \and approval-based committee election \and approximation algorithms \and proof-of-stake \and blockchain}
+\keywords{computational social choice \and approval-based committee election \and approximation algorithms \and proof-of-stake \and blockchain}
 
 %\newpage
 
-%\input{intro-old.tex}
 \input{intro.tex}
 
 \input{preliminaries.tex}
@@ -97,35 +103,47 @@
 
 \input{approx315.tex}
 
-\input{local.tex}
+\input{verifiable.tex}
 
-\input{npos.tex}
+\input{implementation.tex}
 
-\appendix
-
-\input{balanced.tex}
-
-\input{phragmen}
-
-\input{lazymms.tex}
-
-\input{algorithms}
-
-\input{proofs.tex}
+\input{conclusion.tex}
 
 \bibliographystyle{abbrv}  
 \bibliography{references} 
+
+\appendix
+
+\input{local.tex}
+
+\input{balanced.tex}
+
+\input{flow.tex}
+
+\input{algorithms}
+
+\input{lazymms.tex}
+
+\input{proofs.tex}
+
+
 
 \end{document}
 
 TO DO:
 
-- Intro, motivation, presentation of results, relevant work.
-- Besides a quick explanation of NPoS in the intro, I think we can have a concluding section where we give further details on NPoS, further explanations for our choice of objectives, and our precise protocol with off-chain computations + submissions, where we exploit the results in the paper.
-- A section (probably in the appendix) about balanced weight vectors: why they make sense as an objective for us, algorithms for it, the notion of eps-balanced vectores, and a proof of Lemma 1. Adapting our current algorithm for a balanced weight vector, which is probabilistic and gives a guarantee on the approximation factor for the sum-of-squares objective, into a deterministic algorithm which gives a guarantee that, if $w_{nc}>0$ and edge $nc'$ exists, then 4supp_w(c)/supp_w(c') <= 1+eps4. Once we have it, we can compare our running time with the state of the art for star balancing: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.122.7945&rep=rep1&type=pdf (See theorem 1). Hopefully we have an algorithm that is faster, at least for bipartite graphs with one partition much smaller than the other.
+- Possibly a section with further details on NPoS, such as the payouts that provide nominators with incentives to shift preferences to less popular candidates, thus improving decentralization
+
+- Numerical details on implementation
+
+- The notion of epsilon-balanced weight vectors, and the star balancing algorithm. The corresponding impact on the inequality (min support >= max score). Adapting our current algorithm for a balanced weight vector, which is probabilistic and gives a guarantee on the approximation factor for the sum-of-squares objective, into a deterministic algorithm which gives a guarantee that, if $w_{nc}>0$ and edge $nc'$ exists, then $supp_w(c)/supp_w(c') <= 1+\eps $. Once we have it, we can compare our running time with the state of the art for star balancing: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.122.7945&rep=rep1&type=pdf (See theorem 1). Hopefully we have an algorithm that is faster, at least for bipartite graphs with one partition much smaller than the other.
+
 - A generalization of the 3.15 approximation that deals with eps-balanced weight vectors. The current analysis considers that the weight vector is truly balanced. 
-- A proof that the 3.15 approximation algorithm achieves PJR. However this result is hard to motivate since we have the PJR-enabler as a main result.
-- Throughout the paper we're assuming that all operations take constant time (see our remark at the end of the preliminaries section). Maybe we should change this. In particular, the authors of the seq-Phragmen method (Brill et al.) warn that the denominators of the load function grow exponentially. Do our other algorithms have the same problem? Hopefully the don't.
+
+- Throughout the paper we're assuming that all operations take constant time (see our remark at the end of the preliminaries section). Maybe we should change this. In particular, the authors of the seq-Phragmen method (Brill et al.) warn that the denominators of the load function grow exponentially. Does our algorithm have the same problem? 
+
 - An analysis of a greedy algorithm that executes our heuristic iteratively, without ever balancing the weight vector. We know it achieves PJR. It would be great if we can also prove it achieves a constant factor approximation, or more generally any other property that makes it better than seq-Phragmen and can be used as a selling point. It probably beats seq-Phragmen numerically, so we could add some tests. 
+
 - Possibly a generalization of the problem with operators and multiplicities instead of validators. For more generality we can talk about political parties, but we should also mention the convenience for Polkadot in terms of network resilience in case some nodes drop out abruptly. 
+
 - Possibly some results about how to reduce and encode solutions compactly for submission, and how to simultaneously get a reduced and verifiably PJR solution.

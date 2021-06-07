@@ -69,53 +69,58 @@ To show this, we prove that there must be a subset of voters with large aggregat
 \begin{lemma*}
 If $(A^*, w^*)$ is an optimal solution with $t^*=\supp_{w^*}(A^*)$, and $(A,w)$ is a balanced solution with $|A|\leq k$ and $A\neq A^*$, then for each $0\leq a\leq 1$ there is a subset $N(a)\subseteq N$ of voters such that 
 \begin{enumerate}
-	\item each voter $n\in N(a)$ has a neighbor in $A^*\setminus A$;
+	\item each voter $n\in N(a)$ approves of a candidate in $A^*\setminus A$;
 	\item for each voter $n\in N(a)$, we have $\supp_w(A\cap C_n)\geq at^*$;
 	\item $\sum_{n\in N(a)} s_n \geq |A^* \setminus A|\cdot (1-a) t^*$; and
-	\item for any $b$ with $a\leq b\leq 1$ we have that $N(b)\subseteq N(a)$, and for each $n\in N(a)$ we have that $n$ is also in $N(b)$ if and only if property 2 above holds for $n$ with parameter $a$ replaced by $b$.
+	\item for any $b$ with $a\leq b\leq 1$ we have that $N(b)\subseteq N(a)$, and a voter $n\in N(a)$ belongs to $N(b)$ if and only if $n$ observes property 2 above with parameter $a$ replaced by $b$.
 \end{enumerate}
 \end{lemma*}
 
 \begin{proof}
-Fix a parameter $0\leq a\leq 1$ and define the set of voters $N':=\{n\in N: \ \supp_w(A\cap C_n)\geq at^*\}$, where $\supp_w(\emptyset)=\infty$ by convention. If we define $N(a)\subseteq N'$ as those voters in $N'$ that have a neighbor in $A^*\setminus A$, then properties 1, 2 and 4 become evident. Hence, it only remains to prove the third property.
+Fix a parameter $0\leq a\leq 1$, and partition committee $A$ into two sets by defining $A_{hi}:=\{c\in A: \ \supp_w(c)\geq at\}$ and $A_{lo}:=A\setminus A_{hi}$. 
+Similarly, partition $N$ into two sets by defining $N_{hi}:=\{n\in N: \ C_n \cap A_{lo}=\emptyset\}$ and $N_{lo}:= N\setminus N_{hi}$. 
+If we define $N(a)\subseteq N_{hi}$ as those voters in $N_{hi}$ that have adjacent candidates in $A^*\setminus A$, then properties 1, 2 and 4 become evident. Hence, it only remains to prove the third property.
 
-\emph{Claim A.} There is no edge with non-zero weight in $w$ between $N\setminus N'$ and $A':=\{c\in A: \ \supp_w(c)\geq at^*\}$. 
-Indeed, if there was a pair $n\in N\setminus N'$, $c\in A'$ with $w_{nc}>0$, then by property 3 of Lemma~\ref{lem:balanced} we would have $\supp_w(A\cap C_n)=\supp_w(c)\geq at^*$, contradicting the fact that $n$ is not in set $N'$. 
-Thus, all of the vote strength from voters in $N\setminus N'$ must be directed to members in $A\setminus A'$, and we get the inequality
-$$\sum_{n\in N\setminus N'} s_n \leq \sum_{c\in A\setminus A'} \supp_w(c) < |A\setminus A'|\cdot at^*< |A^*\setminus A'|\cdot at^*.$$
+\emph{Claim A.} There is no edge with non-zero weight in $w$ between $N_{lo}$ and $A_{hi}$. 
+Indeed, if there was a pair $n\in N_{lo}$, $c\in A_{hi}\cap C_n$ with $w_{nc}>0$, then by property 3 of Lemma~\ref{lem:balanced} we would have $\supp_w(A\cap C_n)=\supp_w(c)\geq at^*$, contradicting the fact that $n$ is not in set $N_{hi}$. 
+Thus, all of the vote strength from voters in $N_{lo}$ must be directed to members in $A_{lo}$, and we get the inequality
+$$\sum_{n\in N_{lo}} s_n \leq \sum_{c\in A_{lo}} \supp_w(c) < |A_{lo}|\cdot at^*.$$
 
-Next, by reducing some components in vectors $w$ and $w^*$, we can assume without loss of generality that $\supp_{w^*}(c)=t^*$ if $c\in A^*$, zero otherwise, and $\supp_{w}(c)=a t^*$ if $c\in A^*\cap A'$, zero otherwise; we call this the ``wlog assumption'', and notice that $w$ and $w^*$ are not necessarily balanced anymore, but are still feasible.
+Next, by decreasing some components in vectors $w$ and $w^*$, we can assume without loss of generality that $\supp_{w^*}(c)=t^*$ if $c\in A^*$, zero otherwise, and $\supp_{w}(c)=a t^*$ if $c\in A^*\cap A_{hi}$, zero otherwise; we call this the ``wlog assumption'', and notice that $w$ and $w^*$ are not necessarily balanced anymore, but are still feasible.
 Consider flow $f:=w^* - w\in\mathbb{R}^E$ over the network induced by $N\cup A^*$. 
-We partition this network into five subsets: $N'$, $N\setminus N'$, $A^*\cap A'$, $A^*\setminus A$ and $A^*\cap A\setminus A'$; see Figure~\ref{fig:sets}.  
+We partition the vertices of this network into five subsets: $N_{hi}$, $N_{lo}$, $A^*\setminus A$, $A^* \cap A_{hi}$ and $A^*\cap A_{lo}$; see Figure~\ref{fig:sets}.  
 It is easy to see that 
 \begin{itemize}
-\item $A^*\cap A'$ has a net excess $e_f(A^*\cap A')=-|A^*\cap A'|\cdot (1-a)t^*$,
-\item $N$ has a net excess $e_f(N)=|A^*|\cdot t^* - |A^*\cap A'|\cdot a t^*$, and
-\item by the last inequality, $N\setminus N'$ has a net excess $e_f(N\setminus N')\leq \sum_{n\in N\setminus N'} s_n < |A^*\setminus A'|\cdot at^*$.
+\item $A^*\cap A_{hi}$ has a net excess $e_f(A^*\cap A_{hi})=-|A^*\cap A_{hi}|\cdot (1-a)t^*$,
+\item $N$ has a net excess $e_f(N)=|A^*|\cdot t^* - |A^*\cap A_{hi}|\cdot a t^*$, and
+\item $N_{lo}$ has a net excess $e_f(N_{lo})\leq \sum_{n\in N_{lo}} s_n < |A_{lo}|\cdot at^*$.
 \end{itemize} 
 
 \begin{figure}[htb]
   \centering
 	\includegraphics[width=\linewidth,natwidth=360,natheight=300]{figure-Na.pdf}
-  \caption{Flow $f'$ starts in $N'\cup (A^*\cap A')$ and must end in $A^*\setminus A$, because it cannot visit $N\setminus N'$ nor $A^*\cap A\setminus A'$.}
+  \caption{Flow $f'$ starts in $N_{hi}$ and must end in $A^*\setminus A$, because it cannot visit $N_{lo}$ nor $A^*\cap A_{lo}$.}
   \label{fig:sets}
 \end{figure}
 
 By Theorem~\ref{thm:decomposition}, we can decompose flow $f$ into circulations and simple paths, where each path is a sub-flow of $f$. 
-Let $f'$ be the sum of all paths that start inside subset $N'\cup(A^*\cap A')$ and end outside of it. 
+Let $f'$ be the sum of all paths that start inside subset $N_{hi}\cup(A^*\cap A_{hi})$ and end outside of it. 
 It follows that $f'$ is also a sub-flow of $f$, and the amount of flow it extracts from this subset is at least
 \begin{align*}
-e_f & (N'\cup(A^*\cap A')) \\
-=& e_f(N) - e_f(N\setminus N') + e_f(A^*\cap A') \\
->& |A^*|\cdot t^* - |A^*\cap A'|\cdot a t^* - |A^*\setminus A'|\cdot at^* - |A^*\cap A'|\cdot (1-a)t^* \\
-=& |A^*\setminus A'|\cdot (1-a)t^*.
+e_f & (N_{hi}\cup(A^*\cap A_{hi})) \\
+=& e_f(N) - e_f(N_{lo}) + e_f(A^*\cap A_{hi}) \\
+>& |A^*|\cdot t^* - |A^*\cap A_{hi}|\cdot a t^* - |A_{lo}|\cdot at^* - |A^*\cap A_{hi}|\cdot (1-a)t^* \\
+=& |A^*\setminus A_{hi}|\cdot t^* - |A_{lo}|\cdot at^* \\
+\geq & |A^* \setminus A_{hi}|\cdot (1-a)t^* \geq |A^* \setminus A|\cdot (1-a)t^*.
 \end{align*}
 Now, where does all this flow go?
 
-\emph{Claim B.} Every path in $f'$ must end in $A^*\setminus A$. 
-This is because every such path starts in either $N'$ or $A^*\cap A'$, vertices in $N'$ have no neighbors in $A\setminus A'$ (by definitions of $N'$ and $A'$), and furthermore there is no flow possible from $(A^*\cap A')\cup (A^*\setminus A)$ to $N\setminus N'$ in $f=w^*-w$ because $w$ has no flow from $N\setminus N'$ toward $A'$ (by Claim A) nor toward $A^*\setminus A$ (by the wlog assumption); see Figure~\ref{fig:sets}. 
+\emph{Claim B.} Every path in $f'$ must start in $N_{hi}$ and end in $A^*\setminus A$. 
+Indeed, it must start in $N_{hi}$ because each vertex in $A*\cap A_{hi}$ has negative excess. 
+Furthermore, there are no edges between $N_{hi}$ and $A^*\cap A_{lo}$ (by definition of $N_{hi}$), and there is no flow possible from $(A^*\cap A_{hi})\cup (A^*\setminus A)$ to $N_{lo}$ in $f=w^*-w$ because $w$ has no flow from $N_{lo}$ toward $A_{hi}$ (by Claim A) nor toward $A^*\setminus A$ (by the wlog assumption); see Figure~\ref{fig:sets}. 
+This shows that paths in $f'$ cannot visit any vertex in $N_{lo}$ or $A^*\cap A_{lo}$, so they must end in $A^*\setminus A$.
 
-Therefore, the paths in $f'$ carry a flow of at least $|A^* \setminus A'|\cdot (1-a)t^*$ toward $A^*\setminus A$. 
-Finally, for each such path, the last edge goes from $N'$ to $A^*\setminus A$, so it originates in $N(a)$. 
+Therefore, paths in $f'$ carry a flow of at least $|A^* \setminus A|\cdot (1-a)t^*$ toward $A^*\setminus A$. 
+Finally, for each such path, the last edge goes from $N_{hi}$ to $A^*\setminus A$, so it originates in $N(a)$. 
 This proves that $\sum_{n\in N(a)} s_n> |A^* \setminus A|\cdot (1-a) t^*$, which is the third property.
 \end{proof}

@@ -41,7 +41,7 @@ For any $\eps>0$ and a feasible full solution $(A,w)$, let $(A',w')$ be the outp
 \end{theorem}
 
 This proves Theorem~\ref{thm:intro3}. 
-Notice that point~\ref{item:iterations} establishes that the algorithm above can be executed as a post-computation of any constant-factor approximation algorithm for maximin support in time $O(|E|\cdot k\log k)$. In particular, this complexity is lower than that of each constant-factor approximations presented in this paper.
+Notice that point~\ref{item:iterations} establishes that the algorithm above can be executed as a post-computation of any constant-factor approximation algorithm for maximin support in time $O(|E|\cdot k\log k)$. In particular, this complexity is lower than that of each constant-factor approximation presented in this paper.
 By point~\ref{item:infinity}, the algorithm can be sped up if we only care about standard PJR, or can run further iterations to converge to a locally optimal solution and achieve a stronger parametric PJR guarantee. 
 
 \begin{proof}
@@ -53,7 +53,7 @@ Hence, it only remains to prove the inequality in point~\ref{item:support}, as w
 
 In what follows we use $i$ as a superscript to indicate the value of the different variables at the beginning of the $i$-th iteration. 
  Let $t^i_{\st}:=\min\{(1+\eps)\cdot t^i_{min}, \hat{t}\}$, so that the stopping condition reads $t^i_{\max} \stackrel{?}{<} t^i_{\st}$. 
-Notice that $t^i_{\min}\leq \hat{t}$ always holds by definition of $\hat{t}$ and feasibility of $w^i$, so $t^i_{\min}\leq t^i_{\st}$ as well. 
+Notice that $t^i_{\min}\leq \hat{t}$ always holds by definition of $\hat{t}$ and feasibility of $w^i$, so $t^i_{\min}\leq t^i_{\st}$ holds as well. 
  
 We prove the inequality in point~\ref{item:support} by induction on $i$. 
 Consider an iteration $i\geq 0$ in which the stopping condition does not hold, so $t^i_{\max} \geq t^i_{\st}\geq t^i_{\min}$. 

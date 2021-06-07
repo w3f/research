@@ -1,7 +1,7 @@
 
 \section{Delayed proofs}\label{s:proofs}
 
-In this section we make frequent references to the definitions and results related to network flow that we present in Appendix~\ref{s:flow}. We start with the following auxiliary result which will be used by some the proofs in this section.
+In this section we make frequent references to the definitions and results related to network flow that we present in Appendix~\ref{s:flow}. We start with the following auxiliary result which will be used by some of the proofs in this section.
 
 \begin{lemma}\label{lem:path}
 Let $w\in \R^E$ be a feasible weight vector for a given instance, let $c,c'\in C$ be two candidates with $\supp_w(c)<\supp_w(c')$, and suppose there is a simple path $p\in\mathbb{R}^E$ that carries non-zero flow from $c'$ to $c$. If $w+p$ is non-negative and feasible, then $w$ is not balanced for any committee $A$ that contains $c$.
@@ -44,7 +44,7 @@ Consider the flow $f:=w'-w\in\mathbb{R}^E$.
 By the last inequality, set $A_r:=\{c_1, \cdots, c_r\}\subseteq A$ has a negative net excess, so by Theorem~\ref{thm:decomposition} $f$ must have a sub-flow $p$ that is a simple path starting in a vertex outside $A_r$ with positive excess and ending in a vertex $c_i$ in $A_r$ with negative excess, for some $1\leq i\leq r$. 
 Now, path $p$ must also start inside committee $A$, as otherwise vector $w+p$ is feasible by Lemma~\ref{lem:subflow} and provides a larger sum of member supports than $w$, contradicting the fact that the latter is balanced for $A$. 
 Hence, $p$ starts in an vertex $c_j$ in $A$ for some $r<j\leq |A|$. 
-Moreover, by our choice of member enumeration it must be the case that $\supp_w(c_i)<\supp_w(c_j)$, because if the inequality was tight we would have $\supp_{w'}(c_i)<\supp_{w'}(c_j)$, which implies that $c_i$ has a larger than $c_j$ relative to $f$, $e_f(c_i)> e_f(c_j)$, contradicting the fact that $c_i$ has negative excess and $c_j$ has positive excess.
+Moreover, by our choice of member enumeration it must be the case that $\supp_w(c_i)<\supp_w(c_j)$, because if the inequality was tight we would have $\supp_{w'}(c_i)<\supp_{w'}(c_j)$, which implies that $c_i$ has a larger excess than $c_j$, $e_f(c_i)> e_f(c_j)$, contradicting the fact that $c_i$ has negative excess and $c_j$ has positive excess.
 Finally, by Lemma~\ref{lem:path}, $w$ is not balanced for $A$ (nor for any committee that contains $c_i$), and we reach a contradiction. 
 
 The second statement follows directly from the fact that $w$ maximizes the sum of member supports, and thus all of the aggregate vote strength of represented voters (i.e., voters in $\cup_{c\in A} N_c$) must be directed to members of $A$. 
@@ -59,7 +59,7 @@ Let $w, w'\in\R^E$ be two such weight vectors. It easily follows from feasibilit
 $$\sum_{c\in A} \supp_w(c) = \sum_{c\in A} \supp_{w'}(c) =\sum_{n\in \cup_{c\in A} N_c} s_n.$$
 % 
 Now, assume by contradiction and without loss of generality that there is a candidate $c\in A$ for which $\supp_{w}(c)<\supp_{w'}(c)$, and consider the flow $f:=w'-w$. 
-Clearly, all vertices in $N$ and in $C\setminus A$ have zero excess relative to $f$, while $c$ have negative excess. 
+Clearly, all vertices in $N$ and in $C\setminus A$ have zero excess relative to $f$, while $c$ has negative excess. 
 By Theorem~\ref{thm:decomposition}, there is a simple path $p$ ending in $c$ and starting in a vertex with positive excess; 
 moreover, $p$ is a sub-flow of $f$, which implies that this starting vertex must be in $A$, and in fact all of the candidates visited by $p$ must be in $A$ as well.  
 
@@ -74,18 +74,18 @@ Properties 2 and 3 can clearly be tested in time $O(|E|)$. This completes the pr
 
 
 \begin{proof}[Proof of Theorem~\ref{thm:equivalence}]
-Let $A'\subseteq A$ be the non-empty subset that minimizes the expression $\frac{1}{|A'|} \sum_{n\in \cup_{c\in A'} N_c} s_n$. Hence, 
+For a fixed committee $A$, let $w$ be a feasible edge weight vector that maximizes $\supp_w(A)$, and let $A'\subseteq A$ be the non-empty subset that minimizes the expression $\frac{1}{|A'|} \sum_{n\in \cup_{c\in A'} N_c} s_n$. Then, 
 \begin{align*}
     \supp_w(A) &\leq \supp_w(A') \\
 		& \leq \frac{1}{|A'|} \sum_{c\in A'} \supp_w(c) = \frac{1}{|A'|} \sum_{c\in A'} \sum_{n\in N_c} w_{nc} \\ 
-    & \leq \frac{1}{|A'|}  \sum_{n\in \cup_{c\in A'} N_c} \quad \sum_{c\in C_n} w_{nc} \\
+    & = \frac{1}{|A'|}  \sum_{n\in \cup_{c\in A'} N_c} \quad \sum_{c\in C_n\cap A'} w_{nc} \\
     & \leq \frac{1}{|A'|} \sum_{n\in \cup_{c\in A'} N_c} s_n,
 \end{align*}
 %
-where the second inequality follows by an averaging argument, and the last inequality follows by of feasibility. 
+where the second inequality follows by an averaging argument, and the last inequality follows by feasibility. 
 This proves one inequality of the claim. 
 
-To prove the opposite inequality, we use the fact that $(A,w)$ is balanced. 
+To prove the opposite inequality, we assume for convenience and without loss of generality that $w$ is balanced for $A$. 
 Let $A''\subseteq A$ be the set of committee members with least support, i.e., those $c\in A$ with $\supp_w(c)=\supp_w(A)$. Then,
 \begin{align*}
     \supp_w(A) &= \supp_w(A'') = \frac{1}{|A''|} \sum_{c\in A''} \supp_w(c) \\

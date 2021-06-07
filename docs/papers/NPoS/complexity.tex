@@ -4,15 +4,14 @@ Consider a multiwinner election instance $(G=(N\cup C, E), s, k)$ as defined in 
 In this section we present a computational complexity analysis of the maximin support problem, including new results both on approximability and on hardness. 
 
 We start by establishing that our security objective \eqref{eq:security} is indeed equivalent to maximin support.
-For this we use the fact that, by property 1 in Lemma~\ref{lem:balanced}, in maximin support we can reduce the solution space to only balanced solutions without loss of generality. 
 The proof of the next theorem is delayed to Appendix~\ref{s:proofs}.
 
 \begin{theorem} \label{thm:equivalence} 
-If $(A,w)$ is a balanced solution, then
-$$\supp_w(A) = \min_{\emptyset\neq A' \subseteq A} \frac{1}{|A'|} \sum_{n\in \cup_{c\in A'} N_c} s_n.$$
-Hence maximin support, the problem of maximizing the left-hand side over all balanced full solutions $(A,w)$, 
+For a fixed committee $A$, 
+$$\max_{\text{feasible } w} \ \supp_w(A) = \min_{A' \subseteq A, \ A'\neq \emptyset} \ \frac{1}{|A'|} \sum_{n\in \cup_{c\in A'} N_c} s_n.$$
+Hence maximin support, the problem of maximizing the left-hand side over all full committees $A$,  
 is equivalent to that of maximizing the right-hand side over all full committees $A$. 
-Furthermore, this equivalence preserves approximations, as any balanced solution $(A,w)$ provides the same objective value to both problems.
+Furthermore, this equivalence preserves approximations, as any committee provides the same objective value to both problems.
 \end{theorem}
 
 Next, we compare how some of the most relevant efficient election rules perform in terms of security, and highlight the effectiveness of the maximin support objective for preventing overrepresentation. 
@@ -22,7 +21,7 @@ For $1\leq i\leq k$, voter $n_i$ supports the candidate set $\{c_1, \cdots, c_i\
 We assume that an adversary controls the last voter and the last $k$ candidates, and will use any elected representatives to attempt to disrupt the duties of the committee. 
 How many representatives will it get? 
 
-\begin{figure}[tb]
+\begin{figure}[htb]
   \centering
 	\includegraphics[width={0.45\linewidth},natwidth=180,natheight=220]{figure-example.pdf}
   \caption{In this example, the last voter and the last $k$ candidates are considered adversarial.}
@@ -47,7 +46,7 @@ The maximin support problem was introduced in~\cite{sanchez2016maximin}, where i
 For any constant $\eps>0$, it is NP-hard to approximate the unweighted maximin support problem within a factor $\alpha=1.2-\eps$.
 \end{theorem}
 
-\begin{figure}[tb]
+\begin{figure}[htb]
   \centering
 	\includegraphics[width=\linewidth,natwidth=400,natheight=185]{figure-hardness.pdf}
   \caption{Reducing an instance of the $k$-independent set problem on cubic graphs to one of the maximin support problem. Set $N$ is represented by triangles and $C$ by circles.}
@@ -62,13 +61,13 @@ Notice that in this instance, each candidate is approved by exactly 3 voters, an
 Hence, if there is an independent set $I$ of size $k$ in $G'$, the same committee of validators in $G$ can be assigned the full vote of each of its three approving voters, so that each receives a support of 3 units, which is clearly maximal. On the other hand, if there is no independent set of size $k$ in $G'$, then for any solution $(A,w)$ of the maximin support instance there must be two committee members $c,c'\in A$ who have an approving voter in common. These two members have at most five voters approving either of them, so one of them must have a support of at most $5/2$. This shows that $\supp_w(A)\leq 5/2$ for any feasible solution $(A,w)$. Finally, the ratio between the objective values $3$ and $5/2$ is $6/5=1.2>\alpha$, so the assumed $\alpha$-approximation algorithm for maximin support would allow us to distinguish between these two cases and decide whether such an independent set $I$ exists. This completes the proof.
 \end{proof}
 
+
 In contrast, we show that the recently proposed $\MMS$ rule~\cite{sanchez2016maximin}, known to achieve the PJR property, also provides a 2-approximation for maximin support. 
 In simple terms, $\MMS$ (Algorithm~\ref{alg:mms}) starts with an empty committee $A$ and iteratively adds candidates to it; in each iteration, it computes a balanced weight vector for each possible augmented committee that can be obtained by adding a candidate, and then inserts the candidate whose corresponding augmented committee has the highest least member support.
 %
 We will need the following key technical result, whose proof uses the flow decomposition theorem and is delayed to Appendix~\ref{s:flow}. 
 
-
-\begin{algorithm}[tb]
+\begin{algorithm}[htb]
 \SetAlgoLined
 \KwData{Bipartite approval graph $G=(N\cup C, E)$, vector $s$ of vote strengths, target committee size $k$.}
 Initialize $A=\emptyset$\ and $w=0\in \R^E$\;
@@ -83,10 +82,8 @@ Update $A\leftarrow A+c_i$ and $w\leftarrow w_{c_i}$\;
 \caption{$\MMS$, proposed in~\cite{sanchez2016maximin}}
 \label{alg:mms}
 \end{algorithm}
-\footnotetext{The original algorithm in~\cite{sanchez2016maximin} does not compute balanced weight vectors, but any vector $w$ that maximizes $\supp_w(A)$, which is indeed sufficient for our analysis. 
-However, we propose the use of balanced vectors here as they achieve further desirable properties (Lemma \ref{lem:balanced} and Theorem \ref{thm:equivalence}) and because adding such requirement does not seem to cause any additional overhead in complexity.}
-
-
+\footnotetext{The original algorithm in~\cite{sanchez2016maximin} does not compute a balanced weight vector, but any vector $w$ that maximizes $\supp_w(A)$, which is sufficient for our analysis. 
+We consider balanced vectors here for ease of comparison with other algorithms in the paper and because this requirement does not seem to cause any increase in complexity.}
 
 \begin{lemma}\label{lem:2sols}
 If $(A^*, w^*)$ is an optimal solution to maximin support, and $(A,w)$ is a partial solution with $|A|\leq k$ and $A\neq A^*$, there is a candidate $c'\in A^*\setminus A$ and feasible solution $(A+c', w')$ such that 

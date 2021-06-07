@@ -58,8 +58,8 @@ In the next lemma, whose proof is delayed to Appendix~\ref{s:proofs}, we establi
 Let $(A,w)$ be a balanced, possibly partial solution. Then,
 \begin{enumerate}
     \item vector $w$ simultaneously maximizes, for each $1\leq r \leq |A|$, the quantity $\min_{A'\subseteq A, |A'|=r} \ \sum_{c\in A'} \supp_{w'}(c)$ over all feasible weight vectors $w'\in\R^E$; 
-		\item for each $n\in \cup_{c\in A} N_c$, it holds that $\sum_{c\in A\cap C_n} w_{nc}=s_n$; and
-    \item for each $n\in \cup_{c\in A} N_c$ and each candidate $c\in A\cap C_n$ with $w_{nc} > 0$, it holds that $\supp_w(c)=\supp_w(A\cap C_n)$. 
+		\item for each $n\in N$, $\sum_{c\in A\cap C_n} w_{nc}=s_n$ if $A\cap C_n\neq \emptyset$; and
+    \item for each $n\in N$ and each candidate $c\in A\cap C_n$, if $w_{nc} > 0$ then $\supp_w(c)=\supp_w(A\cap C_n)$. 
 \end{enumerate}
 Furthermore, a feasible solution $(A,w)$ is balanced if and only if it observes properties 2 and 3 above, which can be tested in $O(|E|)$ time.
 \end{lemma}
@@ -67,7 +67,7 @@ Furthermore, a feasible solution $(A,w)$ is balanced if and only if it observes 
 Notice that by setting $r=1$ in the first property, we obtain that balanced vector $w$ indeed maximizes the least member support $\supp_w(A)$ over all feasible weight vectors. 
 More generally, for each threshold $r$ the quantity defined in the first property defines a lower bound on the cost for an adversary to get $r$ representatives in the validator committee in NPoS, so maximizing these objectives simultaneously for all thresholds $r$ aligns with our security objective as it makes any attack as costly as possible. 
 The second point follows from the fact that the sum of member supports is maximal, so all the available vote strength must be distributed among candidates in $A$. 
-The third point is a consequence of having the supports as evenly distributed as possible within $A$: if $c$ and $c'$ are two candidates in $A\cap C_n$ and $c$ has a higher support than $c'$, then none of $n$'s vote strength may go to $c$, as all of it should be assigned to the members with least support $\supp_w(A\cap C_n)$ in $A\cap C_n$. 
+The third point is a consequence of having the supports as evenly distributed as possible within $A$: for each voter $n$, all of its vote strength should be assigned exclusively to the candidates in $A\cap C_n$ with least support $\supp_w(A\cap C_n)$. 
 
 In Appendix~\ref{s:balanced} we present algorithms for computing a balanced weight vector for a given committee $A$. 
 In particular, we prove that one can be found in time $O(|E|\cdot k + k^3)$ using parametric flow techniques, which to the best of our knowledge is the fastest algorithm in the literature even for the problem of maximizing $\supp_w(A)$.

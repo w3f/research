@@ -11,7 +11,7 @@ We start with a brief analysis of the approaches taken in $\MMS$ and $\phragmen$
 Both are iterative greedy algorithms that start with an empty committee and add to it a new candidate over $k$ iterations, following some specific heuristic for candidate selection.
 For a given partial solution, $\MMS$ computes a balanced edge weight vector for each possible augmented committee resulting from adding one candidate, and keeps the one whose least support is largest. 
 Naturally, such heuristic offers robust guarantees for maximin support but is slow as computing balanced vectors is costly. 
-$\phragmen$ can be thought of as following the same approach, except that it forgoes balancing vectors exactly. Instead, starting from the weight vector of the current committee, it rebalances it only approximately when a candidate is inserted, by performing local modifications in the neighborhood of the new candidate. 
+A similar approach is followed by $\phragmen$, except that it forgoes balancing vectors exactly. Instead, starting from the weight vector of the current committee, it rebalances it only approximately when a candidate is inserted, by performing local modifications in the neighborhood of the new candidate. 
 Finally, $\phragmms$ follows the strategy of $\phragmen$ but uses a more involved heuristic for solution rebalancing, with a corresponding increase in runtime. 
 
 In the algorithms described in this section we assume that there is a known background instance $(G=(N\cup C, E), s, k)$ that does not need to be passed as input. Rather, the input is a partial solution $(A,w)$ with $|A|\leq k$. We also assume that the current list of committee member supports $(\supp_w(c))_{c\in A}$ is implicitly passed by reference and updated in every algorithm.
@@ -32,7 +32,7 @@ and for each unelected candidate $c'\in C\setminus A$ and threshold $t\geq 0$ we
 %
 then we can add $c'$ to the current partial solution with a support of $\prescore_{(A,w)}(c',t)$, while not making any other member's support decrease below threshold $t$. The resulting weight modification rule is formalized in Algorithm~\ref{alg:ins}. The next lemma easily follows from the previous exposition and its proof is skipped.
 
-\begin{algorithm}[tb]
+\begin{algorithm}[htb]
 \SetAlgoLined
 \KwData{Partial feasible solution $(A,w)$, candidate to insert $c'\in C\setminus A$, threshold $t\geq 0$.}
 Initialize the new weight vector $w'\leftarrow w$\;
@@ -59,14 +59,14 @@ such that $\supp_{w'}(c)\geq \min\{\supp_w(c),t\}$ for each member $c\in A$, and
 
 Whenever partial solution $(A,w)$ is clear from context, we drop the subscript from our notation of slack and parameterized score. %
 %
-Parameter $t$ provides a trade-off between the amount of support we provide to the new candidate $c'$ and the support we leave for the current members. We balance this trade-off by selecting the largest possible $t$ for which the inequality $\prescore(c',t)\geq t$ holds.
+Parameter $t$ provides a trade-off between the amount of support we direct to the new candidate $c'$ and the support we leave for the current members. We balance this trade-off by selecting the largest possible $t$ for which the inequality $\prescore(c',t)\geq t$ holds.
 Thus, for each unelected candidate $c'\in C\setminus A$ we define its \emph{score} as 
 %
 \begin{align}
     \score_{(A,w)}(c'):=\max\{t\geq 0: \ \prescore_{(A,w)}(c',t)\geq t\},
 \end{align}
 %
-where again we drop the subscript if $(A,w)$ is clear from context. Our heuristic now becomes apparent.
+where once again we drop the subscript if $(A,w)$ is clear from context. Our heuristic now becomes apparent.
 
 \begin{heuristic}
 For a partial solution $(A,w)$, find a candidate $c_{\max}\in C\setminus A$ with highest score $t_{\max}=\max_{c'\in C\setminus A} \score(c')$, and execute $\ins(A,w,c_{\max},t_{\max})$ so that for the new solution $(A+c_{\max},w')$: 
@@ -81,7 +81,7 @@ In Appendix~\ref{s:algorithms} we describe efficient algorithms to find the cand
 
 \begin{theorem}\label{thm:runtimes}
 For a partial solution $(A,w)$ and threshold $t\geq 0$, there is an algorithm $\maxprescore(A,w,t)$ that runs in time $O(|E|)$ and returns a tuple $(c_t,p_t)$ such that $c_t\in C\setminus A$ and $p_t=\prescore(c_t,t)=\max_{c'\in C\setminus A} \prescore(c',t)$, 
-and another algorithm $\maxscore(A,w)$ that runs in time $O(|E|\cdot \log k)$ and returns a tuple $(c_{\max}, t_{\max})$ such that $t_{\max}=\score(c_{\max})=\max_{c'\in C\setminus A} \score(c')$.
+and another algorithm $\maxscore(A,w)$ that runs in time $O(|E|\cdot \log k)$ and returns a tuple $(c_{\max}, t_{\max})$ such that $c_{\max}\in C\setminus A$ and $t_{\max}=\score(c_{\max})=\max_{c'\in C\setminus A} \score(c')$.
 \end{theorem}
 
 Our heuristic for candidate selection, which finds a candidate with highest score and adds it to the current partial solution (Algorithm $\maxscore$ followed by $\ins$) executes in time $O(|E|\cdot \log k)$. 

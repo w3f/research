@@ -96,7 +96,7 @@ where we used the definitions of parameterized score and slack. Solving for $r_{
     {1+\sum_{n\in N_{c'}} \sum_{c\in A\cap C_n: \ \supp_w(c)\geq x} \frac{w_{nc}}{\supp_w(c)}}.
 \end{align}
 
-Now we make a couple of remarks about these linearization roots. 
+We make a couple of remarks about these linearization roots. 
 First, since $f_{c'}(t)$ is a convex decreasing function, any linearization will lie to its left, and in particular any linearization root will lie to the left of its own root, i.e., 
 $$r_{c', x}\leq \score(c') \quad \text{for each } c'\in C\setminus A \text{ and each } x\geq 0.$$
 
@@ -184,7 +184,7 @@ In contrast, in the same context, we claim that the $\phragmen$ heuristic can be
 
 We now prove our claim. Suppose we use the edge multiplication factor above, and consequently define the voter's slack as
 \begin{align}\label{eq:alt-slack}
-\slack'(n,t):=s_n - \frac{t}{\supp_w(A\cap C_n)}\sum_{c\in A\cap C_n} w_{nc},
+\slack'(n,t):=s_n - \frac{t}{\supp_w(A\cap C_n)}\sum_{c\in A\cap C_n} w_{nc}.
 \end{align}
 %
 If we define parameterized scores and scores as before, we can retrieve the new score value for candidate $c'$ by finding the root of the function in equation~\eqref{eq:scorefunction}, which is now linear. 
@@ -197,11 +197,11 @@ With a similar computation as the one we did for equation~\eqref{eq:linearized},
 %
 where the inequality follows by feasibility (inequality~\ref{eq:feasible}), and is tight if we assume that the current partial solution $(A,w)$ uses up all the vote strength of voter $n$ whenever $A\cap C_n$ is non-empty. If $A\cap C_n=\emptyset$, then $\supp_w(A\cap C_n)=\infty$ by convention and the corresponding term vanishes in the denominator. 
 %
-This new score, to be maximizes among all unelected candidates, corresponds precisely to the inverse of the \emph{candidate load} being minimized in the $\phragmen$ heuristic; see Algorithm~\ref{alg:phragmen}. The corresponding \emph{voter load} is in turn set to the inverse of $\supp_w(A\cap C_n)$, which the algorithm updates with the assumption that the new candidate $c'$ always becomes the member with least support. This completes the proof of the claim.
+This new score, to be maximized among all unelected candidates, corresponds precisely to the inverse of the \emph{candidate load} being minimized in the $\phragmen$ heuristic; see Algorithm~\ref{alg:phragmen}. The corresponding \emph{voter load} is in turn set to the inverse of $\supp_w(A\cap C_n)$, which the algorithm updates with the assumption that the new candidate $c'$ always becomes the member with least support. This completes the proof of the claim.
 
 In view of this last result, we can say that our new heuristic provides two main advantages with respect to $\phragmen$: 
 First, by using edge weights explicitly, the algorithm handles a more robust notion of loads. 
 This enables $\phragmms$ to deal with arbitrary input solutions, a fact that we exploit in Appendix~\ref{s:LS}, and in contrast to $\phragmen$ which needs to make assumptions on the structure of the current solution at the beginning of each iteration.  
-Second, our heuristic uses a better rebalancing method that provides more slack to voter $v$ for the same threshold $t$. Indeed, identity $\eqref{eq:slack}$ is at least as large as identity $\ref{eq:alt-slack}$, and usually larger. Hence, new candidates are granted higher scores and are added to the committee with higher supports.
+Second, our heuristic uses a better rebalancing method that provides more slack to voter $v$ for the same threshold $t$. Indeed, identity $\eqref{eq:slack}$ is at least as large as identity $\eqref{eq:alt-slack}$, and usually larger. Hence, new candidates are granted higher scores and are added to the committee with higher supports.
 
 

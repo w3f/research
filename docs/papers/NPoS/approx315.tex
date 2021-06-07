@@ -2,7 +2,7 @@
 
 We proved in Section~\ref{s:complexity} the existence of a 2-approximation algorithm for maximin support that runs in time $O(\bal\cdot |C|\cdot k)$ or $O(\bal\cdot |C|)$ (Theorems \ref{thm:mms} and \ref{thm:2eps} respectively). 
 We use now our heuristic to develop $\phragmms$, a $3.15$-approximation algorithm that runs in time $O(\bal\cdot k)$, and satisfies PJR as well. 
-We highlight that this is the fastest known election rule to achieve a constant-factor guarantee for maximin support, and that gains in speed are of paramount importance for our application, where there are hundreds of candidates and a large number of voters.
+We highlight that this is the fastest known election rule to achieve a constant-factor guarantee for maximin support, and that gains in speed are of paramount importance for our blockchain application, where there are hundreds of candidates and a large number of voters.
 
 $\phragmms$ (Algorithm~\ref{alg:balanced}) is an iterative greedy algorithm that starts with an empty committee and alternates between inserting a new candidate with the new heuristic, and fully rebalancing the weight vector, i.e., replacing it with a balanced one. This constitutes a middle ground between the approach in $\phragmen$ where a balanced vector is never computed, and the approach in $\MMS$ where $O(|C|)$ balanced vectors are computed per iteration. 
 We formalize the procedure below. Notice that running the Insert procedure (Algorithm~\ref{alg:ins}) before rebalancing is optional, but the step simplifies the analysis and may provide a good starting point to the balancing algorithm.
@@ -41,7 +41,7 @@ If $\supp_w(A)\geq \max_{c'\in C\setminus A} \score(c')$ holds for a full soluti
 \end{lemma}
 
 Lemma \ref{lem:2balanced} formalizes the intuition that as more candidates are added to a partial solution that is kept balanced, the scores of unelected candidates may only decrease, never increase; its proof is delayed to Appendix~\ref{s:proofs}.
-Lemma~\ref{lem:localopt} establishes the key connection that exists between our definition of score -- and by extension our heuristic -- and the PJR property, and its proof is delayed to Section~\ref{s:local}. 
+Lemma~\ref{lem:localopt} establishes the key connection that exists between our definition of score -- and by extension our heuristic -- and the PJR property, and its proof is delayed to the end of Section~\ref{s:local}. 
 We prove now that the output of $\phragmms$ satisfies the condition in Lemma~\ref{lem:localopt}, and hence satisfies PJR.
 
 \begin{lemma}\label{lem:315localoptimality}
@@ -70,10 +70,10 @@ More specifically, there must be a subset of voters with large aggregate vote st
 \begin{lemma}\label{lem:N_a}
 If $(A^*, w^*)$ is an optimal solution to the maximin support instance with $t^*=\supp_{w^*}(A^*)$, and $(A,w)$ is a balanced solution with $|A|\leq k$ and $A\neq A^*$, then for each $0\leq a\leq 1$ there is a subset $N(a)\subseteq N$ of voters such that 
 \begin{enumerate}
-	\item each voter $n\in N(a)$ has a neighbor in $A^*\setminus A$;
+	\item each voter $n\in N(a)$ approves of a candidate in $A^*\setminus A$;
 	\item for each voter $n\in N(a)$, we have $\supp_w(A\cap C_n)\geq at^*$;
 	\item $\sum_{n\in N(a)} s_n \geq |A^* \setminus A|\cdot (1-a) t^*$; and
-	\item for any $b$ with $a\leq b\leq 1$ we have that $N(b)\subseteq N(a)$, and for each $n\in N(a)$ we have that $n$ is also in $N(b)$ if and only if property 2 above holds for $n$ with parameter $a$ replaced by $b$.
+	\item for any $b$ with $a\leq b\leq 1$ we have that $N(b)\subseteq N(a)$, and a voter $n\in N(a)$ belongs to $N(b)$ if and only if $n$ observes property 2 above with parameter $a$ replaced by $b$.
 \end{enumerate}
 \end{lemma}
 
