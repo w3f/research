@@ -1,127 +1,150 @@
 ====================================================================
 
-**Authors**: Jonas Gehrlein
+**Authors**: Jonas Gehrlein, Samuel Häfner
 
-**Last updated**: 14.01.2021
+**Last updated**: 09.06.2021
 
 ====================================================================
 
 # Experimental Investigation of Parachain Auctions
 
-# Introduction
+## Overview
+The goal of this project is to experimentally test the combinatorial candle auction as it is used in the Polkadot and Kusama protocol. In particular, we want to compare its outcome with those of more traditional, dynamic combinatorial auction formats employed today. 
 
-## Goals
-The goal of this project is to gain some concept of the expected bidding behavior of participants in the upcoming [parachain candle auctions](/polkadot/overview/3-parachain-allocation.md) on Kusama/Polkadot. Currently, the planned format can be described as a multi-object first-price candle auction, which in that form has never been analyzed theoretically or empirically in the literature.
+What sets the candle auction apart from other dynamic auctions is that it has a random ending time. Such a closing-rule is important for auctions run on blockchains, because it mitigates several practical problems that other, more common auction formats suffer from (cf. Häfner & Stewart, 2021, for an analysis of the sinlge-unit case). 
 
-We will conduct an experimental investigation, with a design which models the basic mechanisms of the auction. The implementation is off-chain and follows standard experimental economics procedures, but mimics the key features of the blockchain (i.e., six second blocks, (potentially) transaction costs). Insights from the experiment can be used to gain an understanding of the bidding behavior, learn how organize the UI and potentially improve the overall design before going live. Generally, the project has the following goals:
+The combinatorial candle auction has never been studied theoretically and empirically. Therefore, this project fills a gap in the literature. We hypothesize that the candle format is at par with, or even outperforms, dynamic combinatorial auctions that use specfic activity rules. Activity rules specify the feasible bids and close the auction when no more bids are entered in the system. Thus, they put pressure on the bidders to bid seriously early on. We expect a similar effect from the random ending time. In particular, we expect that the pressure to act induces - akin to activity rules - more efficient outcomes than in an auction with a simple hard-closing rule (i.e., a fixed ending time).
 
-1) Elicit and analyze the bidding behavior of the players and compare it to some theoretical benchmarks.
-   
-2) Develop and test a suitable UI, which can be migrated and used in the live auctions.
-   
-3) Test crucial variations to the baseline design and observe the influence on key metrics.
-   
-4) Provide this tool as learning/practicing device for participants who plan to participate at one of the upcoming auctions.
-
-## Why an experiment?
-* Generally, due to its complexity, theoretical predictions for a multi-object first-price candle auction are missing.
-* The literature has shown that first-price auctions can lead to inefficiencies and low revenues.
-* We can gather real behavioral data in a controlled environment.
-* We can make informed decisions which design elements to change (or leave) for the upcoming live implementation.
+We will conduct an experimental investigation with a design that mimics the basic mechanism of the Polkadot parachain auction. In particular, we conduct the experiment in a context where bidders can freely communicate and share their non-binding strategies before the auction. The implementation is off-chain and follows standard experimental economics procedures. Insights from the experiment can be used to gain an understanding of the bidding behavior and to compare efficiency across formats. 
 
 
-## Motivation and Background in the Literature
-Experiments can be used to give recommended course of action for real-world applications. One example is the 700 MHZ spectrum auction orchestrated by the Federal Communications Commission (FCC)). The FCC has "increasingly relied on laboratory experiments to evaluate the performance of alternative spectrum auctions" ([Brunner et al. (2010)](https://www.aeaweb.org/articles?id=10.1257/mic.2.1.39)) and even discarded one of their initial designs, because it was experimentally proven to perform worse than an alternative format. The FCC stresses the importance of experiments in their [public notice](http://fjallfoss.fcc.gov/edocs_public/attachmatch/DA-07-3415A1.pdf). The total sum of winning bids in auction 73 was [$19,592,420,000](https://www.fcc.gov/auction/73/factsheet) which stresses the impact of this experiment.
+## Dynamic Combinatorial Auctions
 
-Generally, the theoretical analyses of multi-object auction is scarce due to their complexity and therefore studies rely on empirical data from the field or the laboratory. Regarding [candle auctions](https://en.wikipedia.org/wiki/Candle_auction) scientific studies are also scarce. A noteworthy exception to that is the study of [Füllbrunn & Sadrieh 2012](https://onlinelibrary.wiley.com/doi/full/10.1111/j.1530-9134.2012.00329.x?casa_token=HwBec_2N52IAAAAA%3A0hM0WHPyE6HA03-74BNY6h-_x4dtLAi-zjmPtIxeqUC8jgt9XlMNRBKWY5Ma9erXOg4vudVWkHSKRg) who investigated a second-price single-unit candle auction and compared the results to other auction formats. They found, that after some learning periods, all formats performed equally well in terms of efficiency and revenue and that the candle mechanism successfully induces earlier truth-full bidding; a desired property in auction design.
+In this section, we first discuss how combinatorial auctions are currently used. Second, we describe the combinatorial candle auction as it used on Polkadot, explain why we use this format, and what we expect about its performance vis-a-vis more standard combinatorial auction formats. 
 
-# Experimental Design
-The following sections illustrate various details of the design and the procedure.
+### Currently used Combinatorial Auctions
+Historically, combinatorial auctions have emerged as successors of multi-unit auctions. Combinatorial auctions solve the so-called exposure problem from which multi-unit auctions suffer in the presence of complementarities (Porter and Smith, 2006; Cramton, 2013). In a multi-unit auction, the bidders compete for every unit separately. As a consequence, bidders aiming (and bidding) for a certain combination of items might suddenly find themselves in a situation of obtaining only a subset thereof, which has substantially lower value to them than the whole package. Combinatorial auctions allow bidders to place bids on packages directly and thus avoid this problem. That is, if you bid on a package then you either get the whole package, or nothing.
 
-## Model
-Following [Füllbrunn & Sadrieh 2012](https://onlinelibrary.wiley.com/doi/full/10.1111/j.1530-9134.2012.00329.x?casa_token=HwBec_2N52IAAAAA%3A0hM0WHPyE6HA03-74BNY6h-_x4dtLAi-zjmPtIxeqUC8jgt9XlMNRBKWY5Ma9erXOg4vudVWkHSKRg) the candle design can be described as an random termination auction in discrete time with a fixed number of $T$ bidding stages. In each stage $t$, every bidder has the opportunity to make the first bid or to raise an existing bid (improvement rule) on any of the available packages. The auction terminates after any bidding stage $t$ with probability $q_t\geq0$ and is characterized by an increasing termination probability, i.e., $q_t < q_{t+1}$ for all $t < T$ and $q_T=1$, that is, the auction terminates at $T$ the latest. We denote $\hat{t}$ as the trading period which was randomly determined to be decisive for the outcome of the auction.
+Today, combinatorial auctions are employed in many contexts. The most well known applications of combinatorial auctions are radio spectrum auctions (Porter and Smith, 2006; Cramton, 2013). Other applications include electricity (Meeus et al., 2009), bus routes, and industrial procurement (cf. Cramton et al., 2006, for an overview). 
 
-## Bundles
-There are 4 individual leasing periods available. Bidders are free to bid on any combination of those such that the resulting packages are of consecutive time. This leads to a total of 10 bundles. Those are:
+Many combinatorial auctions are dynamic. There are two distinct formats:
 
-| Period/Bundle 	| 1 	| 2 	| 3 	| 4 	| 5 	| 6 	| 7 	| 8 	| 9 	| 10 	|
-|-	|-	|-	|-	|-	|-	|-	|-	|-	|-	|-	|
-| 1 	| x 	| x 	| x 	| x 	|  	|  	|  	|  	|  	|  	|
-| 2 	|  	| x 	| x 	| x 	| x 	| x 	| x 	|  	|  	|  	|
-| 3 	|  	|  	| x 	| x 	|  	| x 	| x 	| x 	| x 	|  	|
-| 4 	|  	|  	|  	| x 	|  	|  	| x 	|  	| x 	| x 	|
+1. *Ascending format*: As long as the auction is open, bidders can submit increasing bids for the different packages (experimentally studied Bichler et al. 2017). 
+2. *Clock format*: The auctioneer raises the prices on the individual items or packages and in every round, the bidders have to submit their demand for the different packages. In some formats, bidders can submit last bids in one additional round of simultaneous bidding once the clock phase is over (initially suggested by Ausubel et al. 2006; further discussed in Cramton, 2013).
 
+For example, in the case of US radio spectrum auctions, simple, ascending multi-unit auctions were used first. Then, in 2006 and 2008 among others, the FCC allowed bidding on pre-defined packages of licences in an ascending format (Porter and Smith, 2006; Cramton, 2013). The switch to clock auctions occurred later on (Levin and Skrzypacz, 2016).
 
-## Bidders
-We assume to have two types of bidders (i.e., projects), which are defined by a different distribution function of private values. Intuitively, the role of bidder, $B_L$ can be regarded as larger scale project, which has significant funding but needs multiple leasing periods to operate. In contrast to that, the other role, $B_S$, models a smaller project with less capital but is interested in any of the four available packages which contain only a single leasing period. 
+An important design feature of any dynamic combinatorial auction is its so-called activity rule. The primary role of the activity rules is to encourage serious bidding from the start and to prevent sniping or jump-bidding. 
+
+During the auction phase, the activity rule determines what kind of bids are feasible for any given bidder. In the case of the ascending bid format, the rule usually defines a minimum and a maximum increment that a new bid on a given item or package can have over an older bid (Scheffel et al., 2012). In the clock auction, the activity rule may prevent bidders from jumping onto a given package that they have ignored in earlier rounds; i.e., bidders may reduce demand but not increase it (Levin and Skrzypacz, 2016). In both the ascending auction and the clock auction, the rule sometimes also restricts bidders to bid on packages that are weakly smaller than the ones previously bid on (Cramton, 2013). 
+
+Second, the activity rule determines when the auctions end based on all previously entered bids. In the ascending auction, the activity rule closes the auction when no new bids are entered in a round (Scheffel et al., 2012). In the clock auction, the prices on the individual packages are (simultaneously) raised until there is no excess demand for a package and the auction concludes when there is no excess demand for any of the packages (Bichler et al., 2013).
 
 
-## Pricing and Allocation Rule
-In this specific design of multi-object auction, bidders who submitted the maximum bid for a package do not necessarily win that package. Rather, an algorithm maximizes the allocation of packages to bidders such that the sum of winning bids are maximized across the full leasing period. 
+
+### The Combinatorial Candle Auction
+In the combinatorial candle auction employed in Polkadot, bidders can submit bids in a pre-defined time window. Bids have to be increasinge but they are otherwise not restricted by an activitiy rule. After the window closes, the ending time is retroactively determined in a random fashion. 
+
+Candle auctions are believed to have originated in medieval Europe and they derive their name from the particular way they were conducted. The auctioneer lights a candle in sight of all the bidders and accepts bids until the candle goes out. The highest bidder at the time the candle goes out is declared the winner (cf., e.g., Hobson, 1971). Earliest accounts of this kind of auction date back to 14th century France where they were used to sell chattels and leases. In England, furs were sold in candle auction up to the 18th century (cf. Füllbrunn and Sadrieh, 2012, for more details and references). 
+
+Candle auctions have become rare today. A possible reason is that generic randomness is technically hard to achieve and that the commitment to a random device hard to verify. Recent cryptographic advances allow to circumvent these problems and put the candle auction back on the scene. For example, For example, Google held a patent on a dynamic auction with a random ending time that expired in 2020 (Patent No. US6665649B1). 
+
+The main reason why the Polkadot protocol employs a candle mechnism is that it mitigates some of the problems associated with front-running in auctions. Front-running is a major problem of blockchain implementations of auctions. Because block production only happens at discrete intervals but all upcoming transactions are stored in the chain's mempool, tech-savvy bidders can in principle inspect and react to upcoming bids. The general worry is that this reduces the overall incentives to bid, thus reducing revenue and possibly efficiency. As argued in Häfner & Stewart (2021) cryptographic solutions to the problem -- though they exist -- are not feasible for the automated setting of Polkadot, primarily because we expect smart contracts among bidders.
 
 
-## Termination Time
-The experiment lasts in any case until $T$ trading periods are reached. However, at the end we randomly determine $\hat{t}$, which *actually* terminates the auction. After doing so, the historic state of the auction at point $\hat{t}$ is implemented and is payoff-relevant. All bids submitted in $t>\hat{t} \leq T$ become irrelevant for the participants.
+To the best of our knowledge, Füllbrunn and Sadrieh (2012) is the only experimental paper to also study a candle format. Other than in our planned experiment, they consider a single-unit auction with a second-price payment rule. In the second price auction, it is a weakly dominant strategy to bid the true value whenever there is a positive probability that the current round will be the terminal round. The experimental evidence largely confirms such a prediction. Other than in the first-price auction, where equilibrium bidding depends on the termination probabilities, expected revenue is independent of the termination probabilities.
+
+## Experimental Design
+
+We want to look at an ascending combinatorial auction with discrete rounds $t$ in which bids can be placed. After every round, all new bids are revealed. A round lasts for $6$ seconds.
+
+The set of items is $X = \{1,2,3,4\}$. A bid $b=(p,x)$ consists of a price $p$ and any package $x \subseteq X$. Prices have to be increasing and must lie in a finite (fine) grid. The winning bids are selected to maximize total payment. The payment rule is pay-as-bid. 
+
+### The Three Ending Formats
+We want to compare three ending formats: a candle format, a hard-closing rule, and an activity rule.
+
+|                | Communication |
+|----------------|------------------|
+| Candle Auction | CA            |
+| Hard-Close     | HC            |
+| Activity Rule  | AR            |
 
 
-## Termination Profile
-[Füllbrunn & Sadrieh 2012](https://onlinelibrary.wiley.com/doi/full/10.1111/j.1530-9134.2012.00329.x?casa_token=HwBec_2N52IAAAAA%3A0hM0WHPyE6HA03-74BNY6h-_x4dtLAi-zjmPtIxeqUC8jgt9XlMNRBKWY5Ma9erXOg4vudVWkHSKRg) experimentally compared a candle-auction with linear termination profile to that of a concave one. In the latter one, relatively more termination probability was allocated to earlier $t$. They showed that there were no significant differences in the important outcome metrics (such as market efficiency and revenue) but trading sped up. However, a linear termination profile might be easier to grasp for study subjects and therefore it is reasonable to implement that.
+**Candle Auction** In the candle auction, bidders can freely submit increasing bids during the auction phase, and the auction is terminated at random. In the specification that we consider, the ending time is determined retroactively; i.e, bids on packages are accepted in a predefined number of rounds, $\bar T$, after which the auctioneer announces the ending time $T \in \{1,...,\bar T\}$. The ending time $T$ is random, the probability that the auction ends in round $t$ is $q_t \in (0,1)$, where $\sum_{t=1}^{\bar T}q_t=1$.
 
-## Potential Parameters (Baseline)
-|  	| Parameter 	| Explanation 	|
-|-	|-	|-	|
-| Name 	| - 	| First-Price Multi-Object Candle Auction 	|
-| $T$ 	| $60$ 	| Trading periods defined as multiple of 6 second blocks 	|
-| $N$ 	| $8$ 	| Number of bidders per auction 	|
-| $n_L$ 	| 2 	| Number of large bidders per auction 	|
-| $n_S$ 	| 6 	| Number of small bidders per auction 	|
-| $V_L$ 	| $[100,300]$ 	| Valuation for large bidders 	|
-| $V_S$ 	| $[0,50]$ 	| Valuation for small bidders 	|
-| $q_t$ 	| $\frac{1}{60}t$ 	| Termination probability for each trading period 	|
-| $R$ 	| $10$ 	| Number of auctions a single participant plays 	|
-| $E(t$) 	| $30$ 	| Expected trading rounds ($\hat{t}$) 	|
+**Hard-Close Rule** In the hard-close auction, bidders can also freely submit bids yet the auction ends at a fixed end time, $\bar T$. 
 
-## Analysis: Outcome measures
-We will analyse **bidding dynamics**, that is, when and how participants bid in the course of the auction. In addition, we can analyse **efficiency** (i.e., the slot goes to the players with the highest valuations).
+**Activity Rule** In the activity rule format, the ending time is determined by the activity rule. Specifically, we want to employ the following set of rules:
+1. A new bid on a package $x \in X$ must raise the current highest bid on that package by at least $\Delta > 0$.
+2. A new bid on a package $x \in X$ must not exceed the current highest bid on that package by more than $x\Delta > 0$.
+3. If no new bid is entered for $\tau$ rounds, then the auction concludes.
 
-## Treatments:
-In this section, we can think about meaningful deviations from the baseline design. The following things are reasonable:
+For the experiment, we propose the following values for $\Delta$ and $\tau$: $\Delta = 0.05$ cents, $\tau=5$ (corresponding to $30$ seconds).
 
-1. **Smart-Contracts:** 
-      * We can include automated bidders with fixed bidding strategy and valuation. Currently, the code for those *crowdfunding modules* is already implemented and therefore gives us a straight-forward way to include them in the experiment.
-2. **Collusion:**
-      * The outcome of auctions is influenced by bidder collusion and multi-identity bidding. Those two factors are rarely as much expressed than in the setting of an blockchain auction with anonymous bidders. 
-      * We could induce incentives (or options) to collude between the bidders and compare the result on the outcome.
-3. **Other formats:**
-      * The Vickrey-Grove-Clarke mechanism in an extension of the Vickrey auction for multi-object auctions and basically implements a second-price mechanism. 
-      * Ascending clock auctions which received some attention in the multi-object auction literature.
+### Communication 
+Communication is uniquitous in the blockchain setting. The different bidders are teams that work on similar technical problems, share communication channels, post on social media, etc. Conseuqently, we assume that our experimental subjects can communicate in an open-chat format before each auction and discuss non-binding strategies.
 
-## Procedure
-### Stage 1: Instructions
-Participants receive information about the auction and the procedure of the experiment in with written information. In those instructions, the basics about the parachain auctions (as applied in the experiment) are explained, how payoffs are determined and which role they play (either a large or small bidder). We will also ask a few comprehension question and make sure that players understand the game.
+### Valuations
+We induce a coordination problem similar to Bichler et al. (2017), where two local bidders compete against a global bidder. Without forming a coalition on the yellow or red allocation, they do not stand a chance against the global bidder. Note, that we can further add valuations for other packages and thereby make the coordination problem harder. Also, we might want to induce an additional layer of coordination, where one allocation (red) might be more efficient than the other (yellow). That means, the bidders have face the challenge to further coordinate on the efficient winning allocation.
 
-### Stage 2: The Auction
-Before each auction, all bidders learn their private valuation. Once the auction starts, every bidder is free to submit any bid for any package as long as it increases the previous bid (improvement rule). Bids can be submitted at any time but only every 6 seconds they are "finalized" and have an actual impact. This corresponds to the six second blocks from the blockchain (while the practical impact on the experiment is rather negligible). Note that the total sum of bids per bidder can exceed their total valuation. The trading page features two tables:
+![](https://i.imgur.com/RCS3RNw.png)
 
-1. (Table 1) Current bids: This shows all current bids per package.
+### Hypotheses
+The random ending time puts pressure to submit serious bids early on in the auction. We expect this to have two effects vis-a-vis a hard-closing rule (under which the auction ends at a fixed end date) that are similar to what activity and feedback rules should achieve. That is, we conjecture that a candle format can replace these rules to some extent. 
+
+First, we expect to see more early bidding. That is, sniping activities and jump bidding should be lower. The simple reason is that waiting is costly because of the risk that the auction terminates before a bid is submitted.
+
+Second, we expect that the coordination problem is mitigated and higher efficiency is achieved. In a hard-closing rule, small bidders rationally wait for other small bidders to bid high in order that a relatively low bid is sufficient to jointly bid the large bidders. Such a strategy is fairly costly under the candle-rule.
+
+
+### Procedure
+
+#### Stage 1: Instructions
+At the beginning of the experiment, participants are randomly allocated to one of the three different auction formats and receive information about specific rules of the game. To ensure that subjects understand the game, we will also ask a few comprehension question.
+
+#### Stage 2: The Auctions
+Before each auction, all bidders learn their type and their private valuations for the individual packages. Each market consists of one global and two local bidders. Their roles remain fixed throughout the experiment but new values are drawn each new auction. To better compare the results across the treatments, we can fix the random draws (i.e., the seed) for each auction across treatments. Every subject participates at n=X auctions while we make sure that we re-shuffle subjects into markets to match a (near-) perfect stranger design. Then, the communication phase starts where all participants of an auction can discuss openly in a chat-format for 45 seconds. After this, the auction starts and subjects are free to submit bids. 
+
+The trading page features two tables:
+
+1. (Table 1) Current winning bids: This shows all current bids per package.
   
-2. (Table 2) Allocation of packages: This shows the result of the allocation algorithm as if this period was implemented as $\hat{t}$. That means, subjects receive live feedback about the allocation if the auction terminates in the current stage.
+2. (Table 2) Winning Allocation: This shows how the packages are currently allocated to bidders based on the current winning bids.
 
 Especially table 2 is considered to significant help with this complex auction design. 
 
-### Stage 3: Feedback and Payoff
-After $T$, participants enter a feedback screen which gives information about the random determination of $\hat{t}$ and the corresponding snapshot of that state. Profits are calculated and shown to the subjects. Afterwards, the next auction (if there are any) is started and a new draw of $v_i$ is made.
-
-# Organizational aspects
-
-## Recruitment & Payment
-Participants can be recruited from the KSM / DOT community. This has the advantage, that basic concepts of the blockchain are already known and that we can frame the experiment in the context of parachain auctions (i.e. that we talk from blocks, transactions etc.). We specify a fixed conversion rate of valuation to ECU which is pegged to USD. This has the advantage that the final payment will be constant in USD even if prices of DOT / KSM fluctuate during the time of the whole study. Funding could be requested from the KSM or DOT treasury.
+#### Stage 3: Feedback and Payoff
+After the end of the auction (depending on the treatment), participants receive feedback about the final winning bids and allocation of packages. In addition, subjects in the candle auction format are informed about the realization of $T$ and the respective snapshot of winning bids to that time. Profits are calculated and shown to the subjects. Afterwards, the next auction (if there are any) is started and new valuations are drawn for each subject.
 
 
+### Outcome variables
+* Success of coordination (given the realized values, were the local bidders able to form a coalition?)
+* Efficiency (Did the packages go to those with the highest valuation? Did they coordinate on the right allocation)
+* Bidding dynamic (how quickly converges the auction)
+* Revenue
 
-## Implementation
-The experiment will be implemented with [oTree](https://www.sciencedirect.com/science/article/pii/S2214635016000101), which is a software to conduct online experiments and provide the necessary infrastructure to create sessions, distribute links to users and maintain a database of behavioral data. It combines python in the back-end with a flexible front-end implementation of HTML/CSS and Django. The front-end can also leverage javascript which offers the option to closely integrate the [`polkadot.js`](https://polkadot.js.org/apps/#/explorer) front-end.
+### Implementation
+The experiment will be implemented with [oTree](https://www.sciencedirect.com/science/article/pii/S2214635016000101), which is a software to conduct online experiments and provide the necessary infrastructure to create sessions, distribute links to users and maintain a database of behavioral data. It combines python in the back-end with a flexible front-end implementation of HTML/CSS and Django. 
 
-### UI
-Some suggestions for how information can be displayed will be shown here.
+## Literature
+Ausubel, L. M., Cramton, P., & Milgrom, P. (2006). The clock-proxy auction: A practical combinatorial auction design. Combinatorial Auctions, 120-140.
 
+Bichler, M., Hao, Z., & Adomavicius, G. (2017). Coalition-based pricing in ascending combinatorial auctions. Information Systems Research, 28(1), 159-179.
+
+Cramton, P. (2013). Spectrum auction design. Review of Industrial Organization, 42(2), 161-190.
+
+Cramton, P., Shoham, Y., & Steinberg, R. (2006). Introduction to combinatorial auctions. Combinatorial auctions, 1-14.
+
+Füllbrunn, S. and A. Sadrieh (2012): \Sudden Termination Auctions|An Experimental Study," Journal of Economics & Management Strategy, 21, 519-540.
+
+Häfner, S., & Stewart, A. (2021). Blockchains, Front-Running, and Candle Auctions. Working Paper, [SSRN](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3846363).
+
+Hobson, A. (1971): A Sale by Candle in 1608," The Library, 5, 215-233.
+
+Levin, J., & Skrzypacz, A. (2016). Properties of the combinatorial clock auction. American Economic Review, 106(9), 2528-51.
+
+Meeus, Leonardo, Karolien Verhaegen, and Ronnie Belmans. “Block order restrictions in combinatorial electric energy auctions.” European Journal of Operational Research 196, No. 3 (2009): 1202-1206.
+
+Porter, David, and Vernon Smith. “FCC license auction design: A 12-year experiment.” Journal of Law, Economics & Policy 3 (2006): 63.
+
+Scheffel, T., Ziegler, G., & Bichler, M. (2012). On the impact of package selection in combinatorial auctions: an experimental study in the context of spectrum auction design. Experimental Economics, 15(4), 667-692.
