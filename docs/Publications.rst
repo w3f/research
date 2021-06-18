@@ -5,6 +5,8 @@ Publications
 
 **Papers:**
 
+* Handan Kılınç Alper and Alptekin Küpçü, `Coin-based Multi-party Fair Exchange <https://link.springer.com/chapter/10.1007/978-3-030-78372-3_6>`_, ACNS 2021.
+
 * Samuel Häfner and Alistair Stewart, `Blockchains, Front-Running, and Candle Auctions <https://ssrn.com/abstract=3846363>`_, in submission.
 
 * Jeff Burdges and Luca de Feo, `Delay Encryption <https://eprint.iacr.org/2020/638>`_, EuroCrypt 2021.
