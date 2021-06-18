@@ -1,6 +1,9 @@
 ====
 News
 ====
+**21.06.21**:
+   Handan will present her paper `Coin-based Multi-party Fair Exchange  <https://link.springer.com/chapter/10.1007/978-3-030-78372-3_6>`_ on `ACNS 2021  <http://sulab-sever.u-aizu.ac.jp/ACNS2021/>`_
+    
 **15.05.21**:
     Alistair and Samuel finished a `working paper  <https://ssrn.com/abstract=3846363>`_ on front-running in the candle auction, showing that with many rounds the format essentially turns into a second-price auction.
 
