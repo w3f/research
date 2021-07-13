@@ -1,6 +1,8 @@
 ====
 News
 ====
+**01.07.21**:
+    Jonas published a blog post about `Nominating and Validator Selection on Polkadot <https://polkadot.network/nominating-and-validator-selection-on-polkadot/>`_ where he stressing the importance of building and maintaining a trusting relationship between nominators and their validators and shows how various economic and socio-economic aspects can guide that process.
 **21.06.21**:
    Handan will present her paper `Coin-based Multi-party Fair Exchange  <https://link.springer.com/chapter/10.1007/978-3-030-78372-3_6>`_ on `ACNS 2021  <http://sulab-sever.u-aizu.ac.jp/ACNS2021/>`_
     
