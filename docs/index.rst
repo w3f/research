@@ -19,7 +19,7 @@ Some of our current initiatives:
   - :doc:`Polkadot network protocol research <polkadot>`
   - :doc:`General cryptography research <crypto>`
 
-Talk to us on Riot at #w3f:matrix.org or on our `forum <https://forum.web3.foundation/>`_.
+Talk to us on Riot at #w3f:matrix.org.
 
 .. toctree::
    :hidden:
