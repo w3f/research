@@ -56,9 +56,9 @@ To the best of our knowledge, Füllbrunn and Sadrieh (2012) is the only experime
 
 ## Experimental Design
 
-We want to look at an ascending combinatorial auction with discrete rounds $t$ in which bids can be placed. After every round, all new bids are revealed. A round lasts for $6$ seconds.
+We want to look at an ascending combinatorial auction with discrete rounds $t$ in which bids can be placed. There will be three bidders in every auction. After every round, all new bids are revealed. A round lasts for $6$ seconds.
 
-The set of items is $X = \{1,2,3,4\}$. A bid $b=(p,x)$ consists of a price $p$ and any package $x \subseteq X$. Prices have to be increasing and must lie in a finite (fine) grid. The winning bids are selected to maximize total payment. The payment rule is pay-as-bid. 
+The set of items is $X = \{1,2\}$ giving us three packages $\{\{1\},\{2\},\{1,2\}\}$ on which bidders can submit bids. A bid $b=(p,x)$ consists of a price $p$ and any package $x \subseteq X$. Prices have to be increasing and must lie in a finite (fine) grid. The winning bids are selected to maximize total payment. The payment rule is pay-as-bid; i.e., winning bids have to be paid. 
 
 ### The Three Ending Formats
 We want to compare three ending formats: a candle format, a hard-closing rule, and an activity rule.
@@ -70,32 +70,41 @@ We want to compare three ending formats: a candle format, a hard-closing rule, a
 | Activity Rule  | AR            |
 
 
-**Candle Auction** In the candle auction, bidders can freely submit increasing bids during the auction phase, and the auction is terminated at random. In the specification that we consider, the ending time is determined retroactively; i.e, bids on packages are accepted in a predefined number of rounds, $\bar T$, after which the auctioneer announces the ending time $T \in \{1,...,\bar T\}$. The ending time $T$ is random, the probability that the auction ends in round $t$ is $q_t \in (0,1)$, where $\sum_{t=1}^{\bar T}q_t=1$.
+**Candle Format** In the candle auction, bidders can freely submit increasing bids during the auction phase, and the auction is terminated at random. In the specification that we consider, the ending time is determined retroactively; i.e, bids on packages are accepted in a predefined number of rounds, $\bar T$, after which the auctioneer announces the ending time $T \in \{1,...,\bar T\}$. The ending time $T$ is random, the probability that the auction ends in round $t$ is publicly known and given by $q_t \in (0,1)$, where $\sum_{t=1}^{\bar T}q_t=1$.
 
-**Hard-Close Rule** In the hard-close auction, bidders can also freely submit bids yet the auction ends at a fixed end time, $\bar T$. 
+**Hard-Close Rule** In the hard-close auction, bidders can also freely submit increasing bids yet the auction ends at a fixed end time, $\bar T$. 
 
-**Activity Rule** In the activity rule format, the ending time is determined by the activity rule. Specifically, we want to employ the following set of rules:
-1. A new bid on a package $x \in X$ must raise the current highest bid on that package by at least $\Delta > 0$.
-2. A new bid on a package $x \in X$ must not exceed the current highest bid on that package by more than $x\Delta > 0$.
-3. If no new bid is entered for $\tau$ rounds, then the auction concludes.
-
-For the experiment, we propose the following values for $\Delta$ and $\tau$: $\Delta = 0.05$ cents, $\tau=5$ (corresponding to $30$ seconds).
+**Activity Rule** In the activity rule format, the ending time is determined by the activity rule. Specifically, bids have to be increasing and if no new bid is entered for $\tau$ rounds, then the auction concludes. For the experiment, we propose $\tau=5$ (corresponding to $30$ seconds).
 
 ### Communication 
-Communication is uniquitous in the blockchain setting. The different bidders are teams that work on similar technical problems, share communication channels, post on social media, etc. Conseuqently, we assume that our experimental subjects can communicate in an open-chat format before each auction and discuss non-binding strategies.
+Communication is ubiquitous in the blockchain setting. The different bidders are teams that work on similar technical problems, share communication channels, post on social media, etc. 
+
+Consequently, we will allow our experimental subjects to communicate in a chat before each auction and discuss non-binding strategies. Specifically, the bidders will have both an open chat as well as closed bilateral chat channels available. The chats will be open prior to the auction start and close thereafter.
 
 ### Valuations
-We induce a coordination problem similar to Bichler et al. (2017), where two local bidders compete against a global bidder. Without forming a coalition on the yellow or red allocation, they do not stand a chance against the global bidder. Note, that we can further add valuations for other packages and thereby make the coordination problem harder. Also, we might want to induce an additional layer of coordination, where one allocation (red) might be more efficient than the other (yellow). That means, the bidders have face the challenge to further coordinate on the efficient winning allocation.
+In every auction, three bidders will be active. Bidders can have one of two roles that are commonly known when entering the auction: (1) global bidder, (2) local bidder. There will be one global bidder and two local bidders in every auction.
 
-![](https://i.imgur.com/RCS3RNw.png)
+The global bidder has a positive valuation only for the grand package, $\{1,2\}$. The local bidders hold valuations for the individual packages that add up in case they win the grand package. Specifically, we will assume
+
+![](https://i.imgur.com/feIk9Hu.png)
+
+In words, the global bidder draws a valuation $v$ for the package $\{1,2\}$ and always holds a valuation of zero for the packages $\{1\}$ and $\{2\}$. On the other hand, local bidder $i = 1,2$ draws a valuation $v_i$ for $\{1\}$, implying that she values item $\{2\}$ at $80-v_i$ and package $\{1,2\}$ at $80$.
+
+Under this value model it is efficient for the global bidder to obtain the grand package whenever $v \geq \max \{80-v_1+v_2,80-v_2+v_1\}$ and for the two local bidders to each receive one of the items otherwise. In order to win against the global bidder, though, the local bidders must coordinate their bids accordingly.
+
 
 ### Hypotheses
-The random ending time puts pressure to submit serious bids early on in the auction. We expect this to have two effects vis-a-vis a hard-closing rule (under which the auction ends at a fixed end date) that are similar to what activity and feedback rules should achieve. That is, we conjecture that a candle format can replace these rules to some extent. 
+We will be interested in the following outcome variables:
 
-First, we expect to see more early bidding. That is, sniping activities and jump bidding should be lower. The simple reason is that waiting is costly because of the risk that the auction terminates before a bid is submitted.
+* Efficiency: In what fraction of the auctions does the resulting allocation correspond to the first-best allocation?
+* Revenue: Equals to the total bids paid. This also allows us to compute average shading ratios.
+* Bidding dynamic: How fast do bids increase? Do we see sniping?
 
-Second, we expect that the coordination problem is mitigated and higher efficiency is achieved. In a hard-closing rule, small bidders rationally wait for other small bidders to bid high in order that a relatively low bid is sufficient to jointly bid the large bidders. Such a strategy is fairly costly under the candle-rule.
+In general, the random ending time puts pressure to submit serious bids early on in the auction. We expect this to have two effects vis-a-vis a hard-closing rule (under which the auction ends at a fixed end date) that are similar to what activity and feedback rules should achieve. That is, we conjecture that a candle format can replace these rules to some extent. 
 
+* Hypothesis I: Early bids in the candle auction are higher than under the activity rule; and they are higher under the activity rule than they are under the hard-close rule.
+* Hypothesis II: The candle format and the hard-close rule fare better than the hard-close rule in terms of revenue and efficiency.
+* Hyptothesis III: The candle format and the hard-close rule fare similarly in terms of revenue and efficiency. Perhaps: Efficiency is slightly worse in the candle auction while revenue is slightly better.
 
 ### Procedure
 
