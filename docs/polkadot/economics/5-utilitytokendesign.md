@@ -8,7 +8,7 @@
 
 # Utility Token Design
 
-**Paper Link:** [TBD]
+**Paper Link:** [[SSRN]](http://ssrn.com/abstract=3954773)
 
 In this project, I analyze some general design principles of utility tokens that are native to a proof-of-stake blockchain. Utility tokens are cryptographic tokens whose main economic use is to access and consume the respective token issuer’s services. 
 
