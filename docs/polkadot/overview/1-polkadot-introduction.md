@@ -66,7 +66,7 @@ The blocks are produced by parachain collators, then they get validated using th
 
 ![Finality](/polkadot/images/canonicality.png)
 
-Finality of the Polkadot network state machines is achieved via a combination of a block production mechanism with eventual probabilistic consistency ([BABE scheme](block-production/Babe.md)) and [GRANDPA finality gadget](/polkadot/finality.md).
+Finality of the Polkadot network state machines is achieved via a combination of a block production mechanism with eventual probabilistic consistency ([BABE scheme](/polkadot/block-production/Babe.md)) and [GRANDPA finality gadget](/polkadot/finality.md).
 
 This approach allows for block production (thus transaction confirmations) to be fast, while allowing for as fast as possible economic finality with compact proofs.
 
