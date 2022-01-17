@@ -12,7 +12,6 @@ The core Web3 Foundation research team working on various areas relevant to dece
 
    team_members/alfonso
    team_members/alistair
-   team_members/fatemeh
    team_members/handan
    team_members/jeff
    team_members/Jonas
