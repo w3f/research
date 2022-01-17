@@ -54,7 +54,7 @@ News
     Alistair gave a `talk <https://www.youtube.com/watch?v=mk8GWCczXHo>`__ in CV labs on shared security.
 
 **01.07.20**:
-    `Jonas <team_members/Jonas>`_ has started an internship research position to apply insights from behavioral economics and to analyze the human interaction with the protocol.
+    `Jonas <team_members/Jonas.html>`_ has started an internship research position to apply insights from behavioral economics and to analyze the human interaction with the protocol.
 
 **28.06.20**:
     Alistair has designed a succinct GRANDPA protocol.
