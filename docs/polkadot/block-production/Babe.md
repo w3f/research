@@ -28,7 +28,7 @@ BABE assigns block production slots
  using roughly the randomness cycle from Ouroboros Praos [2].
 
 In brief, all block producers have a verifiable random function (VRF)
-keys which they register with the locked stake.  These VRFs produce secret
+key which they register with the locked stake.  These VRFs produce secret
 randomness which determines when they produce blocks.  A priori, there
 is a risk that block producers could grind through VRF keys to bias
 results, so VRF inputs must include public randomness created only
