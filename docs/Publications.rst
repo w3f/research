@@ -5,6 +5,10 @@ Publications
 
 **Papers:**
 
+* Handan Kılınç Alper and Alptekin Küpçü, `Optimally Efficient Multi-party Fair Exchange and Fair Secure Multi-party Computation <https://dl.acm.org/doi/abs/10.1145/3477530>`_, ACM Transactions on Privacy and Security.
+
+* Handan Kılınç Alper and Jeff Burdges,  `Two-Round Trip Schnorr Multi-signatures via Delinearized Witnesses <https://eprint.iacr.org/2020/1245>`_, CRYPTO 2021
+
 * Handan Kılınç Alper and Alptekin Küpçü, `Coin-based Multi-party Fair Exchange <https://link.springer.com/chapter/10.1007/978-3-030-78372-3_6>`_, ACNS 2021.
 
 * Samuel Häfner and Alistair Stewart, `Blockchains, Front-Running, and Candle Auctions <https://ssrn.com/abstract=3846363>`_, in submission.
