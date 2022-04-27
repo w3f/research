@@ -4,9 +4,8 @@
 
 \====================================================================
 
-================================
 Polkadot Protocol Specifications
-================================
+--------------------------------
 
 This page contains the Polkadot Protocol Specification, a document mostly of
 interest to implementers and/or other engineers wishing to implement parts of or interoperate with
