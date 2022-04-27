@@ -1,19 +1,16 @@
 \====================================================================
 
-**Owners**: :doc:`/team_members/syed`
-
-**Other authors**: :doc:`/team_members/fabio`, :doc:`/team_members/florian`
+**Owners**: :doc:`/team_members/fabio`, :doc:`/team_members/florian`, :doc:`/team_members/syed`
 
 \====================================================================
 
-==============
-Specifications
-==============
+================================
+Polkadot Protocol Specifications
+================================
 
-The Polkadot protocol is described in following specifications:
+This page contains the Polkadot Protocol Specification, a document mostly of
+interest to implementers and/or other engineers wishing to implement parts of or interoperate with
+Polkadot. It goes into full low-level detail; high-level design ideas are
+presented in a more readable way in preceding documents.
 
-.. toctree::
-   :glob:
-   :maxdepth: 1
-
-   specifications/*
+<iframe src="../../_static/pdfview/viewer.html?file=https://spec.polkadot.network/latest.pdf" width="100%" height="650em"></iframe>
