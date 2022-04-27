@@ -44,6 +44,4 @@ Publications
 
 **Specification:**
 
-* Syed Hosseini, Fabio Lama, Florian Franzen, `Polkadot Host Specification <https://w3f.github.io/polkadot-spec/spec/host/latest.pdf>`_
-
-* Syed Hosseini, Fabio Lama, Florian Franzen, `Polkadot Runtime Specification <https://w3f.github.io/polkadot-spec/spec/runtime/latest.pdf>`_
+* Syed Hosseini, Fabio Lama, Florian Franzen, `Polkadot Protocol Specification <https://w3f.github.io/polkadot-spec/latest.pdf>`_
