@@ -2162,7 +2162,7 @@ exports.PDFViewerApplication = PDFViewerApplication;
 var validateFileURL;
 {
   var HOSTED_VIEWER_ORIGINS = ["null"];
-  var VALID_EXTERNAL_ORIGINS = ["https://w3f.github.io"];
+  var VALID_EXTERNAL_ORIGINS = ["https://spec.polkadot.network"];
 
   validateFileURL = function validateFileURL(file) {
     if (file === undefined) {

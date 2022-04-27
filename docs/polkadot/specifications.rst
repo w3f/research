@@ -18,4 +18,4 @@ We also provide a html version of this document under `spec.polkdot.network <htt
 
 .. raw:: html
 
-   <iframe src="../_static/pdfview/viewer.html?file=https://w3f.github.io/polkadot-spec/latest.pdf" width="100%" height="650em"></iframe>
+   <iframe src="../_static/pdfview/viewer.html?file=https://spec.polkadot.network/latest.pdf" width="100%" height="650em"></iframe>
