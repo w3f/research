@@ -10,7 +10,7 @@
 Cross-chain messaging
 =====================
 
-:doc:`/polkadot/XCMP` is Polkadot's subprotocol that enables a `parachain to communicate <https://polkadot.network/cross-chain-communication/>`__ 
+:doc:`/polkadot/XCMP` is Polkadot's subprotocol that enables a `parachain to communicate <https://polkadot.network/cross-chain-communication/>`_ 
 with another. Like the :doc:`A&V protocol <3-avail-valid>`, an
 instance of this subprotocol starts when the relay chain block production
 protocol has :doc:`output a new candidate block <2-block-production>`.
