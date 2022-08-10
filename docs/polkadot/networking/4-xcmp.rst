@@ -1,6 +1,6 @@
 \====================================================================
 
-**Owners**: :doc:`/research_team_members/Ximin`
+**Owners**: Ximin Luo
 
 **Other authors**: Rob Habermeier, Fatemeh Shirazi
 
@@ -10,8 +10,8 @@
 Cross-chain messaging
 =====================
 
-:doc:`/polkadot/XCMP` is Polkadot's subprotocol that enables a parachain to
-communicate with another. Like the :doc:`A&V protocol <3-avail-valid>`, an
+:doc:`/polkadot/XCMP` is Polkadot's subprotocol that enables a `parachain to communicate <https://polkadot.network/cross-chain-communication/>`_ 
+with another. Like the :doc:`A&V protocol <3-avail-valid>`, an
 instance of this subprotocol starts when the relay chain block production
 protocol has :doc:`output a new candidate block <2-block-production>`.
 
@@ -34,9 +34,7 @@ transferred to the corresponding receiving parachain, so that they may perform
 their obligation to ack at least one message.
 
 R1a. We must distribute it to *enough* collators of the receiving parachain so
-that the parachain cannot be attacked by malicious collators. (TODO: currently
-"enough" is not well-defined, as Polkadot does not assume any structure in a
-parachain in order to begin defining this.)
+that the parachain cannot be attacked by malicious collators. 
 
 R2. Ideally, allow recipients to select which message(s) to receive first,
 subject to the :ref:`XCMP fairness constraints <polkadot/XCMP/index:fairness>`.
@@ -301,13 +299,12 @@ Differences:
 Proposal: XCMP networking, initial iteration
 ============================================
 
-FIXME: this section needs to be updated & re-written
 
 1. sending-validators-only, easy to implement
 
-2. sending-validators with some way to reduce number of connections. TODO
+2. sending-validators with some way to reduce number of connections. 
 
-3. sending and receiving validators, with some availability checks. TODO
+3. sending and receiving validators, with some availability checks. 
 
    - Introduce the idea of receiving validator group, even for parathreads.
 
@@ -334,9 +331,7 @@ the queue; we leave the details of this open for now - but we note that the
 mechanism described in the next section ought to discourage this without any
 explicit enforcement at this level.
 
-TODO: chains can only communicate when they've opened a channel to each other,
-the state of which is stored on-chain. We can potentially use this information
-to derive more efficient topologies for XCMP.
+
 
 .. _net-XCMP-distinguish-malicious-collators:
 
@@ -435,7 +430,7 @@ connection from. This is based on the fact that 2 is the best possible case,
 plus a small additional grace period in case parachains want to experiment with
 receiving messages slightly out-of-order for performance under parallelism.
 
-(TODO: 5 is probably too small for parathreads.)
+
 
 If necessary, in the future we can explore further refinements
 on top of this, based on real-world usage & experience of attacks:
@@ -452,7 +447,6 @@ value being used in their favour.
 Rotation of validator groups
 ----------------------------
 
-FIXME; link with other sections
 
 A group should be active for more than the cutoff period mentioned above,
 otherwise the mechanism becomes subject to abuse by malicious validators that

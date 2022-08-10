@@ -62,6 +62,7 @@ html_theme_options = {
     'color_primary': 'deep-orange',
     'color_accent': 'deep-orange',
     'globaltoc_depth': -1,
+    'globaltoc_includeinternal': False, # https://github.com/bashtage/sphinx-material/pull/88
 }
 
 mathjax_config = {

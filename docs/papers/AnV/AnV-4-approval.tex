@@ -38,7 +38,7 @@ In this subsection, we consider a validator $V$ who passed some approval checker
 
 We need only information posted on-chain to validate the VRF signatures $\pi_{V,\cdot}$ for approval checker assignment criteria, but some assignment criteria employ some off-chain information.  We employ absence from the chain occasionally, which seems unproblematic.  We might package equivocation proofs (see below) with the VRF signatures, depending upon their size.  We always prevent late stage adversarial influence from shifting approval checker assignments by making assignments strictly additive, and always in batches.
 %
-TODO: Move paragraph where?
+%TODO: Move paragraph where?
 
 
 \subsubsection{Retrieval}
@@ -57,7 +57,7 @@ We caution against abandoning approval checkers over topology concerns however b
 
 Also, our retrieval component could be engineered to avoid requests entirely:  After obtaining $\pi_{V,\cdot}$, another validator $V'$ could simply compute its own priority for sending its piece from $\pieces_B$ to $V$.  We caution that doing do might become inefficient, either because $V$ winds up rejecting sends, or when many nodes go offline.  
 
-TODO: How much linkage with the topology section?
+%TODO: How much linkage with the topology section?
 
 \subsubsection{Announcement}
 
@@ -127,7 +127,7 @@ fn generic_oneshot_assigned_delay(
     / target
 }
 \end{verbatim}
-TODO: Rewrite code
+%TODO: Rewrite code
 
 Consider a validator $V$ with current time $t$.  We describe how $V$ tracks the announcements $A_z$ and their answering validity claims $S_z$, and deals with no-shows.
 

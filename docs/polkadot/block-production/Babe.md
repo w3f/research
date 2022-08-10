@@ -1,6 +1,6 @@
 ====================================================================
 
-**Owners**: [Handan Kilinc Alper](/research_team_members/handan.html)
+**Owners**: [Handan Kilinc Alper](/team_members/handan.html)
 
 ====================================================================
 \(
@@ -28,7 +28,7 @@ BABE assigns block production slots
  using roughly the randomness cycle from Ouroboros Praos [2].
 
 In brief, all block producers have a verifiable random function (VRF)
-keys which they register with the locked stake.  These VRFs produce secret
+key which they register with the locked stake.  These VRFs produce secret
 randomness which determines when they produce blocks.  A priori, there
 is a risk that block producers could grind through VRF keys to bias
 results, so VRF inputs must include public randomness created only
@@ -39,10 +39,12 @@ between private but verifiable randomness and collaborative public
 randomness.
 
 
-The main differences of BABE from Ouroboros Praos [2] are the best chain selection mechanism and slot synchronization assumption i.e.,
+The main differences of BABE from Ouroboros Praos [2] are the best chain selection mechanism and slot synchronization assumption i.e.:
 
 1. BABE's best chain selection is based on GRANDPA and longest chain.
 2. Block producers in BABE does not have access to a central authority (e.g. Network Time Protocol (NTP)) to count slots instead they construct their own clock to follow the slots.
+
+---
 
 ## 2. BABE
 
@@ -53,18 +55,18 @@ Each party $P_j$ has as *session key* containing at least two types of secret/pu
 * a verifiable random function (VRF) key $(\skvrf_{j}, \pkvrf_{j})$, and
 * a signing key for blocks $(\sksgn_j,\pksgn_j)$.
 
-We favor VRF keys being relatively long lived because new VRF keys cannot be used until well after creation and submission to the chain.  Yet, parties should update their associated signing keys from time to time to provide forward security against attackers who might exploit from creating slashable equivocations.  There are more details about session key available [here](https://github.com/w3f/research/tree/master/docs/polkadot/keys).
+We favor VRF keys being relatively long lived because new VRF keys cannot be used until well after creation and submission to the chain.  Yet, parties should update their associated signing keys from time to time to provide forward security against attackers who might exploit from creating slashable equivocations.  There are more details about session key available [here](../keys/3-session.md).
 
 Each party $P_j$ keeps a local set of blockchains $\mathbb{C}_j =\{C_1, C_2,..., C_l\}$.  All these chains have some common blocks, at least the genesis block, up until some height.
 
-We assume that each party has a local buffer that contains the transactions to be added to blocks. All transactions in a block is validated with a transaction validation function.
+We assume that each party has a local buffer that contains a set of transactions to be added to blocks. All transactions in a block are  validated with a transaction validation function before entering this buffer.
 
 
-In BABE, we would like to achieve that  each validator has the same chance to be selected as a block producer on a slot. Therefore, we define the probability that a validator is selected on a slot as
+In BABE, we would like to achieve that each validator has the same chance to be selected as a block producer on a slot. Therefore, we define the probability that a validator is selected on a slot as
 
 $$p = \phi_c(\theta) = 1-(1-c)^{\frac{1}{n}}$$
 
-where $c$ is a constant parameter and $n$ is the number of validators.
+where $0 \leq c \leq 1$ is a constant parameter and $n$ is the number of validators.
 
 
 In order to achieve the eqauality of validators in BABE, we define a threshold parameter as in [2] for the slot assigment:
@@ -75,16 +77,16 @@ where $\ell_{vrf}$ is the length of the VRF's first output (randomness value).
 
 BABE consists of three phases:
 
-#### 1. Genesis Phase
+#### 1st: Genesis Phase
 
 In this phase, we manually produce the unique genesis block.
 
 The genesis block contain a random number $r_1$ for use during the first two epochs for slot leader assignments. Session public keys of initial validators are ($\pkvrf_{1}, \pkvrf_{2},..., \pkvrf_{n}$), $(\pksgn_{1}, \pksgn_{2},..., \pksgn_{n}$).
 
 
-#### 2. Normal Phase
+#### 2nd: Normal Phase
 
-We assume that each validator divided their timeline in slots after receiving the genesis block. They determine the current slot number according to their timeline as exlained in [Section 4](https://w3f-research.readthedocs.io/en/latest/polkadot/block-production/Babe.html#-4.-clock-adjustment--relative-time-algorithm-). Similarly, when a new validator joins to BABE after the genesis block, this validator divides his timeline into slots as explained in [Section 4](https://w3f-research.readthedocs.io/en/latest/polkadot/block-production/Babe.html#-4.-clock-adjustment--relative-time-algorithm-).
+We assume that each validator divided their timeline in slots after receiving the genesis block. They determine the current slot number according to their timeline as exlained in [Section 4](./Babe.md#-4.-clock-adjustment--relative-time-algorithm-). Similarly, when a new validator joins to BABE after the genesis block, this validator divides his timeline into slots.
 
 In normal operation, each slot leader should produce and publish a block.  All other nodes attempt to update their chain by extending with new valid blocks they observe.
 
@@ -94,9 +96,7 @@ Each validator $V_j$ produces a block if he is the slot leader of $sl_k$.  If th
 
 $$\vrf_{\skvrf_{j}}(r_m||sl_{k}) \rightarrow (d, \pi)$$
 
-If $P_j$ is the slot leader, $P_j$ generates a block to be added on $C$ in slot $sl_k$. The block $B_\ell$ should at least contain the slot number $sl_{k}$, the hash of the previous block $H_{\ell\text{-}1}$, the VRF output  $d, \pi$, transactions $tx$, and the signature $\sigma = \sgn_{\sksgn_j}(sl_{k}||H_{\ell\text{-}1}||d||pi||tx))$. $P_i$ updates $C$ with the new block and sends $B_\ell$.
-
-
+If $P_j$ is the slot leader, $P_j$ generates a block to be added on $C$ in slot $sl_k$. The block $B_\ell$ should at least contain the slot number $sl_{k}$, the hash of the previous block $H_{\ell\text{-}1}$, the VRF output  $d, \pi$, transactions $tx$, and the signature $\sigma = \sgn_{\sksgn_j}(sl_{k}||H_{\ell\text{-}1}||d||\pi||tx))$. $P_i$ updates $C$ with the new block and sends $B_\ell$.
 
 In any case (being a slot leader or not being a slot leader), when $V_j$ receives a block $B = (sl, H, d', \pi', tx', \sigma')$ produced by a validator $V_t$, it validates the block  with $\mathsf{Validate}(B)$. $\mathsf{Validate}(B)$ must at least check the followings in order to validate the block:
 
@@ -114,7 +114,7 @@ If the validation process goes well, $V_j$ adds $B$ to $C'$. Otherwise, it ignor
 At the end of the slot, $P_j$ decides the best chain with the chain selection rule we give in Section 3.
 
 
-#### 3. Epoch Update
+#### 3rd: Epoch Update
 
 Starting from first slot, in every $R$ slots, the new epoch starts.  
 Before starting a new epoch $e_m$, validors should obtain the new epoch randomness and active validators set for the new epoch.
@@ -127,13 +127,16 @@ $$r_{m} = H(r_{m-2}||m||\rho)$$
 
 The reason of including a validator after two epochs later is to make sure that the VRF keys of the new validators added to the chain before the randomness of the epoch that they are going to be active is revealed.
 
+---
+
 ## 3. Best Chain Selection
 
-Given a chain set $\mathbb{C}_j$ an the parties current local chain $C_{loc}$, the best chain algorithm eliminates all chains which do not include the finalized block $B$ by GRANDPA. Let's denote the remaining chains by the set $\mathbb{C}'_j$. If we do not have a finalized block by GRANDPA, then we use the probabilistic finality in the best chain selection algorithm (the probabilistically finalized block is the block which is $k$ block before than the last block of $C_{loc}$).
+Given a chain set $\mathbb{C}_j$ and the parties current local chain $C_{loc}$, the best chain algorithm eliminates all chains which do not include the finalized block $B$ by GRANDPA. Let's denote the remaining chains by the set $\mathbb{C}'_j$. If we do not have a finalized block by GRANDPA, then we use the probabilistic finality in the best chain selection algorithm (the probabilistically finalized block is the block which is $k$ block before than the last block of $C_{loc}$).
 
 
 We do not use the chain selection rule as in Ouroboros Genesis [3] because this rule is useful for parties who become online after a period of time and do not have any  information related to current valid chain (for parties always online the Genesis rule and Praos is indistinguishable with a negligible probability). Thanks to Grandpa finality, the new comers have a reference point to build their chain so we do not need the Genesis rule.
 
+---
 
 ## 4. Clock Adjustment (Relative Time Algorithm)
 
@@ -145,7 +148,7 @@ Each party has a local clock and this clock is not updated by any extarnal sourc
 
 
 **Median Algorithm:**
-The median algorithm is run by all validators in the end of sync-epochs (we note that epoch and sync-epoch are not related). The first sync-epoch $\varepsilon_1$ starts just after the genesis block is released. The other sync-epochs  $\varepsilon_i$ start when the slot number of the last (probabilistically) finalized block is $\bar{sl}_{\epsilon}$ which is the smallest slot number such that  $\bar{sl}_{\varepsilon} - \bar{sl}_{\varepsilon-1} \geq s_{cq}$ where $\bar{sl}_{\varepsilon-1}$ is the slot number of the last (probabilistically) finalized block in the sync-epoch $\varepsilon-1$. Here, $s_{cq}$ is the parameter of the chain quality (CQ) property. If the previous epoch is the first epoch then $sl_{e-1} = 0$. We define the last (probabilistically) finalized block as follows: Retrieve the best blockchain according to the best chain selection rule, prun the last $k$ blocks of the best chain, then the last (probabilistically) finalized block will be the last block of the prunned best chain. Here, $k$ is defined according to the common prefix property.
+The median algorithm is run by all validators in the end of sync-epochs (we note that epoch and sync-epoch are not related). The first sync-epoch ($\varepsilon = 1$) starts just after the genesis block is released. The other sync-epochs ($\varepsilon > 1$) start when the slot number of the last (probabilistically) finalized block is $\bar{sl}_{\varepsilon}$ which is the smallest slot number such that  $\bar{sl}_{\varepsilon} - \bar{sl}_{\varepsilon-1} \geq s_{cq}$ where $\bar{sl}_{\varepsilon-1}$ is the slot number of the last (probabilistically) finalized block in the sync-epoch $\varepsilon-1$. Here, $s_{cq}$ is the parameter of the chain quality (CQ) property. If the previous epoch is the first epoch then $sl_{e-1} = 0$. We define the last (probabilistically) finalized block as follows: Retrieve the best blockchain according to the best chain selection rule, prun the last $k$ blocks of the best chain, then the last (probabilistically) finalized block will be the last block of the prunned best chain. Here, $k$ is defined according to the common prefix property.
 
 The details of the protocol is the following: Each validator stores the arrival time $t_i$ of valid blocks constantly according to its local clock.  In the end of a sync-epoch, each validator retrieves the arrival times of valid and finalized blocks which has a slot number $sl'_x$ where
 * $\bar{sl}_{\varepsilon-1} < sl_x \leq \bar{sl}_{\varepsilon}$ if $\varepsilon > 1$.
@@ -195,6 +198,7 @@ With the temporarily clock adjustment, we can guarantee that the difference betw
 
 **We note that during one sync-epoch the ratio of such offline validators should not be more that 0.05 otherwise it can affect the security of the relative time algorithm.**
 
+---
 
 ## 5. Security Analysis
 
@@ -207,17 +211,14 @@ We give the definitions of  security properties before jumping to proofs.
 
 **Definition 1 (Chain Growth (CG)) [1,2]:** Chain growth with parameters $\tau \in (0,1]$ and $s \in \mathbb{N}$ ensures that if the best chain owned by an honest party at the onset of some slot $sl_u$ is $C_u$, and the best chain owned by an honest party at the onset of slot $sl_v \geq sl_u+s$ is $C_v$, then the difference between the length of $C_v$ and $C_u$ is greater or equal than/to $\tau s$.
 
-The honest chain growth (HCG) property is weaker version of CG which is the same definition with the restriction that $sl_v$  and $sl_u$ are assigned to honest validators. The parameters of HCG are $\tau_{hcg}$ and $s_{hcg}$ instead of $\tau$ and $s_{cg}$ in the CG definition.
+The honest chain growth (HCG) property is weaker version of CG which is the same definition with the restriction that $sl_v$  and $sl_u$ are assigned to honest validators. The parameters of HCG are $\tau_{hcg}$ and $s_{hcg}$ instead of $\tau$ and $s$ in the CG definition.
 
 **Definition 2 (Existantial Chain Quality (ECQ)) [1,2]:** Consider a chain $C$ possessed by an honest party at the onset of a slot $sl$. Let $sl_1$ and $sl_2$ be two previous slots for which $sl_1 + s_{ecq} \leq sl_2 \leq sl$. Then $C[sl_1 : sl_2]$ contains at least one block generated by an honest party.
 
-**Definition 2 (Chain Density (CD)):** The CD property with parameters $s_{cd} \in \mathbb{N}$ ensures that any portion $ B[s_u:s_v] $ of  a final blockchain $B$ spanning between rounds $s_u$ and $ s_v  = s_u + s_{cd} $   contains more honest blocks.
-
-
+**Definition 2 (Chain Density (CD)):** The CD property with parameters $s_{cd} \in \mathbb{N}$ ensures that any portion $B[s_u:s_v]$ of  a final blockchain $B$ spanning between rounds $s_u$ and $s_v  = s_u + s_{cd}$   contains more honest blocks.
 
 
 **Definition 3 (Common Prefix)** Common prefix with parameters $k \in \mathbb{N}$ ensures that any chains $C_1, C_2$ possessed by two honest parties at the onset of the slots $sl_1 < sl_2$ are such satisfies $C_1^{\ulcorner k} \leq C_2$ where  $C_1^{\ulcorner k}$ denotes the chain obtained by removing the last $k$ blocks from $C_1$, and $\leq$ denotes the prefix relation.
-
 
 
 With using these properties, we show that BABE has the persistance and liveness properties. **Persistence** ensures that, if a transaction is seen in a block deep enough in the chain, it will stay there and **liveness** ensures that if a transaction is given as input to all honest players, it will eventually be inserted in a block, deep enough in the chain, of an honest player.
@@ -229,7 +230,7 @@ We first prove that BABE (both versions) satisfies chain growth, existential cha
 
 In Polkadot, all validators have equal stake (the same chance to be selected as slot leader), so the relative stake is $\alpha_i = 1/n$ for each validator where $n$ is the total number of validators. We assume that the ratio of honest validators is $\alpha$ and the ratio of validators sending on time is $\alpha_{timely}$.
 
-We use notation $p_h$ (resp. $p_m$) to show the probability of an honest validator (resp. a malicious validator) is selected. Similarly, we use $p_H$ (resp. $p_M$) to show the probability of *only*  honest validators (resp. malicious validators) is selected. $p_{\bot}$ is the probability of having an emty slot (no validator selected).
+We use notation $p_h$ (resp. $p_m$) to show the probability of an honest validator (resp. a malicious validator) is selected. Similarly, we use $p_H$ (resp. $p_M$) to show the probability of *only*  honest validators (resp. malicious validators) are selected. $p_{\bot}$ is the probability of having an empty slot (no validator selected).
 
 $$p_\bot=\mathsf{Pr}[sl = \bot] = \prod_{i\in \mathcal{P}}1-\phi(\alpha_i) = \prod_{i \in \mathcal{P}} (1-c)^{\alpha_i} = 1-c$$
 
@@ -289,7 +290,7 @@ $$\tag*{$\blacksquare$}$$
 We note that we need the chain densisty property only for the BABE with the median algorithm.
 
 
-**Theorem 3 (Existential Chain Quality):** Let $\D \in \mathbb{N}$ and let $\frac{p_h\p_\bot^\D}{c} > \frac{1}{2}$. Then, the probability of an adversary $\A$ violate the ECQ property with parammeters $k_{cq}$ with probability at most $e^{-\Omega(k_{cq})}$ in BABE with NTP.
+**Theorem 3 (Existential Chain Quality):** Let $\D \in \mathbb{N}$ and let $\frac{p_h\\p_\bot^\D}{c} > \frac{1}{2}$. Then, the probability of an adversary $\A$ violate the ECQ property with parammeters $k_{cq}$ with probability at most $e^{-\Omega(k_{cq})}$ in BABE with NTP.
 
 **Proof (sketch):** If $k$ proportion of a chain does not include any honest blocks, it means that the malicious slots are more than the good and honest slots between the slots that spans these $k$ blocks. Since probability of having a  good and honest slots is greater than $\frac{1}{2}$, having more bad slots falls exponentially with $k_{cq}$. Therefore, the ECQ property  is broken  in $R$ slots at most with the probability $e^{-\Omega(k_{cq})}$.
 
@@ -327,6 +328,7 @@ $$\tag*{$\blacksquare$}$$
 
 **These results are valid assuming that the signature scheme with account key is  EUF-CMA (Existentially Unforgible Chosen Message Attack) secure, the signature scheme with the session key is forward secure, and VRF realizing is realizing the functionality defined in [2].**
 
+---
 
 ## 6. Practical Results
 
@@ -364,7 +366,7 @@ Iterate $k_{cp}$ to find $s_{hcg}, s_{ecq}, \tau$ that satisfy above conditions 
 
 After finding $k_{cq}$ such that $p \leq p_{attack}$, let the epoch length $R = 2s_{ecq}+s_{hcg}$.
 
-The parameters below are computed with the code in https://github.com/w3f/research/blob/master/experiments/parameters/babe_NTP.py. In this code, we choose the paramter $c$ not only according to security considitions but also according to having in expectation twice more single leader than multiple leaders.
+The parameters below are computed with the code in https://github.com/w3f/research/blob/master/experiments/parameters/babe_NTP.py. In this code, we choose the parameter $c$ not only according to security considitions but also according to having in expectation twice more single leader than multiple leaders.
 
 -################### PARAMETERS OF BABE WITH NTP $\D = 0$ ###################
 

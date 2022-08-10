@@ -1,6 +1,6 @@
 \====================================================================
 
-**Owners**: :doc:`/research_team_members/Ximin`
+**Owners**: Ximin Luo
 
 \====================================================================
 
@@ -240,7 +240,6 @@ why they help to improve security:
 
     As a future addition, we can reserve more buffer space for unvalidated data, for peers that have historically been more efficient. One can think of this as analogous to a "credit rating".
 
-    TODO: the above applies to a push-based protocol only. It is much harder under a pull-based protocol.
 
 2.  Even with good bandwidth measurement, attackers can easily generate new identities, a new IP address (e.g. in a IPv6 block), and reconnect to us again sending us more bogus data, wasting our bandwidth.
 
@@ -262,12 +261,7 @@ why they help to improve security:
 
     Since the implementation of this depends on all of the above, the details of this are left open for future elaboration, bearing in mind the point [*] above.
 
-TODO: If we only keep the top-scoring peers, this will cause the selection to
-tend to the same set of collators, which may be undesirable. So perhaps we
-should reserve a fraction of our resources for random stranger collators to
-connect to us, to allow new users a chance to participate. OTOH the parachain
-validators get rotated fairly regularly so perhaps this is a non-issue and we
-won't need to come up with a workaround.
+
 
 Validator-validator communication
 ---------------------------------
@@ -278,7 +272,6 @@ This is done via a mini-overlay network over the parachain validators, structure
 
 As a future addition, this network can be used for metadata broadcasts along the lines of "I have successfully validated PoV block X". Other validators when seeing this, can then favour receiving X over other PoV blocks, helping to speed up the attestation process by all preferring to receive and validate the same block, rather than different blocks at the same time.
 
-TODO: elaborate on the transferral of whitelists and blacklists
 
 Passing to the relay chain
 --------------------------
@@ -289,7 +282,7 @@ The first PoV that a validator receives and validates, they sign a proposal for,
 
 Any subsequent PoVs that a validator receives and validates, they sign a regular attestation for, and forward this to the relay chain gossip network.
 
-The block production protocol looks to receive a minimum quorum of attestations for each PoV block. Based on a trade-off between security and network unreliability, we set the quorum to be 2/3 of the validator set - note this is unrelated to the 2/3 consensus thresholds. TODO: think about & justify this number a bit more.
+The block production protocol looks to receive a minimum quorum of attestations for each PoV block. Based on a trade-off between security and network unreliability, we set the quorum to be 2/3 of the validator set - note this is unrelated to the 2/3 consensus thresholds. 
 
 Sentry nodes
 ------------

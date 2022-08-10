@@ -2,7 +2,7 @@
 Research at Web3 Foundation
 ===========================
 
-Web3 Foundation Research is being done in an in-house :doc:`research team <research_team_members>`, mostly located in Zug (Switzerland), as well as in collaboration with industrial projects and academic research groups. To stay up to date with our research team efforts visit :doc:`news`.
+Web3 Foundation Research is being done in an in-house :doc:`research team <team_members>`, mostly located in Zug (Switzerland), as well as in collaboration with industrial projects and academic research groups. To stay up to date with our research team efforts visit :doc:`news`.
 
 Our research focuses on a number of areas that are relevant to decentralised systems:
 
@@ -19,7 +19,7 @@ Some of our current initiatives:
   - :doc:`Polkadot network protocol research <polkadot>`
   - :doc:`General cryptography research <crypto>`
 
-Talk to us on Riot at #w3f:matrix.org or on our `forum <https://forum.web3.foundation/>`_.
+Talk to us on Riot at #w3f:matrix.org.
 
 .. toctree::
    :hidden:
@@ -28,7 +28,7 @@ Talk to us on Riot at #w3f:matrix.org or on our `forum <https://forum.web3.found
    crypto
    news
    Publications
-   research_team_members
+   team_members
 
 .. The below hack is needed to force sphinx to include MathJax on md pages.
 

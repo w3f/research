@@ -1,7 +1,7 @@
 
 % \section{Introduction sectrions should never be numbered unless journal style demands}
 
-... openning paragraph ..
+%TODO... openning paragraph ..
 
 All existing sharded blockchain designs choose the validators assigned to each shard {\em before} the shards produce blocks, which gives adversaries advance knowledge of when they could approve invalid blocks, and perhaps manipulate shard assignments.  In practice, real adversaries would behave somewhat adaptively to disrupt connectivity for some additional validators too, with disruption costs varying among validators.  
 % .. hypergeometric distribution for heterogeneous, but actually homogeneous so ?? .. 
@@ -9,7 +9,7 @@ Adversaries wait until an entire shard consists of their corrupted validators pl
 
 Instead, we make adversaries first commit to their blocks' correctness and availability before we select which validators check their block, so aversaries cannot simply wait until they control enough assigned validators.  We achieve their commitment to availability using erasure coding ..
 
-... \cite{FraudProofs} ... 
+%TODO... \cite{FraudProofs} ... 
 
 
 % \subsection{Protocol stages}
@@ -22,16 +22,16 @@ Instead, we make adversaries first commit to their blocks' correctness and avail
 % \end{enumerate}
 
 
-OLDER
+%TODO OLDER
 
 
 
-TODO: Into giving main idea
-...
+%TODO: Into giving main idea
+%...
 We require that approval validity checks complete before finality.  We cannot however require that all validator checks conclude before finality, or even ask fishermen to begin checks before finality, so invalidity can be detected after finality.
-...
+%...
 
-...
+%...
 
 In \S\ref{sec:parachains}, we first recall our tools like verifiable random functions, erasure coding, and state witnesses, and then describe the sharding problem and introduce our security definitions. 
 

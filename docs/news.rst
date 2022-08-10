@@ -1,6 +1,22 @@
 ====
 News
 ====
+**02.12.21**:
+    Our `research on accountable light clients <https://github.com/w3f/research-internal/blob/master/papers/LightClientPoster/poster.pdf>`_ has been accepted at the poster session of `Financial Cryptography 2022 <https://fc22.ifca.ai/>`_.
+**01.07.21**:
+    Jonas published a blog post about `Nominating and Validator Selection on Polkadot <https://polkadot.network/nominating-and-validator-selection-on-polkadot/>`_ where he stressing the importance of building and maintaining a trusting relationship between nominators and their validators and shows how various economic and socio-economic aspects can guide that process.
+**21.06.21**:
+   Handan will present her paper `Coin-based Multi-party Fair Exchange  <https://link.springer.com/chapter/10.1007/978-3-030-78372-3_6>`_ on `ACNS 2021  <http://sulab-sever.u-aizu.ac.jp/ACNS2021/>`_
+    
+**15.05.21**:
+    Alistair and Samuel finished a `working paper  <https://ssrn.com/abstract=3846363>`_ on front-running in the candle auction, showing that with many rounds the format essentially turns into a second-price auction.
+
+**29.01.21**:
+    Fatemeh shared her thoughts on "Interoperability - Where are we now and what can we expect for 2021" in an online-presentation at the Bitcoin Suisse Crypto Outlook 2021. Additionally, she features an article in the corresponding `research report <https://click.mlsend.com/link/c/YT0xNjA5OTk0MzE5NjA1Nzk4MjQ3JmM9ZTNvNCZlPTU5MTY4MzA0JmI9NTEyMjM3NDg1JmQ9djBqOHo2dw==.ngxPQKz29giu1TK1fdNRJdTJ8gEWu2BFos0tuJeD7AQ/>`_. 
+
+**16.01.21**:
+    The Web3 Foundation successfully hosted the `Workshop on Real-World Decentralized Cryptography <http://rwc2021-real-world-decentralised-cryptography-workshop.w3f.community/>`_ with presentations of leading experts in topics such as distributed key generation, threshold cryptography, and multiparty computation. 
+
 **10.11.20**:
     Is slashing a good idea? Alistair `talks <https://www.youtube.com/watch?v=F8q16k4U2fA>`_ about slashing and how to apply it to scaling in proof of stake at the DISC 2020 workshop on "Blockchain Interoperability and Sharding".
 
@@ -11,7 +27,7 @@ News
     Fatemeh has been program committee member of USENIX Security 2021.
 
 **21.08.20**:
-    After the first `democratic vote <https://medium.com/polkadot-network/the-first-polkadot-vote-1fc1b8bd357b>`_ in Polkadot the community decided that the “DOT” token will undergo a redenomination (1 DOT will now hold 1e10 plancks, instead of 1e12). More information can be found `here <https://polkadot.network/denomination-day-ecosystem-project-guidance/>`_.
+    After the first `democratic vote <https://medium.com/polkadot-network/the-first-polkadot-vote-1fc1b8bd357b>`__ in Polkadot the community decided that the “DOT” token will undergo a redenomination (1 DOT will now hold 1e10 plancks, instead of 1e12). More information can be found `here <https://polkadot.network/denomination-day-ecosystem-project-guidance/>`_.
 
 **18.08.20-20.08.20**:
     W3F researchers and some Parity Technology developers joined together for a 2 day workshop in Berlin discussing implementations details of Polkadot components such as the AnV and XCMP protocols.
@@ -26,7 +42,7 @@ News
     Oana joined the research team and will be working on security and privacy projects, with a focus on (ZK)snarks.
 
 **31.07.20**:
-    Our proposal to organize a workshop on Sharding and Interoperability at `DISC 2020 <http://www.disc-conference.org/wp/disc2020/>`_ got accepted.
+    Our proposal to organize a workshop on Sharding and Interoperability at `DISC 2020 <http://www.disc-conference.org/wp/disc2020/>`__ got accepted.
 
 **22.07.20**:
     Alfonso gave a talk on “Incentive Schemes and Blockchain Security” in CAS summer school organised by University of Zurich.
@@ -35,10 +51,10 @@ News
     The sudo module was removed by council motion and Polkadot officially becomes a self-governed and permissionless blockchain!
 
 **02.07.20**:
-    Alistair gave a `talk <https://www.youtube.com/watch?v=mk8GWCczXHo>`_ in CV labs on shared security.
+    Alistair gave a `talk <https://www.youtube.com/watch?v=mk8GWCczXHo>`__ in CV labs on shared security.
 
 **01.07.20**:
-    :doc:`Jonas <research_team_members/Jonas>` has started an internship research position to apply insights from behavioral economics and to analyze the human interaction with the protocol.
+    `Jonas <team_members/Jonas.html>`_ has started an internship research position to apply insights from behavioral economics and to analyze the human interaction with the protocol.
 
 **28.06.20**:
     Alistair has designed a succinct GRANDPA protocol.
@@ -56,7 +72,7 @@ News
     Samuel has started a part-time researcher position to analyze the theoretical properties of the auctions, which will be used to allocate parachain slots.
 
 **26.05.20**:
-    After many years of hard work, the initial version of Polkadot has finally `launched <https://polkadot.network/web3-foundation-initiates-launch-polkadot-is-live/>`_ today! During this phase, we retain superuser control of the network via a “sudo module”, which can be used easily deploy runtime upgrades containing fixes.
+    After many years of hard work, the initial version of Polkadot has finally `launched <https://polkadot.network/web3-foundation-initiates-launch-polkadot-is-live/>`__ today! During this phase, we retain superuser control of the network via a “sudo module”, which can be used easily deploy runtime upgrades containing fixes.
 
 **15.05.20**:
     Aleixo will start his Master thesis at W3F desiging a private interoperability protocol between Polkadot and zCash.
@@ -71,10 +87,10 @@ News
     Jeff gave a talk at Layer One online conference titled “Availability & Validity on Polkadot”.
 
 **02.05.20**:
-    The first version of the `Polkadot Overview paper <https://github.com/w3f/research/blob/master/docs/papers/OverviewPaper-V1.pdf>`_ is ready. Have a look!
+    The first version of the `Polkadot Overview paper <https://github.com/w3f/research/blob/master/docs/papers/OverviewPaper-V1.pdf>`__ is ready. Have a look!
 
 **27.04.20**:
-    Alfonso and Alistair prepared the first draft of the `NPoS paper <https://arxiv.org/abs/2004.12990>`_. Have a look!
+    Alfonso and Alistair prepared the first draft of the `NPoS paper <https://arxiv.org/abs/2004.12990>`__. Have a look!
 
 **27.03.20**:
     Fatemeh is programm committee member of IWPE 2020.
@@ -83,22 +99,22 @@ News
     The interlay (http://interlay.io) project has been comissioned by Web3 Foundation to work on Bitcoin-Polkadot bridge specification.
 
 **19-20.02.20**:
-    Alistair is going to attend the Standford Blockchain Conference 2020 and a co-located `Polkadot meetup <https://www.meetup.com/Polkadot-San-Francisco/events/268426884/>`_ organized by Web3 Foundation.
+    Alistair is going to attend the Standford Blockchain Conference 2020 and a co-located `Polkadot meetup <https://www.meetup.com/Polkadot-San-Francisco/events/268426884/>`__ organized by Web3 Foundation.
 
 **10.02.20**
     Handan and Jeff attended Financial Crypto 2020 and presented their posters.
 
 **13.01.20**
-    We published a medium blogpost on `XCMP <https://medium.com/web3foundation/polkadots-messaging-scheme-b1ec560908b7>`_ giving an overall overview of XCMP and descriping a number of design decisions.
+    We published a medium blogpost on `XCMP <https://medium.com/web3foundation/polkadots-messaging-scheme-b1ec560908b7>`__ giving an overall overview of XCMP and descriping a number of design decisions.
 
 **20.12.19**
-    We updated our :doc:`XCMP implementation considerations <polkadot/XCMP>`.
+    We updated our `XCMP implementation considerations <polkadot/XCMP>`_.
 
 **05.12.19**
-    Handan has finished a paper titled: `Consensus on Clock in Universally Composable Timing Model <https://eprint.iacr.org/2019/1348.pdf>`_. It is an updated version of Ouroboros Clepsydra that doesn’t rely on existence of some syncronized parties anymore.
+    Handan has finished a paper titled: `Consensus on Clock in Universally Composable Timing Model <https://eprint.iacr.org/2019/1348.pdf>`__. It is an updated version of Ouroboros Clepsydra that doesn’t rely on existence of some syncronized parties anymore.
 
 **03.12.19**
-    Syed attended the `ECC workshop <https://eccworkshop.org/2019/>`_ in Bochum, Germany.
+    Syed attended the `ECC workshop <https://eccworkshop.org/2019/>`__ in Bochum, Germany.
 
 **02.12.19**
     A poster from Jeff on incentivized mixing and a poster from Handan on consensus on clocks have been accepted at Financial Crypto 2020.
@@ -125,7 +141,7 @@ News
     At Devcon day 1, Fatemeh will give a short presentation about Polkadot's needs for p2p. On day 4, Alistair will give a devcon talk on our availabiltiy and validity scheme. Also on day 4, Alfonso will give a short presentation about governenace.
 
 **05.10.19**
-    Alistair gave a talk at the `NodeTokyo 2019 <https://nodetokyo.jp/>`_ about our NPoS solution.
+    Alistair gave a talk at the `NodeTokyo 2019 <https://nodetokyo.jp/>`__ about our NPoS solution.
 
 **17.09.19**
     Alistair's poster on GRANDPA has been accepted as an ACM CCS poster and will be pesented in CCS'19 in London.

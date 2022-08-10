@@ -1,6 +1,6 @@
 ====================================================================
 
-**Owners**: [Alfonso Cevallos](/research_team_members/alfonso.html)
+**Owners**: [Alfonso Cevallos](/team_members/alfonso.html)
 
 ====================================================================
 

@@ -1,31 +1,30 @@
 \section{Preliminaries}\label{s:prel}
 
 Throughout the paper we consider the following approval-based multiwinner election instance. 
-We are given a bipartite approval graph $G=(N\cup C, E)$ where $N$ is a set of voters and $C$ is a set of candidates. 
+We are given a bipartite approval graph $G=(N\cup C, E)$ where $N$ is a finite set of voters and $C$ is a finite set of candidates. 
 We are additionally given a vector $s\in\R^N$ of vote strengths, where $s_n$ is the strength of $n$'s vote, and a target number $k$ of candidates to elect, where $0< k<|C|$.
 For each voter $n\in N$, $C_n:=\{c\in C: \ nc\in E\}$ represents her approval ballot, i.e., the subset of candidates that $n$ approves of, and for each candidate $c\in C$ we denote by $N_c:=\{n\in N: \ nc\in E\}$ the set of voters approving $c$, where $nc$ is shorthand for edge $\{n,c\}$. 
-To avoid trivialities, we assume that graph $G$ in the input has no isolated vertices. 
+To avoid trivialities, we assume that the input graph $G$ has no isolated vertices. 
 For any $c\in C\setminus A$, we write $A+c$ and $A-c$ as shorthands for $A\cup\{c\}$ and $A\setminus \{c\}$ respectively. 
 
-\emph{Proportional justified representation (PJR).} 
-The PJR property was introduced in~\cite{sanchez2017proportional} for voters with unit vote strength. We present its natural generalization to arbitrary vote strengths. A committee $A\subseteq C$ of $k$ members satisfies PJR if there is no group $N'\subseteq N$ of voters and integer $0<r\leq k$ such that:
-%\begin{itemize}
-%\item[a)] $\sum_{n\in N'} s_n \geq \frac{r}{k} \sum_{n\in N}s_n$,
-%\item[b)] $|\cap_{n\in N'} C_n|\geq r$, and
-%\item[c)] $|A\cap (\cup_{n\in N'} C_n)|<r$.
-%\end{itemize}
+\paragraph{Proportional justified representation (PJR).} 
+The PJR property was introduced in~\cite{sanchez2017proportional} for voters with unit vote strength. We present its natural generalization to positive real valued strengths. 
+A committee $A\subseteq C$ of $k$ members satisfies PJR if, for any group $N'\subseteq N$ of voters and any integer $0<r\leq k$, we have that 
+\begin{itemize}
+\item[a)] if $|\cap_{n\in N'} C_n|\geq r$
+\item[b)] and $\sum_{n\in N'} s_n \geq r\cdot \hat{t}$, 
+\item[c)] then $|A\cap (\cup_{n\in N'} C_n)|\geq r$,
+\end{itemize}
 %
-$$\text{a) } \sum_{n\in N'} s_n \geq \frac{r}{k} \sum_{n\in N}s_n, \quad \quad \text{b) } |\cap_{n\in N'} C_n|\geq r, 
-\quad \quad \text{and c) } |A\cap (\cup_{n\in N'} C_n)|<r.$$
-%
-In words, if there is a group $N'$ of voters with at least $r$ commonly approved candidates, and enough aggregate vote strength to provide each of them with a vote support of value $\hat{t}:=\sum_{n\in N} s_n / k$, then this group has a justified right to be represented by at least $r$ members in committee $A$, though not necessarily commonly approved. 
-Notice that $\hat{t}$ is an upper bound on the average vote support that voter set $N$ can possibly provide to any committee of $k$ members. 
+where $\hat{t}:=\sum_{n\in N} s_n / k$. 
+In words, if there is a group $N'$ of voters with at least $r$ commonly approved candidates, and enough aggregate vote strength to provide each of these candidates with a vote support of at least $\hat{t}$, then this group has a justified right to be represented by $r$ members in committee $A$, though not necessarily commonly approved. 
+This right is justified because $\hat{t}$ is the largest possible average vote support that the full voter set $N$ can provide to any committee of $k$ members. 
 
-\emph{Maximin support objective.} 
-For the given instance, we consider a solution consisting of a tuple $(A,w)$, where $A\subseteq C$ is a committee of $k$ elected candidates, and $w\in\R^E$ is a vector of non-negative edge weights that represents a fractional distribution of each voter's vote among her approved candidates.%
-\footnote{This edge weight vector is related to the notions of \emph{support distribution function} in~\cite{sanchez2016maximin} and \emph{price system} in~\cite{peters2019proportionality}. In particular, all voting rules considered in this paper are \emph{priceable}, as defined in~\cite{peters2019proportionality}.} 
+\paragraph{Maximin support objective.} 
+For the given instance, we consider a solution consisting of a tuple $(A,w)$, where $A\subseteq C$ is a committee of $k$ candidates, and $w\in\R^E$ is a vector of non-negative edge weights that represents a fractional distribution of each voter's vote among her approved candidates.%
+\footnote{This edge weight vector is related to the notions of \emph{support distribution function} in~\cite{sanchez2016maximin} and \emph{price system} in~\cite{peters2019proportionality}. In particular, all election rules considered in this paper are \emph{priceable}, as defined in~\cite{peters2019proportionality}.} 
 For instance, for a voter $n$ this distribution may assign a third of $s_n$ to $c_1$ and two thirds of $s_n$ to $c_2$, where $c_1, c_2\in C_n$.
-Vector $w$ is considered \emph{feasible}%
+Vector $w$ is \emph{feasible}%
 \footnote{Intuitively, a feasible solution $(A,w)$ should also observe $w_{nc}=0$ for each edge $nc$ with $c\not\in A$. 
 However, as this constraint can easily be enforced in post-computation, we ignore it so that the feasibility of a vector $w$ is independent of any committee.} 
 if  % 
@@ -37,55 +36,45 @@ if  %
 In our analyses, we will also consider \emph{partial} committees, with $|A|\leq k$. If $|A|=k$, we call it \emph{full}. 
 All solutions $(A,w)$ in this paper are assumed to be feasible and full unless stated otherwise. 
 Given a (possibly partial, unfeasible) solution $(A,w)$, we define the \emph{support} over the committee members as 
-\begin{equation}
-\supp_w(c):=\sum_{n\in N_c} w_{nc} \quad \text{for each $c\in A, \quad$ and } \quad \supp_w(A):=\min_{c\in A} \supp_w(c), \label{eq:support}
-\end{equation}
+\begin{align}
+\supp_w(c) &:=\sum_{n\in N_c} w_{nc} \quad \text{for each $c\in A, \quad$ and } \nonumber \\
+\supp_w(A)& :=\min_{c\in A} \supp_w(c), \label{eq:support}
+\end{align}
 with the convention that $\supp_w(\emptyset)=\infty$ for any weight vector $w\in\R^E$. 
 The maximin support objective, introduced in~\cite{sanchez2016maximin}, asks to maximize the least member support $\supp_w(A)$ over all feasible full solutions $(A,w)$. 
 
-\emph{Balanced solutions.}
-For a fixed committee $A$, a feasible weight vector $w\in\R^E$ that maximizes $\supp_w(A)$ can be found efficiently. In this paper we seek additional desirable properties on a weight vector which can still be achieved efficiently. We say that a feasible $w\in\R^E$ is \emph{balanced for $A$}, or that $(A,w)$ is a balanced solution, if
+\paragraph{Balanced solutions.}
+For a fixed committee $A$, a feasible weight vector $w\in\R^E$ that maximizes $\supp_w(A)$ can be found efficiently. 
+However, we seek additional desirable properties for a weight vector which can still be achieved efficiently. We say that a feasible $w\in\R^E$ is \emph{balanced for $A$}, or that $(A,w)$ is a balanced solution, if
 \begin{enumerate}
     \item it maximizes the sum of member supports, $\sum_{c\in A} \supp_w(c)$, over all feasible weight vectors, and 
-    \item it minimizes the sum of supports squared, $\sum_{c\in A} \supp_w^2(c)$, over all vectors that observe the point above. 
+    \item it minimizes the sum of supports squared, $\sum_{c\in A} \supp_w^2(c)$, over all vectors that observe the first property above. 
 \end{enumerate}
-
+%
 In other words, a balanced weight vector maximizes the sum of supports and then minimizes their variance. 
 In the next lemma, whose proof is delayed to Appendix~\ref{s:proofs}, we establish some key properties that we exploit in our analyses. 
 
 \begin{lemma}\label{lem:balanced}
 Let $(A,w)$ be a balanced, possibly partial solution. Then,
 \begin{enumerate}
-    \item for each $1\leq r\leq |A|$, vector $w$ simultaneously maximizes $\min_{A'\subseteq A, |A'|=r} \ \sum_{c\in A'} \supp_{w'}(c)$ over all feasible weight vectors $w'\in\R^E$; 
-		\item for each voter $n\in \cup_{c\in A} N_c$, it must hold that $\sum_{c\in A\cap C_n} w_{nc}=s_n$; and
-    \item for each voter $n\in \cup_{c\in A} N_c$ and each candidate $c\in A\cap C_n$ with $w_{nc} > 0$, it must hold that $\supp_w(c)=\supp_w(A\cap C_n):=\min_{c'\in A\cap C_n} \supp_w(c')$. 
+    \item vector $w$ simultaneously maximizes, for each $1\leq r \leq |A|$, the quantity $\min_{A'\subseteq A, |A'|=r} \ \sum_{c\in A'} \supp_{w'}(c)$ over all feasible weight vectors $w'\in\R^E$; 
+		\item for each $n\in N$, $\sum_{c\in A\cap C_n} w_{nc}=s_n$ if $A\cap C_n\neq \emptyset$; and
+    \item for each $n\in N$ and each candidate $c\in A\cap C_n$, if $w_{nc} > 0$ then $\supp_w(c)=\supp_w(A\cap C_n)$. 
 \end{enumerate}
-Furthermore, a feasible solution $(A,w)$ is balanced if and only if it observes properties 2 and 3 above.
+Furthermore, a feasible solution $(A,w)$ is balanced if and only if it observes properties 2 and 3 above, which can be tested in $O(|E|)$ time.
 \end{lemma}
 
-Notice that by setting $r=1$ on the first point, we obtain that balanced vector $w$ indeed maximizes the least member support $\supp_w(A)$ over all feasible weight vectors. 
-More generally, for each threshold $r$ the quantity defined in the first point defines a lower bound on the cost for an adversary to get $r$ representatives in the validator committee in NPoS, so maximizing these objectives for all thresholds $r$ aligns with our security objective as it makes any attack as costly as possible. 
+Notice that by setting $r=1$ in the first property, we obtain that balanced vector $w$ indeed maximizes the least member support $\supp_w(A)$ over all feasible weight vectors. 
+More generally, for each threshold $r$ the quantity defined in the first property defines a lower bound on the cost for an adversary to get $r$ representatives in the validator committee in NPoS, so maximizing these objectives simultaneously for all thresholds $r$ aligns with our security objective as it makes any attack as costly as possible. 
 The second point follows from the fact that the sum of member supports is maximal, so all the available vote strength must be distributed among candidates in $A$. 
-The third point is a consequence of having the supports as evenly distributed as possible within $A$: if $c,c'\in A\cap C_n$ and candidate $c$ has a higher support than $c'$, then none of $n$'s vote should go to $c$, as all of it should be assigned to $c'$ or other members with low support. 
-%
+The third point is a consequence of having the supports as evenly distributed as possible within $A$: for each voter $n$, all of its vote strength should be assigned exclusively to the candidates in $A\cap C_n$ with least support $\supp_w(A\cap C_n)$. 
+
 In Appendix~\ref{s:balanced} we present algorithms for computing a balanced weight vector for a given committee $A$. 
-In particular, we prove that one can be found in time $O(|E|\cdot k + k^3)$ using parametric flow techniques, which to the best of our knowledge is the current fastest algorithm in the literature even for the simpler problem of maximizing $supp_w(A)$.
+In particular, we prove that one can be found in time $O(|E|\cdot k + k^3)$ using parametric flow techniques, which to the best of our knowledge is the fastest algorithm in the literature even for the problem of maximizing $\supp_w(A)$.
 
 \begin{remark}\label{rem:bal}
-In the remainder of the paper, we denote by $\bal$ the time complexity of finding a balanced weight vector for a given (possibly partial) committee, which will depend on the precise algorithm used.
+In the remainder of the paper, we denote by $\bal$ the time complexity of finding a balanced weight vector for a given (possibly partial) committee, depending on the precise algorithm used.
 \end{remark}
-
-
-\emph{Network flows.}
-In many proofs we deal with a vector $f\in\mathbb{R}^{E}$ of edge weights over the input graph $G=(N\cup C,E)$, which we regard as a vector of flows with positive signs considered to be flow directed toward $C$, and negative signs as flow directed toward $N$. 
-Consequently, the \emph{excess} of a voter $n\in N$ relative to $f$ is $f(n):=\sum_{c\in C_n} f_{nc}$, and the excess of a candidate $c\in C$ is $f(c):= -\sum_{n\in N_c} f_{nc}$. 
-A set of vertices $S\subseteq N\cup C$ has \emph{net excess} if $\sum_{x\in S} f(x)>0$, and it has \emph{net demand} if $\sum_{x\in S} f(x)<0$.    
-A vector $f'\in\mathbb{R}^E$ is a \emph{sub-flow of $f$} if a) for each edge $e\in E$ with $f'_e\neq 0$, flows $f'_e$ and $f_e$ have the same sign and $|f'_e|\leq |f_e|$, and b) for each vertex $x\in N\cup C$ with $f'(x)\neq 0$, excesses $f'(x)$ and $f(x)$ have the same sign and $|f'(x)|\leq |f(x)|$. 
-The proof of the next lemma is delayed to Appendix~\ref{s:proofs}.
-
-\begin{lemma}\label{lem:subflow}
-If weight vectors $w, w'\in\R^E$ are non-negative and feasible for the given instance, and $f'\in\mathbb{R}^E$ is a sub-flow of $f:=w'-w$, then both $w+f'$ and $w'-f'$ are non-negative and feasible as well.
-\end{lemma}
 
 \begin{remark}
 In all algorithms analyzed, we assume that all numerical operations take constant time.

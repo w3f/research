@@ -10,13 +10,28 @@
     background-color: black !important;
 }
 
-/* hide the current page's TOC in the left sidebar, since it is already in the
- * right sidebar */
-.md-nav--secondary + ul {
-    display: none;
-}
-
 /* material themes missing this definition, it's an obscure docutils thing */
 .align-right {
     float: right;
+}
+
+/* https://github.com/bashtage/sphinx-material/issues/85 */
+ol.arabic {
+    list-style: decimal;
+}
+
+ol.loweralpha {
+    list-style: lower-alpha;
+}
+
+ol.upperalpha {
+    list-style: upper-alpha;
+}
+
+ol.lowerroman {
+    list-style: lower-roman;
+}
+
+ol.upperroman {
+    list-style: upper-roman;
 }

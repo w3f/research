@@ -1,6 +1,6 @@
 \====================================================================
 
-**Owners**: :doc:`/research_team_members/Ximin`
+**Owners**: Ximin Luo
 
 \====================================================================
 
@@ -175,7 +175,6 @@ intention of preferring known-long-term nodes to unknown nodes.
 We should collect real-world logs about how often nodes drop vs whether this is
 short-term or long-term.
 
-TODO
 
 
 Routing table authentication

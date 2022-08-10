@@ -1,77 +1,131 @@
 \section{Introduction}
 
-The property of proportional representation in approval-based committee elections, discussed in the literature of computational social choice for a long time, is typically understood as ensuring that no minority in the electorate is underrepresented by the winning committee. 
-We complement this notion with an analysis of the opposite goal of fighting the overrepresentation of any minority. 
-We establish such objective formally as an optimization problem, related to the axiom of proportional justified representation (PJR), and propose efficient approximation algorithms for it. 
+
+%Mention that EOS only has 21 block producers at any time, so very centralized. Check how similar Tron is, which also uses DPoS. What about Steem?
+
+%Mention EOS was the biggest ICO at the time
+%Mention bound on number of active validators is part of general effort to make blockchain more efficient
+
+% Mention terms stake (ie collateral), stake pools and reward sharing schemes, representative democracy, and cite https://arxiv.org/ftp/arxiv/papers/1807/1807.11218.pdf
+% Cite same source for reasons to bound # of validators, and say another downside is that operational costs and extreme variance in income can discourage participation from small stakeholders, resulting in so-called "whales" dominating the system.
+% The remaining amount is distributed among the pool members, including the pool leader, proportionally to the stake that they contributed to the pool. In our analysis we will take advantage of automatic enforcement of our reward scheme, as e.g., this can be guaranteed by a smart contract built-in the underlying ledger
+%  elected representatives, despite getting equal power, are rewarded according to votes received; this inconsistency between representation and power may result in a relatively small fraction of stake controlling the system (e.g., at some point, controlling EOS delegates representing just 2.2% of stakeholders was sufficient to halt the system, which ideally could withstand a ratio less than 1/3). It may leave a large fraction of stakeholders without representation (e.g., in EOS, at some point, only 8% of total stake is represented by the 21 leading delegates).
+% This provides a game theoretical analysis for a proposed reward sharing scheme for stake pools, though unfortunately it has not been implemented as far as we can tell.
+
+% Mention we consider an adversary with a Sybil behavior.
+
+
+% Mention that, while the maximin support objective tries to maxim make it as expensive as possible to reach a certain number of representatives in terms of voting strength for a fixed committee size, the property of PJR (and in particular its parameterized version which we define in this paper) can be thought of as minimizing the 
+
+% Mention DPoS and Casper
+
+% Say we provide a robust analysis from the point of view of computational social choice. Don't say we're the "first" robust analysis.
+
+% Mention analysis of objective function is useful to motivate choice of objective, but from now on we'll only focus on the maximin support objective and not on (1)
+
+
+
+In an approval-based committee election, a voter either approves or disapproves of each candidate, without declaring any preferences among the approved ones~\cite{lackner2020approval}. From the voters' ballots taken as input, an election rule outputs a winning committee of candidates of a certain size $k$, in the pursuit of some goals or criteria. Proportional representation is one of the most prominent such criteria in the literature of these election rules. 
+It is typically understood as a guarantee that small minorities within the electorate are not \emph{underrepresented} by the winning committee, and is considered an imperative in any fair election process as it ensures that all voices are heard and all communities are satisfied and engaged. 
+In this paper we complement this notion by formalizing the opposite goal of preventing the \emph{overrepresentation} of any minority. We consider this to be a matter of security, and analyze a scenario where an adversarial minority may attempt to gain overrepresentation in the winning committee in order to capture the governance body or interfere with its correct functioning. 
 %
-Our work is motivated by the problem of electing participants to the consensus protocol -- whom we refer to as \emph{validators} -- in a blockchain network, where overrepresentation may affect security. 
-More precisely, under a proof-of-stake mechanism it is assumed that a majority of the native token is in the hands of honest actors, and this proportion of honest actors is to be preserved among the elected validators; 
-hence, if the validator committee is selected via an election process where users have a vote strength proportional to their token holdings, an adversarial minority should not be able to gain overrepresentation. 
-We propose an efficient election rule for the selection of validators which offers strong guarantees on security and proportionality, and can be successfully adapted to the blockchain architecture.
+Consequently, we consider the electoral system to be at risk of attack if the winning committee ever contains a subset of seats whose aggregate vote support is particularly low relative to the subset size, and establish an optimization problem that minimizes this risk. 
+In this work we justify this problem from first principles and provide a thorough analysis of its computational complexity. 
+%We also establish its connection to relevant axioms of proportional representation in the literature, 
+We also study the performance of the most prominent election rules in the literature of proportional representation, the conclusion being that each of them either fails to provide a security guarantee or is considerably slow. Finally, we present a new, more efficient election rule that provides strong guarantees in terms of security as well as traditional proportional representation. Full details are provided further below.
 
-%In the remainder of the introduction we give a brief description of this problem to motivate our results, yet we point out that the core sections of the paper focus on multiwinner election theory and approximation algorithms, and not on blockchain architecture.
+\paragraph{Blockchain architecture, verifiable computing and parallelism.}
+Our work is motivated by an application on public, permissionless blockchain networks. 
+These networks are equipped with computational and financial capabilities and have no central authority nor single point of failure, which gives them unprecedented levels of resistance to attacks, and for the first time removes the need for trusted intermediaries in peer-to-peer value transfers across the world. Recent years have seen an explosion of blockchain-based applications in finance, commerce, logistics, art and gaming; see~\cite{maesa2020blockchain} for a survey. 
+Rather than controlling the identity and correct execution of each node, a blockchain network freely allows nodes to join or leave the network pseudonymously, and adds enough redundancy to resist the erroneous execution of any one of them. 
+Nodes that participate in the consensus mechanism are known as \emph{validators}, and the correct functioning of the network is guaranteed as long as a supermajority of validators executes correctly.
 
-\emph{Background on Nominated Proof-of-Stake.}
-Many blockchain projects launched in recently years substitute the highly inefficient Proof-of-Work (PoW) component of Nakamoto's consensus protocol~\cite{nakamoto2019bitcoin} with Proof-of-Stake (PoS), in which validators participate in block production with a frequency proportional to their token holdings, as opposed to their computational power. 
-While a pure PoS system allows any token holder to participate directly, most projects propose some level of centralized operation, whereby the number $k$ of validators with full participation rights is limited. 
-Arguments for this configuration are that a) the increase in operational costs and communication complexity eventually outmatches the increase in decentralization benefits as $k$ grows, b) while many token holders may want to contribute in maintaining the system, the number of operators with the required knowledge and equipment to ensure a high quality of service is limited, and c) it is typically observed in networks (both PoW- and PoS-based) with a large number of validators that the latter tend to form pools anyway, in order to decrease the variance of their revenue and profit from economies of scale. 
-As an alternative, the system allows users to vote with their stake to elect validators that represent them and act on their behalf; networks following this approach include Polkadot, Cardano, EOS, Tezos, and Cosmos, among many others. 
+Yet, the advantages of a blockchain architecture come at the cost of hard computational limitations. For every new block of transactions, all validators around the globe need to perform the same computations locally, and the network must wait for all of them to finish and agree on the results before processing the next block. Furthermore, a robust design should account for computationally weak validators such as consumer-grade computers, as imposing high performance requirements would lead to centralization, so the per-block computing load must remain conservatively low. Because of this, earlier networks such as Bitcoin~\cite{nakamoto2019bitcoin} and Ethereum 1.0~\cite{wood2014ethereum} can only process tens of transactions per second~\cite{chauhan2018blockchain}. 
+
+As a consequence, only the most efficient algorithms -- such as those with a linear runtime -- can be directly implemented over a blockchain network. This represents a considerable hindrance for the use of committee election rules, in particular those sophisticated enough to provide guarantees on proportionality or security. 
+As a case in point, the $\MMS$ rule~\cite{sanchez2016maximin} provides these guarantees, as we establish in this paper, but its slow (polynomial) runtime makes it unsuitable for implementation. On the other hand, the EOS network~\cite{griggeos} applies the multiwinner approval voting rule on its validator selection protocol, a rule that is highly efficient yet known to perform very poorly in terms of proportional representation~\cite[Table 2]{lackner2020approval}. 
+The choice of this rule, in all likelihood based on operational considerations, has led to user discontent and claims of excessive centralization of the EOS network.%
 %
-While similar in spirit, the approaches in these networks vary in terms of design choices such as the incentive structure, the number $k$ of validators elected (from a few dozens to hundreds or even thousands), and the election rule used to select them. 
-In spite of the immense effect that the validator election protocol may have on the decentralization and security levels of these networks -- with market capitalizations in the order of billions of U.S. dollars -- a proper analysis of these design choices is generally lacking in the literature. 
-One of the main contributions of this paper is presenting such an analysis based on first principles.
+\footnote{See the opinion piece ``EOS voting structure encourages centralization''~\cite{garg} as well as the 
+news article ``Crypto ratings agency downgrades EOS for serious centralization problems''~\cite{chong}. 
+Also, authors Br{\"u}njes et al.~\cite{brunjes2020reward} state ``At some point, controlling EOS delegates representing just 2.2\% of stakeholders was sufficient to halt the system... [and] only 8\% of total stake is represented by the 21 leading delegates.'' 
+Finally, protocol designer Aarin Hagerty~\cite{hagerty} comments this about proposed election rules for EOS: ``Personally, I am not satisfied with any of these solutions because none of them addresses the proportional representation criterion. There are voting mechanisms that do satisfy it... The problem tends to be that they are actually very computationally intensive... For small numbers of winners and candidates it may be feasible (though this is still a difficult engineering challenge to build within smart contracts running on a blockchain), but if you go to even moderate numbers of winners and candidates it quickly explodes combinatorially and can even become infeasible to do off-chain... In summary, social choice theory is hard.''}
+%We expand on \emph{validator selection protocols} further below.
 
-We focus on Nominated Proof-of-Stake (NPoS), introduced by the Polkadot network~\cite{burdges2020overview}. In NPoS, users may become validator candidates, or become \emph{nominators} who approve of candidates that they trust and back them with their tokens, and at regular intervals a committee of $k$ validators is elected according to the current votes. 
-Both validators and nominators put their tokens as collateral and receive economic rewards on a pro-rata basis, but may also lose their collateral in case a backed validator shows negligent or adversarial behavior. 
-Nominators thus participate indirectly in the consensus protocol with an economic incentive to pay close attention to the evolving set of candidates and make sure that only the most capable and trustworthy among them get elected. 
+A number of solutions have been proposed and sucessfully implemented for scaling up the computational capabilities of new-generation blockchain networks, such as sharding and layer-2 solutions; see~\cite{zhou2020solutions} for a survey. 
+Of relevance to our work is the use of \emph{verifiable computing schemes}~\cite{gennaro2010non}. Such a scheme offloads a heavy task to one or more \emph{off-chain workers}, that is, entities that are logically separated from the rest of the network and may process the task on high-performance machines and/or with relaxed time frames as their operations do not interfere with block production. Once the task is completed and the output is fed back into the network, its correctness is verified by the validators. 
+This is a sensible scheme for a task if there exists a \emph{verification process} on its output that a) guarantees correctness, even when the task is performed by an untrusted party, b) has a much lower runtime than performing the task itself from scratch, and c) admits \emph{parallelism}, so that it can be executed over multiple computing units, each with bounded time and memory complexities. 
+These computing units may then be executed on consecutive blocks (sequentially) or separate shards (concurrently), depending on implementation.
+One of our main contributions is showing that our proposed rule admits a verification process on its winning committee that can check the guarantees on proportionality and security in \emph{linear time} in the size of the input (i.e., the voters' ballots). Moreover, this verification can be executed over multiple computing units each in time \emph{linear in the number of candidates} and independent of the number of voters. 
+In fact, the Polkadot network~\cite{burdges2020overview} is developing an implementation of our election rule within its validator selection protocol, as a verifiable computing scheme with parallelized verification, that can handle hundreds of candidates and a large number of voters; we include details of that protocol in this paper. 
 
-Let us formalize the validator election protocol in NPoS and derive its main design goals. 
-For simplicity, we consider that only nominators have stake, not candidates, and we equate stake to voting strength; moreover, each nominator may provide an unranked list of approved candidates of any size. This leads a to vote-weighted, approval-based committee election problem. 
-Elected validators will be backed by the nominators' stake, which acts as collateral for their performance. 
-Intuitively, the \textbf{security} of the network grows along with this stake backing, so the latter should be maximized; we make this intuition formal further below. 
-The second, equally important goal is \textbf{proportionality}, i.e., picking a committee where nominators are represented in proportion to their stake. 
-We highlight that diverse preferences and factions will naturally arise among nominators for reasons that range from economically and technically motivated to political and geographical, etc. 
-Such diversity of points of view is expected and welcome in a distributed system, and having a committee with proportionality guarantees helps keep the system decentralized and its users satisfied.
+Our work thus constitutes an effort towards applying verifiable computing to election rules. 
+Of course, one may argue that developing electoral systems that facilitate the public verification of results in accordance to clearly defined criteria is a worthwhile pursuit in itself, beyond any implementation concerns related to the blockchain architecture.
+Yet, it is worth mentioning that the issue of implementability has become ever more relevant in recent years, and not only for blockchain-based solutions expressly built for online voting. New blockchain networks with any sort of functionality are likely to run elections in two of their core protocols. 
+The first one is \emph{on-chain governance}~\cite{beck2018governance}: many projects are abandoning the notion of immutable code in favor of a more flexible design that facilitates future code upgrades via an embedded voting process of all holders of the native token. This process not only helps in terms of coordination but also legitimizes the result and avoids hard forks. 
+Governance may also allow token holders to vote on committees %, councils 
+and referenda, %launch their own candidacies, 
+raise proposals, form commissions, etc. 
+The second core protocol is validator selection, which we mentioned before and we describe in detail next as it is our motivating application and the background for our problem definition. 
 
-\emph{The proportionality goal.}
-One of our goals corresponds to the classical notion of proportional representation, i.e., the committee should represent each group in the electorate in proportion to their aggregate vote strength, with no minority being underrepresented. 
-Electoral system designs that achieve some version of proportional representation have been present in the literature of social choice for a very long time. Of special note is the work of Scandinavian mathematicians Edvard Phragm\'{e}n and Thorvald Thiele in the late nineteenth century \cite{phragmen1894methode, phragmen1895proportionella, phragmen1896theorie, phragmen1899till, thiele1895om, janson2016phragmen}. 
+\paragraph{Validator selection in Proof-of-Stake.}
+Many blockchain networks launched in recent years substitute the highly inefficient Proof-of-Work (PoW) component of the consensus mechanism~\cite{nakamoto2019bitcoin} with Proof-of-Stake (PoS), in which the level of participation of validators depends on their token holdings --their stake-- as opposed to their computational power. 
+While a pure PoS system allows any willing token holder to participate directly, most projects place a bound $k$ on the number of validators that can be active at any given moment. 
+Arguments for setting such a bound are that the increase in operational costs and communication complexity eventually outmatches the marginal increase in benefits stemming from decentralization as $k$ grows, and that most users with little stake would find it inconvenient to keep a node constantly online for only sporadic participation, and would rather form validation pools in order to decrease the variance on their revenue and profit from economies of scale. %
+%
+Instead, a system may use ``representative democracy'' to formalize and facilitate the formation of these pools, allowing users to either launch their candidacy as validators, or indicate the candidates that they trust. From this input, the protocol then selects a committee with $k$ of the most trusted candidates as validators. Networks that broadly follow this approach include Polkadot~\cite{burdges2020overview}, Cardano~\cite{brunjes2020reward}, and more generally those that apply Delegated Proof-of-Stake (DPoS) or Ouroboros~\cite{kiayias2017ouroboros} protocols. 
+
+While similar in spirit, the approaches taken by these projects vary in several regards, most significantly in terms of incentives and the electoral system used. These design choices are of the utmost importance as they affect the decentralization and security levels achieved by the network; we refer again to the case of the EOS network, which implements DPoS and whose centralization issues are mentioned above. 
+Yet, rigorous analyses behind these design choices are generally scarce. 
+A notable exception is the recent work by Br{\"u}njes et al.~\cite{brunjes2020reward}, that proposes an incentive scheme for stake pools backed by a game theoretical analysis. In turn, in the present work we propose for the first time an electoral system for the selection of validators and analyze it from the perspective of computational social choice. 
+
+We focus on Nominated Proof-of-Stake (NPoS), the design implemented by the Polkadot and Kusama networks~\cite{burdges2020overview}. In NPoS, any stakeholder is free to become a validator candidate, or a \emph{nominator} who provides an unranked list of candidates that she trusts. At regular intervals of a few hours, a committee of $k$ validators --in the order of hundreds-- is elected according to the current nominators' preferences. 
+As a security measure, both validators and nominators have their stake locked as collateral, so that if a validator ever shows negligent or adversarial behavior, backing nominators are susceptible to losing their stake. Conversely, during normal execution the network provides economic rewards to all validators and their backing nominators in proportion to their stake and in a non-custodial way. Nominators are thus indirect participants in the consensus mechanism with a vested economic interest to guard the performance of validators and support only the most capable and trustworthy candidates.
+
+\paragraph{Problem definition.}
+For the sake of simplicity, in what follows we consider a model where only nominators have stake, not candidates, and we equate their stake amount to their voting strength. This leads to a vote-weighted, approval-based committee election problem. 
+We remark that most of the following concepts are described in terms of unit votes in the literature; in this paper we generalize them to positive real valued vote strengths, following the principle that a voter with two units of strength is equivalent to two voters with unit strength and identical preferences. 
+As mentioned before, we set to achieve both proportional representation and security. We formalize each of these goals next. 
+
+Proportional representation: We aim to guarantee that nominators are not \emph{underrepresented} relative to their stake by the elected validators. 
+We highlight that diverse preferences and factions may naturally arise among nominators for reasons that range from economically and technically motivated to political, geographical, etc., and that preserving this diversity among the elected validators ensures that the network stays decentralized. 
+
+Electoral system designs that achieve some form of proportional representation have been present in the literature for a very long time. Of special note is the work of Scandinavian mathematicians Edvard Phragm\'{e}n and Thorvald Thiele in the late nineteenth century \cite{phragmen1894methode, phragmen1895proportionella, phragmen1896theorie, phragmen1899till, thiele1895om, janson2016phragmen}. 
 Several axioms have been recently proposed to define the property mathematically -- we mention the most relevant ones. 
 \emph{Justified representation} (JR)~\cite{aziz2017justified} states that if a group of voters is cohesive enough in terms of candidate preferences and has a large enough aggregate vote strength, then it has a justified claim to be represented by a member of the committee.
 \emph{Proportional justified representation} (PJR)~\cite{sanchez2017proportional} says that such a group deserves not just one but a minimum number of representatives according to its vote strength, where a committee member is said to represent the group as long as it represents any voter in it.
 Finally, \emph{extended justified representation} (EJR)~\cite{aziz2017justified} strengthens this last condition and requires not only that the group have enough representatives collectively, but some voter in it must have enough representatives individually.
 It is known that EJR implies PJR and PJR implies JR, but converse implications are not true~\cite{sanchez2017proportional}. %
-For each of these properties, a committee voting rule is said to satisfy said property if its output committee always satisfies it for any input instance. 
-While the most common voting rules usually achieve JR, they fail the stronger properties of PJR and EJR, and up to recently there were no known efficient voting rules that satisfy the latter two. 
-For instance, the \emph{proportional approval voting} (PAV) method \cite{thiele1895om, janson2016phragmen} proposed by Thiele satisfies EJR but is NP-hard to compute, while efficient heuristics based on it, such as reweighted approval voting, fail PJR \cite{aziz2014computational, skowron2016finding, aziz2017justified}. 
-Only very recently have efficient algorithms that achieve PJR or EJR finally been proposed \cite{brill2017phragmen, sanchez2016maximin, aziz2018complexity, peters2019proportionality}. 
+For each of these properties, a committee election rule is said to satisfy said property if its output committee always satisfies it for any input instance. 
+While the most common election rules usually achieve JR, they fail the stronger properties of PJR and EJR, and up to recently there were no known efficient rules that satisfy the latter two. 
+For instance, the proportional approval voting (PAV) method \cite{thiele1895om, janson2016phragmen} proposed by Thiele satisfies EJR but is NP-hard to compute, while efficient heuristics based on it, such as reweighted approval voting, fail PJR \cite{aziz2014computational, skowron2016finding, aziz2017justified}. 
+Only in recent years have efficient algorithms that achieve PJR or EJR finally been proposed \cite{brill2017phragmen, sanchez2016maximin, aziz2018complexity, peters2019proportionality}. 
 
-Among these axioms, we set to achieve \textbf{PJR}, defined formally in Section~\ref{s:prel}, for two reasons. 
-First, because it is more \emph{Sybil resistant}~\cite{douceur2002sybil} than JR, meaning that in our blockchain application a strategic voter may be incentivized to assume several nominator identities in the network under JR, but not under PJR. 
-Second, because PJR seems to be most compatible with our security objective. Indeed, as argued in~\cite{peters2019proportionality} and \cite{lackner2020approval}, the PJR and EJR axioms correspond to different notions of proportionality: while EJR is primarily concerned with the general welfare or satisfaction of the voters, PJR considers proportionality of the voters' decision power, and our security objective aligns with the latter notion as we explain below.
+Among these axioms, \textbf{we set to achieve PJR}, defined formally in Section~\ref{s:prel}, for two reasons. 
+First, because it is more \emph{Sybil resistant}~\cite{douceur2002sybil} than JR, meaning that in our application a strategic voter may be incentivized to assume several nominator identities in the network under JR, but not under PJR. 
+Second, because PJR seems to be most compatible with our security objective, as we argue below. Indeed, as claimed in~\cite{peters2019proportionality} and \cite{lackner2020approval}, the PJR and EJR axioms seem to correspond to different notions of proportionality: while EJR is primarily concerned with the voters' satisfaction, PJR considers proportionality of the voters' decision power, and our security objective aligns best with the latter notion.
 
-\emph{The security goal.} 
-In a PoS-based consensus protocol, we want a guarantee that as long as most of the stake is in the hands of actors that behave honestly or rationally, carrying any attack will be very costly. If we assume that the attack requires control of some minimum number of validators to succeed, an adversarial minority needs to procure itself said number of representatives in the committee. The security level is hence proportional to how difficult it is for an entity to gain overrepresentation in the validator election protocol. Interestingly, this is in stark contrast to the classical approach taken in proportional representation axioms, that only seeks to avoid underrepresentation. 
+Security: 
+As is the case in any PoS-based blockchain network, under NPoS the basic security assumption is that most of the stake is held by actors who behave honestly or rationally. Under this assumption, we consider an adversary that attempts to carry out an attack on the network, and has the power to create any number of identities including both nominators and candidates (via Sybil behavior), yet has a bounded stake budget. Depending on the type of attack, in order to succeed it will require that a minimum number of candidates under its control get elected in the committee, and the adversary may recur to strategic voting to achieve this. Therefore, the security level corresponds to how difficult it is for a voter or group of voters with limited aggregate voting strength to gain \emph{overrepresentation} in the elected committee. 
 
-Further formalizing our election problem, we consider finite sets $N$ and $C$ of voters (nominators) and candidates respectively, where every voter $n\in N$ provides a list $C_n\subseteq C$ of approved candidates and has a vote strength (stake) $s_n$. 
+Further formalizing our problem, we consider finite sets $N$ and $C$ of voters and candidates respectively, where every voter $n\in N$ provides a list $C_n\subseteq C$ of approved candidates and has a vote strength $s_n$. 
 %There is also a target number $1\leq k< |C|$ of candidates to elect.
-Suppose we want to make it as difficult as possible for an adversary to gain a certain threshold $1\leq r\leq k$ of representatives into the $k$-validator committee. 
+Suppose we want to make it as difficult as possible for an adversary to gain a certain threshold $1\leq r\leq k$ of representatives within the $k$-validator committee. 
 Then, our goal would be to elect a committee $A\subseteq C$ that maximizes 
-$$\min_{A'\subseteq A, |A'|=r} \sum_{n\in N: \ C_n\cap A'\neq \emptyset} s_n.$$ 
-
-The amount $\sum_{n\in N: \ C_n\cap A'\neq \emptyset} s_n$ is the total stake backing validators in $A'$, which acts as a collateral susceptible to being lost if $A'$ carries on an attack. Hence, maximizing this amount not only makes it difficult for the adversary to gain enough representatives, but also expensive to attack the network with them. 
-We remark as well that on top of potential collateral loss, validators in $A'$ should consider the potential loss of reputation, where their reputation translates to current and future payouts (in case of honest behavior), also proportional to the previous amount. 
+$$\min_{A'\subseteq A, \  |A'|=r} \quad \sum_{n\in N: \ C_n\cap A'\neq \emptyset} s_n.$$ 
+%
+For any subset $A'\subseteq A$ of $r$ seats in committee $A$, the quantity above is the aggregate vote strength that is backing any seat in $A'$. In our application, this quantity also corresponds to the total collateral susceptible to being lost if $A'$ carries out an attack; hence, maximizing this amount not only makes it difficult for the adversary to gain enough representatives, but also costly to attack if it does. Of course, on top of the potential loss of collateral, the adversary must also consider the potential loss of representation in future elections, which translates to loss of future payouts. %
 
 We thus obtain a different optimization objective for each value of threshold $r$. 
-If we are only concerned about a particular threshold $r$, then we can fix the corresponding objective. 
-For example, for $r=1$, maximizing this objective is equivalent to the classical multiwinner approval voting: selecting the $k$ candidates $c\in C$ with highest total approval $\sum_{n\in N: \ c\in C_n} s_n$. 
-Or, we could set $r=\lceil k/3\rceil$, which is the minimum threshold required to carry on a successful attack in classical Byzantine fault tolerant protocols~\cite{pease1980reaching}. 
-However, different types of attacks require different thresholds, and some attacks succeed with higher probability with more attacking validators. Hence, a more pragmatic approach is to incorporate the threshold into the objective and maximize \emph{the least possible per-validator cost over all thresholds}, i.e.,  
+If we are only concerned about a particular threshold, we can fix the corresponding objective. 
+For example, for $r=1$, the objective is equivalent to the classical multiwinner approval voting rule: selecting the $k$ candidates $c\in C$ with highest total approval $\sum_{n\in N: \ c\in C_n} s_n$. 
+Or, we could set $r$ to $\lceil k/3\rceil$ or to $\lceil k/2\rceil$, which are respectively the thresholds required to carry out a successful attack in classical Byzantine fault tolerant consensus~\cite{pease1980reaching} and in Nakamoto consensus~\cite{stifter2018agreement}. 
+Yet, different types of attacks require different thresholds, and some attacks succeed with higher probability with more attacking validators. Hence, a more pragmatic approach is to incorporate the threshold into the objective and maximize \emph{the least possible cost per seat over all thresholds}, i.e.,  
 \begin{align}\label{eq:security}
-    \text{Maximize } \min_{A'\subseteq A, A'\neq \emptyset} \quad \frac{1}{|A'|} \sum_{n\in N: \ C_n\cap A' \neq \emptyset} s_n, \quad \text{over all committees $A\subseteq C$ with $|A|=k$}.
+    \max_{A\subseteq C, \ |A|=k} \quad \min_{A'\subseteq A, \ A'\neq \emptyset} \quad \frac{1}{|A'|} \sum_{n\in N: \ C_n\cap A' \neq \emptyset} s_n.
 \end{align}
 
-We establish in Lemma~\ref{lem:equivalence} that this objective is equivalent to the \textbf{maximin support objective}, recently introduced by Sánchez-Fernández et al.~\cite{sanchez2016maximin}, and which we thus set to optimize. 
+We establish in Theorem~\ref{thm:equivalence} that this objective is equivalent to the \textbf{maximin support objective}, recently introduced by Sánchez-Fernández et al.~\cite{sanchez2016maximin}, which we thus set to optimize. 
 We define it formally in Section~\ref{s:prel}.
 %To define this last objective, which we do formally in Section~\ref{s:prel}, one needs the election rule to establish not only a winning committee $A\subseteq C$, but also a \emph{vote distribution}; that is, a fractional distribution of each voter $n$'s vote strength $s_n$ among her approved committee members in $C_n\cap A$.%
 %\footnote{This is called a \emph{support distribution function} in~\cite{sanchez2016maximin}, and is related to the notion of a \emph{price system} in~\cite{peters2019proportionality}.} 
@@ -82,53 +136,54 @@ The authors in~\cite{sanchez2016maximin} remark that in its exact version, maxim
 Thus, the same hardness and incompatibility with EJR holds true for our security objective. 
 %To the best of our knowledge, the approximability of maximin support has not previously been studied.
 
-\textbf{Our contribution.}
-Our security analysis in the election of validators under NPoS leads us to pursue the goal of fighting overrepresentation, and more specifically to the maximin support objective.  
-Conversely, we also formalize our goal of proportionality with the PJR property, which fights underrepresentation. 
-We show in this paper that these two objectives complement each other well, and prove the existence of efficient election rules that achieve guarantees for both objectives. 
+\paragraph{Our contribution.}
+Our security analysis for the selection of validators leads us to pursue the maximin support objective, which prevents overrepresentation. Conversely, we equate our proportionality goal to the PJR property, which prevents underrepresentation. 
+We show that these goals are compatible and complement each other well, and prove the existence of efficient election rules that achieve guarantees for both of them. 
 
 \begin{theorem}\label{thm:intro1}
-There is an efficient election rule for approval-based committee elections that simultaneously achieves the PJR property and a 3.15-factor approximation guarantee for the maximin support objective.
+There is an efficient election rule for approval-based committee elections that simultaneously achieves the PJR property and a 3.15-approximation guarantee for maximin support.
 \end{theorem}
 
-%To complement this result, we also prove that a constant-factor approximation is best possible for this objective. 
-Our proposed election rule is inspired in the $\phragmen$ method~\cite{brill2017phragmen}, and to the best of our knowledge we present the first analysis of approximability for a Phragm\'{e}n objective. 
+To the best of our knowledge, this constitutes the first analysis of approximability for a Phragm\'{e}n objective. 
 In contrast, several approximation algorithms for Thiele objectives have been proposed; see~\cite{lackner2020approval} for a survey. 
-
-Next comes the question of applicability: the blockchain architecture adds very stringent time constraints to computations, and may render all but the simplest algorithms unimplementable.%
+To complement this result, we also prove that a constant-factor approximation is theoretically best possible for maximin support. 
 %
-\footnote{For instance, the PoS-based project EOS uses multiwinner approval voting (AV) to elect a validator committee, which is a highly efficient election rule but is known to perform quite poorly in terms of proportionality. This has led to user dissatisfaction and claims of excessive centralization. 
-For an analysis, we refer to the blogpost ``EOS voting structure encourages centralization'' by Priyeshu Garg at \url{https://cryptoslate.com/eos-voting-structure-encourages-centralization/}} %
-% 
-This is because, in order to reach consensus on a protocol, typically all validators must execute it in parallel, and no further blocks can be produced until they finish the computation and agree on the output. 
-However, if an output can be \emph{verified} much faster than it can be computed, then it is possible to dump the computation to \emph{off-chain workers}, who execute it privately and separately from block production, leaving only the verification task to validators. This is the case for our election rule.
+Next comes the question of applicability: as mentioned previously, the blockchain architecture adds stringent constraints to computations. However, if the output can be \emph{verified} much faster than it can be computed from scratch, then the task can be implemented as a verifiable computing scheme. This is the case for our new election rule.
 
 \begin{theorem}\label{thm:intro2}
-There is a linear-time test that takes as input an election instance and an arbitrary solution to it, such that if the test passes then the input solution satisfies the PJR property and a 3.15-factor approximation guarantee for the maximin support objective. 
-Moreover, the output of the election rule mentioned in Theorem~\ref{thm:intro1} always passes this test.
+There is a verification test that takes as input the election instance and an arbitrary solution to it, such that if the solution passes it then it satisfies the PJR property and a 3.15-approximation guarantee for maximin support. 
+Furthermore, the output of the election rule alluded to in Theorem~\ref{thm:intro1} always passes this test.
+Finally, the test has a runtime linear in the size of the input, and can be parallelized into multiple computing units each with a runtime linear in the number of candidates and independent of the number of voters. 
+ 
 \end{theorem}
 
-We remark that a solution passing our test is a sufficient but not a necessary condition for it to have the properties above, hence the fact that the output of our election rule always passes the test is not straightforward.
-Such efficient verification helps ensure implementability as well as transparency in a decentralized governance process, and we believe this to be the most important feature of our proposed election rule relative to others in the literature. 
-In the context of our motivating application, it enables a fast validator election protocol in a blockchain network with strong and verifiable guarantees on security and proportionality. 
-We provide details on such a protocol in Section~\ref{s:objectives}, which will be the basis for an implementation in the Polkadot network.
-
-Finally, we derive from the new election rule a post-computation which, when paired with any approximation algorithm for the maximin support problem, makes it also satisfy the PJR property in a black-box manner.
+We remark that passing this test is a sufficient but not a necessary condition for a solution to have the aforementioned properties, hence the fact that the output of our proposed election rule passes the test is not straightforward.
+This result enables the first implementation of a validator selection protocol with strong theoretical guarantees on security and proportionality. 
+We propose such a protocol for Polkadot in Section~\ref{s:implement}.
+%
+Finally, we derive from the new election rule a post-computation which, when paired with any approximation algorithm for maximin support, makes it also satisfy the PJR property in a black-box manner.
 
 \begin{theorem}\label{thm:intro3}
-There is an efficient computation that takes as input an election instance and an arbitrary solution to it, and outputs a new solution which a) is no worse than the input solution in terms of the maximin support objective, b) satisfies the PJR property, and in particular c) can be efficiently tested to satisfy the PJR property.
+There is an efficient computation that takes as input an election instance and an arbitrary solution to it, and outputs a new solution which a) is no worse than the input solution in terms of the maximin support objective, b) satisfies the PJR property, and in particular c) can be efficiently verified to satisfy the PJR property.
 \end{theorem}
 
-\textbf{Organization of the paper and technical overview.}
-In Section~\ref{s:prel} we formalize our multiwinner election problem and its objectives, abstracting it away from the motivating application. Then, in Section~\ref{s:complexity} we present a thorough analysis of the complexity of the maximin support objective, where we exhibit constant-factor approximation algorithms for it, as well as prove a hardness result showing that a constant-factor guarantee is best possible. We also compare the performance of several common election rules with respect to this objective.
-In Section~\ref{s:heuristic} we propose a new heuristic, $\phragmms$, inspired in $\phragmen$~\cite{brill2017phragmen} but allowing for a more robust analysis and better guarantees than the latter both in terms of the PJR property and the maximin support objective, and we use it to prove Theorem~\ref{thm:intro1}. 
+This result shows that PJR is strongly compatible with maximin support (unlike EJR) and can be easily added to future approximation algorithms that may be developed for this objective.
 
-In these sections we formalize the \emph{load balancing} technique in $\phragmen$ in terms of network flow, give a precise definition of what a \emph{balanced solution} is, and provide an algorithm to compute one efficiently using notions of parametric flow. We then compare our heuristic to others in the literature in terms of how they compute or approximate balanced solutions, and use the flow decomposition theorem to establish approximation guarantees. Our comparison provides new tools to discern between different election rules. For instance, the survey paper by Lackner and Skowron~\cite{lackner2020approval} mentions $\phragmen$ and $\MMS$~\cite{sanchez2016maximin} as two efficient rules that achieve the PJR property and leaves as an open question which of the two is preferable, whereas we show in Section~\ref{s:complexity} that the latter provides a constant-factor approximation guarantee for maximin support but the former does not. 
-Furthermore, contrary to the common notion that the EJR property is categorically superior than PJR, we establish PJR as the better choice for our application.
+\paragraph{Organization of the paper and technical overview.}
+In Section~\ref{s:prel} we formalize the objectives of our multiwinner election problem and provide required technical definitions. 
+Then, in Section~\ref{s:complexity} we present a thorough complexity analysis for maximin support, including both new approximability and hardness results. 
+We also compare the performance, relative to this objective, of the most relevant election rules in the literature of proportional representation. 
+Our comparison provides new tools to discern between these rules. For instance, the survey paper~\cite{lackner2020approval} mentions $\phragmen$~\cite{brill2017phragmen} and $\MMS$~\cite{sanchez2016maximin} as two efficient rules that achieve the PJR property and leaves as an open question which of the two is preferable, whereas we show that out of the two only the latter provides a constant-factor approximation guarantee for maximin support. 
 
-In Section~\ref{s:local} we prove Theorems \ref{thm:intro2} and \ref{thm:intro3}, and explore how the PJR property and a constant-factor approximation guarantee for maximin support can be efficiently tested, even if the algorithm is privately executed by an untrusted party who only communicates the solution. 
-To do so, we define a parametric version of the PJR property, and link it to a notion of local optimality for our new heuristic. 
-In terms of techniques, we introduce a prover-verifier paradigm to election rules. We insist that an election rule should not only achieve certain required properties, but any party (the public, stake holders, etc.) should be in condition to test them efficiently on the winning solution. Such functionality will be key for implementing election rules in a decentralized network, and may be of independent interest elsewhere. 
+Next, in Section~\ref{s:heuristic} we prove Theorem~\ref{thm:intro1} and propose $\phragmms$, a new rule inspired in $\phragmen$~\cite{brill2017phragmen}, but with a more involved candidate selection heuristic that allows for better guarantees for both maximin support and the PJR property. 
+In Section~\ref{s:local} we prove Theorem~\ref{thm:intro2} and explore how guarantees for these two objectives can be efficiently verified on the output solution. 
+To do so, we define a parametric version of PJR, and link it to a notion of local optimality for our new rule, which is easy to test. 
+In Section~\ref{s:implement} we propose a validator selection protocol for Polkadot that executes $\phragmms$ as a verifiable computing scheme. 
+Finally, we present some conclusions and open questions in Section~\ref{s:conc}. 
+Due to space constraints, the proof of Theorem~\ref{thm:intro3} was moved to Appendix~\ref{s:LS}, where we transform our rule from a greedy algorithm into a local search algorithm. 
 
-Finally, in Section~\ref{s:objectives} we go back to our motivating application and propose a validator election protocol for an NPoS-based blockchain network that uses off-chain workers, where we exploit our results. This proposal will be the basis for an implementation in Polkadot. 
-%We present some conclusion and open question in Section~\ref{s:conclusions}.
+In our analyses, we build upon the notion of \emph{load balancing} used in $\phragmen$, a consider distributions of votes from voters to committee members as a network flow over the bipartite approval graph.  
+We define what an (ideally) \emph{balanced distribution} is, and in Appendix~\ref{s:balanced} we provide an algorithm to compute one efficiently for a fixed committee, using notions of parametric flow. 
+Then, we synthesize the strategies of several heuristics in the literature according to how well they balance vote distributions,  and apply the flow decomposition theorem to derive approximation guarantees. Most of the proofs involving network flow theory are delayed to Appendix~\ref{s:flow}. 
+%
+For the sake of completeness, in Appendix~\ref{s:algorithms} we present algorithmic considerations to speed up the computation of the new $\phragmms$ rule, and in Appendix~\ref{s:lazymms} we show how one can shave off a factor $\Theta(k)$ from the runtime of the $\MMS$ rule~\cite{sanchez2016maximin} by using the theoretical tool set developed in this paper. Some delayed proofs are presented in Appendix~\ref{s:proofs}.

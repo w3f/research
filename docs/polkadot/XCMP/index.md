@@ -53,7 +53,7 @@ This restriction is enforced by allowing XCMP only between pairs of parachain wh
 
 ## Authentication for consistent history
 
-A fork of the Polkadot relay chain defines a possible history of Polkadot. For parachains that refer to a particular relay chain history, we want to act on those messages and only those that were sent in this history. This means that we must use the relay chain to authenticate messages. To make this efficient and scalable we make it as light in computation and data storage as possible for the relay chain. To authenticate messages, a collator can include messages in a PoW block as follows:
+A fork of the Polkadot relay chain defines a possible history of Polkadot. For parachains that refer to a particular relay chain history, we want to act on those messages and only those that were sent in this history. This means that we must use the relay chain to authenticate messages. To make this efficient and scalable we make it as light in computation and data storage as possible for the relay chain. To authenticate messages, a collator can include messages in a PoV block as follows:
 
 1. A collator should find out from the relay chain what the latest messages for their parachain are, and then try to obtain those messages from the sending parachain. They can get these from validators who validated the sending parablock, full nodes of the sending chain or nodes of the receiving chain that already have them.
 
