@@ -9,7 +9,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Web3 Foundation Research'
-copyright = '2019, Web3 Foundation'
+copyright = '2019-2022, Web3 Foundation'
 author = 'Web3 Foundation'
 
 # The short X.Y version
