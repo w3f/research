@@ -1,5 +1,5 @@
-sphinx~=4.5
+sphinx~=5.1
 sphinx-serve~=1.0
-sphinx-markdown-parser>=0.2.4
-pymdown-extensions==9.4
+git+https://github.com/FlorianFranzen/sphinx-markdown-parser.git@markdown_deprecated
+pymdown-extensions~=9.5
 sphinx-material
