@@ -11,13 +11,11 @@ jobs:
           command: |
             apt-get update
             apt-get install -y graphviz
-            pip install virtualenv
 
-            python3.8 -mvirtualenv --no-download .
+            python3.8 -m venv --no-download .
 
             source bin/activate
 
-            pip install sphinx sphinx-serve
             pip install -r docs/requirements.txt
 
             sphinx-build -b html docs _build/html
@@ -43,7 +41,4 @@ workflows:
   version: 2
   build_and_test:
     jobs:
-      - tests:
-          filters:
-            tags:
-              only: /.*/
+      - tests
