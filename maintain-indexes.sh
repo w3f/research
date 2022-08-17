@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Autogenerate dummy missing index pages
 
 for dir in $(find docs -mindepth 1 -type d); do
