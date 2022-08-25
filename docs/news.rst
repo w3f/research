@@ -2,7 +2,7 @@
 News
 ====
 **01.08.22**
-    We have open sourced a fully succinct BLS signature aggregation achieved using custom SNARKs. This allows one to define and construct accountable light client systems that, in turn, are the core cryptographic primitive used for building bridges between PoS blockchains. See _`the project page <https://github.com/w3f/apk-proofs>`_ for full details."
+    We have open sourced a fully succinct BLS signature aggregation achieved using custom SNARKs. This allows one to define and construct accountable light client systems that, in turn, are the core cryptographic primitive used for building bridges between PoS blockchains. See `the project page <https://github.com/w3f/apk-proofs>`_ for full details."
 **02.12.21**:
     Our `research on accountable light clients <https://github.com/w3f/research-internal/blob/master/papers/LightClientPoster/poster.pdf>`_ has been accepted at the poster session of `Financial Cryptography 2022 <https://fc22.ifca.ai/>`_.
 **01.07.21**:
