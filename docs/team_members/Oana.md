@@ -26,4 +26,4 @@ I hold a Mathematics and Computer Science degree from [University of Bucharest, 
 
 **Recent Projects**
 
-* We have open-sourced a fully succinct BLS signature aggregation achieved using custom SNARKs. This allows one to define and construct accountable light client systems that, in turn, are the core cryptographic primitive used for building bridges between PoS blockchains. See https://github.com/w3f/apk-proofs for full details, including a formal write-up.
+* We have open-sourced a fully succinct BLS signature aggregation achieved using custom SNARKs. This allows one to define and construct accountable light client systems that, in turn, are the core cryptographic primitive used for building bridges between PoS blockchains. See [here](https://github.com/w3f/apk-proofs) for full details, including a formal write-up.
