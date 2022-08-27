@@ -23,3 +23,7 @@ I hold a Mathematics and Computer Science degree from [University of Bucharest, 
 * Michael Backes, Oana Ciobotaru and Anton Krohmer. [RatFish: A File Sharing Protocol Provably Secure Against Rational Users](https://link.springer.com/chapter/10.1007%2F978-3-642-15497-3_37). In 15th European Symposium on Research in Computer Security (ESORICS 2010). Lecture Notes in Computer Science, pages 607-625. Springer, 2010.
 
 * Ariel Gabizon, Zachary J. Williamson, Oana Ciobotaru. [PLONK: Permutations over Lagrange-bases for Oecumenical Noninteractive arguments of Knowledge](https://eprint.iacr.org/2019/953), IACR ePrint, 2019
+
+**Recent Projects**
+
+* We have open-sourced a fully succinct BLS signature aggregation achieved using custom SNARKs. This allows one to define and construct accountable light client systems that, in turn, are the core cryptographic primitive used for building bridges between PoS blockchains. See https://github.com/w3f/apk-proofs for full details, including a formal write-up.
