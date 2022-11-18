@@ -1,9 +1,9 @@
 ====
 News
 ====
-**18.11.22**
-We have open sourced and published an `efficiency improvement to our BLS signature aggregation <https://github.com/w3f/bls/blob/skalman-double-puclic-key-verify/ChaumPedersenPoPs.pdf>`_ by having public keys in both source groups of the BLS pairing and also adding Chaum-Pedersen proofs to individual signatures.
 
+**18.11.22**
+    We have open sourced and published an `efficiency improvement to our BLS signature aggregation <https://github.com/w3f/bls/blob/skalman-double-puclic-key-verify/ChaumPedersenPoPs.pdf>`_ by having public keys in both source groups of the BLS pairing and also adding Chaum-Pedersen proofs to individual signatures.
 **01.08.22**
     We have open sourced a fully succinct BLS signature aggregation achieved using custom SNARKs. This allows one to define and construct accountable light client systems that, in turn, are the core cryptographic primitive used for building bridges between PoS blockchains. See `the project page <https://github.com/w3f/apk-proofs>`_ for full details.
 **02.12.21**:
