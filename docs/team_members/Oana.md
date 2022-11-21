@@ -26,7 +26,7 @@ I hold a Mathematics and Computer Science degree from [University of Bucharest, 
 
 **Pre-prints**
 
-* Oana Ciobotaru, Fatemeh Shirazi, Alistair Stewart and Sergey Vasilyev.[Accountable Light Client Systems for PoS Blockchains](https://eprint.iacr.org/2022/1205), IACR ePrint, 2022
+* Oana Ciobotaru, Fatemeh Shirazi, Alistair Stewart and Sergey Vasilyev. [Accountable Light Client Systems for PoS Blockchains](https://eprint.iacr.org/2022/1205), IACR ePrint, 2022
 
 * Jeff Burges, Oana Ciobotaru, Syed Lavasani and Alistair Stewart. [Efficient Aggregatable BLS Signatures with Chaum-Pedersen Proofs](https://eprint.iacr.org/2022/1611), IACR ePrint, 2022
 
