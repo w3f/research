@@ -3,7 +3,7 @@ News
 ====
 
 **18.11.22**
-    We have open sourced and published an `improvement to our BLS signature aggregation <https://github.com/w3f/bls/blob/skalman-double-puclic-key-verify/doc/ChaumPedersenPoPs.pdf>`_ which allows for more efficient signature verification. We have submitted this work to `Financial Cryptography 2023 <https://fc23.ifca.ai/>`_.
+    We have open sourced and published an `improvement to our BLS signature aggregation <https://eprint.iacr.org/2022/1611>`_ which allows for more efficient signature verification. We have submitted this work to `Financial Cryptography 2023 <https://fc23.ifca.ai/>`_.
 **01.08.22**
     We have open sourced a fully succinct BLS signature aggregation achieved using custom SNARKs. This allows one to define and construct accountable light client systems that, in turn, are the core cryptographic primitive used for building bridges between PoS blockchains. See `the project page <https://github.com/w3f/apk-proofs>`_ for full details.
 **02.12.21**:
