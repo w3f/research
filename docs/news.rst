@@ -7,7 +7,7 @@ News
 **01.08.22**
     We have open sourced a `fully succinct BLS signature aggregation achieved using custom SNARKs <https://eprint.iacr.org/2022/1205>`_. This allows one to define and construct accountable light client systems that, in turn, are the core cryptographic primitive used for building bridges between PoS blockchains. See `the project page <https://github.com/w3f/apk-proofs>`_ for full details.
 **02.12.21**:
-    Our `research on accountable light clients <https://github.com/w3f/research-internal/blob/master/papers/LightClientPoster/poster.pdf>`_ has been accepted at the poster session of `Financial Cryptography 2022 <https://fc22.ifca.ai/>`_.
+    Our `research on accountable light clients <https://eprint.iacr.org/2022/1205>`_ has been accepted at the poster session of `Financial Cryptography 2022 <https://fc22.ifca.ai/>`_.
 **01.07.21**:
     Jonas published a blog post about `Nominating and Validator Selection on Polkadot <https://polkadot.network/nominating-and-validator-selection-on-polkadot/>`_ where he stressing the importance of building and maintaining a trusting relationship between nominators and their validators and shows how various economic and socio-economic aspects can guide that process.
 **21.06.21**:
