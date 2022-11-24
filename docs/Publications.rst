@@ -5,6 +5,10 @@ Publications
 
 **Papers:**
 
+* Jeff Burdges, Oana Ciobotaru, Syed Lavasani, Alistair Stewart, `Efficient Aggregatable BLS Signatures with Chaum-Pedersen Proofs <https://eprint.iacr.org/2022/1611>`_, in submission. 
+
+* Oana Ciobotaru, Fatemeh Shirazi, Alistair Stewart, Sergey Vasilyev, `Accountable Light Client Systems for PoS Blockchains <https://eprint.iacr.org/2022/1205>`_, in submission.
+
 * Handan Kılınç Alper and Alptekin Küpçü, `Optimally Efficient Multi-party Fair Exchange and Fair Secure Multi-party Computation <https://dl.acm.org/doi/abs/10.1145/3477530>`_, ACM Transactions on Privacy and Security.
 
 * Handan Kılınç Alper and Jeff Burdges,  `Two-Round Trip Schnorr Multi-signatures via Delinearized Witnesses <https://eprint.iacr.org/2020/1245>`_, CRYPTO 2021

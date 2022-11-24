@@ -15,5 +15,5 @@ relevant at this layer; for point-to-point mechanics see :doc:`networking`.
    finality
    Availability_and_Validity
    XCMP
-   accountable light client systems and bridges
+   LightClientsBridges
    
