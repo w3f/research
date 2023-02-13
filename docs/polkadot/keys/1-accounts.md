@@ -9,9 +9,9 @@ We believe Polkadot accounts should primarily use Schnorr signatures with both p
 I'll write a another comment giving more details behind this choice, but the high level summary goes:
 
 
-Account keys must support the diverse functionality desired of account keys on other systems like Ethereum and Bitcoin.  As such, our account keys shall use Schnorr signatures because these support fast batch verification and hierarchical deterministic key derivation ala [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#Child_key_derivation_CKD_functions). All features from the [Bitcoin Schnoor wishlist](https://github.com/sipa/bips/blob/bip-schnorr/bip-schnorr.mediawiki) provides a case for Schnorr signatures matter too, like
+Account keys must support the diverse functionality desired of account keys on other systems like Ethereum and Bitcoin.  As such, our account keys shall use Schnorr signatures because these support fast batch verification and hierarchical deterministic key derivation ala [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#Child_key_derivation_CKD_functions). All features from the [Bitcoin Schnorr wishlist](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki) provides a case for Schnorr signatures matter too, like
 
- - interactive threshold and multi-signaturtes, as well as
+ - interactive threshold and multi-signatures, as well as
  - adaptor, and perhaps even blind, signatures for swaps and payment channels. 
 
 
