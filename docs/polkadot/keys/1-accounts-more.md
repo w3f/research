@@ -6,7 +6,7 @@ We believe Polkadot accounts should primarily use Schnorr signatures with both p
 
 ## Schnorr signatures 
 
-We prefer Schnorr signatures because they satisfy the [Bitcoin Schnoor wishlist](https://github.com/sipa/bips/blob/bip-schnorr/bip-schnorr.mediawiki) and work fine with extremely secure curves, like the Ed25519 curve or secp256k1.  
+We prefer Schnorr signatures because they satisfy the [Bitcoin Schnorr wishlist](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki) and work fine with extremely secure curves, like the Ed25519 curve or secp256k1.  
 
 We observe the Bitcoin Schnorr wishlist oversells the promise of schnorr multi-signatures because they actually require three round trips, which works for industrial usage, but complicates.  Another scheme call mBCJ from pages 21 and 22 of https://eprint.iacr.org/2018/417.pdf provides a two round trip multi-signature, but we require a delinearized variant of mBCJ for accounts https://github.com/w3f/schnorrkel/issues/15 and mBCJ is not actually a Schnorr signatures. 
 
@@ -34,17 +34,17 @@ There are two theoretical reasons for preferring an twisted Edwards curve over s
 
 I foresee only one substancial reason for avoiding secp256k1:  All short Weierstrass curves like secp256k1 have [incomplete addition formulas](https://safecurves.cr.yp.to/complete.html), meaning certain curve points cannot be added to other curve points.  As a result, addition code must check for failures, but these checks make writing constant time code harder.  We could examine any secp256k1 library we use in Polkadot to ensure it both does these checks and has constant-time code.  We cannot however ensure that all implementations used by third party wallet software does so.
 
-I believe incomplete addition formulas looks relatively harmless when used for simple Schnorr signatures, although forgery attacks might exist.  I'd worry more however if we began using secp256k1 for less well explored protocols, like multi-signaturtes and key derivation.   We ware about such use cases however, especially those listed in the [Bitcoin Schnoor wishlist](https://github.com/sipa/bips/blob/bip-schnorr/bip-schnorr.mediawiki).  
+I believe incomplete addition formulas looks relatively harmless when used for simple Schnorr signatures, although forgery attacks might exist.  I'd worry more however if we began using secp256k1 for less well explored protocols, like multi-signaturtes and key derivation.   We ware about such use cases however, especially those listed in the [Bitcoin Schnorr wishlist](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki).  
 
 ### Is Ed25519 risky?  Aka use Ristretto
 
 Any elliptic curve used in cryptography has order h*l where l is a big prime, normally close to a power of two, and h is some very small number called the cofactor.  Almost all protocol implementations are complicated by these cofactors, so implementing complex protocols is safer on curves with cofactor h=1 like secp256k1.  
 
-The Ed25519 curve has cofactor 8 but a simple convention called "clamping" that makes two particularly common protocols secure.  We must restrict or drop "clamping" for more complex protocols, like multi-signaturtes and key derivation, or anything else in the [Bitcoin Schnoor wishlist](https://github.com/sipa/bips/blob/bip-schnorr/bip-schnorr.mediawiki).  
+The Ed25519 curve has cofactor 8 but a simple convention called "clamping" that makes two particularly common protocols secure.  We must restrict or drop "clamping" for more complex protocols, like multi-signaturtes and key derivation, or anything else in the [Bitcoin Schnorr wishlist](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki).  
 
 If we simple dropped "clamping" then we'd make implementing protocols harder, but luckily the [Ristretto](https://ristretto.group) encoding for the Ed25519 curve ensures we avoid any curve points with 2-torsion.  I thus recommend:
  - our secret key continue being Ed25519 "expanded" secret keys, while
- - our on-chain encoding, aka "point compression" becomes Ristretto for both public keys and the `R` component of Schnoor signatures. 
+ - our on-chain encoding, aka "point compression" becomes Ristretto for both public keys and the `R` component of Schnorr signatures. 
 
 In principle, we could use the usual Ed25519 "mini" secret keys for simple use cases, but not when doing key derivation.  We could thus easily verify standrad Ed25519 signatures with Ristretto encoded public keys.  We should ideally use Ristretto throughout instead of the standard Ed25519 point compression.  
 
