@@ -1,0 +1,21 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2513
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww28600\viewh18000\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 # Accountable Light Client Systems for Secure and Efficient Bridges\
+\
+===================================================================================================\
+\
+**Owners**: [Oana Ciobotaru](/team_members/Oana.html)\
+\
+===================================================================================================\
+\
+A major challenge for blockchain interoperability is having an on-chain light client protocol that is both efficient and secure. We present [a protocol that provides short proofs about the state of a decentralised consensus](https://eprint.iacr.org/2022/1205) while being able to detect misbehaving parties. To do this naively, a verifier would need to maintain an updated list of all participants' public keys which makes the corresponding proofs long. In general, existing solutions either lack accountability or are not efficient. We define and design a committee key scheme with short proofs that do not include any of the individual participants' public keys in plain. Our committee key scheme, in turn, uses a custom designed SNARK which has a fast prover time. Moreover, using our committee key scheme, we define and design an accountable light client system as the main cryptographic core for building bridges between proof of stake blockchains. Finally, [we implement a prototype of our custom SNARK](https://github.com/w3f/apk-proofs) for which we provide benchmarks.\
+\
+More concretely, we aim to use the solution described above for building a BLS-based bridge between Kusama and Polkadot. The light client verifier of any such bridge would be GRANDPA-based and, if designed naively, would require verifying hundreds of signatures for every justification. Using aggregation of BLS signatures, we can reduce this to verifying one signature against hundreds of public keys. In our solution linked above, we do not need to communicate either hundreds of public keys or hundreds of signatures.\
+\
+Classical BLS signatures (as described for example in [Chapter 15.5, construction 15.5.3.2.](http://toc.cryptobook.us/book.pdf)) have fast aggregated signature verification but slow individual signature verification. Since our accountable light client system linked above and, implicitly our bridge design can benefit from BLS signatures with more efficient verification in the individual and aggregated case, [we propose a three part optimisation that dramatically reduces CPU time in large distributed systems using BLS signatures](https://eprint.iacr.org/2022/1611):  First, public keys should be given on both source groups, with a proof-of-possession check for correctness. Second, aggregated BLS signatures should carry their particular aggregate public key in the second source group, so that verifiers can do both hash-to-curve and aggregate public key checks in the first source group. Third, individual non-aggregated BLS signatures should carry short [Chaum-Pedersen DLEQ proofs of correctness](https://link.springer.com/content/pdf/10.1007/3-540-48071-4_7.pdf), so that verifying individual signatures no longer requires pairings, which makes their verification much faster. We prove security for these optimisations. The proposed scheme is implemented and benchmarked to compare with classical BLS scheme.\
+}
