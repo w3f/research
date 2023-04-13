@@ -20,7 +20,7 @@ Jonas has joined the team of the Web3 Foundation at the beginning of July 2020 a
 
 **Academic Publications**:
 
-* Gehrlein, J., Miebs, G., Matteo, B., & Kadziński, M. (2022). An active preference learning approach to aid the selection of validators in blockchain environments. Available at SSRN 4253515. (Working Paper)
+* Gehrlein, Jonas, et al. "An active preference learning approach to aid the selection of validators in blockchain environments." Omega 118 (2023): 102869.
 
 * Gehrlein, J. (2019). Experimental evidence on human choices in organizations and markets (Doctoral dissertation, Universität Bern).
 
