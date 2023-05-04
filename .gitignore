@@ -6,6 +6,7 @@ lib/
 include/
 bin/
 .DS_Store
+node_modules
 
 *.aux
 *.bbl
