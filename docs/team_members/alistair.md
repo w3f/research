@@ -2,7 +2,7 @@
 title: Alistair Stewart
 ---
 
-<img style="float: right;" src="https://i.imgur.com/5wzFx7b.jpg" width = '190'/>
+<!-- <img style="float: right;" src="https://i.imgur.com/5wzFx7b.jpg" width = '190'/> -->
 
 alistair@web3.foundation
 

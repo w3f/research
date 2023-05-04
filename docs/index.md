@@ -2,7 +2,7 @@
 title: Research at Web3 Foundation
 ---
 
-import DocCardList from '@theme/DocCardList';
+<!-- import DocCardList from '@theme/DocCardList'; -->
 
 Web3 Foundation Research is being done in an in-house [research team](team_members), mostly located in Zug (Switzerland), as well as in collaboration with industrial projects and academic research groups. To stay up to date with our research team efforts visit `news`.
 
@@ -23,4 +23,4 @@ Some of our current initiatives:
 
 Talk to us on Riot at #w3f:matrix.org.
 
-<DocCardList />
+<!-- <DocCardList /> -->

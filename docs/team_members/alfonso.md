@@ -1,6 +1,6 @@
 # Alfonso Cevallos
 
-![](Alfonso.jpg)
+<!-- ![](Alfonso.jpg) -->
 
 alfonso@web3.foundation
 

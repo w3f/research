@@ -2,7 +2,7 @@
 title: Handan Kılınç Alper
 ---
 
-<img style="float: right;" src="https://i.imgur.com/dNlMcBu.jpg" width = '160'/>
+<!-- <img style="float: right;" src="https://i.imgur.com/dNlMcBu.jpg" width = '160'/> -->
 
 handan@web3.foundation
 
