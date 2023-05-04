@@ -1,0 +1,134 @@
+\documentclass{article}
+%=================Begin:Packages===================
+\usepackage[english]{babel}
+\usepackage{mathtools}
+\usepackage{hyperref}
+
+\mathtoolsset{showonlyrefs=true}
+\addto\extrasenglish{ \renewcommand{\sectionautorefname}{\S} \let\subsectionautorefname\sectionautorefname \let\subsubsectionautorefname\sectionautorefname }
+% The lines above allow for the option to use \autoref{}, which adds the section symbol § next to the section number.
+
+\usepackage[margin=1.3in]{geometry}
+
+
+\usepackage{graphicx}
+\usepackage{bmpsize}
+
+\usepackage{enumitem}
+\usepackage{url}
+
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{xargs}                      % Use more than one optional parameter in a new commands
+\usepackage[pdftex,dvipsnames]{xcolor}  % Coloured text etc.
+%
+\usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
+\usepackage[normalem]{ulem}
+\usepackage{longtable}
+\sloppy
+%=================End:Packages===================
+
+%=================Begin:Macros===================
+
+
+%*** To comment a text use e.g. \yourname{the text that you comment}{ your comment}
+\newcommandx{\fatemeh}[2]{{\uline{#1}}\textcolor{pink}{(#2)}}
+\newcommandx{\handan}[2]{{\uline{#1}}\textcolor{red}{(#2)}}
+\newcommandx{\eray}[2]{{\uline{#1}}\textcolor{blue}{(#2)}}
+\newcommandx{\jeff}[2]{{\uline{#1}}\textcolor{green}{(#2)}}
+\newcommandx{\al}[2]{{\uline{#1}}\textcolor{cyan}{(#2)}}
+\newcommandx{\sergey}[2]{{\uline{#1}}\textcolor{gray}{(#2)}}
+\newcommandx{\alfonso}[2]{{\uline{#1}}\textcolor{purple}{(#2)}}
+\newcommandx{\syed}[2]{{\uline{#1}}\textcolor{orange}{(#2)}}
+\newcommandx{\ximin}[2]{{\uline{#1}}\textcolor{red}{(#2)}}
+\newcommandx{\leon}[2]{{\uline{#1}}\textcolor{brown}{(#2)}}
+
+%***To uncomment all the comments comment out the above macros and replace with below
+
+%\newcommandx{\fatemeh}[2]{{#1}{}}
+%\newcommandx{\handan}[2]{{#1}{}}
+%\newcommandx{\eray}[2]{{#1}{}}
+%\newcommandx{\jeff}[2]{{#1}{}}
+%\newcommandx{\al}[2]{{#1}{}}
+%\newcommandx{\sergey}[2]{{#1}{}}
+%\newcommandx{\alfonso}[2]{{#1}{}}
+%\newcommandx{\syed}[2]{{#1}{}}
+
+\newcommand{\Nom}{\ensuremath{\mathcal{N}}} % Set of nominators
+\newcommand{\Val}{\ensuremath{\mathcal{V}}} % Set of elected validators
+\newcommand{\nval}{\ensuremath{n_{val}}} % Number of validators to elect
+\newcommand{\Can}{\ensuremath{\mathcal{C}}} %Set of candidate validators
+\newcommand{\nom}{\ensuremath{n}} % A nominator
+\newcommand{\val}{\ensuremath{v}} %A validator
+\newcommand{\col}{\ensuremath{c}} %A collator
+\newcommand{\Par}{\ensuremath{P}} %A particular parachain
+\newcommand{\Col}{\ensuremath{\mathcal{C}}} %Set of collators
+\newcommand{\slot}{\ensuremath{sl}} %slot number
+\newcommand{\ep}{\ensuremath{e}} %epoch number
+\newcommand{\lclock}{\ensuremath{\mathsf{clock}}} %local clock
+\newcommand{\block}{\ensuremath{B}} % a block
+\newcommand{\bchain}{\ensuremath{\bar{B}}} %blockchain
+\newcommand{\D}{\ensuremath{\Delta}}
+\newcommand{\sk}{\ensuremath{\mathsf{sk}}} %vrf secret key
+\newcommand{\pk}{\ensuremath{\mathsf{pk}}} %vrf public key
+
+%OTHER NOTATIONS WITHOUT MACROS
+%\Val_\Par -> Validator set for a particular parachain \par
+
+%=================End:Macros=====================
+
+%=================Begin:Definitions===================
+%Please add you variable definitions here
+%=================End:Definitions===================
+
+
+
+\title{Overview of Polkadot and its Design Considerations}
+
+\author{
+  Jeff Burdges$^1$, Alfonso Cevallos$^1$, Peter Czaban$^1$\\
+  \and
+  Rob Habermeier$^2$, Syed Hosseini$^1$, Fabio Lama$^1$,\\
+  \and
+  Handan K{\i}l{\i}n\c{c} Alper$^1$, Ximin Luo$^1$, Fatemeh Shirazi$^1$, \\
+  \and
+  Alistair Stewart$^1$, Gavin Wood$^{1,2}$\\
+  \\
+  \texttt{$^1$ Web3 Foundation},\\
+  \texttt{$^2$ Parity Technologies}
+%  \texttt{firstname@web3.foundation},
+%\texttt{firstname@parity.io}
+}
+
+
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+In this paper we describe the design components of the heterogenous multi-chain protocol Polkadot and explain how these components help Polkadot address some of the existing shortcomings of blockchain technologies.
+At present, a vast number of blockchain projects have been introduced and employed with various features that are not necessarily designed to work  with each other.  This makes it difficult for users to utilise a large number of applications on different blockchain projects. Moreover, with the increase in number of projects the security that each one is providing individually becomes weaker.
+Polkadot aims to provide a scalable and interoperable framework for multiple chains with pooled security that is achieved by the collection of components described in this paper.
+\end{abstract}
+
+%\newpage
+\tableofcontents
+\newpage
+\input{introduction}
+\input{summary}
+\input{preliminaries}
+%\input{properties}
+\input{components}
+%\input{PolkadotInPractice}
+
+\section*{Acknowledgement}
+We would like to thank Bill Laboon from Web3 Foundation for his feedback and Parity Technologies developers for their useful input and good discussions.
+\bibliographystyle{plain}
+\bibliography{references,crypto,rt,grandpa}
+\begin{appendix}
+\input{background}
+\end{appendix}
+
+\end{document}

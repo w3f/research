@@ -1,0 +1,91 @@
+\section{A local search algorithm}\label{s:LS}
+
+Suppose that we know of an approximation algorithm for maximin support with no known guarantee to satisfy the PJR property, or we happen to know of a high quality solution in terms of maximin support but we ignore if it satisfies PJR. Can we use it to find a new solution of no lesser quality which also satisfies PJR? And can we efficiently convince a verifier of this fact? We answer these questions in the positive for the first time, and prove Theorem~\ref{thm:intro3}.
+
+We present a local search algorithm that takes an arbitrary full solution as input, and iteratively drops a member of least support and inserts a new candidate with highest score, using the heuristic presented in Section~\ref{s:inserting}. 
+The procedure always maintains or increases the value of the least member support, hence the quality of the solution is preserved. Furthermore, as this local search converges to a locally optimal solution, the solutions found along the way are guaranteed to satisfy PJR after a limited number of iterations. 
+Therefore, this procedure can be used as an efficient post-computation of any algorithm for maximin support, in a black-box manner, to enable the PJR property.
+ This local search variant of $\phragmms$ highlights the robustness of this heuristic; in particular, there is no evident way to build a similar variant from $\phragmen$~\cite{brill2017phragmen}, since its analysis of the PJR property makes assumptions on the structure of the current solution at the beginning of each iteration. 
+
+As we did in Section~\ref{s:inserting}, in the following algorithm we assume that the background instance $(G=(N\cup C, E), s, k)$ is known and that does not need to be passed as input. 
+Instead, the input is a feasible full solution $(A,w)$, and a parameter $\eps>0$. 
+Our proposed algorithm $\local$ is presented in Algorithm~\ref{alg:localpjr}. 
+
+\begin{algorithm}[htb]
+\SetAlgoLined
+\KwData{Full feasible solution $(A,w)$, parameter $\eps>0$.}
+\tcp{parameter related to def.~of standard PJR} 
+Let $\hat{t}\leftarrow \sum_{n\in N} s_n / |A|$ \;
+\While{True}{
+ \tcp{find member with least support} 
+  Find tuple $(c_{\min}, t_{\min})$ so that $c_{\min}\in A$ and $t_{\min}=\supp_w(c_{\min})=\supp_w(A)$ \;
+	\tcp{find candidate with highest score} 
+  Let $(c_{\max}, t_{\max})\leftarrow \maxscore(A,w)$ \;
+  \lIf {($t_{\max}< \min\{ (1+\eps)\cdot t_{\min}, \hat{t}\}$)} {\Return $(A,w)$}
+  Update $(A,w)\leftarrow \ins(A-c_{\min},w,c_{\max},t_{\max})$\;
+}
+\caption{$\LSPJR(A,w,\eps)$}
+\label{alg:localpjr}
+\end{algorithm}
+
+\begin{theorem}\label{thm:enabler}
+For any $\eps>0$ and a feasible full solution $(A,w)$, let $(A',w')$ be the output solution to $\LSPJR(A,w,\eps)$. Then: 
+\begin{enumerate}
+    \item $(A',w')$ is feasible and full, and $\supp_{w'}(A')\geq \supp_w(A)$; \label{item:support}
+		\item if $(A,w)$ has an $\alpha$-approximation guarantee for maximin support, for some $\alpha\geq 1$, then the algorithm performs at most $k\cdot \lfloor 1+\log_{1+\eps} \alpha\rfloor +1$ iterations, each in time $O(|E|\cdot \log k)$; \label{item:iterations}
+		\item $(A', w')$ satisfies the condition on Lemma~\ref{lem:locality} for parameter $t=\min\{(1+\eps)\cdot \supp_{w'}(A'), \hat{t}\}$, hence $A'$ verifiably satisfies both standard PJR and $[(1+\eps)\cdot \supp_{w'}(A')]$-PJR; and
+		\label{item:tPJR}
+		\item by setting $\eps\rightarrow\infty$, the algorithm finds a solution satisfying standard PJR in at most $k+1$ iterations. \label{item:infinity}
+
+\end{enumerate}
+\end{theorem}
+
+This proves Theorem~\ref{thm:intro3}. 
+Notice that point~\ref{item:iterations} establishes that the algorithm above can be executed as a post-computation of any constant-factor approximation algorithm for maximin support in time $O(|E|\cdot k\log k)$. In particular, this complexity is lower than that of each constant-factor approximation presented in this paper.
+By point~\ref{item:infinity}, the algorithm can be sped up if we only care about standard PJR, or can run further iterations to converge to a locally optimal solution and achieve a stronger parametric PJR guarantee. 
+
+\begin{proof}
+We start with the easier statements. 
+As we update the current solution by calling the $\ins$ algorithm, Lemma~\ref{lem:insert} guarantees that the solution remains feasible and full. 
+Next, whenever the algorithm terminates, point~\ref{item:tPJR} follows from Lemma~\ref{lem:locality} and the fact that the stopping condition is satisfied. 
+Furthermore, point~\ref{item:infinity} is just a special case of point~\ref{item:iterations}, for a high enough value of $\eps$. 
+Hence, it only remains to prove the inequality in point~\ref{item:support}, as well as point~\ref{item:iterations}. 
+
+In what follows we use $i$ as a superscript to indicate the value of the different variables at the beginning of the $i$-th iteration. 
+ Let $t^i_{\st}:=\min\{(1+\eps)\cdot t^i_{min}, \hat{t}\}$, so that the stopping condition reads $t^i_{\max} \stackrel{?}{<} t^i_{\st}$. 
+Notice that $t^i_{\min}\leq \hat{t}$ always holds by definition of $\hat{t}$ and feasibility of $w^i$, so $t^i_{\min}\leq t^i_{\st}$ holds as well. 
+ 
+We prove the inequality in point~\ref{item:support} by induction on $i$. 
+Consider an iteration $i\geq 0$ in which the stopping condition does not hold, so $t^i_{\max} \geq t^i_{\st}\geq t^i_{\min}$. 
+On one hand, it is evident that 
+$$\supp_{w^i}(A^i-c^i_{\min})\geq \supp_{w^i}(A^i)=t^i_{\min}, $$ 
+%
+i.e., the least support can only increase when we drop member $c_{\min}^i$ from the committee. 
+On the other hand, we also have that  
+\begin{align*}
+\prescore_{(A^i-c_{\min}^i, w^i)}(c^i_{\max}, t^i_{\max}) &\geq \prescore_{(A^i, w^i)}(c^i_{\max}, t^i_{\max}) \\
+	& = t^i_{\max}\geq t^i_{\min},
+\end{align*}
+%
+or more generally, for any fixed candidate, threshold, and edge weight vector, a parameterized score can only increase when a committee member is dropped. Such fact follows from the definitions of slack and parameterized score. 
+Thus, by Lemma~\ref{lem:insert}, 
+\begin{align*}
+\supp_{w^{i+1}} (A^{i+1}) \geq \min & \Big\{ \supp_{w^i}(A^i-c^i_{\min}), t^i_{\max}, \\
+	& \prescore_{(A^i-c_{\min}^i, w^i)}(c^i_{\max}, t^i_{\max})\Big\} \geq t^i_{\min}, 
+\end{align*}
+which is what we needed to show.
+
+We continue to point \ref{item:iterations}. The complexity of an iteration is dominated by the call to $\maxscore$, which takes time $O(|E|\cdot \log k)$ by Theorem~\ref{thm:runtimes}. 
+It remains to prove the bound on the number $T$ of total iterations. 
+To do that, we analyze the evolution of the least member support $t^i_{\min}=\supp_{w^i}(A^i)$. 
+\emph{Claim A:} If ever $t^i_{\min}=\hat{t}$, then the algorithm terminates immediately, i.e., $i=T$. This is because in this case all members in $A^i$ must have a support of exactly $\hat{t}$, all voters a zero slack for threshold $\hat{t}$, and all candidates in $C\setminus A^i$ a zero parameterized score for $\hat{t}$, and hence a score strictly below $\hat{t}$, and the stopping condition is fulfilled.
+\emph{Claim B:} For any iteration $i$ with $1\leq i<T-k$, we have $t^{i+k}_{\min}\geq (1+\eps)\cdot t^{i}_{\min}$. This is because, by Lemma~\ref{lem:insert}, in each iteration $j\geq i$ we are removing a member of least support while not increasing the number of members with support below 
+$$\prescore_{(A^j - c^j_{\min}, w^j)}(c^j_{\max}, t^j_{\max})\geq t^j_{\max}\geq t^j_{\st}\geq t^i_{\st},$$
+ %
+where we used the obvious fact that $t^i_{\st}$ is monotone increasing throught the iterations.  
+As there are only $k$ committee members, it takes at most $k$ iterations to remove all members with support below $t^i_{\st}$, so we must have that $t^{i+k}_{\min}\geq t^i_{\st}=\min\{(1+\eps)\cdot t^i_{\min}, \hat{t}\}$. 
+Since the $(i+k)$-th iteration is not the last one, and by Claim A,  $t^{i+k}$ cannot be higher than $\hat{t}$, so it must be higher than $(1+\eps)\cdot t^i_{\min}$, which proves Claim B.
+Therefore, if the algorithm outputs a solution $(A^T,w^T)$ and has an input solution $(A^1, w^1)$ with an $\alpha$-approximation guarantee for the maximin support objective, then 
+$$\alpha\cdot \supp_{w^1}(A^1) \geq \supp_{w^T}(A^T) \geq (1+\eps)^{\lfloor (T-1)/k \rfloor} \cdot \supp_{w^1}(A^1).$$
+Hence, $\alpha\geq (1+\eps)^{\lfloor (T-1)/k \rfloor}$, and $T\leq k\cdot \lfloor 1+\log_{1+\eps} \alpha \rfloor+1$. This completes the proof of point \ref{item:iterations}.
+\end{proof}

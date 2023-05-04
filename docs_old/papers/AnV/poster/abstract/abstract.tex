@@ -1,0 +1,133 @@
+\documentclass[runningheads,a4paper]{llncs}
+
+\usepackage[utf8]{inputenc}
+%\usepackage{a4wide}
+\usepackage{amsfonts}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amsthm}
+\usepackage{scalerel}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{enumitem}
+\usepackage{authblk}
+\usepackage{xcolor}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+
+\newcommand{\sk}{\ensuremath{\mathsf{sk}}} %secret key
+\newcommand{\pk}{\ensuremath{\mathsf{pk}}} %public key
+\newcommand{\verify}{\ensuremath{\mathsf{Verify}}}
+\newcommand{\prove}{\ensuremath{\mathsf{Prove}}}
+\newcommand{\divi}{\ensuremath{\mathsf{Divide}}}
+\newcommand{\recons}{\ensuremath{\mathsf{Reconstruct}}}
+\newcommand{\pv}{\ensuremath{\mathcal{P}V}}
+\newcommand{\V}{\ensuremath{\mathcal{V}}}
+\newcommand{\bb}{\ensuremath{\mathbb{B}}} %blob
+\newcommand{\bh}{\ensuremath{B_{head}}} %block header
+\newcommand{\mprf}{\ensuremath{\pi^{mt}}} %merkle proof
+\newcommand{\vcheck}{\ensuremath{\#V\mathsf{check}}} %number of validity check
+\newcommand{\runav}{\ensuremath{r_{a}}}
+\newcommand{\rinv}{\ensuremath{r_{f}}}
+\newcommand{\name}{Ouroboros Clepsydra} %protocol name
+\newcommand{\pr}{\ensuremath{\mathsf{Pr}}} %probability
+\def\skvrf{\mathsf{sk}^v}
+\def\pkvrf{\mathsf{pk}^v}
+\def\sksgn{\mathsf{sk}^s}
+\def\pksgn{\mathsf{pk}^s}
+\def\skkes{\mathsf{sk}^e}
+\def\pkkes{\mathsf{pk}^e}
+\def\skac{\mathsf{sk}^a}
+\def\pkac{\mathsf{pk}^a}
+\def\D{\Delta}
+\def\vrf{\mathsf{VRF}}
+\def\sgn{\mathsf{Sign}} 
+\def\hl{\mathcal{H}_\ell}
+
+\def\hs{\mathcal{H}_s}
+\def\d{\Theta}
+\def\chrset{\{0_s,0_\ell, 1,\perp\}}
+\def\div{\mathsf{div}}
+\def\Hl{\mathcal{H}_\ell}
+\def\Hs{\mathcal{H}_s}
+\def\fork{ \dashv_{\D\d}}
+\def\len{\mathsf{length}}
+\def\div{\mathsf{div}}
+\def\F{\mathcal{F}}
+\def\Z{\mathcal{Z}}
+\def\A{\mathcal{A}}
+\def\G{\mathcal{G}}
+\def\S{\mathcal{S}}
+\def\slot{\mathsf{Slot}}
+\def\dsig{\mathsf{DSIG}}
+\def\vrf{\mathsf{VRF}}
+\def\kes{\mathsf{KES}}
+\def\rlb{\mathsf{RLB}}	
+\def\ro{\mathsf{RO}}	
+\def\dif{\mathsf{DDiffuse}}
+\def\refrate{\mathsf{refRate}}
+\def\clock{\mathsf{Clock}}
+\def\smap{\mathsf{S\_Map}}
+\def\lclock{\mathsf{timer}}
+\def\local{\mathsf{local}}
+\def\exec{\mathsf{EXEC}}
+\def\init{\mathsf{init}}
+\def\slst{\mathsf{start\_lst}}
+\def\clst{\mathsf{cand\_lst}}
+\def\flst{\mathsf{final\_lst}}
+
+\def\lst{\mathsf{lst}}
+\def\cc {\bar{C}} % consensus clock
+\def\tc {\bar{t}} % consensus timer
+\def\map {\mathsf{map}} % consensus timer
+
+
+%tabs
+\newcommand{\tab}[1]{\hspace{.05\textwidth}\rlap{#1}}
+\newcommand{\tabalg}[1]{\hspace{.075\textwidth}\rlap{#1}}
+\newcommand{\tabdbl}[1]{\hspace{.1\textwidth}\rlap{#1}}
+\newcommand{\tabdbldbl}[1]{\hspace{.125\textwidth}\rlap{#1}}
+\newcommand{\tabdbldbldbl}[1]{\hspace{.15\textwidth}\rlap{#1}}
+\newcommand{\tabbox}[1]{\hspace{2\textwidth}\rlap{#1}}
+
+\title{Availability and Validity}
+
+\sloppy
+\begin{document}
+
+\date{}
+\author{Jeff Burdges,
+Handan K{\i}l{\i}n\c{c} Alper,
+Alistair Stewart}
+\institute{Web3 Foundation}
+\maketitle
+
+
+
+In a blockchain context, light clients are nodes without access to the full state of the chain.  As a result, they have at most only a limited abilities to validate transactions.  A chain supports light clients if the full nodes make sufficient information available to light clients to judge whether the chain genuinely accepted some given block.  
+% \footnote{We do not consider the stronger notion of light client that cannot access even full blocks.}
+Availability has been addressed in two ways, either an overwhelming number of nodes, or using erasure codes.  We explain how integrating erasure codes with voting in a Byzantine fault tolerant finality gadget provides an efficient compromise.
+
+%A light client having a block header can verify easily if a specific transaction is in the block by verifying a Merkle proof but it cannot be sure if all transactions in the block are valid and also available to all full nodes. In this poster, we explain our protocol that solves this issue.
+%TODO (Motivation)Carmela González Troncoso
+
+\noindent\textbf{Model:} We have entities called full nodes and validators. We assume that full nodes access all messages and blockchain $\mathbf{B}$ data, while validators know only the data provided by full nodes. While each full node can generate a proof of the validity of a block, each validator can verify the proof. We have $n = 3f + 1$  validators where at most $f$ validators are malicious. Validators construct a blockchain  $\mathbf{R}$ consisting of the headers of blocks of $\mathbf{B}$. The security of $\mathbf{R}$ is based on two consensus mechanism. One is a block production mechanism where validators are selected randomly and privately. The other one is a consensus mechanism that needs at least $2f+1$ votes from validators to finalize a block. The block headers in a finalized block of $\mathbf{R}$ is considered as valid and available.
+
+\noindent\textbf{Our protocol:} 
+Validators become responsible for $\mathbf{B}$ periodically. Each responsible validator receives a block from $\mathbf{B}$ along with the proof of validity. If the proof is valid, the responsible validators who think that the block is valid create erasure codes of the proof and the block for each validator, sign and distribute them. During the consensus protocol, if at least $f+1$  different validators announce the unavailability of a block then the corresponding block header is considered as invalid. This solves the availability problem. The validity of a block is checked by random validators and responsible validators.  We use verifiable random function (VRF) to assign some validators randomly (they are different than the responsible validators). If the output of the VRF is less than a threshold then the validator is assigned to run an extra check. In order to guarantee a minimum number of extra checks, the threshold increases with time. The extra checker or responsible validators obtain the whole block and the proof by either by asking full nodes or collecting $f+1$ different erasure codes to reconstruct. Even if one validator says that the block is invalid, then all validators checks the validity of the block. If we have at least $f+1$ invalidity reports, then the block is considered as invalid and is not be finalized.  If a block is invalid, the validators who signed for its validity are slashed.
+
+\noindent\textbf{Security:} The security is based on the fact that a block can be finalized with $2f+1$ votes. The security of the validity based on the obscurity of extra validators that are assigned to check and having all responsible validators malicious. 
+
+
+
+
+%\bibliographystyle{abbrv}
+%\bibliography{abstract}
+
+\end{document}
+
+

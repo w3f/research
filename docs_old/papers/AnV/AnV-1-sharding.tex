@@ -1,0 +1,143 @@
+
+\section{Heterogeneous sharding}
+\label{sec:parachains} % sharding
+
+We shall describe a blockchain sharding scheme through which a single beacon or {\em relay chain} can validate numerous heterogeneous shard chains.  We aim for true shared security, minimal latency, good liveness, and relative efficiency in terms of computation, network, and storage.  We refer to our shard chains by the term {\em parachains} because shard alone connotes a non-heterogeneous approach.  There exist other terms for heterogeneous approaches too, but they all connote bridged designs without shared security.
+
+\subsection{VRFs}
+
+A {\em verifiable random function (VRF)} is a cryptographic function that generates a pseudo-random output number from a given a secret key $\sk$ and an input string $\alpha$ called a seed, and produces a proof of correctness for the output.  In a sence, VRFs resemble a public-key analog of a cryptographic hash function with a distinguished key, such as MACs that acts as PRFs, in that a keyed hash function requires the key be shared for verification. 
+
+Anyone with the input and the corresponding public key $\pk$ can verify the correctness of the VRF output, so VRFs should satisfy appropriate signature scheme security definitions, like EUF-CMA.  We implement output as function applied to the signature and message that must satisfy {\em uniqueness} in that each public key and message admits only one output, {\em unpredictability} for anyone without the secret key, and {\em pseduo-randomness} even for the secret key holder.
+
+We refer readers to \cite[\S1]{Sassafras} for more formal definitions.
+Almost all proof-of-stake and sharded blockchain proposals make heavy usage of VRFs.
+
+\subsection{Chains}
+% \paragraph{Relay chain:}
+
+We expect that our sharded blockchain employs a Byzantine fault tolerant ``finality gadget'' for the relay chain that establishes agreement on finality for all shards or parachains too, like in the Polkadot and Ethereum 2.0 designs.  We let $\vals$ denote the full validator list for the relay chain, and set $\nvals := |\vals|$, which we term just validators since the relay chain remains clear from context.  We expect here that validators act as block producers for the relay chain.  
+
+As part of our security model, we assume that $\nvals \ge 3 f + 1$ where $f$ bounds the number of validators controlled by any adversary.
+
+% \begin{assumption}
+An adversary who controls some $f' \le f$ of the $n$ (relay chain) validators knows the upcoming block producer for its own upcoming block production slots of course, but we assume Bernoulli trials with probability 
+${f' (n-f') \over n^2}$
+%\handan{I think it is not correct for BABE since there are also empty slots. Do you talk about HABE here? But even for HABE it seems not correct to me since adv knows whether it is honest slot or not with prob. 1 in HABE} 
+describe whether they know the honest block producer assigned to individual upcoming block production slots.  In particular if ${f \over n} < {1\over3}$ then they know less than {${5 \over 9}$ths
+%	\handan{isn't it 2/9}
+ of the upcoming honest block producers.
+% \end{assumption}
+We choose this assumption because it supports overall {stronger}
+%\handan{in which sense it is stronger?} 
+block production mechanisms than proof-of-work or \cite{Praos}, although those would admit a better bound here.
+% \handan{}{is this paragraph necessary for AnV scheme? I could not see the relation between knowing whether honest or adv slot and AnV scheme. It looks confusing. }
+
+As in other finality gadget designs, the relay chain and each parachain $\para$ has its own block production protocol run within its own infrastructure.  We employ the simplifying assumption that the block producer list equals the validator list $\vals$.  
+
+% \paragraph{Parachains:}
+
+A parachain $\para$ refers to its block producers as {\em collators}, which could come from $\vals$ or elsewhere.  We let $\vals_\para \subset \vals$ denote the sublist of validators assigned to parachain $\para$, which we term the {\em parachain validators} of $\para$.  We also need a bound $\npvals$ such that $|\vals_\para| \ge \npvals$.
+
+%TODO: Define many methods and paramaters of parachains $\para$
+
+In fact, we always have an epoch parameter $t$ associated to $\para$, but we subsume $t$ into $\para$ here for convenience.  Aside from time, we similarly assume the relay chain provides some randomness $r$ associated to each epoch $t$, which we similarly subsume into our $\para$ notation for convenience.
+
+We prefer if subscripts always denote higher level properties, like identifying parachains, cryptographic keys, etc.  We favor indexing bracket notation like $\vals[i] = \vals_\para[j]$ when identifying individual list elements, as index notation simplifies definitions and avoids mixed role subscripts. 
+
+\subsection{Blocks}
+
+We normally prevent blocks from referencing data in other blocks directly, e.g. UTXOs, because doing so incurs unacceptable storage overhead.  Instead, all blockchains have some associated state for which blocks describe a state transition, normally stored as a Merkle tree so that the Merkle root acts as a commitment to the entire state.  As a brutal convenience, we further subsume any current state commitments into our $\para$ notation.  We let $\hat{\para}$ denote the parachain state $\para$ but with full attached state required by collators, not just the state commitments. 
+% TODO: Expand \para into immutabel \para mutable \hat{para} with the commitments 
+
+Consider a block $B$.  We distinguish a header $B_{\mathsf{head}}$ and body $B_{\mathsf{body}}$ of a block $B = (B_{\mathsf{head}},B_{\mathsf{body}})$.  We ask that $B_{\mathsf{head}}$ contain $H(B_{\mathsf{body}})$ and commitments to the associated state before and after running $B$, normally Merkle roots.  
+
+In principle, any block might incorporate additional associated data $M$ also referenced by $B_{\mathsf{head}}$.  We shall not belabour the associated data $M$ here, so anyone who requires it should read thoughtfully.
+
+\begin{definition}\label{def:pob}
+We define a {\em state witness procedure} to consists of
+\begin{itemize}
+
+\item a randomized algorithm $\prove_{\hat{\para}}$ that executes a block $B$, and maybe $M$, and returns a witness proof $\pi_B$ of any transitions to the associated state, as well as 
+\item deterministic algorithms $\verify_\para$ and $\verify_{\hat{\para}}$ that take the blob $\blobB = (B,\pi_B,M)$ execute $B$ applying the state transition to either the commitments in $\para$ or the full state in $\hat{\para}$, and returns $\mathsf{true}$ and mutates $\para$ or $\hat{\para}$, if and only if $B$ executes correctly with the state transition given by the witness $\pi_B$. 
+\end{itemize}
+\end{definition}
+We disallow $\prove_{\hat{\para}}$ from modifying the associated state commitments in $\para$ and only permit $\verify_{\hat{\para}}$ to do so when returning $\mathsf{true}$.  We note that $\verify_\para$ and $\verify_{\hat{\para}}$ make $B$ the more recent block of $\para$, so they should normally fail if $B$ already exists in $\para$ under most chain designs. 
+
+As a convenient Merkle tree notation, we let the notation $\vect{xz}$ denote the copath witness proving that $z$ is a leaf of a Merkle tree with root $x$.  We support internal nodes in this notation too, so $\vect{xz} = \vect{xy} \vect{yz}$ if $y$ lies on the path from $x$ to $z$.  We write $B[\vect{xy}]$ to specify $B$ as the underlying Merkle tree, when not clear from context, especially when $B$ itself is a block.  We shall always write just $\vect{xy}$ when $x$ and $y$ lie in the state tree associated to some blockchain.  
+
+\newcommand\rin{\ensuremath{r_{\mathsf{in}}}} % {\ensuremath{r_0}}
+\newcommand\rout{\ensuremath{r_{\mathsf{out}}}} % {\ensuremath{r_1}}
+We shall not restrict this proof $\pi_B$ here, but often $\pi_B$ consists of the union of all copath witnesses $\vect{rx}$ in the associated state tree that arise from read and write operations when executing $B$.  If $B$ changes the state tree's Merkle root from $\rin$ to $\rout$ then 
+$$
+\pi_B = 
+  \bigcup \Setst{ \vect{\rin x} }{ \textrm{$B$ reads $x$} }
+  \cup \Setst{ \vect{\rout x} }{ \textrm{$B$ writes $x$} } \mathperiod
+$$
+There are however other instantiations for $\pi_B$, like some zkSNARKs that takes the read or written leaves $x$ as public inputs.  We define the {\em blob} $\blobB = (B, \pi_B, M)$ for our block $B$ and perhaps its additional associated data $M$, although some plausible instantiations for $\pi_B$ with zkSNARKs allow using only $B_{\mathsf{head}}$ in $\blobB$.
+
+We observe this definition satisfies:
+\begin{itemize}
+\item {\em witness correctness} in that $\verify_\para(B,\prove_\para(B,M),M) = \mathsf{true}$ holds with good probability for all $B,M$ for $\para$, and
+\item {\em witness security} in that 
+% an adversarial $(B,\pi,M)$ satisfies $\verify_\para(B,\pi_B,M) = \mathsf{true}$ and $\pi_B \ne \prove_\para(B,M)$ with a only negligible probability.
+any probabilistic polynomial-time adversary has only negligible odds of constructing a $(B,\pi,M)$ that satisfies $\verify_\para(B,\pi,M) = \mathsf{true}$ and $\pi \ne \prove_\para(B,M)$.
+\end{itemize}
+
+\subsection{Availability}
+
+A {\em rigid/cryptographic $k$-of-$n$} erasure code consists of two algorithms:
+\begin{itemize}
+\item $\encode_{k,n}$ creates $n$ encoded strings from one source string $B$, while
+\item $\decode_{k,n}$ recreates the original source string $B$ from {\em any} $k$ of the $n$ encoded strings.
+\end{itemize}
+We call the encoded strings {\em pieces}, although the literature sometimes calls them symbols.  We caution that many modern erasure codes are not rigid/cryptographic, especially rateless codes, because there exist encoded string sets $S$ with $|S| > k$ but for which $\decode_{k,n}$ fails.  Reed-Solomon codes satisfy this rigid/cryptographic property.
+
+% \begin{definition}[Unavailable Block]\label{def:unavail}
+There exist {\em availability sharding protocols} that preserve some string $B$ by distributing its encoded string pieces among distinct locations, like our validators $\vals$.  In this context, we say $B$ is {\em available from $\vals$} or {\em unavailable from $\vals$} if at least $k$ pieces or less than $k$ can be obtained by an honest connected party, respectively.  We write only  {\em available} or {\em unavailable} whenever the locations $\vals$ seems clear from context.
+% \end{definition}
+
+
+\subsection{Security}
+
+We discuss a ``crypto-economic'' protocol that hinges upon punishing nodes for incorrect behavior.  All such protocols entail a conviction game in which an adversary engages in some specified missbehavior and the correctly behaving nodes must obtain evidence of incorrect behavior by enough incorrectly behaving nodes, and this evidence be actionable in that correctly behaving nodes have effective defenses against false accusations.  
+%TODO: Is this what people mean by crypto-economic?  Or is it a bullshit term we should avoid?
+In this article, we only discuss subprotocols that produce direct proofs of incorrect behavior, but our overall protocols depend upon interactive evidentiary standards, like in the ... phase of GRANDPA \cite{??}.
+% TODO: How to say this?
+
+Assume again that at most $f' \le f$ out of the $\nvals$ (relay chain) validators deviate from the correct protocol.
+
+
+%TODO: Begin of not really true part.
+There are sharding protocols like ByzCoin \cite{ByzCoin} and .. in which validity of a block on a shard $\para$ is determined solely by the $\npvals$ validators assigned to $\para$, normally by reaching some vote threshold $\primarychecks \in [\npvals/2,\npvals)$ for each block.
+
+At first blush, one models these protocols by saying an adversary wins the {\em naively sharded validity game} if they first learn the role assignments for all nodes $\para \mapsto \vals_\para$, only then proposes an invalid shard block $B$ for some shard $\para$, and convince the relay chain to finalize $B$, all while fewer than $\primarychecks$ of the incorrectly behaving nodes in $\vals_\para$ provide proofs of their incorrect behavior to the correctly behaving nodes.  
+
+An adversary wins some random instance of a naively sharded validity game with odds $\epsilon'_{\npvals,\primarychecks}$ of order roughly ${f' \choose \npvals} / {\nvals \choose \npvals}$ 
+%TODO:FIX \cite{??}.  
+In these, security depends upon $\epsilon'_{\npvals,\primarychecks}$ being ``negligible'' so that adversaries cannot simply wait until they win the shard assignment lottery before launching an attack.  For this, one requires that $\npvals$ be a significant fraction of $\nvals$, and that $\nvals$ itself be large enough. 
+%TODO: End of not really true part.
+%  Fix by cite ByzCoin, etc. correctly.  Eleftherios? 
+
+
+We mildly distrust requirements for a large network size $n$ for two reasons: Almost all networks start small at least in the sense of truly independent nodes, and the finality gadget and its gossip assumption limit $n$.  
+
+We worry much more about requirements for a large number $\npvals$ of validators assigned to each shard, and the large number $\primarychecks$ of validtors approving each shard block, because this limits the number $n/\npvals$ of shards, and hence limits the utility of our scaling effort.  Also liveness suffers if $\primarychecks$ is close to $\npvals$, while security against network adversaries suffers otherwise.
+% TODO: Rephrase into two sentenses?
+
+We shall create an information asymmetry that turns these odds more in defenders favor: 
+We require the adversary first declare their parachain block $B$ and commit to its correctness with the stake of $\primarychecks$ backing validators.  We then reveal the identity of the $\secondarychecks$ checking validators assigned to actually check $B$ only after this commitment.  We say an adversary wins the {\em parachain validity game} if they finalize an invalid block with fewer than $\primarychecks$ of the $f'$ incorrectly behaving nodes providing proofs of their incorrect behavior to the correctly behaving nodes. 
+
+In this game, we tolerate larger $\epsilon'_{\npvals,\secondarychecks}$ because attacks cost an amortised $\epsilon'_{\npvals,\secondarychecks} \primarychecks$ validators' stake. 
+
+In advance, we assigned the set $\vals_\para \subset \vals$ of at least $\npvals$ to validate all blocks from a particular parachain $\para$.  
+In our game, any parachain block $B$ from $\para$ requires preliminary backing commitments to correctness claim from at least $\primarychecks$ out of these $\npvals$ validators.  We accept $\primarychecks < \npvals$ here since some unpredictable nodes might be offline or slow, so long as $\primarychecks$ allocates sufficient stake to the correctness commitments for $B$.  
+
+% TODO: Now outdated again blow this point
+
+After this commitment, we must assign at least $\secondarychecks$ validators from $\vals \setminus \vals_\para$ who perform approval validity checks to conclude the game.  Now our security level dependes only upon this number $\secondarychecks$ of approval validity checks.  
+
+All nodes compute their own target number $\secondarychecks$ of later approval checkers dynamically based upon several report factors from parties who notice abnormalities in the protocol run, as well as $\npvals-\primarychecks$.  If $\npvals$ primary checks appears realistic then we might consider fewer than $\npvals$ primary checks as slightly suspicious.  In this case, we might simply target $\secondarychecks$ plus the number of missing backers from $\vals_\para$, meaning that approval checks can freely replace $\npvals-\primarychecks$ preliminary backing checks.  
+
+
+

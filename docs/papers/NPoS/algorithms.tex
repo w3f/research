@@ -1,0 +1,207 @@
+\section{Algorithmic considerations for the new election rule}\label{s:algorithms}
+
+The goal of this section is threefold. 
+First, we prove Theorem~\ref{thm:runtimes} and establish how our heuristic for candidate selection, described in Section~\ref{s:inserting}, can be computed efficiently. 
+Second, we improve upon the runtime analysis of $\phragmms$ given in Section~\ref{s:315}, and show that each iteration can be executed in time $O(\bal + |E|)$, down from $O(\bal + |E|\cdot \log k)$. 
+Finally, we provide further details on the similarities and differences between $\phragmms$ and $\phragmen$. 
+
+
+As we did in Section~\ref{s:inserting}, we assume in the following that the election instance $(G=(N\cup C, E), s, k)$ is known and does not need to be given as input. Instead, the input is a partial solution $(A,w)$ with $|A|\leq k$. The list of member supports $(supp_w(c))_{c\in A}$ is implicitly passed by reference and updated in every algorithm.
+
+We start with Algorithm~\ref{alg:maxprescore}, which shows how to find the candidate with highest parameterized score for a given threshold $t$.
+
+\begin{algorithm}[htb]
+\SetAlgoLined
+\KwData{Partial solution $(A,w)$, threshold $t\geq 0$.}
+\lFor{each voter $n\in N$}{
+compute $slack(n,t)=s_n-\sum_{c\in A\cap C_n} w_{nc}\cdot \min\{1, t/supp_w(c)\}$
+}
+\lFor{each candidate $c'\in C\setminus A$}{
+compute $\prescore(c',t)=\sum_{n\in N_{c'}} \slack(n,t)$
+}
+Find a candidate $c_t\in\argmax_{c'\in C\setminus A} \prescore(c', t)$\;
+\Return $(c_t, \prescore(c_t, t))$\;
+ \caption{$\maxprescore(A,w,t)$}
+\label{alg:maxprescore}
+\end{algorithm}
+
+\begin{lemma}
+For a partial solution $(A,w)$ and threshold $t\geq 0$, $\maxprescore(A,w,t)$ executes in time $O(|E|)$ 
+and returns a tuple $(c_t,p_t)$ such that $c_t\in C\setminus A$ 
+and 
+$$p_t=\prescore(c_t,t)=\max_{c'\in C\setminus A} \prescore(c',t).$$
+\end{lemma}
+
+\begin{proof}
+The correctness of the algorithm directly follows from the definitions of slack and parameterized score. The running time is $O(|E|)$ because each edge in the approval graph $G=(N\cup V, E)$ is inspected at most once in each of the two loops. The first loop also inspects each voter, but we have $|N|=O(|E|)$ since we assume that $G$ has no isolated vertices.
+\end{proof}
+
+We move on to computing the highest score. 
+For a fixed partial solution $(A,w)$ and for a candidate $c'\in C\setminus A$, consider the function 
+\begin{align}\label{eq:scorefunction}
+f_{c'}(t):=\prescore(c',t)-t
+\end{align}
+$$$$ 
+in the interval $[0,\infty)$. 
+Notice from the definition of parameterized score that this function is convex, continuous and strictly decreasing with no lower bound, and that $f_{c'}(0)\geq 0$; hence it has a unique root corresponding to $score(c')$. We could approximate this root via binary search -- however, we can do better. 
+Function $f_{c'}(t)$ is piece-wise linear: if we sort the member supports $\{supp_w(c): \ c\in A\}=\{t_1, \cdots, t_r\}$ so that $t_1 < \cdots < t_r$ for some $r\leq |A|$, then $f_{c'}(t)$ is linear in each interval $[0, t_1), [t_1, t_2), \cdots, [t_r, \infty)$.
+%
+Similarly, 
+$$f_{\max}(t):= \max_{c'\in C\setminus A} f_{c'}(t) = \max_{c'\in C\setminus A} \prescore(c',t) -t$$ 
+is a continuous and strictly decreasing function in the interval $[0,\infty)$, with a unique root $t_{\max}=\max_{c'\in C\setminus A} score(c')$. Unfortunately, this function is in general not linear within each of the intervals above.%
+%
+\footnote{It is easy to see that function $f(t)$ is piece-wise linear with $O(|C|\cdot k)$ pieces in total. Hence, one could find its root via binary search by making $O(\log |C|+ \log k)$ calls to $\maxprescore$. 
+We present a better approach that only requires $O(\log k)$ such calls.} %
+%
+Still, it will be convenient to use binary search to identify the interval that contains $t_{\max}$. We do so in Algorithm~\ref{alg:interval}. The next lemma follows from our exposition and its proof is skipped.
+
+\begin{algorithm}[htb]
+\SetAlgoLined
+\KwData{Partial solution $(A,w)$.}
+Sort the member supports to obtain $0=t_0<t_1<\cdots <t_r$, where $\{t_1, \cdots, t_r\}=\{supp_w(c): \ c\in A\}$\;
+\If{$p_{t_r}\geq t_r$ where $(c_{t_r},p_{t_r})\leftarrow \maxprescore(A,w,t_r)$}{
+	\Return $t_r$\;
+}
+Let $j_{lo}=0$, $j_{hi}=r-1$\;
+\While{$j_{lo}<j_{hi}$}{
+  Let $j=\lceil (j_{lo}+j_{hi})/2 \rceil$\;
+  \leIf{$p_{t_j}\geq t_j$ where $(c_{t_j},p_{t_j})\leftarrow \maxprescore(A,w,t_j)$}{
+  Set $j_{lo}\leftarrow j$}{
+  Set $j_{hi}\leftarrow j-1$}
+}
+\Return $t_{j_{lo}}$\;
+
+ \caption{$\interval(A,w)$}
+\label{alg:interval}
+\end{algorithm}
+
+\begin{lemma}\label{lem:interval}
+For a partial solution $(A,w)$, $\interval(A,w)$ makes $O(\log |A|)$ calls to $\maxprescore$, and thus runs in time $O(|E|\cdot \log k)$. It returns a value $t'$ with $t'\leq t_{\max}:=\max_{c'\in C\setminus A} \score(c')$, and such that for each candidate $c'\in C\setminus A$, the value of $\prescore(c',t)$ is linear in $t$ within the interval $[t',t_{\max}]$.
+\end{lemma}
+
+Moving on, for a candidate $c'\in C\setminus A$ and a value $x\geq 0$, consider the linearization of function $f_{c'}(t)$ at $x$ -- more precisely, the linear function that coincides with $f_{c'}(t)$ over the interval $[x, x+\eps]$ as $\eps>0$ tends to zero. 
+If we denote by $r_{c', x}$ the unique root of this linearization, we have that
+\begin{align*}
+    0=& f_{c'}(r_{c', x})|_{\text{linearized at } x}\\
+    =& \prescore(c', r_{c', x})|_{\text{linearized at } x} - r_{c', x}\\
+    =& \sum_{n\in N_{c'}} \slack(n,r_{c', x})|_{\text{linearized at } x} - r_{c', x}\\
+    =& \sum_{n\in N_{c'}} \bigg( s_n - \sum_{c\in A\cap C_n: \ \supp_{w}(c)< x}w_{nc} \\
+		&- \sum_{c\in A\cap C_n: \ \supp_w(c)\geq x} \frac{w_{nc}\cdot r_{c', x} }{\supp_w(c)} \bigg) - r_{c', x},
+\end{align*} 
+%
+where we used the definitions of parameterized score and slack. Solving for $r_{c', x}$, we obtain
+%
+\begin{align}\label{eq:linearized}
+    r_{c', x}=\frac{\sum_{n\in N_{c'}} \Big( s_n - \sum_{c\in A\cap C_n: \ \supp_w(c)< x} w_{nc} \Big)}%
+    {1+\sum_{n\in N_{c'}} \sum_{c\in A\cap C_n: \ \supp_w(c)\geq x} \frac{w_{nc}}{\supp_w(c)}}.
+\end{align}
+
+We make a couple of remarks about these linearization roots. 
+First, since $f_{c'}(t)$ is a convex decreasing function, any linearization will lie to its left, and in particular any linearization root will lie to the left of its own root, i.e., 
+$$r_{c', x}\leq \score(c') \quad \text{for each } c'\in C\setminus A \text{ and each } x\geq 0.$$
+
+\begin{figure}[h]
+  \centering
+	\includegraphics[width={\linewidth},natwidth=300,natheight=270]{figure-maxscore.pdf}
+  \caption{For each candidate $c_i$, the root $\score(c_i)$ of function $f_{c_i}(t)$ lies to the right of $r_{c_i, t'}$, the root of its linearization at $t'$. These two roots coincide for $c_2=c_{\max}$. }
+  \label{fig:maxscore}
+\end{figure}
+
+On the other hand, for the candidate $c_{\max}$ with highest score $t_{\max}$, and for $x=t'$, the output of $\interval(A,w)$, we have that the corresponding linearization coincides with function $f_{c_{\max}}(t)$ in the interval $[t', t_{\max}]$, so the linearization root $r_{c_{\max}, t'}$ equals the function root $t_{\max}=\score(c_{\max})$. 
+See Figure~\ref{fig:maxscore}. Consequently, %
+%
+\begin{align*}
+r_{c_{\max}, t'} &= \score(c_{\max}) = \max_{c'\in C\setminus A} \score(c') \\
+	&\geq \max_{c'\in C\setminus A} r_{c', t'} \geq r_{c_{\max}, t},
+\end{align*}
+%
+i.e., $c_{\max}$ is simultaneously the candidate with highest score and the one with highest linearization root at $t'$, and these values coincide. 
+We use this fact to find the candidate and its score. We formalize these observations in Algorithm~\ref{alg:maxscore} and the lemma below.
+
+\begin{algorithm}[htb]
+\SetAlgoLined
+\KwData{Partial solution $(A,w)$.}
+Let $t'\leftarrow \interval(A,w)$\;
+
+\For{each voter $n\in N$}{
+Compute $p_n:=s_n-\sum_{c\in A\cap C_n: \ \supp_w(c)< t'} w_{nc}$\;
+Compute $q_n:=\sum_{c\in A\cap C_n: \ \supp_w(c)\geq t'} w_{nc}/\supp_w(c)$\;
+}
+\lFor{each candidate $c'\in C\setminus A$}{
+compute $r_{c', t'}=\frac{\sum_{n\in N_{c'}} p_n}{1+\sum_{n\in N_{c'}} q_n}$}
+Find a candidate $c_{\max}\in\argmax_{c'\in C\setminus A} r_{c', t'}$\;
+\Return $(c_{\max}, r_{c_{\max}, t'})$\;
+ \caption{$\maxscore(A,w)$}
+\label{alg:maxscore}
+\end{algorithm}
+
+\begin{lemma}\label{lem:maxscore}
+For a partial solution $(A,w)$, $\maxscore(A,w)$ runs in time $O(|E|\cdot \log k)$ and returns a tuple $(c_{\max}, t_{\max})$ such that $c_{\max}\in C\setminus A$ and $t_{\max}=\score(c_{\max})=\max_{c'\in C\setminus A} \score(c')$.
+\end{lemma}
+\begin{proof}
+The correctness of the algorithm follows from the arguments above. 
+Each of the \textbf{for} loops executes in time $O(|E|)$ because in each one of them each edge is examined at most once. 
+The running time is dominated by the call to algorithm $\interval(A,w)$, taking time $O(|E|\cdot \log k)$.
+\end{proof}
+
+This completes the proof of Theorem~\ref{thm:runtimes}. 
+We highlight again that the heuristic for candidate selection in $\phragmms$ runs in time $O(|E|\cdot \log k)$, thus almost matching the complexity of the heuristic in $\phragmen$ which is $O(|E|)$ per iteration. 
+
+Next, we reconsider the complexity of $\phragmms$ (Algorithm~\ref{alg:balanced}). 
+At the start of each iteration with current partial solution $(A,w)$, notice by Lemma~\ref{lem:315localoptimality} that the highest score $t_{\max}$ must be lower than the least member support $t_1=supp_w(A)$. So, $t_{\max}$ lies in the interval $[0,t_1]$, and we can skip the computation of Algorithm $\interval(A,w)$ as we know that it would return $t'=0$. 
+Without this computation, $\maxscore(A,w)$ (Algorithm~\ref{alg:maxscore}) runs in time $O(|E|)$, so the runtime of a full iteration of $\phragmms$ can be performed in time $O(\bal + |E|)$, down from $O(\bal + |E|\cdot \log k)$ as was established in Section~\ref{s:315}.
+
+Finally, we discuss some similarities and differences between the $\phragmms$ and $\phragmen$ heuristics. 
+For the sake of completeness, we present here the $\phragmen$ algorithm explicitly. 
+We note that the version of $\phragmen$ proposed in~\cite{brill2017phragmen} only considers unit votes. 
+In Algorithm~\ref{alg:phragmen} we give a generalization that admits arbitrary vote strengths. 
+Clearly, each one of the $k$ iterations of the main loop runs in time $O(|E|)$, because each of the two internal \textbf{for} loops examines each edge in $E$ at most once. 
+
+\begin{algorithm}[htb]
+\SetAlgoLined
+\KwData{Bipartite approval graph $G=(N\cup C, E)$, vector $s$ of vote strengths, target committee size $k$.}
+Initialize $A=\emptyset$, $load(n)=0$ for each $n\in N$, and $load(c')=0$ for each $c'\in C$\;
+\For{$i=1,2,\cdots k$}{
+\lFor{each candidate $c'\in C\setminus A$}{
+update $load(c') \leftarrow \frac{1+\sum_{n\in N_{c'}} s_n\cdot load(n)}{\sum_{n\in N_{c'}} s_n}$}
+Find $c_{\min}\in \arg\min_{c'\in C\setminus A} load(c')$\;
+Update $A\leftarrow A+c_{\min}$\;
+\For{each voter $n\in N_{c_{\min}}$}{
+Update $load(n)\leftarrow load(c_{\min})$\;
+}
+}
+\Return $A$\;
+\caption{$\phragmen$, proposed in~\cite{brill2017phragmen}}
+\label{alg:phragmen}
+\end{algorithm}
+
+Assume that we consider inserting a candidate $c'\in C\setminus A$ to the partial solution $(A,w)$, and recall that for a voter $n\in N_{c'}$ approving of that candidate, and a threshold $t$, we define 
+$$\slack(n,t)=s_n - \sum_{c\in A\cap C_n} w_{nc} \cdot\min \{1, t/\supp_w(c)\}.$$ 
+%
+This formula expresses the fact that to each current member $c\in A\cap C_n$, we reduce its edge weight $w_{nc}$ by multiplying it by a factor $\min \{1, t/\supp_w(c)\}$, and use the now-available vote strength from voter $n$ (its \emph{slack}) to give support to the new member $c'$. This edge multiplication factor is somewhat involved but sensible, as it removes a higher fraction of vote from members with higher support, and leaves members with low support untouched; see Section~\ref{s:inserting} for further intuition.
+
+In contrast, in the same context, we claim that the $\phragmen$ heuristic can be thought of as using a constant edge multiplication factor $t/\supp_w(A\cap C_n)$, where we recall that $\supp_w(A\cap C_n):=\min_{c\in A\cap C_n} \supp_w(c)$. This is, of course, a much simpler approach, corresponding to a coarser solution rebalancing method. 
+
+We now prove our claim. Suppose we use the edge multiplication factor above, and consequently define the voter's slack as
+\begin{align}\label{eq:alt-slack}
+\slack'(n,t):=s_n - \frac{t}{\supp_w(A\cap C_n)}\sum_{c\in A\cap C_n} w_{nc}.
+\end{align}
+%
+If we define parameterized scores and scores as before, we can retrieve the new score value for candidate $c'$ by finding the root of the function in equation~\eqref{eq:scorefunction}, which is now linear. 
+With a similar computation as the one we did for equation~\eqref{eq:linearized}, we obtain
+\begin{align*}
+\score'(c') 
+&=\frac{\sum_{n\in N_{c'}} s_n}{1+\sum_{n\in N_{c'}} \frac{1}{\supp_w(A\cap C_n)} \sum_{c\in A\cap C_n} w_{nc} } \\
+&\geq  \frac{\sum_{n\in N_{c'}} s_n}{1+\sum_{n\in N_{c'}} \frac{s_n}{\supp_w(A\cap C_n)}}, 
+\end{align*}
+%
+where the inequality follows by feasibility (inequality~\ref{eq:feasible}), and is tight if we assume that the current partial solution $(A,w)$ uses up all the vote strength of voter $n$ whenever $A\cap C_n$ is non-empty. If $A\cap C_n=\emptyset$, then $\supp_w(A\cap C_n)=\infty$ by convention and the corresponding term vanishes in the denominator. 
+%
+This new score, to be maximized among all unelected candidates, corresponds precisely to the inverse of the \emph{candidate load} being minimized in the $\phragmen$ heuristic; see Algorithm~\ref{alg:phragmen}. The corresponding \emph{voter load} is in turn set to the inverse of $\supp_w(A\cap C_n)$, which the algorithm updates with the assumption that the new candidate $c'$ always becomes the member with least support. This completes the proof of the claim.
+
+In view of this last result, we can say that our new heuristic provides two main advantages with respect to $\phragmen$: 
+First, by using edge weights explicitly, the algorithm handles a more robust notion of loads. 
+This enables $\phragmms$ to deal with arbitrary input solutions, a fact that we exploit in Appendix~\ref{s:LS}, and in contrast to $\phragmen$ which needs to make assumptions on the structure of the current solution at the beginning of each iteration.  
+Second, our heuristic uses a better rebalancing method that provides more slack to voter $v$ for the same threshold $t$. Indeed, identity $\eqref{eq:slack}$ is at least as large as identity $\eqref{eq:alt-slack}$, and usually larger. Hence, new candidates are granted higher scores and are added to the committee with higher supports.
+
+

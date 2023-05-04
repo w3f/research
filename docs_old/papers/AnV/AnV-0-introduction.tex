@@ -1,0 +1,59 @@
+
+% \section{Introduction sectrions should never be numbered unless journal style demands}
+
+%TODO... openning paragraph ..
+
+All existing sharded blockchain designs choose the validators assigned to each shard {\em before} the shards produce blocks, which gives adversaries advance knowledge of when they could approve invalid blocks, and perhaps manipulate shard assignments.  In practice, real adversaries would behave somewhat adaptively to disrupt connectivity for some additional validators too, with disruption costs varying among validators.  
+% .. hypergeometric distribution for heterogeneous, but actually homogeneous so ?? .. 
+Adversaries wait until an entire shard consists of their corrupted validators plus some disruptable validators.  We must therefore choose security paramaters to make these odds negligible, and their waiting time astronomical.
+
+Instead, we make adversaries first commit to their blocks' correctness and availability before we select which validators check their block, so aversaries cannot simply wait until they control enough assigned validators.  We achieve their commitment to availability using erasure coding ..
+
+%TODO... \cite{FraudProofs} ... 
+
+
+% \subsection{Protocol stages}
+
+
+% We outline the protocol 
+
+% \begin{enumerate}
+% \item 
+% \end{enumerate}
+
+
+%TODO OLDER
+
+
+
+%TODO: Into giving main idea
+%...
+We require that approval validity checks complete before finality.  We cannot however require that all validator checks conclude before finality, or even ask fishermen to begin checks before finality, so invalidity can be detected after finality.
+%...
+
+%...
+
+In \S\ref{sec:parachains}, we first recall our tools like verifiable random functions, erasure coding, and state witnesses, and then describe the sharding problem and introduce our security definitions. 
+
+We describe and instantiate our {\em availability and validity protocol} for efficient sharding as several phases across \S\ref{sec:availability_n_backing}, \S\ref{sec:approval}, and \S\ref{sec:...}.  As a rough outline,
+\begin{itemize}
+\item a parachain phase in which collators produce candidate parachain blocks (\S\ref{sec:parachain}) and parachain validators perform preliminary backing validity checks (\S\ref{sec:backing}),
+\item a relay chain submission phase that distributes candidate parachain blocks and produces relay chain blocks (\S\ref{sec:backing} and \S\ref{sec:topology}),
+\item availability (\S\ref{sec:availability}) and unavailability (\S\ref{sec:unavailability}) subprotocols that enforce availability in GRANDPA and BABE respectively,
+\item assigning secondary checkers (\ref{sec:assignment}) who fuller approval validity checks (\S\ref{sec:approcal_checks}), and
+\item invokation of a Byzantine fault tolerant ``finality gadget'' that gives us finality (\S\ref{sec:finality}).
+\end{itemize}
+We depend upon slashing to provide economic security guarantees, so we discuss slashing both in \S\ref{sec:slashing} and when relavant in the main protocol description.
+
+We also discuss objection procedures for fishermen in \S\ref{sec:fishermen} and collators in \S\ref{sec:collators}.
+
+
+
+
+
+
+
+At any time, there are three candidate receipts associated to each parachain $\rho$, one accumulating backing votes, its predecessor accumulating availability votes, and its predecessor the current chain head that 
+
+
+

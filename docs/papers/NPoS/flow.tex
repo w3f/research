@@ -1,0 +1,126 @@
+\section{Network flow results}\label{s:flow}
+
+In the section we present proofs to Lemmas \ref{lem:2sols} and \ref{lem:N_a}, the key results at the heart of the constant-factor approximation guarantees we derive for the $\MMS$ and the $\phragmms$ rules, respectively. 
+We start by introducing some necessary definitions and results related to network flow theory.
+
+Throughout this section we regard the input bipartite approval graph $G=(N\cup C,E)$ as a network, and regard an edge vector $f\in\mathbb{R}^{E}$ as a \emph{flow} over it. For each edge $nc\in E$, we consider the flow on that edge to be directed toward $c$ if $f_{nc}>0$, and directed toward $n$ if $f_{nc}<0$. 
+Consequently, the \emph{excess} of a voter $n\in N$ is defined as $e_f(n):=\sum_{c\in C_n} f_{nc}$, and the excess of a candidate $c\in C$ is defined as $e_f(c):=-\sum_{n\in N_c} f_{nc}$. 
+%A vertex $x\in N\cup C$ is an \emph{excess} vertex if $e_f(x)>0$, and a \emph{deficit} vertex if $e_f(x)<0$. 
+Moreover, for a set of vertices $S\subseteq N\cup C$, we define its \emph{net excess} as $e_f(S):=\sum_{x\in S} e_f(x)$.
+A vector $f'\in\mathbb{R}^E$ is a \emph{sub-flow of $f$} if 
+\begin{itemize}
+	\item for each edge $nc\in E$ with $f'_{nv}\neq 0$, flows $f'_{nc}$ and $f_{nc}$ have the same sign (i.e., direction) and $|f'_{nc}|\leq |f_{nc}|$, and
+	\item for each vertex $x\in N\cup C$ with $e_{f'}(x)\neq 0$, the excesses $e_{f'}(x)$ and $e_{f}(x)$ have the same sign and $|e_{f'}(x)|\leq |e_{f}(x)|$.
+\end{itemize}
+
+We now list two properties of flows and sub-flows. 
+The proof of Theorem~\ref{thm:decomposition} can be found in \cite[Thm.~3.15]{ahuja1994improved}, while the proof of Lemma~\ref{lem:subflow} is delayed to Appendix~\ref{s:proofs}.
+
+\begin{theorem}[Flow Decomposition Theorem]\label{thm:decomposition}
+Any flow $f\in\mathbb{R}^E$ can be decomposed into a finite number of cycles and simple paths, such that every path $p$ is a non-zero sub-flow of $f$ that starts in a vertex with strictly positive excess and ends in a vertex with strictly negative excess. 
+\end{theorem}
+
+\begin{lemma}\label{lem:subflow}
+If $w, w'\in\R^E$ are two non-negative and feasible edge weight vectors for the given election instance, and $f'\in\mathbb{R}^E$ is a sub-flow of $f:=w'-w$, then both $w+f'$ and $w'-f'$ are non-negative and feasible as well.
+\end{lemma}
+
+We prove now that for any partial solution, there is always an unelected candidate that can be added with large support. To show this, we assume we know the edge weight vector of an optimal solution, and combine it with the weight vector of the current solution. For convenience, we repeat the statement of Lemma~\ref{lem:2sols}.
+
+\begin{lemma*}
+If $(A^*, w^*)$ is an optimal solution to maximin support, and $(A,w)$ is a partial solution with $|A|\leq k$ and $A\neq A^*$, there is a candidate $c'\in A^*\setminus A$ and feasible solution $(A+c', w')$ such that 
+$$\supp_{w'}(A+c')\geq \min\Big\{\supp_w(A), \frac{1}{2} \supp_{w^*}(A^*)\Big\}.$$
+\end{lemma*}
+
+\begin{proof}
+Let $(A,w)$ and $(A^*, w^*)$ be as in the statement, with corresponding values $t^*:=\supp_{w^*}(A^*)$ and $t:=\min\{\supp_w(A), t^*/2\}$. To prove the lemma, it suffices to find a candidate $c'\in A^*\setminus A$ and a feasible weight vector $w'\in\R^E$ such that $\supp_{w'}(A+c)\geq t$.
+
+By decreasing some components in $w$ and $w^*$, we can assume without loss of generality that $\supp_w(c)=t$ if $c\in A$, zero otherwise, and $\supp_{w^*}(c)=t^*$ if $c\in A^*$, zero otherwise. 
+Consider flow $f:=w^* - w\in\mathbb{R}^E$ over the network induced by $N\cup A\cup A^*$. 
+%We partition this network into four subsets: $N$, $A\setminus A^*$, $A^*\setminus A$ and $A^*\cap A$. 
+It is easy to see that 
+\begin{itemize}
+\item $N$ has a net excess $e_f(N)=|A^*|\cdot t^* - |A|\cdot t$,
+\item $A\setminus A^*$ has a net excess $e_f(A\setminus A^*)=|A\setminus A^*|\cdot t$,
+\item $A^*\setminus A$ has a net excess $e_f(A^*\setminus A)=-|A^*\setminus A|\cdot t^*$, and
+\item $A^*\cap A$ has a net excess $e_f(A^*\cap A)=-|A^*\cap A| \cdot (t^*-t)$.
+\end{itemize}
+
+By Theorem~\ref{thm:decomposition}, we can decompose flow $f$ into circulations and simple paths, where each path is a sub-flow of $f$ that starts (ends) in a vertex with positive (negative) excess. 
+Let $f'$ is the sum of all paths that start inside subset $N\cup (A^*\cap A)$ and end outside of it. 
+It follows that $f'$ is also a sub-flow of $f$, and that the amount of flow it extracts from this subset is at least
+\begin{align*}
+e_f(N\cup(A^*\cap A)) &= e_f(N) + e_f(A^*\cap A)\\
+&= |A^*|\cdot t^* - |A|\cdot t - |A^*\cap A| \cdot (t^*-t)\\
+&= |A^*\setminus A|\cdot t^* - |A\setminus A^*|\cdot t \\
+&\geq |A^*\setminus A|\cdot (t^*-t) \geq |A^*\setminus A|\cdot t,
+\end{align*}
+where the last two inequalities follow from $|A^*|\geq |A|$ and $t\leq t^*/2$, respectively.
+
+Next, we claim that each path in $f'$ actually must start in $N$ and end in $A^*\setminus A$. 
+Indeed, none of these paths can start in $A^*\cap A$, because each vertex in this last set has negative excess, and similarly none can end in $A\setminus A^*$, because each vertex in this last set has positive excess. 
+Therefore, $f'$ carries flow exclusively from $N$ to $A^*\setminus A$, and by the previous inequality and an averaging argument, there must be a vertex $c'$ in $A^*\setminus A$ that receives a flow from $f'$ of value at least $t$. 
+
+Finally, if we define vector $w':=w+f'$, it is non-negative and feasible by Lemma~\ref{lem:subflow}, and it provides the same supports to the members of $A$ as $w$ does, namely $t$, and a support of at least $t$ to candidate $c'$. Hence, $\supp_{w'}(A+c')\geq t$, as claimed.   
+\end{proof}
+
+Next, we prove that if we start with a partial solution that is balanced, then not only are there unelected candidates that can be appended with high support, but they also have large scores, so we can find such a candidate efficiently with our heuristic. 
+To show this, we prove that there must be a subset of voters with large aggregate vote strength who do not get as many representatives in the current solution as they do in the optimal solution, so they have large slacks and their unelected representatives have large scores. For convenience, we repeat the statement of Lemma~\ref{lem:N_a}.
+
+\begin{lemma*}
+If $(A^*, w^*)$ is an optimal solution with $t^*=\supp_{w^*}(A^*)$, and $(A,w)$ is a balanced solution with $|A|\leq k$ and $A\neq A^*$, then for each $0\leq a\leq 1$ there is a subset $N(a)\subseteq N$ of voters such that 
+\begin{enumerate}
+	\item each voter $n\in N(a)$ approves of a candidate in $A^*\setminus A$;
+	\item for each voter $n\in N(a)$, we have $\supp_w(A\cap C_n)\geq at^*$;
+	\item $\sum_{n\in N(a)} s_n \geq |A^* \setminus A|\cdot (1-a) t^*$; and
+	\item for any $b$ with $a\leq b\leq 1$ we have that $N(b)\subseteq N(a)$, and a voter $n\in N(a)$ belongs to $N(b)$ if and only if $n$ observes property 2 above with parameter $a$ replaced by $b$.
+\end{enumerate}
+\end{lemma*}
+
+\begin{proof}
+Fix a parameter $0\leq a\leq 1$, and partition committee $A$ into two sets by defining $A_{hi}:=\{c\in A: \ \supp_w(c)\geq at\}$ and $A_{lo}:=A\setminus A_{hi}$. 
+Similarly, partition $N$ into two sets by defining $N_{hi}:=\{n\in N: \ C_n \cap A_{lo}=\emptyset\}$ and $N_{lo}:= N\setminus N_{hi}$. 
+If we define $N(a)\subseteq N_{hi}$ as those voters in $N_{hi}$ that have adjacent candidates in $A^*\setminus A$, then properties 1, 2 and 4 become evident. Hence, it only remains to prove the third property.
+
+\emph{Claim A.} There is no edge with non-zero weight in $w$ between $N_{lo}$ and $A_{hi}$. 
+Indeed, if there was a pair $n\in N_{lo}$, $c\in A_{hi}\cap C_n$ with $w_{nc}>0$, then by property 3 of Lemma~\ref{lem:balanced} we would have $\supp_w(A\cap C_n)=\supp_w(c)\geq at^*$, contradicting the fact that $n$ is not in set $N_{hi}$. 
+Thus, all of the vote strength from voters in $N_{lo}$ must be directed to members in $A_{lo}$, and we get the inequality
+$$\sum_{n\in N_{lo}} s_n \leq \sum_{c\in A_{lo}} \supp_w(c) < |A_{lo}|\cdot at^*.$$
+
+Next, by decreasing some components in vectors $w$ and $w^*$, we can assume without loss of generality that $\supp_{w^*}(c)=t^*$ if $c\in A^*$, zero otherwise, and $\supp_{w}(c)=a t^*$ if $c\in A^*\cap A_{hi}$, zero otherwise; we call this the ``wlog assumption'', and notice that $w$ and $w^*$ are not necessarily balanced anymore, but are still feasible.
+Consider flow $f:=w^* - w\in\mathbb{R}^E$ over the network induced by $N\cup A^*$. 
+We partition the vertices of this network into five subsets: $N_{hi}$, $N_{lo}$, $A^*\setminus A$, $A^* \cap A_{hi}$ and $A^*\cap A_{lo}$; see Figure~\ref{fig:sets}.  
+It is easy to see that 
+\begin{itemize}
+\item $A^*\cap A_{hi}$ has a net excess $e_f(A^*\cap A_{hi})=-|A^*\cap A_{hi}|\cdot (1-a)t^*$,
+\item $N$ has a net excess $e_f(N)=|A^*|\cdot t^* - |A^*\cap A_{hi}|\cdot a t^*$, and
+\item $N_{lo}$ has a net excess $e_f(N_{lo})\leq \sum_{n\in N_{lo}} s_n < |A_{lo}|\cdot at^*$.
+\end{itemize} 
+
+\begin{figure}[htb]
+  \centering
+	\includegraphics[width=\linewidth,natwidth=360,natheight=300]{figure-Na.pdf}
+  \caption{Flow $f'$ starts in $N_{hi}$ and must end in $A^*\setminus A$, because it cannot visit $N_{lo}$ nor $A^*\cap A_{lo}$.}
+  \label{fig:sets}
+\end{figure}
+
+By Theorem~\ref{thm:decomposition}, we can decompose flow $f$ into circulations and simple paths, where each path is a sub-flow of $f$. 
+Let $f'$ be the sum of all paths that start inside subset $N_{hi}\cup(A^*\cap A_{hi})$ and end outside of it. 
+It follows that $f'$ is also a sub-flow of $f$, and the amount of flow it extracts from this subset is at least
+\begin{align*}
+e_f & (N_{hi}\cup(A^*\cap A_{hi})) \\
+=& e_f(N) - e_f(N_{lo}) + e_f(A^*\cap A_{hi}) \\
+>& |A^*|\cdot t^* - |A^*\cap A_{hi}|\cdot a t^* - |A_{lo}|\cdot at^* - |A^*\cap A_{hi}|\cdot (1-a)t^* \\
+=& |A^*\setminus A_{hi}|\cdot t^* - |A_{lo}|\cdot at^* \\
+\geq & |A^* \setminus A_{hi}|\cdot (1-a)t^* \geq |A^* \setminus A|\cdot (1-a)t^*.
+\end{align*}
+Now, where does all this flow go?
+
+\emph{Claim B.} Every path in $f'$ must start in $N_{hi}$ and end in $A^*\setminus A$. 
+Indeed, it must start in $N_{hi}$ because each vertex in $A*\cap A_{hi}$ has negative excess. 
+Furthermore, there are no edges between $N_{hi}$ and $A^*\cap A_{lo}$ (by definition of $N_{hi}$), and there is no flow possible from $(A^*\cap A_{hi})\cup (A^*\setminus A)$ to $N_{lo}$ in $f=w^*-w$ because $w$ has no flow from $N_{lo}$ toward $A_{hi}$ (by Claim A) nor toward $A^*\setminus A$ (by the wlog assumption); see Figure~\ref{fig:sets}. 
+This shows that paths in $f'$ cannot visit any vertex in $N_{lo}$ or $A^*\cap A_{lo}$, so they must end in $A^*\setminus A$.
+
+Therefore, paths in $f'$ carry a flow of at least $|A^* \setminus A|\cdot (1-a)t^*$ toward $A^*\setminus A$. 
+Finally, for each such path, the last edge goes from $N_{hi}$ to $A^*\setminus A$, so it originates in $N(a)$. 
+This proves that $\sum_{n\in N(a)} s_n> |A^* \setminus A|\cdot (1-a) t^*$, which is the third property.
+\end{proof}

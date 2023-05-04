@@ -1,0 +1,90 @@
+\section{A new election rule}\label{s:heuristic}
+
+The $\phragmen$ rule~\cite{brill2017phragmen} is highly efficient, with a runtime of $O(|E|\cdot k)$; see Algorithm~\ref{alg:phragmen} in Appendix~\ref{s:algorithms}. 
+However, as proved in the previous section, it fails to provide a good guarantee for the maximin support objective. 
+On the other hand, $\MMS$~\cite{sanchez2016maximin} gives a constant-factor guarantee albeit with a considerably worse running time.
+In this section we introduce $\phragmms$, a new election rule inspired in $\phragmen$ that maintains a comparable runtime to it, yet lends itself to more robust analyses both for the maximin support objective and for the PJR property. 
+
+\subsection{Inserting a candidate to a partial solution}\label{s:inserting}
+
+We start with a brief analysis of the approaches taken in $\MMS$ and $\phragmen$. 
+Both are iterative greedy algorithms that start with an empty committee and add to it a new candidate over $k$ iterations, following some specific heuristic for candidate selection.
+For a given partial solution, $\MMS$ computes a balanced edge weight vector for each possible augmented committee resulting from adding one candidate, and keeps the one whose least support is largest. 
+Naturally, such heuristic offers robust guarantees for maximin support but is slow as computing balanced vectors is costly. 
+A similar approach is followed by $\phragmen$, except that it forgoes balancing vectors exactly. Instead, starting from the weight vector of the current committee, it rebalances it only approximately when a candidate is inserted, by performing local modifications in the neighborhood of the new candidate. 
+Finally, $\phragmms$ follows the strategy of $\phragmen$ but uses a more involved heuristic for solution rebalancing, with a corresponding increase in runtime. 
+
+In the algorithms described in this section we assume that there is a known background instance $(G=(N\cup C, E), s, k)$ that does not need to be passed as input. Rather, the input is a partial solution $(A,w)$ with $|A|\leq k$. We also assume that the current list of committee member supports $(\supp_w(c))_{c\in A}$ is implicitly passed by reference and updated in every algorithm.
+
+Let $c'\in C\setminus A$ be a candidate that we consider adding to $(A,w)$. To do so, we modify weight vector $w$ into a new feasible vector $w'$ that redirects towards $c'$ some of the vote strength of the approving voters in $N_{c'}$, in turn decreasing the support of the current committee members that are also approved by these voters. Now, for a given threshold $t\geq 0$, we want to make sure not to reduce the support of any member $c$ below $t$, assuming it starts above $t$, and not to reduce it at all otherwise. A simple rule to ensure this is as follows: for each voter $n$ in $N_{c'}$ and each member $c\in A\cap C_n$, reduce the weight on edge $nc$ from $w_{nc}$ to $w_{nc}\cdot \min\{1, t/\supp_w(c)\}$, and assign the difference to edge $nc'$. That way, even if all edges incident to $c$ are so reduced in weight, the support of $c$ is scaled by a factor no smaller than $\min\{1, t/\supp_w(c)\}$ and hence its support does not fall below $t$.
+%
+Therefore, if for each voter $n\in N$ and threshold $t\geq 0$ we define that voter's \emph{slack} as
+
+\begin{align}
+    \slack_{(A,w)}(n,t):= s_n - \sum_{c\in A\cap C_n} w_{nc} \cdot\min \Big\{ 1, t/\supp_w(c)\Big\} \label{eq:slack}
+\end{align}
+%
+and for each unelected candidate $c'\in C\setminus A$ and threshold $t\geq 0$ we define that candidate's \emph{parameterized score} as
+%
+\begin{equation}\label{eq:prescore}
+    \prescore_{(A,w)}(c',t) := \sum_{n\in N_{c'}} \slack_{(A,w)}(n,t),
+\end{equation}
+%
+then we can add $c'$ to the current partial solution with a support of $\prescore_{(A,w)}(c',t)$, while not making any other member's support decrease below threshold $t$. The resulting weight modification rule is formalized in Algorithm~\ref{alg:ins}. The next lemma easily follows from the previous exposition and its proof is skipped.
+
+\begin{algorithm}[htb]
+\SetAlgoLined
+\KwData{Partial feasible solution $(A,w)$, candidate to insert $c'\in C\setminus A$, threshold $t\geq 0$.}
+Initialize the new weight vector $w'\leftarrow w$\;
+\For{each approving voter $n\in N_{c'}$}{
+Set $w'_{nc'} \leftarrow s_n$\;
+\For{each current member $c\in A\cap C_n$}{
+\If{$\supp_w(c)>t$}{
+	Update $w'_{nc} \leftarrow w'_{nc}\cdot\frac{t}{\supp_w(c)}$\;
+}
+Update $w'_{nc'}\leftarrow w'_{nc'} - w'_{nc}$\;
+}
+}
+\Return $(A+c',w')$\;
+ \caption{$\ins(A,w,c',t)$}
+\label{alg:ins}
+\end{algorithm}
+
+\begin{lemma}\label{lem:insert}
+For a feasible partial solution $(A,w)$, candidate $c'\in C\setminus A$ and threshold $t\geq 0$, 
+Algorithm $\ins(A,w,c',t)$ executes in time $O(|E|)$ and returns a feasible partial solution $(A+c',w')$ 
+such that $\supp_{w'}(c)\geq \min\{\supp_w(c),t\}$ for each member $c\in A$, and $\supp_{w'}(c')=\prescore_{(A,w)}(c',t)$. 
+%In particular, if $\prescore_{(A,w)}(c',t)\geq t$ then $\supp_{w'}(A+c')\geq \min\{\supp_w(A),t\}$.
+\end{lemma}
+
+Whenever partial solution $(A,w)$ is clear from context, we drop the subscript from our notation of slack and parameterized score. %
+%
+Parameter $t$ provides a trade-off between the amount of support we direct to the new candidate $c'$ and the support we leave for the current members. We balance this trade-off by selecting the largest possible $t$ for which the inequality $\prescore(c',t)\geq t$ holds.
+Thus, for each unelected candidate $c'\in C\setminus A$ we define its \emph{score} as 
+%
+\begin{align}
+    \score_{(A,w)}(c'):=\max\{t\geq 0: \ \prescore_{(A,w)}(c',t)\geq t\},
+\end{align}
+%
+where once again we drop the subscript if $(A,w)$ is clear from context. Our heuristic now becomes apparent.
+
+\begin{heuristic}
+For a partial solution $(A,w)$, find a candidate $c_{\max}\in C\setminus A$ with highest score $t_{\max}=\max_{c'\in C\setminus A} \score(c')$, and execute $\ins(A,w,c_{\max},t_{\max})$ so that for the new solution $(A+c_{\max},w')$: 
+%
+\begin{align*}
+\forall c\in A, \ \supp_{w'}(c) &\geq \min\{\supp_w(c), t_{\max}\}, \quad \text{ and } \\
+ \supp_{w'}(A+c_{\max}) &\geq \min \Big\{ \supp_w(A), t_{\max}\Big\}.
+\end{align*}
+\end{heuristic}
+
+In Appendix~\ref{s:algorithms} we describe efficient algorithms to find the candidate with highest parameterized score for a given threshold $t$, as well as the candidate with overall highest score.
+
+\begin{theorem}\label{thm:runtimes}
+For a partial solution $(A,w)$ and threshold $t\geq 0$, there is an algorithm $\maxprescore(A,w,t)$ that runs in time $O(|E|)$ and returns a tuple $(c_t,p_t)$ such that $c_t\in C\setminus A$ and $p_t=\prescore(c_t,t)=\max_{c'\in C\setminus A} \prescore(c',t)$, 
+and another algorithm $\maxscore(A,w)$ that runs in time $O(|E|\cdot \log k)$ and returns a tuple $(c_{\max}, t_{\max})$ such that $c_{\max}\in C\setminus A$ and $t_{\max}=\score(c_{\max})=\max_{c'\in C\setminus A} \score(c')$.
+\end{theorem}
+
+Our heuristic for candidate selection, which finds a candidate with highest score and adds it to the current partial solution (Algorithm $\maxscore$ followed by $\ins$) executes in time $O(|E|\cdot \log k)$. 
+It thus matches up to a logarithmic term the running time of the $\phragmen$ heuristic which is $O(|E|)$ per iteration. 
+In Appendix~\ref{s:algorithms} we draw parallels between $\phragmen$ and the new heuristic, and explain how the latter can be seen as a natural complication of the former that always grants higher score values to candidates and thus inserts them with higher supports.
+

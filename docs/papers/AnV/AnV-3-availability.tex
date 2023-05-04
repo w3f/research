@@ -1,0 +1,171 @@
+
+\section{Availability}
+\label{sec:availability}
+
+
+In this section, we describe the subprotocols that provide and prove availability and thus enable our approval validity checks in \S\ref{sec:approval}.  
+
+We retain all definitions and notation established previously in \S\ref{sec:backing}.  In particular, we have a candidate $B$ for a parachain $\rho$ for which we defined
+\begin{itemize}
+\item its unauthenticated erasure coded pieces $\prepieces_B$,
+\item their Merklee root $\merkleroot_B$, 
+\item its attested candidate receipt $\receipt_{B,S}$ for $B$ contining $\merkleroot_B$ along with attestation signatures $S$.
+\end{itemize}
+
+
+\subsection{Authenticated pieces}
+\label{sec:authenticated_pieces}
+
+We thus far in \S\ref{sec:backing} communicated only candidate receipts $\receipt_{B,S}$ and candidate blobs $\blobB$ among nodes, but availability requires sending erasure coded pieces $\prepieces_B$ too.
+
+Associated to each unauthenticated piece $d \in \prepieces_B$, there is a Merklee copath $\vect{\merkleroot_B d}$ that proves $d$ was committed to by the Merkle root $\merkleroot_B$.  
+We define {\em authenticated (erasure coded candidate) pieces} $(d,\merkleroot_B,\vect{\merkleroot_B d})$ by attaching to $d$ the Merkle root $\merkleroot_B$ and this inclusion proof $\vect{rd}$.  
+We transport only authenticated pieces between nodes throughout, or full blocks like $\blobB$, because only authenticated pieces provide an irrefutable claims about candidates. 
+
+We let $\pieces_B$ denote the list of these authenticated pieces, so
+$$ \pieces_B = Listst{ (d,\receipt_{B,S},\vect{\merkleroot_B d}) }{ d \in \prepieces_B } \mathcomma $$
+with each piece signed by one member of $S$.  
+%TODO: Really?
+%
+We shall distribute $\pieces_B$ among the full relay chain validator set $\vals$ with $\pieces_B[i]$ going to $\vals[i]$ for $i = 1,\ldots,\nvals$.  
+
+In so doing. we force the backing checker set $S$ into making $\blobB$ available for testing by random approval checkers without yet revealing those approval checkers.  This trick provides the core scalability advantage of Polkadot.
+
+We might however see many competing parachain candidate blocks at this point, so we delay this distribution process until some relay chain block $R$ contains $\receipt_{B,S}$.  We assume such an $R$ containing $\receipt_{B,S}$ exists throughout the remainder of this section.
+
+
+\subsection{Topology}
+\label{sec:topology}
+%TODO: "Piece distribution topology" is too long
+
+%TODO: We wrote this as if it were a separate topology section, not a subsection of availability, so maybe it should adopt that structure
+
+We find that scalability actually depends heavily upon the topology and routing used to distribute data, but that specifics depend upon the scale.  We briefly explain the specialised topology and routing requirements for our two phases of parachain data distribution.  We caution however that routing almost always requires some capacity for multi-hop forwarding because it otherwise risks excluding some elected validators.  
+
+\smallskip
+\paragraph{Candidate blocks:}
+
+We need our network topology to permit one parachain $\para$ to distribute the authenticated erasure coded candidate pieces $\pieces_B$s relatively quickly, which amounts to a graph expansion property
+% TODO:Actually??). 
+We might want a much stronger connectivity property below if doing full reconstructions turns out to be our most efficient mechanism for block retrieval, but if not then some similar expansion property permits forwarding pieces for reconstructions (see \S\ref{sec:retrieval}).
+
+In \S\ref{sec:backing}, we could ask collators to send the same block to several well chosen parachain validators as well.  As an example, if our parachain validators $\vals_\para$ form a cycle then $B$ reaches all parachain validators in two hops if the collators send $B$ to one third of $\vals_\para$, but adding well chosen chords reduces our connections with collators and improves our connectivity.  
+
+\smallskip
+\paragraph{Candidate pieces:}
+
+All parachain validators in $\vals_\para$ must compute all of $\prepieces_B$ to compute $\merkleroot_B$, from which computing $\pieces_B$ too costs nothing.  We should therefore divide the distribution burden as equally as possible among parachain validators in $\vals_\para$.  We also prefer if the topology is symmetric in the sense that the links over which $\para_1$ sends to validators in $\para_2$ are the same as the links over which $\para_2$ sends to validators in $\para_1$.  
+
+
+There are simple topologies that satisfy these requirement:
+
+We start with some fixed symmetric topology $\bar{\mathcal{T}}$ on the set of parachains, preferably a complete graph, i.e.\ diameter one.  In $\bar{\mathcal{T}}$, we equip each edge $\overline{\para_1 \para_2} \in E(\mathcal{T})$ with a regular bipartite graph $\mathcal{T}_{\overline{\para_1 \para_2}}$ between its two parachains $\para_1$ and $\para_2$.  We then define the edge set of $\mathcal{T}$ to be the union of the edge sets of all $\mathcal{T}_{\overline{\para_1 \para_2}}$ for $\overline{\para_1 \para_2} \in E(\mathcal{T})$
+$$ E(\mathcal{T}) = \cup \Setst{ \mathcal{T}_{\overline{\para_1 \para_2}} }{ \overline{\para_1 \para_2} \in E(\mathcal{T}) } $$
+
+We get symmetry from the $\mathcal{T}_{\overline{\para_1 \para_2}}$ being undirected.  We distributes work equally by regularity of the $\mathcal{T}_{\overline{\para_1 \para_2}}$.  We could weaken this to semiregular if we assign different numbers of validators to different parachains.
+
+We note one simple example for $\mathcal{T}_{\overline{\para_1 \para_2}}$:  
+% We recall either parachain $\para_i$ for $i=1,2$ is equipped with a somewhat ephemeral value $\para_i.\mathsf{seed}$ that depends upon its parachain validator assignment and some on-chain randomness $r$.
+% $$ \para_i.\mathsf{seed} := H\left( r, \mathsf{sort} \setst{ V.\mathsf{pk} }{ V \in \vals_{\para_i} } \right) $$
+Assume each parachain $\para$ has an associated value $\para.\mathsf{seed}$.  We let $\mathsf{parashuffle}(\para_i,\para_{3-i})$ denote the Fisher-Yates shuffle of $\vals_{\para_i}$ seeded by $H( \para_i.\mathsf{seed}, \para_{3-i}.\mathsf{seed} )$.  We define $\mathcal{T}_{\overline{\para_1 \para_2}}$ on the $\vals$ by connecting $\mathsf{parashuffle}(\para_1,\para_2)[j]$ to $\mathsf{parashuffle}(\para_2,\para_1)[j]$ for $j = 1,\ldots,\npvals$.
+
+
+Any block production epoch $e$ contains many shorter epochs $(e,k)$ in which we compute some parachain validator assignment $\para.\mathsf{id} \mapsto \vals_\para$.  We could however leave this topology abstract and reposition the actual assignments indices to validators and/or parachains. 
+
+We spoke of $\para_i$ being a parachain, but really $\para_i$ acted like an arbitrary validator grouping, so our actually parachains could be reshuffled freely among these groups.  We thereby supports fast churn without disrupting validator groupings.
+
+We can similarly reshuffle the mapping from actual validators to validator indices: 
+We let $\vals_{e,k}$ denote the Fisher-Yates shuffle of $\vals$ seeded by by $r_e || k$.  We then simply apply some fixed mapping from indices to parachains, such as $\floor{k / \npvals}$.  
+
+
+We can adapt this scheme to varying $|\vals_{\para_i}| \ge \npvals$ quite easily if not all parachains have the same number of assigned validators, i.e.\ if $\npvals$ is not tight.  We can also do additional shuffles if more than one link is desired.  
+% 
+If two linked nodes cannot connect, then any still online attempt connections with some random other nodes from the other parachain, or perhaps use some smarter scheme. 
+
+
+As an unoptimised example, assume $\mathcal{T}$ is a complete graph:  After our parachain validator $V$ of $\para$ observes some relay chain block $R$ containing $\receipt_{B,S}$ then, for all other parachains $\para' \ne \para$, $V$ computes the $i_{\para'}$s such that $V = \mathsf{parashuffle}(\para,\para')[j]$ and $\vals[i_{\para'}] = \mathsf{parashuffle}(\para',\para)[j]$ for some $j \leq \npvals$, and $V$ send $\pieces_B[i_{\para'}]$ to $\vals[i_{\para'}]$ directly using QUIC.  We expect $\vals[i_{\para'}]$ might have some piece from $\para'$ for $V$ too, thanks to the symmetry of our $\mathsf{parashuffle}$ criteria.  We expect this symmetry to reduce the required connections by almost a factor of two.
+
+We have described this as $V$ initiating the connection, but a similar procedure works for $V$ requesting its piece for some $\para'$ block, or symmetrically $\vals[i_{\para'}]$ requesting $\pieces_B[i_{\para'}]$.  In fact, an initial implementation should focus upon requests because as noted above we shall request from other validators when our first choice fails. 
+
+If $\vals[i_{\para'}]$ cannot reach $V$ then $\vals[i_{\para'}]$ must select some backup node to replace $V$.  Assuming $\mathcal{T}$ is complete, we should distribute these evenly among $\vals_\para \setminus \{V\}$, so as one option $\vals[i_{\para'}]$ could perform a Fisher-Yates shuffle of $\vals_\para \setminus \{V\}$, seeded by its own identity $\vals[i_{\para'}].\mathsf{pk}$ and $\para.\mathsf{seed}$, and then contact those remaining parachain validators in the resulting order.  We caution this option breaks the topology's symmetry, so as noted above nodes might exploit whatever links work first, and only take guidance from this shuffle when creating new links.  If $\mathcal{T}$ is not complete then alternative approaches that choose another parachain work too.  
+
+If $\mathcal{T}$ is not complete then intermediate nodes must forward authenticated pieces for other nodes.  In fact, the diameter of $\mathcal{T}$ equals the maximum number of hops required for $\mathcal{T}_e$ to distribute each piece.  
+In practice, these edges in $\mathcal{T}_e$ ro be the two nodes
+% $\mathsf{parashuffle}(\para_1,\para_2)[j]$ to $\mathsf{parashuffle}(\para_2,\para_1)[j]$
+maintaining a UDP protocol like QUIC connection because UDP should permit higher valency than TCP and hence permit a lower diameter $\mathcal{T}$.  
+We should evaluate other topologies besides $\mathcal{T}_e$ before going beyond complete $\mathcal{T}$ proves necessary, but our symmetry property provided by $\mathcal{T}_e$ remains important. 
+
+We admitted adversarial manipulation of our network topology here, but it sounds acceptable for our availability scheme, at least with $\mathcal{T}$ complete.  We shall consider whether this impacts gossip protocols in future work. 
+% TODO:  Future work?  Here below?
+
+
+\subsection{Votes} % Attestation
+\label{sec:availability_votes}  % Pre-GRANDPA
+
+We consider a candidate receipt $\receipt_{B,S}$ backed in some recent relay chain block $R$.  
+
+An honestly erasure coded $\blobB$ can be recovered from any $f+1$ pieces in $\pieces_B$.  If not honestly encoded, then our reconstruction algorithm $\decode_{k,n}$  still produces data from any $f+1$ symbols.
+
+We assume throughout that $2f+1$ validators behave correctly and at most $f$ validators behave byzantine.  
+It follows that, if $2f+1$ validators claim they possess their piece, then anyone could later reconstruct an honestly erasure coded $\blobB$ from the remaining $f+1$ held by validators who claimed correctly, much like other byzantine fault tolerant voting processes.  
+
+At this point, our validators votes that they believe candidate to be available once they received their authenticated piece $(d,\receipt_{B,S},\vect{\merkleroot_B d}) \in \pieces_B$ and validate the signature 
+%TODO
+ and the witness copath $\vect{\merkleroot_B d}$ to the merkle root $\merkleroot_B$ in $\receipt_{B,S}$.  We shall broadcast these {\em availability votes} via gossip and accumulate them in relay chain blocks, almost like transactions, but we briefly explain their implications first before explaining the voting mechanics.
+
+\smallskip
+\paragraph{Security:}
+
+We wait upon these availability votes before our approval checkers announce their assignments in \S\ref{sec:assignment} or run their assigned checks in \S\ref{sec:approcal_checks}, which must happen before our finality gadget GRANDPA considers $R$ in \S\ref{sec:finality}. 
+ 
+It follows that approval checkers should all receive enough pieces to run the reconstruction algorithm $\decode_{k,n}$.  At this point, an approval reruns the erasure coding algorithm $\encode_{k,n}$ to  recomputes all $\prepieces_B$ and $\merkleroot_B$.  If this fails, they declare the candidate receipt $\receipt_{B,S}$, which eventually results in slashing $S$.  
+
+An invalid erasure coding should therefore by detected slashed, assuming both that $2f+1$ validators behave honestly and that some honest validator approval checks $\receipt_{B,S}$.
+%
+We shall address this second assumption in later sections.  We note here however that approval checkers must reveal themselves to obtain the block, but any who announce early provide far less security, which makes it critically importnat they wait until the availability votes.  In concrete term, any adversary could adaptively choose not to make their block available if they observed an approval checker they believe honest or unassailable.  
+
+\smallskip
+\paragraph{Execution:}
+
+We implement some of the protocol described here within the relay chain's state machine, which carries out tasks like record backed candidates and availability votes.  
+%
+There are also actions in the relay chain associated to execution via $\verify_\para(\blobB_0,M)$ of the parachains candidate, at minimum updating the parachain's head and state root $q_\rho$.  We discussed in \S\ref{sec:backing_checks} that $V_0$ computes these actions on the relay parent before the block producer even creates $R$, which makes the relay chain into a lite client of its past state.  We ensure these updates can be applied later, but we must apply them eventually however.
+
+We expect availability votes could pass for some candidate receipts in $R$, while failing for other candidate receipts in $R$.  We do not delay the available parachain while waiting for the unavailable one.  As some parachain's availability might stall indefinitely, we impose some time limit, or other criteria, after which backed candidate receipts expire, so the relay chain can forget about the unsuccessful candidate, and new candidates can be accepted from the parachain and its validators.  
+
+In other words, we freely replace backed candidates that do not achieve availability quickly enough.  We therefore cannot regard the candidate receipt $\receipt_{B,S}$ as acting in the relay chain block $R$ in which its backing transaction appears.  
+
+Instead we have $\receipt_{B,S}$ act only in the relay chain block $R' > R$ that finally declares it passed the $2f+1$ availability votes, meaning the relay chain block producer for $R'$ applies the update to the parachain's head, state root $q_\rho$, and possibly other data.  At minimum $R$ lies strictly between $R'$ and the relay parent of $\receipt_{B,S}$, so good pipelining for parachain blocks depends upon them building upon one another correctly before they appear on chain.
+
+\smallskip
+\paragraph{Mechanics:}
+
+We should ``aggregate'' the signatures for availability votes because most validators vote for most candidates.
+%
+As a simple but efficient scheme, validators' signed votes contain a bitfield with one bit for each candidate and indicate the relay chain height that maps bits to candidates.  
+
+We could indicate the map from bits in the bitfield to candidates with a relay chain block hash of course.  We might however do so more efficiently using a relay chain state root directly, so then relay chain block producers include the availability vote by providing updated witnesses.  ...  In short, we yet again make the relay chain a lite client of its own past state.
+
+We must rotate which parachain validator groups back which parachains, so there exist two natural strategies foe allocating bits in this bitfield to represent candidates: 
+
+We want parachains that produce candidates for many relay chain blocks.  Any such busy parachain might control one bit in this bitfield for an entire epoch, so its currently backed candidate receipt can be looked up directly in the relay chain state.  
+
+We also want parachains called parathreads that produce candidates only very rarely after winning some auction.  We cannot permanently allocate one bit for every parathread, so instead we temporarily assign parathread candidates a bit tied to their parachain validator group.  
+
+We think this second parathread mapping would impose unneeded waiting for full parachains when they rotate between parachain validator groups, so implementing both techniques sounds easiest. 
+
+
+\subsection{Notes}
+
+Initially, we explored designs in which availability votes happened primarily off-chain, but these incur significant complexity and demand more subtle security assumptions.  Also, these ideas roughly parallel existing side chain work so some provide only slow on-chain resolution.  
+
+We expect fine tuning the signature aggregation mechanism might yield better results:
+
+We could aggregate using BLS signatures, so that verifiers only check one signature per candidate.  We want roughy one tenth as many candidates as validators however, so the overall higher cost form BLS overuns any savings here.  We do only require $2f+1$ signers, so perhaps clever optimisations could gives extremely efficient BLS signatures that signers who complicate verification, but this sounds like subtle future optimisation work. 
+
+We expect most direct optimisation would be Rabin-Williams signatures that increased total on-chain vote size tenfold, but only double voting bandwidth, but improved verification performance by a larger 10-100 factor, so Rabin-Williams signatures warrant further investigation.
+% https://cr.yp.to/sigs/rwsota-20080131.pdf
+
+There could even be validator groupings that negotiates Schnorr multi-signatures too, but this remains soundly future work.
+
+

@@ -1,0 +1,92 @@
+\subsection{Nominated proof-of-stake and validator election}\label{sec:validators}
+% The role of the validator is central to Polkadot, and as such validators need to run costly operations,
+% ensure high communication responsiveness, and build long-term reputation of reliability.
+% They are heavily staked and prone to slashing in case of offenses,
+% but are otherwise highly remunerated by the network.
+Polkadot will have a native token called DOT. It will use Nominated Proof-of-Stake (NPoS), our very own version of proof-of-stake (PoS).
+Consensus protocols with deterministic finality, such as the one in Polkadot, 
+require a set of registered validators of bounded size.
+Polkadot will maintain a number $\nval$ of validators, in the order of hundreds or thousands.
+This number will be ultimately decided by governance, and is intended to grow linearly with the number of parachains;
+yet it will be independent of the number of users in the network, thus ensuring scalability.
+However, NPoS allows for an unlimited number of DOT holders to participate as \emph{nominators},
+who help maintain high levels of security by putting more value at stake.
+As such, NPoS is not only much more efficient than proof-of-work (PoW),
+but also considerably more secure than conventional forms of PoS such as DPoS and BPoS. %it would be great to add a references to DPoS and BPoS, but I couldn't find a good one.
+Furthermore, we introduce new guarantees on decentralisation hitherto unmatched by any other PoS-based blockchain.
+
+A new set of validators is elected at the beginning of every \emph{era} -- a period during roughly one day (see Table~\ref{t:time} in the Appendix) --
+to serve for that era, according to the nominators' preferences.
+More precisely, any DOT holder may choose to become a validator candidate or a nominator.
+Each candidate indicates the amount of stake he is willing to stake and his desired commission fee for operational costs.
+In turn, each nominator locks some stake and publishes a list with any number of candidates that she trusts.
+Then a public protocol, discussed below, takes these lists as input and elects the candidates
+with the most backing to serve as validators for the next era.
+
+Nominators share the rewards, or eventual slashings, with the validators they nominated on a per-staked-dot basis; 
+see Section~\ref{sec:economics} for more details. 
+Nominators are thus economically incentivised to act as watchdogs for the system, and they will base their preferences 
+on parameters such as validators' staking levels, commission fees, past performance, and security practices.
+Our scheme allows for the system to elect validators with massive amounts of aggregate stake
+- much higher than any single party's DOT holdings -
+and thus helps turn the validator election process into a meritocracy rather than a plutocracy.
+In fact, at any given moment we expect there to be a considerable fraction of all the DOT supply be staked in NPoS.
+This makes it very difficult for an adversarial entity to get validators elected since it either needs a large amount of DOTs or high enough reputation to get the required nominators' backing,
+ as well as being very costly to attack because it is liable to lose all of its stake and its earned reputation.
+
+Polkadot elects validators via a decentralised protocol with carefully selected, simple and publicly known rules,
+taking the nominators' lists of trusted candidates as input. Formally, the protocol solves a multi-winner election
+problem based on approval ballots, where nominators have voting power proportional to their stake,
+and where the goals are decentralisation and security.
+
+\paragraph{Decentralisation:}  
+Our decentralisation objective translates into the classical notion of proportional representation in voting theory.
+That is, a committee should represent each minority in the electorate proportional to their aggregate vote strength (in this case, their stake), with no minority being under-represented. 
+We highlight here that nominators -- and their lists of trusted candidates -- constitute a valuable gauge for the preferences of the general community, and that diverse preferences and factions will naturally arise not only due to economical and security-related reasons, but also political, geographical, etc. Such diversity of points of view is expected and welcome in a decentralised community, and it is important to engage all minorities in decision-making processes to ensure user satisfaction. 
+
+The goal of designing an electoral system that achieves proportional representation has been present in the literature for a very long time. Of special note is the work of Scandinavian mathematicians Edvard Phragm\'{e}n and Thorvald Thiele in the late nineteenth century. Very recently, there has been considerable effort in the research community to formalise the notion of proportional representation, and revisit the methods by Phragm\'{e}n and Thiele and optimise them algorithmically. 
+Our validator selection protocol is an adaptation of Phragm\'{e}n's methods and is guaranteed 
+to observe the technical property of \emph{proportional justified representation} (PJR)~\cite{sanchez2017proportional, brill2017phragmen}. 
+Formally, this means that if each nominator $\nom \in \Nom$ has stake $stake_\nom$ 
+and backs a subset $\Can_\nom\subseteq \Can$ of candidates,%
+%
+\footnote{For ease of presentation, we consider here a model where candidates have no stake of their own. 
+The general case can be reduced to this model by representing each candidate's stake as an additional nominator 
+that exclusively nominates that candidate.} %
+%
+the protocol will elect a set $\Val\subseteq \Can$ of $\nval$ validators such that, 
+if there is a minority $\Nom'\subseteq \Nom$ of nominators such that %
+%
+$$|\cap_{\nom\in \Nom'} \Can_n| \geq t \quad \text{ and } \quad
+\frac{1}{t} \sum_{\nom\in \Nom'} stake_\nom \geq \frac{1}{\nval} \sum_{\nom\in \Nom} stake_\nom,$$
+%
+for some $1\leq t\leq \nval$, then $|\Val\cap (\cup_{\nom\in\Nom'} \Can_n)| \geq t$.
+In words, if a minority $\Nom'$ has at least $t$ commonly trusted candidates, 
+to whom it could "afford" to provide with an average support of at least 
+$\frac{1}{\nval} \sum_{\nom\in \Nom} stake_\nom$ 
+(which in turn is an upper bound on the average validator support in the elected set $\Val$), 
+then this minority has a justified claim to be represented in $\Val$ by at least $t$ candidates,  
+though not necessarily commonly trusted.
+
+\paragraph{Security:} If a nominator gets two or more of its trusted candidates elected as validators,
+the protocol must also establish how to split her stake and assign these fractions to them.
+In turn, these assignations define the total stake support that each validator receives.
+Our objective is to make these validators' supports as high and as balanced as possible.
+In particular, we focus on maximising the \emph{minimum validator support}.
+Intuitively, the minimum support corresponds to a lower bound on the cost for an adversary to gain control
+over one validator, as well as a lower bound on the slashable amount for a misconduct.
+
+Formally, if each nominator $\nom \in \Nom$ has $stake_\nom$ and backs a candidate subset $\Can_\nom\subseteq \Can$,
+the protocol must not only elect a set $\Val\subseteq \Can$ of $\nval$ validators
+with the PJR property, but also define a distribution of each nominator's stake among the elected validators that she backs,
+i.e. a function $f:\Nom\times\Val \rightarrow \mathbb{R}_{\geq 0}$ so that
+$$\sum_{\val\in \Val\cap \Can_\nom} f(\nom, \val) = stake_\nom \quad \text{ for each nominator } \nom\in\Nom,$$
+and the objective is then
+$$\max_{(\Val, f)} \: \min_{\val\in \Val} \: support_f(\val),
+\quad \text{ where } support_f(\val) := \sum_{\nom\in \Nom: \ \val\in \Can_\nom} f(\nom, \val). $$
+
+The problem defined by this objective is called \emph{maximin support} in the literature~\cite{sanchez2016maximin}, and is known to be NP-hard.
+We have developed for it several efficient algorithms which offer theoretical guarantees 
+(constant-factor approximations), and also scale well and have been successfully tested on our testnet. 
+For more information, see our paper on validator election in NPoS~\cite{NPoSpaper}.
+

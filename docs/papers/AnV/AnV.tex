@@ -1,0 +1,151 @@
+\documentclass[letterpaper,11pt]{article}
+
+%=================Begin:Packages===================
+
+\usepackage[utf8]{inputenc}
+\usepackage{a4wide}
+\usepackage[english]{babel}
+\usepackage{scalerel}
+\usepackage{hyperref}
+\usepackage{amsmath,amsfonts,amsthm} % amssymb
+\usepackage{enumitem}
+\usepackage{harpoon}
+\usepackage[normalem]{ulem}
+\usepackage{xargs}                      % Use more than one optional parameter in a new commands
+\usepackage[pdftex,dvipsnames]{xcolor}  % Coloured text etc.
+
+%=================End:Packages===================
+
+%==================Begin:Style===================
+
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+
+\newcommandx{\handan}[2]{{\uline{#1}}\textcolor{red}{(#2)}}
+%\newcommandx{\handan}[2]{{#1}{}}
+\newcommand\mathperiod{.}
+\newcommand\mathcomma{,}
+
+%===================End:Style====================
+
+%==================Begin:Macros==================
+
+\newcommand{\floor}[1]{\left\lfloor #1 \right\rfloor}
+\newcommand{\ceil}[1]{\left\lceil #1 \right\rceil}
+
+\newcommand{\vect}[1]{\overrightharp{\ensuremath{#1}}} % {\overset{\rightharpoonup}{#1}}
+
+% probability with square brackets of the right size
+% \newcommand{\Pr}{\ensuremath{\mathsf{Pr}}} %probability
+% \newcommand{\Prb}[1]{\ensuremath{\Pr\left [#1 \right ]}}
+
+\newcommand*\set[1]{\{ #1 \}} % in text, we don't want {} to grow
+\newcommand*\Set[1]{\left\{ #1 \right\}}
+\newcommand*\setst[2]{\{ #1 | #2 \}}
+\newcommand*\Setst[2]%
+        {\left\{\,#1\vphantom{#2} \;\right|\left. #2 \vphantom{#1}\,\right\}}
+
+\newcommand*\List[1]{\left[ #1 \right]}  % cute abbreviations
+\newcommand*\listst[2]{[ #1 | #2 ]}
+\newcommand*\Listst[2]%
+        {\left[\,#1\vphantom{#2} \;\right|\left. #2 \vphantom{#1}\,\right]}
+
+% uniform random selection from set
+\newcommand{\randsel}[0]{\ensuremath{\xleftarrow{\text{\$}}}}
+
+% oracles
+\newcommand{\ora}[1]{\ensuremath{\mathcal{O}\mathsf{#1}}}
+% oracle set
+\newcommand{\oraSet}[1]{\ensuremath{\mathcal{O}\textsc{#1}}}
+% algorithm
+\newcommand{\algo}[1]{\ensuremath{\mathsf{#1}}}
+% party
+\newcommand{\prt}[1]{\ensuremath{\mathcal{#1}}}
+% long-form variable
+\newcommand{\var}[1]{\ensuremath{\mathit{#1}}}
+
+%=================End:Macros=====================
+
+%=================Begin:Definitions===================
+
+\newcommand{\VRF}{\algo{VRF}} 
+\newcommand{\RingVRF}{\algo{RingVRF}} 
+\newcommand{\Sign}{\algo{Sign}} 
+\newcommand{\Verify}{\algo{Verify}} 
+\newcommand{\KeyGen}{\algo{KeyGen}} 
+\newcommand{\Out}{\algo{Out}} 
+
+\newcommand{\sk}{\ensuremath{\mathsf{sk}}} %secret key
+\newcommand{\pk}{\ensuremath{\mathsf{pk}}} %public key
+\newcommand{\verify}{\ensuremath{\mathsf{Verify}}}
+\newcommand{\prove}{\ensuremath{\mathsf{Prove}}}
+
+\newcommand{\vals}{\ensuremath{\mathcal{V}}}
+\newcommand{\nvals}{\ensuremath{n}}
+\newcommand{\para}{\ensuremath{\rho}}
+
+\newcommand{\pieces}{\ensuremath{\mathcal{D}}}
+\newcommand{\prepieces}{\ensuremath{\pieces'}}
+\newcommand\merkleroot{\ensuremath{\mathfrak{m}}} % {\mathtt{root}}}  maybe?
+\newcommand\receipt{\ensuremath{\mathfrak{C}}}
+
+\newcommand{\val}{\ensuremath{v}}
+
+% \newcommand{\pv}{\ensuremath{\mathcal{P}V}}
+
+\newcommand\grace{\ensuremath{\mathsf{agp}}}
+
+\newcommand{\encode}{\ensuremath{\mathsf{Encode}}}
+\newcommand{\decode}{\ensuremath{\mathsf{Decode}}}
+% \newcommand{\divi}{\ensuremath{\mathsf{Divide}}}
+% \newcommand{\recons}{\ensuremath{\mathsf{Reconstruct}}}
+
+\newcommand{\blobB}{\ensuremath{\bar{B}}} %blob
+% \newcommand{\bh}{\ensuremath{B_{head}}} %block header
+% \newcommand{\mprf}{\ensuremath{\pi^{mt}}} %merkle proof
+
+
+\newcommand{\npvals}{\ensuremath{n_0}} % number of parachaim validators
+\newcommand\primarychecks{\ensuremath{\mathtt{min_backers}}}   % {\ell_1}
+\newcommand\secondarychecks{\ensuremath{\mathtt{min_approvers}}}  % {\ell_2}
+\newcommand\totalchecks{\ensuremath{\ell_{\mathrm{TOTALREMOVED}}}} %total number of validity check
+\newcommand\equivocationchecks{\ensuremath{\ell_{\mathrm{eqiv}}}}
+
+\newcommand\basesecondarychecks{\ensuremath{\ell_b}} 
+\newcommand\rfuv{\ensuremath{\ell_v}} % report factor for unavailability from validators
+\newcommand{\runav}{\ensuremath{\ell_a}}
+\newcommand{\rinv}{\ensuremath{\ell_f}}
+
+\newcommand\cc{\ensuremath{\mathbin{\|}}}
+
+% \def\newalgo#1{%
+% \expandafter\newcommand\csname #1\endcsname{\mathbf{#1}}%
+% }
+\newcounter{symbols}
+\def\newsymbol#1{%
+\expandafter\newcommand\csname #1\endcsname{\hyperref[symbols:#1]\mathsf{#1}}%
+\refstepcounter{symbols}\label{symbols:#1}\mathsf{#1}%
+}
+
+
+\title{Availability and Validity}
+
+
+\begin{document}
+\date{}
+\maketitle
+
+\input{AnV-0-introduction.tex}
+\input{AnV-1-sharding.tex}
+\input{AnV-2-backing.tex}
+\input{AnV-3-availability.tex}
+\input{AnV-4-approval.tex}
+\input{AnV-5-fishermen.tex}
+\input{AnV-6-security.tex}
+
+\appendix
+\input{AnV-A1-proof.tex}
+
+\end{document}

@@ -1,0 +1,162 @@
+
+\section{Delayed proofs}\label{s:proofs}
+
+In this section we make frequent references to the definitions and results related to network flow that we present in Appendix~\ref{s:flow}. We start with the following auxiliary result which will be used by some of the proofs in this section.
+
+\begin{lemma}\label{lem:path}
+Let $w\in \R^E$ be a feasible weight vector for a given instance, let $c,c'\in C$ be two candidates with $\supp_w(c)<\supp_w(c')$, and suppose there is a simple path $p\in\mathbb{R}^E$ that carries non-zero flow from $c'$ to $c$. If $w+p$ is non-negative and feasible, then $w$ is not balanced for any committee $A$ that contains $c$.
+\end{lemma}
+
+\begin{proof}
+Fix a committee $A\subseteq C$ that contains $c$. If $c'$ is not in $A$, then $w+p$ provides a greater sum of member supports over $A$ than $w$, so the latter is not balanced as it does not maximize this sum. Now suppose both $c$ and $c'$ are in $A$. Let $\lambda>0$ be the flow value carried by $p$, let $\eps:=\min\{\lambda, (\supp_w(c') - \supp_w(c))/2\}>0$, and let $p'$ be the scalar multiple of $p$ whose flow value is $\eps$. By an application of Lemma~\ref{lem:subflow} over $w$ and $w':=w+p$, and the fact that $p'$ is a sub-flow of $p=w'-w$, we have that $w+p'$ is non-negative and feasible. 
+Moreover, vectors $w$ and $w+p'$ clearly provide the same sum of member supports over $A$. Finally, if we compare their sums of member supports squared, we have that
+\begin{align*}
+\sum_{d\in A} & \supp_w^2(d)-\sum_{d\in A} \supp^2_{w+p'}(d) \\
+=& \supp_w^2(c) +\supp_w^2(c')-\supp^2_{w+p'}(c) -\supp^2_{w+p'}(c')\\
+=& \supp_w^2(c) +\supp_w^2(c') - (\supp_w(c) + \eps)^2 - (\supp_w(c') - \eps)^2 \\
+=& 2\eps\cdot (\supp_w(c') - \supp_w(c) - \eps) \geq 2\eps\cdot(2\eps - \eps)=2\eps^2>0.
+\end{align*}
+
+Therefore, $w$ is not balanced for $A$, as it does not minimize the sum of member supports squared.  
+\end{proof}
+
+\begin{proof}[Proof of Lemma~\ref{lem:balanced}]
+Fix a balanced partial solution $(A,w)$. The first statement is that for any $1\leq r\leq |A|$, function 
+%
+$$F_r(w'):=\min_{A'\subseteq A, \ |A'|=r} \sum_{c\in A'} \supp_{w'}(c)$$
+% 
+is maximized by vector $w$ over all feasible vectors $w'\in\R^E$. 
+Assume by contradiction that there is a parameter $r$ and a feasible $w'$ such that $F_r(w')>F_r(w)$. 
+We also assume without loss of generality that the members of $A=\{c_1, \cdots, c_{|A|}\}$ are enumerated in such a way that whenever $i<j$, we have $\supp_w(c_i)\leq \supp_w(c_j)$, and if this inequality is tight then $\supp_{w'}(c_i)\leq \supp_{w'}(c_j)$.
+%
+With this enumeration we obtain the identity $F_r(w)=\sum_{i=1}^r \supp_w(c_i)$. 
+Thus, by our assumption by contradiction, 
+$$ \sum_{i=1}^r \supp_{w}(c_i) = F_r(w) < F_r(w') \leq  \sum_{i=1}^r \supp_{w'}(c_i). $$
+%
+%\begin{align*}
+%    \sum_{i=r+1}^{|A|} \supp_{w'}(c_i) &= \sum_{i=1}^{|A|} \supp_{w'}(c_i) - \sum_{i=1}^{r} \supp_{w'}(c_i) \\
+%    & = \sum_{i=1}^{|A|} \supp_{w}(c_i) - \sum_{i=1}^{r} \supp_{w'}(c_i) \\
+%    & < \sum_{i=1}^{|A|} \supp_{w}(c_i) - \sum_{i=1}^{r} \supp_{w}(c_i) \\
+%    & = \sum_{i=r+1}^{|A|} \supp_{w}(c_i). \\
+%\end{align*}
+%
+Consider the flow $f:=w'-w\in\mathbb{R}^E$. 
+By the last inequality, set $A_r:=\{c_1, \cdots, c_r\}\subseteq A$ has a negative net excess, so by Theorem~\ref{thm:decomposition} $f$ must have a sub-flow $p$ that is a simple path starting in a vertex outside $A_r$ with positive excess and ending in a vertex $c_i$ in $A_r$ with negative excess, for some $1\leq i\leq r$. 
+Now, path $p$ must also start inside committee $A$, as otherwise vector $w+p$ is feasible by Lemma~\ref{lem:subflow} and provides a larger sum of member supports than $w$, contradicting the fact that the latter is balanced for $A$. 
+Hence, $p$ starts in an vertex $c_j$ in $A$ for some $r<j\leq |A|$. 
+Moreover, by our choice of member enumeration it must be the case that $\supp_w(c_i)<\supp_w(c_j)$, because if the inequality was tight we would have $\supp_{w'}(c_i)<\supp_{w'}(c_j)$, which implies that $c_i$ has a larger excess than $c_j$, $e_f(c_i)> e_f(c_j)$, contradicting the fact that $c_i$ has negative excess and $c_j$ has positive excess.
+Finally, by Lemma~\ref{lem:path}, $w$ is not balanced for $A$ (nor for any committee that contains $c_i$), and we reach a contradiction. 
+
+The second statement follows directly from the fact that $w$ maximizes the sum of member supports, and thus all of the aggregate vote strength of represented voters (i.e., voters in $\cup_{c\in A} N_c$) must be directed to members of $A$. 
+We move on to the third statement. 
+Assume by contradiction that there is a voter $n\in N$ and two candidates $c, c'\in A\cap C_n$ such that $w_{nc}>0$ and $\supp_w(c)>\supp_w(c')$. 
+Let $p\in\mathbb{R}^E$ be the simple path of length two that carries a flow of value $w_{nc}$ from $c$ to $c'$ via $n$, i.e, $p_{nc'}=-p_{nc}=w_{nc}$, and $p$ is zero elsewhere. 
+It can be checked that $w+p$ is non-negative and feasible, so by Lemma~\ref{lem:path} $w$ is not balanced for $A$, which is a contradiction. 
+
+Finally, we prove that if a feasible weight vector satisfies properties 2 and 3, then it is necessarily balanced for $A$. 
+In fact, we claim that all vectors satisfying these properties provide exactly the same list of member supports $(\supp_w(c))_{c\in A}$, and hence all are balanced for $A$. 
+Let $w, w'\in\R^E$ be two such weight vectors. It easily follows from feasibility (inequality~\ref{eq:feasible}) and property 2 that both provide the same sum of member supports, namely 
+$$\sum_{c\in A} \supp_w(c) = \sum_{c\in A} \supp_{w'}(c) =\sum_{n\in \cup_{c\in A} N_c} s_n.$$
+% 
+Now, assume by contradiction and without loss of generality that there is a candidate $c\in A$ for which $\supp_{w}(c)<\supp_{w'}(c)$, and consider the flow $f:=w'-w$. 
+Clearly, all vertices in $N$ and in $C\setminus A$ have zero excess relative to $f$, while $c$ has negative excess. 
+By Theorem~\ref{thm:decomposition}, there is a simple path $p$ ending in $c$ and starting in a vertex with positive excess; 
+moreover, $p$ is a sub-flow of $f$, which implies that this starting vertex must be in $A$, and in fact all of the candidates visited by $p$ must be in $A$ as well.  
+
+Now, path $p$ alternates between members of $A$ and voters. Hence, there must be three consecutive vertices $c_1, n, c_2$ in it, with $c_1, c_2\in A\cap C_{n}$, such that $c_1$ has a strictly larger excess than $c_2$, i.e., 
+$$- \supp_{w'}(c_1)+\supp_w(c_1) > - \supp_{w'}(c_2) + \supp_w(c_2),$$ 
+which in turn implies that either $\supp_{w'}(c_1)<\supp_{w'}(c_2)$ holds or $\supp_{w}(c_1)>\supp_w(c_2)$ holds, or both. 
+If $\supp_{w'}(c_1)<\supp_{w'}(c_2)$, we reach a contradiction with the fact that $w'$ satisfies property 3 and that $w'_{nc_2}$ must be strictly positive since $p$ (and thus also $f=w'-w$) is directed from $n$ to $c_2$. 
+Similarly, if $\supp_w(c_2)<\supp_{w}(c_1)$ we reach a contradiction with the fact that $w$ satisfies condition 3 and that $w_{nc_1}$ must be strictly positive since $p$ is directed from $c_1$ to $n$. 
+
+Properties 2 and 3 can clearly be tested in time $O(|E|)$. This completes the proof of the lemma.
+\end{proof}
+
+
+\begin{proof}[Proof of Theorem~\ref{thm:equivalence}]
+For a fixed committee $A$, let $w$ be a feasible edge weight vector that maximizes $\supp_w(A)$, and let $A'\subseteq A$ be the non-empty subset that minimizes the expression $\frac{1}{|A'|} \sum_{n\in \cup_{c\in A'} N_c} s_n$. Then, 
+\begin{align*}
+    \supp_w(A) &\leq \supp_w(A') \\
+		& \leq \frac{1}{|A'|} \sum_{c\in A'} \supp_w(c) = \frac{1}{|A'|} \sum_{c\in A'} \sum_{n\in N_c} w_{nc} \\ 
+    & = \frac{1}{|A'|}  \sum_{n\in \cup_{c\in A'} N_c} \quad \sum_{c\in C_n\cap A'} w_{nc} \\
+    & \leq \frac{1}{|A'|} \sum_{n\in \cup_{c\in A'} N_c} s_n,
+\end{align*}
+%
+where the second inequality follows by an averaging argument, and the last inequality follows by feasibility. 
+This proves one inequality of the claim. 
+
+To prove the opposite inequality, we assume for convenience and without loss of generality that $w$ is balanced for $A$. 
+Let $A''\subseteq A$ be the set of committee members with least support, i.e., those $c\in A$ with $\supp_w(c)=\supp_w(A)$. Then,
+\begin{align*}
+    \supp_w(A) &= \supp_w(A'') = \frac{1}{|A''|} \sum_{c\in A''} \supp_w(c) \\
+		& = \frac{1}{|A''|} \sum_{c\in A''} \sum_{n\in N_c} w_{nc} \\
+    &= \frac{1}{|A''|} \sum_{n\in \cup_{c\in A''} N_c} \ \sum_{c\in C_n\cap A''} w_{nc} \\
+    &= \frac{1}{|A''|} \sum_{n\in \cup_{c\in A''} N_c} \bigg( \sum_{c\in C_n\cap A} w_{nc} 
+		- \sum_{c\in C_n \cap (A\setminus A'')} w_{nc}\bigg)\\
+		&= \frac{1}{|A''|}\sum_{n\in \cup_{c\in A''} N_c} s_n \\
+		&\geq \frac{1}{|A'|}\sum_{n\in \cup_{c\in A'}N_c} s_n,
+\end{align*}
+%
+where in the second-to-last line we used the fact that for each voter $n\in \cup_{c\in A''} N_c$, the term $\sum_{c\in C_n\cap A} w_{nc}$ equals $s_n$ by property 2 of Lemma~\ref{lem:balanced}, while the term $\sum_{c\in C_n \cap (A\setminus A'')} w_{nc}$ vanishes by property 3 of Lemma~\ref{lem:balanced} and the definition of set $A''$. 
+This proves the second inequality and completes the proof.
+\end{proof}
+
+
+\begin{proof}[Proof of Lemma~\ref{lem:badexamples}]
+In the example of Figure~\ref{fig:example}, the optimum value for  maximin support is clearly 1, achieved for instance by choosing the $k$ honest candidates. 
+Hence, if an $\alpha$-approximation algorithm elects $j$ adversarial candidates, one of these candidates must be given a support that is simultaneously at most $1/j$ and at least $1/\alpha$, so $j\leq \alpha$. This proves the first claim.
+
+We continue with the PAV rule. In this example, it can be checked that PAV yields the same result as sequential-PAV, and that honest candidates are elected in order, i.e., $c_1$, then $c_2$, and so on. 
+Now, if at some point the rule has elected $i$ honest and $j-1$ adversarial members, with $i+j=k$, the score of the next honest candidate is $(k-i)/(i+1)$, and that of the next adversarial candidate is $1/j$. 
+As we always pick the candidate with highest score, the last candidate will be adversarial -- and hence there will be $j$ adversarial candidates elected -- if $1/j > (k-i)/(i+1)=j/(k-j+1)$. 
+It can be checked that $j=\sqrt{k}-1/2$ satisfies this inequality, so the rule elects at least this many adversarial representatives. 
+
+We analyze $\phragmen$ next. We take the continuous formulation where every voter starts with zero vote strength and gains strength at a constant speed of one unit per second, candidates have unit cost, and a candidate is elected as soon as its supporters can afford it, spending the corresponding vote strength; see~\cite{lackner2020approval}.  
+It will take $1/k+1/(k-1)+\cdots + 1/(k-i)= H_k - H_{k-i-1}$ seconds for the rule to elect $i+1$ honest candidates, where $H_i=\sum_{t=1}^i 1/t$ is the $i$-th harmonic number, and $j$ seconds to elect $j$ adversarial candidates, where honest and adversarial candidates are elected with independent time frames. 
+If at some point there are $i$ honest and $j-1$ adversarial candidates with $i+j=k$, the last elected candidate will be adversarial -- and thus there will be $j$ adversarial candidates elected -- if $j< H_k - H_{k-i-1} = H_k - H_{j-1}=\ln(\frac{k}{j}) -o(1)$. 
+From this it follows that the rule elects at least $(1-o(1)) \ln k$ adversarial candidates.
+
+We finally consider Rule X, which consists of two phases. 
+In the first phase, $k$ units of vote strength are evenly distributed among the $k+1$ voters, i.e., $k/(k+1)$ units per voter, and candidates have a unit cost as before. 
+The vote distribution from voters to candidates is somewhat involved, but it suffices to notice that the adversary cannot afford any candidates, honest candidates are elected in order, and the cost of each new candidate is evenly shared among its supporters. 
+At the beginning of the election of the $i$-th honest candidate, each of its $k-i+1$ supporters has a vote strength of $k/(k+1) - 1/k - \cdots - 1/(k-i+1)=1-H_{k+1}-H_{k-i}$, so the candidate can be afforded if and only if $(k-i+1)(1-H_{k+1} - H_{k-i})\geq 1$. As a result, there will be $k[1- e^{-1-o(1)}]$ honest candidates elected in the first phase. 
+Now, the rule is not specific about how to elect the remaining candidates in the second phase, so it could elect up to $k/e^{1+o(1)}=\Omega(k)$ adversarial candidates. 
+If the remaining seats are filled by running $\phragmen$, as suggested by the authors of Rule X~\cite{peters2019proportionality}, then the rule selects at least as many adversarial candidates as $\phragmen$ does, since the adversarial voter still has all of its budget available. This completes the proof.
+\end{proof}
+
+\begin{proof}[Proof of Lemma~\ref{lem:2balanced}]
+The second statement comparing scores follows directly from the first one and the definitions of slack, parameterized score, and score. Hence we focus on the first statement, i.e., that $\supp_w(c)\geq \supp_{w'}(c)$ for each member $c\in A$.
+
+Consider the flow $f:=w'-w\in\mathbb{R}^E$: it suffices to prove that no member of $A$ has negative excess relative to it. Assume by contradiction that there is such a member $c\in A$ with negative excess.  
+By Theorem~\ref{thm:decomposition}, $f$ must have a sub-flow that is a simple path ending in $c$ and starting in vertex with positive excess. 
+This starting vertex must be a candidate $c'$ inside $A$, as otherwise vector $w+p$ is feasible by Lemma~\ref{lem:subflow} and offers a greater sum of member supports over $A$ than $w$, which contradicts the fact that $w$ is balanced for $A$. 
+Now, the fact that $e_f(c) < 0 < e_f(c')$ implies that 
+$$- \supp_{w'}(c) + \supp_{w}(c) <0< - \supp_{w'}(c') + \supp_{w}(c'),$$
+which implies that either $\supp_{w}(c)<\supp_{w}(c')$, or $\supp_{w'}(c')<\supp_{w'}(c)$, or both. 
+If $\supp_{w}(c)<\supp_{w}(c')$, then by Lemma~\ref{lem:path}, $w$ is not balanced for $A$ (nor for any committee containing $c$). 
+Similarly, if $\supp_{w'}(c')<\supp_{w'}(c)$, notice that $w'-p$ is non-negative and feasible by Lemma~\ref{lem:subflow}, so again Lemma~\ref{lem:path} applied to vector $w'$ and path $-p$ (which starts in $c$ and ends in $c'$) implies that $w'$ is not balanced for $A'$ (nor for any committee containing $c'$). 
+In either case we reach a contradiction.
+\end{proof}
+
+\begin{proof}[Proof of Lemma~\ref{lem:Lebesgue}]
+Recall that for any set $A\subseteq \mathbb{R}$, the indicator function $1_A:\mathbb{R}\rightarrow \mathbb{R}$ is defined as $1_A(t)=1$ if $t\in A$, and $0$ otherwise. For any $i\in I$, we can write
+$$ f(x_i) = \int_{0}^{f(x_i)} dt = \int_0^{\lim_{x\rightarrow \infty} f(x)} 1_{(-\infty, f(x_i)]}(t)dt,$$
+and thus
+\begin{align*}
+    \sum_{i\in I} \alpha_i f(x_i) &= \int_0^{\lim_{x\rightarrow \infty} f(x)} \Big(\sum_{i\in I} \alpha_i 1_{(-\infty, f(x_i)]}(t)\Big)dt \\
+		&= \int_0^{\lim_{x\rightarrow \infty} f(x)} \Big(\sum_{i\in I: \ f(x_i)\geq t} \alpha_i \Big)dt.
+\end{align*}
+This is a Lebesgue integral over the measure with weights $\alpha_i$. Now, conditions on function $f(x)$ are sufficient for its inverse $f^{-1}(t)$ to exist, with $f^{-1}(0)=\chi$. Substituting with the new variable $x=f^{-1}(t)$ on the formula above, where $t=f(x)$ and $dt=f'(x)dx$, we finally obtain
+$$\sum_{i\in I} \alpha_i f(x_i) =\int_{\chi}^{\infty} \Big( \sum_{i\in I: \ x_i\geq x} \alpha_i \Big)\cdot f'(x)dx,$$
+as claimed.
+\end{proof}
+
+\begin{proof}[Proof of Lemma~\ref{lem:subflow}]
+We prove the claim only for $w+f'$, as the proof for $w'-f'$ is symmetric. 
+For each edge $nc\in E$, the value of $(w+f')_{nc}$ must fall between $w_{nc}$ and $(w+f)_{nc}=w'_{nc}$. As both of these values are non-negative, the same holds for $(w+f')_{nc}$. 
+Notice now from inequality \eqref{eq:feasible} that proving feasibility corresponds to proving that the excess $e_{w+f'}(n)$ is at most $s_n$ for each voter $n\in N$. We have 
+$$e_{w+f'}(n) = \sum_{c\in C_n} (w+f')_{nc}= \sum_{c\in C_n} ( w_{nc} + f_{nc}') = e_w(n) + e_{f'}(n). $$
+%
+If the excess $e_{f'}(n)$ is non-positive, then $e_{w+f'}(n)\leq e_w(n) \leq s_n$, where the last inequality holds because $w$ is feasible. 
+Otherwise, we have  $0< e_{f'}(n)\leq e_{f}(n)$, and thus $e_{w+f'}(n)\leq e_w(n) + e_{f}(n) = e_{w+f}(n) = e_{w'}(n) \leq s_n$, since $w'$ is feasible. This completes the proof.
+\end{proof}

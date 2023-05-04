@@ -19,5 +19,7 @@ node_modules
 *.toc
 *.pdf
 
+.docusaurus
+
 # don't ignore pdfs in here, they are published online
 !/docs/_static/pdf/**/*.pdf
