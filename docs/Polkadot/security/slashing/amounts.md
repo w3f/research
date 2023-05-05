@@ -2,12 +2,7 @@
 title: Slashing mechanisms
 ---
 
-====================================================================
-
-**Owners**: [Alfonso Cevallos](/team_members/alfonso.html)
-
-====================================================================
-
+**Authors**: [Alfonso Cevallos](/team_members/alfonso.md)
 
 ## General principles
 

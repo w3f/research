@@ -2,13 +2,9 @@
 title: Slashing across eras with NPoS
 ---
 
-====================================================================
+**Authors**: [Jeffrey Burdges](/team_members/jeff.md)
 
-**Owners**: [Jeffrey Burdges](/team_members/jeff.html)
-
-**Other authors**: Robert Habermeier, Alfonso Cevallos
-
-====================================================================
+**Other authors**: Robert Habermeier, [Alfonso Cevallos](/team_members/alfonso.md)
 
 We need our slashing algorithm to be fair and effective.  We discuss how this means slashing must respect nominators' exposure, be anti-Sibel, and be monotonic.
 

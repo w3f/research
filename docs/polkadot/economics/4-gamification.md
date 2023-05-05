@@ -2,13 +2,9 @@
 title: Non-monetary incentives for collective members
 ---
 
-====================================================================
-
-**Authors**: Jonas Gehrlein
+**Authors**: [Jonas Gehrlein](/team_members/Jonas.md)
 
 **Last updated**: 13.04.2023
-
-====================================================================
 
 ## Overview 
 

@@ -50,23 +50,27 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
-      // Replace with your project's social card
-      image: 'img/docusaurus-social-card.jpg',
       navbar: {
-        title: 'My Site',
         logo: {
-          alt: 'My Site Logo',
-          src: 'img/logo.svg',
+          alt: 'W3F Logo',
+          src: 'img/w3f_logo.svg',
         },
+        title: 'Research at Web3',
         items: [
           {
-            type: 'docSidebar',
-            sidebarId: 'sidebar',
-            position: 'left',
-            label: 'Tutorial',
+            type: 'doc',
+            docId: 'polkadot/overview/index',
+            position: 'right',
+            label: 'Polkadot',
           },
           {
-            href: 'https://github.com/facebook/docusaurus',
+            type: 'doc',
+            docId: 'crypto/index',
+            position: 'right',
+            label: 'Cryptography',
+          },
+          {
+            href: 'https://github.com/w3f/research',
             label: 'GitHub',
             position: 'right',
           },
@@ -116,6 +120,10 @@ const config = {
       prism: {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
+      },
+      colorMode: {
+        defaultMode: 'light',
+        disableSwitch: true,
       },
     }),
 };

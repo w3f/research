@@ -2,23 +2,7 @@
 title: BABE
 ---
 
-====================================================================
-
-**Owners**: [Handan Kilinc Alper](/team_members/handan.html)
-
-====================================================================
-\(
-   \def\skvrf{\mathsf{sk}^v}
-   \def\pkvrf{\mathsf{pk}^v}
-   \def\sksgn{\mathsf{sk}^s}
-   \def\pksgn{\mathsf{pk}^s}
-   \def\skac{\mathsf{sk}^a}
-   \def\pkac{\mathsf{pk}^a}
-   \def\D{\Delta}
-   \def\A{\mathcal{A}}
-   \def\vrf{\mathsf{VRF}}
-   \def\sgn{\mathsf{Sign}}
-\)
+**Authors**: [Handan Kilinc Alper](/team_members/handan.md)
 
 ## 1. Overview
 

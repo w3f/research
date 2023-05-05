@@ -2,7 +2,7 @@
 title: Token Economics
 ---
 
-**Owners**: [Alfonso Cevallos](/team_members/alfonso.html), [Jonas Gehrlein](/team_members/Jonas.html)
+**Authors**: [Alfonso Cevallos](/team_members/alfonso.md), [Jonas Gehrlein](/team_members/Jonas.md)
 
 Polkadot will have a native token called DOT. Its main functions are as follows:
 

@@ -34,3 +34,11 @@
   margin-left: 2em;
   width: 15em;
 }
+
+.navbar--fixed-top {
+  background-color: rgb(21, 21, 21);
+}
+
+.navbar__title, .navbar__item {
+  color: white;
+}

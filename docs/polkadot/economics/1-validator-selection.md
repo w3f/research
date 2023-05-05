@@ -2,13 +2,9 @@
 title: Validator selection
 ---
 
-====================================================================
-
-**Authors**: Jonas Gehrlein
+**Authors**: [Jonas Gehrlein](/team_members/Jonas.md)
 
 **Last updated**: 07.12.2020
-
-====================================================================
 
 ## Introduction
 
