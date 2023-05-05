@@ -2,11 +2,7 @@
 title: Token Economics
 ---
 
-====================================================================
-
 **Owners**: [Alfonso Cevallos](/team_members/alfonso.html), [Jonas Gehrlein](/team_members/Jonas.html)
-
-====================================================================
 
 Polkadot will have a native token called DOT. Its main functions are as follows:
 
@@ -293,10 +289,6 @@ Additional notes
 
 Finality gadget [GRANDPA](https://github.com/w3f/consensus/blob/master/pdf/grandpa.pdf)
 
-The [availability scheme](../Availability_and_Validity.md)
+Block production protocol [BABE](polkadot/protocols/block-production/Babe.md)
 
-Block production protocol [BABE](../block-production/Babe.md)
-
-[Parachain Validity](../Availability_and_Validity.md) scheme
-
-The [NPoS scheme](../NPoS/index.md) for selecting validators
+The [NPoS scheme](polkadot/protocols/NPoS/index.md) for selecting validators

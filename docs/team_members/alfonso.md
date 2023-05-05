@@ -1,6 +1,8 @@
 # Alfonso Cevallos
 
-<!-- ![](Alfonso.jpg) -->
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+<img className="members" src={useBaseUrl('img/Alfonso.jpg')}/>
 
 alfonso@web3.foundation
 

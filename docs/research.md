@@ -18,7 +18,7 @@ We analyze existing protocols, come up with new ones and specify them. We work c
 
 Some of our current initiatives:
 
-- [Polkadot network protocol research](polkadot)
+- [Polkadot network protocol research](polkadot/overview)
 - [General cryptography research](crypto)
 
 Talk to us on Riot at #w3f:matrix.org.

@@ -117,7 +117,7 @@ Handan and Jeff attended Financial Crypto 2020 and presented their posters.
 We published a medium blogpost on [XCMP](https://medium.com/web3foundation/polkadots-messaging-scheme-b1ec560908b7) giving an overall overview of XCMP and descriping a number of design decisions.
 
 **20.12.19**  
-We updated our [XCMP implementation considerations](polkadot/XCMP).
+We updated our XCMP implementation considerations.
 
 **05.12.19**  
 Handan has finished a paper titled: [Consensus on Clock in Universally Composable Timing Model](https://eprint.iacr.org/2019/1348.pdf). It is an updated version of Ouroboros Clepsydra that doesn’t rely on existence of some syncronized parties anymore.

@@ -2,17 +2,17 @@
 title: Introduction
 ---
 
-Polkadot consists of a main chain called the relay chain and multiple sharded chains called parachains. The relay chain is maintained by validators that are selected through the [NPoS scheme](/polkadot/NPoS/index.md#the-npos-scheme) and is responsible for producing blocks of the relay chain (via [BABE](/polkadot/block-production/Babe.md)) and keeping the state of all the parachains.
-These validators need to vote on the consensus, see [GRANDPA](/polkadot/finality.md), over all the parachains blocks. For parachains, there are additional actors called collators and fishermen that are responsible for parachain block production  and reporting invalid parachain blocks respectively. In the figure below an example cut-out of Polkadot with part of the relay chain, one parachain, three validators and five collators are shown.
+Polkadot consists of a main chain called the relay chain and multiple sharded chains called parachains. The relay chain is maintained by validators that are selected through the [NPoS scheme](/polkadot/protocols/NPoS/index.md#the-npos-scheme) and is responsible for producing blocks of the relay chain (via [BABE](/polkadot/protocols/block-production/Babe.md)) and keeping the state of all the parachains.
+These validators need to vote on the consensus, see [GRANDPA](/polkadot/protocols/finality.md), over all the parachains blocks. For parachains, there are additional actors called collators and fishermen that are responsible for parachain block production  and reporting invalid parachain blocks respectively. In the figure below an example cut-out of Polkadot with part of the relay chain, one parachain, three validators and five collators are shown.
 
 ![Figure 1 - Relay chain, Validators, Parachain, and Collators](../images/data_structure.png)
 
 
-Validators are assigned to parachains, which are responsible for validating parachain blockd and keeping them available via the [A&V scheme](/polkadot/Availability_and_Validity.md). Moreover, another feature of Polkadot is enabling interchain messaging among parachains, called [XCMP](/polkadot/XCMP.md).
+Validators are assigned to parachains, which are responsible for validating parachain blockd and keeping them available via the A&V scheme. Moreover, another feature of Polkadot is enabling interchain messaging among parachains, called XCMP.
 
-The security goal of Polkadot is to be Byzantine fault tolerant when the participants are rational. Rewards are given out when validators behave correctly and validators misbehaviour is punished via the [Slashing mechanism](/polkadot/slashing.md). More details on incentives and economics are reviewed [here](2-token-economics.md).
+The security goal of Polkadot is to be Byzantine fault tolerant when the participants are rational. Rewards are given out when validators behave correctly and validators misbehaviour is punished via the [Slashing mechanisms](/polkadot/security/slashing/amounts.md). More details on incentives and economics are reviewed [here](2-token-economics.md).
 
-Furthermore, Polkadot has a decentralised governance scheme that can change any Polkadot design decisions and parameterisation. Details on low-level cryptographic primitives can be found [here](/polkadot/keys/index.md) and Polkadot's networking schemes is in progress with some details being reviewed [here](/polkadot/networking.html).
+Furthermore, Polkadot has a decentralised governance scheme that can change any Polkadot design decisions and parameterisation. Details on low-level cryptographic primitives can be found [here](/polkadot/security/keys/index.md) and Polkadot's networking schemes is in progress.
 
 
 ![Figure 2 - Data structures and participants](../images/whole.png)
@@ -20,7 +20,7 @@ Furthermore, Polkadot has a decentralised governance scheme that can change any 
 
 **For other information regarding the project please refer to the [wiki page](https://wiki.polkadot.network).**
 
-**We also provide implementation level specification of the protocol in [html](https://spec.polkadot.network) and [pdf](/polkadot/specifications.html) form.**
+**We also provide implementation level specification of the protocol in [html](https://spec.polkadot.network).**
 
 ## High-level properties
 
@@ -61,13 +61,13 @@ To ensure that useful state transitions are processed by those state machines, w
 
 The notion of validity in Polkadot is determined by a state transition validation function (STVF). Each chain in the ecosystem has to have one implemented. In order for all nodes to be able to run this function it is being distributed as deterministic WebAssembly (Wasm) code which can be executed by the Polkadot Host.
 
-The blocks are produced by parachain collators, then they get validated using the STVF by the subset of validators responsible for the given parachain to finally get included in the Polkadot Relay Chain. During this process validators, parachain collators and other parties are free to challenge claims of validity to trigger additional check, these parties are referred to as fishermen. [Read here about parachain validity](/polkadot/Availability_and_Validity.md).
+The blocks are produced by parachain collators, then they get validated using the STVF by the subset of validators responsible for the given parachain to finally get included in the Polkadot Relay Chain. During this process validators, parachain collators and other parties are free to challenge claims of validity to trigger additional check, these parties are referred to as fishermen.
 
 ### 3 Finality
 
 ![Finality](../images/canonicality.png)
 
-Finality of the Polkadot network state machines is achieved via a combination of a block production mechanism with eventual probabilistic consistency ([BABE scheme](/polkadot/block-production/Babe.md)) and [GRANDPA finality gadget](/polkadot/finality.md).
+Finality of the Polkadot network state machines is achieved via a combination of a block production mechanism with eventual probabilistic consistency ([BABE scheme](/polkadot/protocols/block-production/Babe.md)) and [GRANDPA finality gadget](/polkadot/protocols/finality.md).
 
 This approach allows for block production (thus transaction confirmations) to be fast, while allowing for as fast as possible economic finality with compact proofs.
 
@@ -75,13 +75,13 @@ This approach allows for block production (thus transaction confirmations) to be
 
 ![Availability](../images/availability.png)
 
-In order for the critical data from all chains to remain reachable by users and subsequent block producers, Polkadot makes use of an erasure coding based [availability scheme](/polkadot/Availability_and_Validity.md).
+In order for the critical data from all chains to remain reachable by users and subsequent block producers, Polkadot makes use of an erasure coding based availability scheme.
 
 ### 5 Messaging reliability
 
 ![Messaging](../images/messaging.png)
 
-Besides ensuring all the above properties for all parachain, a crucial element of Polkadot is that these state machines are able to affect each others state transitions. This is done via the [Cross-Chain Message Passing (XCMP) scheme](/polkadot/XCMP.md).
+Besides ensuring all the above properties for all parachain, a crucial element of Polkadot is that these state machines are able to affect each others state transitions. This is done via the Cross-Chain Message Passing (XCMP) scheme.
 
 ### 6 Size
 

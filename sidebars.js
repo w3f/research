@@ -20,7 +20,7 @@ const sidebars = {
   sidebar: [
     {
       type: 'doc',
-      id: 'index',
+      id: 'research',
     },
     {
       type: 'category',
