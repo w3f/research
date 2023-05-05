@@ -2,7 +2,7 @@
 title: Parachain Allocation
 ---
 
-**Authors**: Fatemeh Shirazi and Alistair Stewart (design also from Gavin Wood)
+**Authors**: Fatemeh Shirazi and [Alistair Stewart](/team_members/alistair.md) (design also from Gavin Wood)
 
 **Last updated**: 20.12.2019
 

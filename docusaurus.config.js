@@ -9,7 +9,7 @@ const katex = require('rehype-katex');
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'Research at Web3 Foundation',
-  tagline: 'Research at Web3 Foundation',
+  tagline: 'Read about the research we do at Web3 Foundation',
   favicon: 'img/w3f_logo.svg',
   url: 'https://research.web3.foundation',
   baseUrl: '/',
@@ -32,7 +32,18 @@ const config = {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           remarkPlugins: [math],
-          rehypePlugins: [katex],
+          rehypePlugins: [[katex, { macros: {
+            "\\skvrf": "\\mathsf{sk}^v",
+            "\\pkvrf": "\\mathsf{pk}^v",
+            "\\sksgn": "\\mathsf{sk}^s",
+            "\\pksgn": "\\mathsf{pk}^s",
+            "\\skac": "\\mathsf{sk}^a",
+            "\\pkac": "\\mathsf{pk}^a",
+            "\\D": "\\Delta",
+            "\\A": "\\mathcal{A}",
+            "\\vrf": "\\mathsf{vrf}",
+            "\\sgn": "\\mathsf{Sign}",
+          }}]],
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
@@ -45,6 +56,16 @@ const config = {
         blog: false
       }),
     ],
+  ],
+
+  stylesheets: [
+    {
+      href: 'https://cdn.jsdelivr.net/npm/katex@0.13.24/dist/katex.min.css',
+      type: 'text/css',
+      integrity:
+        'sha384-odtC+0UGzzFL/6PNoE8rX/SPcQDXBJ+uRepguP4QkPCm2LBxH3FA3y+fKSiJ+AmM',
+      crossorigin: 'anonymous',
+    },
   ],
 
   themeConfig:
@@ -80,42 +101,33 @@ const config = {
         style: 'dark',
         links: [
           {
-            title: 'Docs',
-            items: [
-              {
-                label: 'Docs',
-                to: '/research',
-              },
-            ],
-          },
-          {
-            title: 'Community',
-            items: [
-              {
-                label: 'Stack Overflow',
-                href: 'https://stackoverflow.com/questions/tagged/docusaurus',
-              },
-              {
-                label: 'Discord',
-                href: 'https://discordapp.com/invite/docusaurus',
-              },
-              {
-                label: 'Twitter',
-                href: 'https://twitter.com/docusaurus',
-              },
-            ],
-          },
-          {
-            title: 'More',
+            title: 'More Info',
             items: [
               {
                 label: 'GitHub',
-                href: 'https://github.com/facebook/docusaurus',
+                href: 'https://github.com/w3f/research',
+              },
+              {
+                label: 'Website',
+                href: 'https://web3.foundation/',
+              },
+              {
+                label: 'Privacy Policy',
+                to: 'Support%20Docs/privacy_policy',
+              },
+            ],
+          }, 
+          {
+            title: 'Connect',
+            items: [
+              {
+                label: 'Twitter',
+                href: 'https://twitter.com/Web3foundation',
               },
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+        copyright: `© ${new Date().getFullYear()} Web3 Foundation`,
       },
       prism: {
         theme: lightCodeTheme,

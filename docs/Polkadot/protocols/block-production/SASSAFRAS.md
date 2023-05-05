@@ -41,7 +41,10 @@ Once per era, as a new set of validators $V$ gets nominated or some other parame
 
 Each validator $v \in V$
 1. Calculates the threshold $T = \frac{xs}{a\mid V\mid}$ that prevents the adversary to predict how many more blocks a block producer is going to produce.
-2. Computes the aggregated public key and copath of $v$s public key $$apk, spk_v = \texttt{Aggregate}_{RVRF}(v, \{pk_v\}_{v\in V})$$
+2. Computes the aggregated public key and copath of $v$s public key
+   $$
+   apk, spk_v = \texttt{Aggregate}_{RVRF}(v, \{pk_v\}_{v\in V})
+   $$
 3. Obtains the SNARK CRS and checks for subversion if it has changed or $v$ hasn't done it earlier.
 
 ### 2) VRF generation Phase
@@ -50,26 +53,39 @@ We aim to have at least $s$ VRF outputs (tickets) published on-chain (we can't r
 
 #### Randomness
 At the epoch $e_m$ we use the randomness $r_m$ as provided by [BABE](polkadot/protocols/block-production/Babe), namely
-$$r_m=H(r_{m-1}, m, \rho),$$.
+
+$$
+r_m=H(r_{m-1}, m, \rho)
+$$
+
 We use $r_m$ to create inputs to the ring-VRF, and the corresponding tickets will be consumed in $e_{m+2}$.
 
 It's critical that $\rho$ is still the concatenation of regular BABE VRF outputs. It follows that we run regular VRFs and ring VRFs in parallel. This is because ring VRF outputs will be revealed in epoch $e_m$ and hence if we use ring VRF outputs for randomness $r_{m+1}$ would be revealed too early. Thus we use VRFs that are unrevealed until the corresponding blocks are produced.
 
 If we have a VDF, then all this would need to be determined an epoch prior i.e.
-$$r_m=VDF(H(r_{m-2}, m, \rho)),$$.
+
+$$
+r_m=VDF(H(r_{m-2}, m, \rho))
+$$
+
 with $\rho$ being the concatenation of BABE VRFs from $e_{m-2}$. The VDF would be run at the start of $e_{m-1}$ so that the output would be on-chain before $e_{m}$ starts.
 
 #### VRF production
 Each validator $v \in V$
 
 1. Given the randomness $r_{m}$, computes a bunch of $a$ VRF outputs for the inputs $in_{m,i}=(r_m, i)$, $i = 1,\ldots,a$:
-$$out_{m,v,i}=\texttt{Compute}_{RVRF}(sk_v, in_{m, i})$$
+
+$$
+out_{m,v,i}=\texttt{Compute}_{RVRF}(sk_v, in_{m, i})
+$$
 
 2. Selects the "winning" outputs that are below the threshold $T$: $\texttt{bake}(out_{m,v,i}) < T$
 where $\texttt{bake()}$ is a function that effectively maps VRF outputs to the interval $[0,1]$. We call the set of $i$ corresponding to winning outputs $I_{win}$.
 
 3. Uses its copath $ask_v$ generate proofs for the selected outputs $i \in I_{win}$,
-$$\pi_{m,v,i} = \texttt{Prove}_{RVRF}(sk_v, spk_v, in_{m,i} )$$
+    $$
+    \pi_{m,v,i} = \texttt{Prove}_{RVRF}(sk_v, spk_v, in_{m,i} )
+    $$
 where $\texttt{Prove}_{RVRF}(sk_v, spk_v, in_{m,j} )$ consists of the SNARK and its public inputs $cpk,i$.
 
 As the result of this phase every validator obtains a number, possibly 0, of winning tickets together with proofs of their validity $(j, out_{m, v,j}, \pi_{m,v,j})$ that need to be published on-chain.
@@ -95,14 +111,16 @@ To verify the published transactions $(out_{m, v,i}, \pi_{m,v,i})$, we need to v
 - the aggregate public key $apk$.
 
 All of these are the public inputs in SNARK verification:
-$$Verify(\pi_{m,v,i}, apk, out_{m,v,i}, in_{m,i)$$
+$$
+Verify(\pi_{m,v,i}, apk, out_{m,v,i}, in_{m,i})
+$$
 
 ### 5) Sorting
 In the epoch $e_{m+2}$ we have the list $\{out_{m,k}\}_{k=1}^{K}$ of $K$ verified VRF outputs generated during the epoch $e_m$ which are finalized on-chain. For each of these outputs, we combine the ouput with the randomness $r'$, with either $r'=r_{m+1}$ if we do not have a VDF or $r'=r_{m+2}$ if we do have a VDF. Then we compute $out'_{m,k}=H(out_{m,k} || r')$.
 
 To determine the block production order for the epoch $e_{m+2}$, each validator sorts the list of $out'_{m,k}$ in ascending order and drops the largest $s-K$ values if any: $out'_{m,1},\ldots, out'_{m,l}$, where $l\leq s$ and $out'_{m,p}\leq out'_{m,q}$ for $1\leq p<q\leq l$.
 
-The tickets are assigned to slots in an "Outside-in" ordering as follows. If we number the $out'_{m,k} from lowest to highest as $out'_{m,k}$ from $k=1$ to $K$ in increasing order, then the last slot is $out'_{m,1}$, the first slot is $out'_{m,2}$, the penultimate slot is $out'_{m,3}$, the second slot is $out'_{m,4}$ etc.
+The tickets are assigned to slots in an "Outside-in" ordering as follows. If we number the $out'_{m,k}$ from lowest to highest as $out'_{m,k}$ from $k=1$ to $K$ in increasing order, then the last slot is $out'_{m,1}$, the first slot is $out'_{m,2}$, the penultimate slot is $out'_{m,3}$, the second slot is $out'_{m,4}$ etc.
 
 Example of outsidein sorting: (1,2,3,4,5)->(2,4,5,3,1)
 
@@ -129,13 +147,17 @@ The first parameter we consider is $x$. We need that there is a very small proba
 Let $n$ be the number of validators who actually participate and so $2|V|/3 \leq n \leq |V|$. These $n$ validators make $a$ attempts each for a total of $an$ attempts.
 Let $X$ be the nimber of winning tickets.
 
-Then it's expectation has $E[X] = Tan = xsn/|V|$. If we set $x=2$, this is $ \geq 4s/3$. In this case, $Var[X] = anT(1-T) \leq anT = xsn/|V| = 2sn/|V| \leq 2s$. Using Bernstein's inequality:
+Then it's expectation has $E[X] = Tan = xsn/|V|$. If we set $x=2$, this is $\geq 4s/3$. In this case, $Var[X] = anT(1-T) \leq anT = xsn/|V| = 2sn/|V| \leq 2s$.
+
+Using Bernstein's inequality:
+$$
 \begin{align*}
 \Pr[X < s] & \leq \Pr[X < E[X]-s/3] \\
 & \leq exp(-\frac{(s/3)^2}{(Var[X]+s/3)}) \\
 & \leq exp(-s/(9(2+1/3))) \\
 & \leq exp(-s/21)
 \end{align*}
+$$
 
 For $s=600$, this gives under $4 * 10^{-13}$, which is certainly small enough. We only need the Aura fallback to deal with censorship. On the other hand, we couldn't make $x$ smaller than $3/2$ and still have tolerance against validators going offline. So $x=2$ is a sensible choice, and we should never need the Aura fallback.
 
