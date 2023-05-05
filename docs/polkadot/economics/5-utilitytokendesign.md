@@ -1,3 +1,7 @@
+---
+title: Utility Token Design
+---
+
 ====================================================================
 
 **Authors**: Samuel Häfner
@@ -5,8 +9,6 @@
 **Last updated**: October 13, 2021
 
 ====================================================================
-
-# Utility Token Design
 
 **Paper Link:** [[SSRN]](http://ssrn.com/abstract=3954773)
 

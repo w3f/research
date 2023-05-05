@@ -1,6 +1,6 @@
 # Jeff Burdges
 
-![](Jeff.jpg){: width="150px" align="right" alt="Jeff Burdges"}
+![](Jeff.jpg)
 
 jeff@web3.foundation
 

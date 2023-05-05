@@ -1,3 +1,7 @@
+---
+title: Experimental Investigation of Parachain Auctions
+---
+
 ====================================================================
 
 **Authors**: Jonas Gehrlein, Samuel Häfner
@@ -5,8 +9,6 @@
 **Last updated**: 16.08.2021
 
 ====================================================================
-
-# Experimental Investigation of Parachain Auctions
 
 ## Overview
 The goal of this project is to experimentally test the combinatorial candle auction as it is used in the Polkadot and Kusama protocol. In particular, we want to compare its outcome with those of more traditional, dynamic combinatorial auction formats employed today. 

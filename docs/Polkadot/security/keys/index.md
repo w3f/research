@@ -1,10 +1,12 @@
+---
+title: Polkadot's keys
+---
+
 ====================================================================
 
 **Owners**: [Jeff Burdges](/team_members/jeff.html)
 
 ====================================================================
-
-# Polkadot's keys
 
 In polkadot, we necessarily distinguish among different permissions and functionalities with different keys and key types, respectively.  We roughly categories these into account keys with which users interact and session keys that nodes manage without operator intervention beyond the certification process.
 

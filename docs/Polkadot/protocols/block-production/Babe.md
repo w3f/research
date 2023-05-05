@@ -1,3 +1,7 @@
+---
+title: BABE
+---
+
 ====================================================================
 
 **Owners**: [Handan Kilinc Alper](/team_members/handan.html)
@@ -15,9 +19,6 @@
    \def\vrf{\mathsf{VRF}}
    \def\sgn{\mathsf{Sign}}
 \)
-
-# BABE
-
 
 ## 1. Overview
 

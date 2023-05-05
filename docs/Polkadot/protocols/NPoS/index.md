@@ -1,4 +1,6 @@
-# Nominated Proof-of-Stake
+---
+title: Nominated Proof-of-Stake
+---
 
 ====================================================================
 

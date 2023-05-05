@@ -1,8 +1,8 @@
+---
+title: Account signatures and keys
+---
 
-
-## Account signatures and keys
-
-### Ristretto
+## Ristretto
 
 We believe Polkadot accounts should primarily use Schnorr signatures with both public keys and the `R` point in the signature encoded using the [Ristretto](https://ristretto.group) point compression for the Ed25519 curve.  We should collaborate with the [dalek ecosystem](https://github.com/dalek-cryptography) for which Ristretto was developed, but provide a simpler signature crate, for which [schnorr-dalek](https://github.com/w3f/schnorr-dalek) provides a first step.
 
@@ -32,7 +32,7 @@ In Edwards curve of with cofactor 4, [Mike Hamburg's Decaf point compression](ht
 
 In the author's words, "Rather than bit-twiddling, point mangling, or otherwise kludged-in ad-hoc fixes, Ristretto is a thin layer that provides protocol implementors with the correct abstraction: a prime-order group."
 
-### Additional signature types
+## Additional signature types
 
 We could support multiple signature schemes for accounts, preferably with each account supporting only one single signature scheme, and possessing only one public key.  There are at least three or four additional signature types worth considering:
 

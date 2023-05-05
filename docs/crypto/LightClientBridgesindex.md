@@ -1,4 +1,6 @@
-# Accountable Light Client Systems for Secure and Efficient Bridges
+---
+title: Accountable Light Client Systems for Secure and Efficient Bridges
+---
 
 ===================================================================================================
 

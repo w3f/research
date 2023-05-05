@@ -1,3 +1,7 @@
+---
+title: Non-monetary incentives for collective members
+---
+
 ====================================================================
 
 **Authors**: Jonas Gehrlein
@@ -5,8 +9,6 @@
 **Last updated**: 13.04.2023
 
 ====================================================================
-
-# Non-monetary incentives for collective members
 
 ## Overview 
 

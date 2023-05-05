@@ -1,10 +1,13 @@
+---
+title: Slashing mechanisms
+---
+
 ====================================================================
 
 **Owners**: [Alfonso Cevallos](/team_members/alfonso.html)
 
 ====================================================================
 
-# Slashing mechanisms
 
 ## General principles
 

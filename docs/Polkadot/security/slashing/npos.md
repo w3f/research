@@ -1,3 +1,7 @@
+---
+title: Slashing across eras with NPoS
+---
+
 ====================================================================
 
 **Owners**: [Jeffrey Burdges](/team_members/jeff.html)
@@ -6,14 +10,9 @@
 
 ====================================================================
 
-# Slashing across eras with NPoS
-
 We need our slashing algorithm to be fair and effective.  We discuss how this means slashing must respect nominators' exposure, be anti-Sibel, and be monotonic.
 
-
-
 ## Reduced rewards
-
 
 ## Slashing within one era
 
