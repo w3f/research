@@ -30,7 +30,9 @@ We do however worry about miss-behaviours from different validators $\nu \ne \nu
 As hinted above, we cannot assume that all events that warrant slashing a particular stash account get detected early or occur within the same era.  If $e$ and $e'$ are distinct eras then we expect $x_{\eta,\nu_j,e} \ne x_{\eta,\nu_j,e'}$ so the above arguments fail.  Indeed, we cannot even sum slashes applied to different validators because doing so could quickly exceeds nominators exposure $x_{\eta,\nu,e}$.
 
 We might assume $\min \{ x_{\eta,\nu_j,e}, x_{\eta,\nu_j,e'} \}$ to be the "same" stake, but this does not obviously buy us much.  We therefore suggest slashing $\eta$ the amount
-$$ \max_e \sum_{\nu \in N_e} p_{\nu,e} x_{\eta,\nu,e} $$
+$$
+\max_e \sum_{\nu \in N_e} p_{\nu,e} x_{\eta,\nu,e}
+$$
 where again $N_e$ is the validators nominated by $\eta$ in era $e$
 
 In particular, there is still an extortion attack in which someone runs many poorly staked validators, receives nominations, and then threatens their nominators with being slashed.  We cannot prevent such attacks entirely, but this outer $\max_e$ reduces the damage over formula that add slashing from different eras.
@@ -42,12 +44,19 @@ We thus far kept our slashing relatively simple and fixed some fairness issues w
 We propose to limit the eras spanned by this outer maximum to an explicit spans $\bar{e}$ that end after an eras $e \in \bar{e}$ in which any slashing events for that span $\bar{e}$ gets detected.  In concrete terms, we partition the eras of some nominator $\eta$ into _slashing spans_ which are maximal contiguous sequence of eras $\bar{e} = \left[ e_1, \ldots, e_n \right]$ such that $e_n$ is the least era in which $\eta$ gets slashed for actions in one of the $e_i \in \bar{e}$.
 
 We shall sum offences across slashing spans.  In other words, if we $\bar{e}$ range over the slashing spans for $\eta$ then we have slashed $\eta$ in total
-$$ \sum_{\bar{e} \in \bar{E}} \max_{e \in \bar{e}} \sum_{\nu \in N_e} p_{\nu,e} x_{\eta,\nu,e} \tag{\dag} $$
+$$
+\sum_{\bar{e} \in \bar{E}} \max_{e \in \bar{e}} \sum_{\nu \in N_e} p_{\nu,e} x_{\eta,\nu,e} \tag{\dag}
+$$
 In particular, if $\eta$ gets slashed in epoch 1 with the detection occurring in epoch 2, then resumes nomination in epoch 3, and only then gets slashed again for actions in epoch 1 and 2, then these later slashes are counted as part of the same slashing span as $\eta$'s first slash from epoch 1, but any slash in epoch 3 count afresh in a new span that gets added.
 
 Slashing Span Lemma.  Any slashing span-like construction must end whenever we detect some slash.
 
-Proof.  Let $x'$ be the validators' minimum self exposure and let $y$ be the stake to become a validator.  Some nominator $\eta_1$ nominates validators $\nu_e$ for $e=1\ldots$ with her account of $y-x'$ stake.  In epoch $e-1$, $\nu_i$ stakes enough to become a validator in epoch $e$, so $\nu_1$ stakes only $x'$ and $\nu_i$ for $i>1$ stakes somewhat more.  In epoch $i$, $\nu_i$ commits a violation.  If we did not end $\eta_1$'s slashing span $\bar{e}$ then then $max_{e \in \bar{e}}$ rule would prevent these slashes from actually slashing $\eta_1$ further.  In this way, a planned series of violations causing slashes across epochs only actually slashes $x' / y$ of the desired slash value.  $\square$
+Proof.  Let $x'$ be the validators' minimum self exposure and let $y$ be the stake to become a validator.  Some nominator $\eta_1$ nominates validators $\nu_e$ for $e=1\ldots$ with her account of $y-x'$ stake.  In epoch $e-1$, $\nu_i$ stakes enough to become a validator in epoch $e$, so $\nu_1$ stakes only $x'$ and $\nu_i$ for $i>1$ stakes somewhat more.  In epoch $i$, $\nu_i$ commits a violation.  If we did not end $\eta_1$'s slashing span $\bar{e}$ then then $max_{e \in \bar{e}}$ rule would prevent these slashes from actually slashing $\eta_1$ further.  In this way, a planned series of violations causing slashes across epochs only actually slashes $x' / y$ of the desired slash value.
+$$
+\tag{$\blacksquare$}
+$$
+<br/>
+<br/>
 
 There are many design choices that restrain this lemma somewhat, but they make our slashing fragile, which harms our analysis and compossibility.
 

@@ -71,14 +71,22 @@ It is unclear how many previous eras should be used as having a too long history
 
 **Performance**: The performance of a validator from the point of view of a nominator is determined by the amount of era-points gathered by that validator, the nominator's share of the total stake and the commission a validator is charging. In addition, the performance level is linear in the bond of the nominator and is thereby independent from that. We can combine those metrics into one:
 
-$$performance = \frac{averageEraPoints \times (1 - commission)}{totalStake}$$
+$$
+performance = \frac{averageEraPoints \times (1 - commission)}{totalStake}
+$$
 
-The **relative performance** is then simply defined by: $$\frac{performance - min(performance)}{max(performance) - min(performance)}$$ This gives a more understandable measure as the performance is normalized between 0 and 1. Additionally, it is robust to potential changes within the network (e.g. with a larger number of validators the era-points are reduced per era) and prevents false anchoring effects.
+The **relative performance** is then simply defined by: 
+$$
+\frac{performance - min(performance)}{max(performance) - min(performance)}
+$$
+This gives a more understandable measure as the performance is normalized between 0 and 1. Additionally, it is robust to potential changes within the network (e.g. with a larger number of validators the era-points are reduced per era) and prevents false anchoring effects.
 
 **Outperforming MLE**: By gathering the historic era-points per validator during past eras, we can calculate how often a validator outperformed the average. As era-points should be distributed uniformly, a validator should outperform the average 50% of times. However, as mentioned before, in reality additional factors as hardware-setup and internet connection can influence this. This helps nominators to select the best performing validators while creating incentives for validators to optimize their setup.
 
 **Significance MLE**: As the expected value of the outperforming MLE is 0.5 and the distribution should be uniformly, we can calculate whether a validator significantly over- or underperforms by: 
-$$z = \frac{outperformingMLE - 0.5}{\sqrt{\frac{0.5 \times (1-0.5)}{numberActive}}}$$
+$$
+z = \frac{outperformingMLE - 0.5}{\sqrt{\frac{0.5 \times (1-0.5)}{numberActive}}}
+$$
 
 If $z > 1.645$ we can say that the respective validator outperforms significantly (10% significance level), while $z < -1.645$ indicates significant underperformance.
 
@@ -126,56 +134,90 @@ UTA (UTilité Additive) belongs to the methods of preference disaggregation ([Ja
 ### Model
 The UTAStar method infers an unweighted additive utility function:
 
-$$u(\textbf{g}) = \sum_{i=1}^{n} u_i(g_i)$$ 
+$$
+u(\textbf{g}) = \sum_{i=1}^{n} u_i(g_i)
+$$
+
 where $\textbf{g}$ is a vector of performances. with the following constraints:
 
-$$\sum_{i=1}^{n} u_i(g^\star) = 1 \; \text{and} \; u_i(g_{i\star}) = 0 \; \forall i = 1,2,...,n$$
+$$
+\sum_{i=1}^{n} u_i(g^\star) = 1 \; \text{and} \; u_i(g_{i\star}) = 0 \; \forall i = 1,2,...,n
+$$
 
 where $u_i, i=1,2...,n$ are non decreasing valued functions which are normalized between 0 and 1 (also called utility functions).
 
 Thereby the value of each alternative $x \in X_L$:
-$$ u'[\textbf{g}(x)]=\sum_{i=1}^{n}u_i[g_i(x)])+ \sigma^{+}(x) + \sigma^{-}(x) \forall x \in X_L$$
+$$
+u'[\textbf{g}(x)]=\sum_{i=1}^{n}u_i[g_i(x)])+ \sigma^{+}(x) + \sigma^{-}(x) \forall x \in X_L
+$$
 where $\sigma^{+}(x)$ and $\sigma^{-}(x)$ are the under- and overestimation error. is a potential error relative to $u'[\textbf{g}(x)]$
 
 The corresponding utility functions are defined in a piecewise linear form to be estimated by linear interpolation. For each criterion, the interval $[g_{i\star}, g_i^\star]$ is cut into $(\alpha_i - 1)$ intervals and the endpoints $g_i^j$ are given by:
 
-$$g_i^j = g_{i\star} + \frac{j - 1}{\alpha_i - 1} (g_i^\star - g_{i\star}) \forall j = 1,2,...\alpha_i$$
+$$
+g_i^j = g_{i\star} + \frac{j - 1}{\alpha_i - 1} (g_i^\star - g_{i\star}) \forall j = 1,2,...\alpha_i
+$$
 
 The marginal utility function of x is approximated by linear interpolation and thus for $g_i(x) \in [g_i^j - g_i^{j+1}]$
 
-$$ u_i[g_i(x)]= u_i(g_i^j) + \frac{g_i(x)-g_i^j}{g_i^{j+1}-g_i^j}[u_i(g_i^{j+1}) - u_i(g_i^j)]$$
+$$
+u_i[g_i(x)]= u_i(g_i^j) + \frac{g_i(x)-g_i^j}{g_i^{j+1}-g_i^j}[u_i(g_i^{j+1}) - u_i(g_i^j)]
+$$
 
 The learning set $X_L$ is rearranged such that $x_1$ (best) is the head and $x_m$ is the tail (worst). This ranking is given by the user.
 
-$$\Delta(x_k, x_{k+1}) = u'[\textbf{g}(x_k)] - u'(\textbf{g}(x_{k+1}))$$
+$$
+\Delta(x_k, x_{k+1}) = u'[\textbf{g}(x_k)] - u'(\textbf{g}(x_{k+1}))
+$$
+
 then we can be sure that the following holds:
 
-$$ \Delta(x_k, a_{k+1}) \geq \delta \; \textrm{iff} \; x_k > x_{k+1}$$ and
-$$ \Delta(x_k, x_{k+1}) = \delta \; \textrm{iff} \; x_k \backsim x_{k+1}$$ 
+$$ 
+\Delta(x_k, a_{k+1}) \geq \delta \; \textrm{iff} \; x_k > x_{k+1}
+$$
+
+and
+
+$$
+\Delta(x_k, x_{k+1}) = \delta \; \textrm{iff} \; x_k \backsim x_{k+1}
+$$ 
 
 where $\delta$ is a small and positive number which is an exogenous parameter set as the minimum discrepancy between the utilities of two consecutive options.
 In order to ensure monotonicity we further transform the utility differences between two consecutive interval endpoints:
 
-$$ w_{ij} = u_i(g_i^{j+1}) - u_i(g_i^j) \geq 0 \forall i=1,...n \; and \; j = 1,... \alpha_i -1 $$
+$$
+w_{ij} = u_i(g_i^{j+1}) - u_i(g_i^j) \geq 0 \forall i=1,...n \; and \; j = 1,... \alpha_i -1
+$$
 
 ### Algorithm
 **Step 1**: Express the global value of the alternatives in the learning set $u[g(x_k)], k=1,2,...m$ in terms of marginal values $u_i(g_i)$ and then transform to $w_{ij}$ according to the above mentioned formula and by means of
 
-$$ u_i(g_i^1) = 0 \; \forall i = 1,2...n$$ and
-$$ u_i(g_i^j) = \sum^{j-1}_{i=1}w_{ij} \; \forall i = 1,2..N \; and \; j=2,3,...\alpha_i - 1$$
+$$
+u_i(g_i^1) = 0 \; \forall i = 1,2...n
+$$
+
+and
+
+$$
+u_i(g_i^j) = \sum^{j-1}_{i=1}w_{ij} \; \forall i = 1,2..N \; and \; j=2,3,...\alpha_i - 1
+$$
 
 **Step 2**: Introduce two error functions $\sigma^{+}$ and $\sigma^{-}$ on $X_L$ by writing each pair of consecutive alternatives as:
 
-$$\Delta(x_k,x_k+1) = u[\textbf{g}(x_k)] - \sigma^{+}(x_k) + \sigma^{-}(x_k) - u[\textbf{g}(x_{k+1})] + \sigma^{+}(x_{k+1}) - \sigma^{-}(x_{k+1})$$
+$$
+\Delta(x_k,x_k+1) = u[\textbf{g}(x_k)] - \sigma^{+}(x_k) + \sigma^{-}(x_k) - u[\textbf{g}(x_{k+1})] + \sigma^{+}(x_{k+1}) - \sigma^{-}(x_{k+1})
+$$
 
 **Step 3**: Solve the linear problem:
 
-$$[min] z = \sum_{k=1}^{m}[\sigma^{+}(x_k) + \sigma^{-}(x_k)] \\
+$$
+[min] z = \sum_{k=1}^{m}[\sigma^{+}(x_k) + \sigma^{-}(x_k)] \\
 \text{subject to} \\
 \Delta(x_k, a_{k+1}) \geq \delta \; \textrm{iff} \; x_k > x_{k+1} \\ 
 \Delta(x_k, x_{k+1}) = \delta \; \textrm{iff} \; x_k \backsim x_{k+1} \; \forall k \\
 \sum_{i=1}^n \sum_{j=1}^{\alpha_i - 1}w_{ij} = 1 \\
-w_{ij} \geq 0, \sigma^{+}(x_k)\geq 0, \sigma^{-}(x_k)\geq 0 \forall i,j,k$$
+w_{ij} \geq 0, \sigma^{+}(x_k)\geq 0, \sigma^{-}(x_k)\geq 0 \forall i,j,k
+$$
 
 **Step 4**: Robustness analysis to find find suitable solutions for the above LP. 
 
@@ -189,12 +231,13 @@ w_{ij} \geq 0, \sigma^{+}(x_k)\geq 0, \sigma^{-}(x_k)\geq 0 \forall i,j,k$$
 
 
 ### Remaining Challenges
-There remain a few challenges when we want to apply the theory to our validator selection problem. 
-1) One challenge is how to construct the learning set. The algorithm needs sufficient information to generate the marginal utility functions.
-    * Find methods to guarantee performance dispersion of the different criteria.
-    * Use machine learning approaches to iteratively provide smaller learning sets which gradually improve the information gathered.
-    * Potentially use simulations to simulate a wide number of learning sets and all potential rankings on them to measure which learning set improves the information the most.
-2) UTAStar assumes piece-wise linear monotone marginal utility functions. Other, methods improve on that but might be more difficult to implement.
+There remain a few challenges when we want to apply the theory to our validator selection problem.
+
+1. One challenge is how to construct the learning set. The algorithm needs sufficient information to generate the marginal utility functions.
+   - Find methods to guarantee performance dispersion of the different criteria.
+   - Use machine learning approaches to iteratively provide smaller learning sets which gradually improve the information gathered.
+   - Potentially use simulations to simulate a wide number of learning sets and all potential rankings on them to measure which learning set improves the information the most.
+2. UTAStar assumes piece-wise linear monotone marginal utility functions. Other, methods improve on that but might be more difficult to implement.
 
 
 

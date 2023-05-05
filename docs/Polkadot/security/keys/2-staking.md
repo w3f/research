@@ -10,7 +10,7 @@ We apply this perspective to a consensus algorithm for a proof-of-stake blockcha
 
 In polkadot, these staked or bonded account keys are called "stash account keys" to help disambiguate them from other key roles discussed below.  We currently describe `unbond`, `withdraw_unbonded`, and `bond_extra` transactions in [2].  There are several ways to implement these, or related operations, but if accounts are not too constrained in size then one extremely flexible approach goes:
 
-These stash accounts has an unstaked balance $u \ge 0$ and a list of pending unstaking dates and balances $T = \{ (t,v) \}$ with $v>0$, one of which lack any unstaking date, meaning $t = \infty$.  An unstaking operation splits $(\infini,v) \in T$ into $$(\infini,v - v')$ and $(t,v')$.  Any payment out of a staked account completes any pending unstaking operations by moving their value into the unstaked balance $u$.  In other words, at block height $h$, a payment of value $v'$ with fees $f$ out of a stash account is valid if
+These stash accounts has an unstaked balance $u \ge 0$ and a list of pending unstaking dates and balances $T = { (t,v) }$ with $v>0$, one of which lack any unstaking date, meaning $t = \infty$.  An unstaking operation splits $(\infty,v) \in T$ into $(\infty,v - v')$ and $(t,v')$.  Any payment out of a staked account completes any pending unstaking operations by moving their value into the unstaked balance $u$.  In other words, at block height $h$, a payment of value $v'$ with fees $f$ out of a stash account is valid if
 
  - $T_1 = \{ (t,v) \in T_0 : t > h \}$,
  - $u_1 := u_0 + \sum \{ (t,v) \in T_0 : t \le h \} - h - f$ remains positive.

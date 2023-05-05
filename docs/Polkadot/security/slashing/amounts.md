@@ -88,7 +88,9 @@ The advantage of this method is that we can detect unresponsive validators very 
 
 **Method 2.** Recall that we keep counters of all the payable actions performed by each validator (blocks produced in Babe, uncle references, validity statements), and we use these counters to compute the payouts at the end of each era. In particular, validators should be able to sign validity statements of parachain blocks consistently. Thus, we can use this counter as a measure of responsiveness. Let $c_v$ be the number of validity statements signed by validator $v$ during an era. Our proposal is to consider $v$ unresponsive if
 
-$$c_v < \frac{1}{4}\cdot \max_{v'} c_{v'},$$
+$$
+c_v < \frac{1}{4}\cdot \max_{v'} c_{v'}
+$$
 
 where the maximum is taken over all validators in the same era.
 
@@ -100,14 +102,22 @@ Fix an era, and let $n$ be the total number of parachain blocks that a validator
 
 The crux of the argument is that this distribution is highly concentrated around its expectation. Notice that the maximum number of validity statements over all validators in this era is at most $n$. Hence, $v$ would be wrongfully considered unresponsive only if it produces $c_v < n/4\leq p\cdot n/2$ validity statements. Using Chernoff's inequality to bound the tail of the binomial distribution, we get that the probability of this occurence is at most
 
-$$e^{-\frac{(p\cdot n - c_v)^2}{2p\cdot n}} \leq e^{- \frac{(p\cdot n/2)^2}{2p\cdot n}} = e^{-\frac{p\cdot n}{8}}\leq e^{-\frac{500}{8}}\approx 7\cdot 10^{-28}.$$
+$$
+e^{-\frac{(p\cdot n - c_v)^2}{2p\cdot n}} \leq e^{- \frac{(p\cdot n/2)^2}{2p\cdot n}} = e^{-\frac{p\cdot n}{8}}\leq e^{-\frac{500}{8}}\approx 7\cdot 10^{-28}
+$$
 
 This probability is negligible.
-$\square$
+$$
+\tag{$\blacksquare$}
+$$
+<br/>
+<br/>
 
 We use the following slashing mechanism, which has no reporters. If at the end of an era we find that $k$ out of $n$ validators are unresponsive, then we slash a fraction
 
-$0.05\cdot \min\{\frac{3(k-1)}{n}, 1\}$
+$$
+0.05\cdot \min\{\frac{3(k-1)}{n}, 1\}
+$$
 
 from each one of them. Notice that this fraction is zero for isolated cases, less than one third of a percent for two concurrent cases (assuming $n\geq 50$), growing to 5% for the critical case when around 1/3 of all validators are unresponsive (we don't want to punish too harshly for concurrent unresponsiveness, as it could potentially happen in good faith. The parameter of 5% can be adjusted). We consider it a misconduct of level 2 if the slashing fraction is at most 1%, and of level 3 otherwise. However, we do not immediately remove unresponsive validators from the current era, as removing a validator is equivalent to marking it as unresponsive (so the cure would not be better than the disease), and because it is algorithmically simpler to just check at the end of each era.
 
@@ -153,7 +163,9 @@ In every era, we will keep a counter $k$ on the number of validators that commit
 
 Suppose that a new proof of misconduct arrives for equivocation or unjustified vote, raising the current counter to $k$. We slash each culprit a proportion of their stake equal to
 
-$$\min\{(3k/n)^2, 1\},$$
+$$
+\min\{(3k/n)^2, 1\}
+$$
 
 where $n$ is the number of validators. Notice that this amount starts small, under 0.4% for an isolated case (for $n\geq 50$), and rises quadratically to 100% when $k$ approaches the critical value $n/3$. Once the slashed fraction goes above 1%, we consider it of level 3.
 
@@ -177,7 +189,9 @@ An equivocation in Babe corresponds to a block producer producing two or more re
 
 Equivocations do not pose a threat to Babe, unless there is a long sequence of colluding block producers who grow two branches of a fork simultaneously, but such an attack is highly unlikely to succeed as long as the colluding party is a minority. For this reason, we propose to disregard concurrent equivocations in the same era. Alternatively, we could keep a counter $k$ on the number of block producers that have equivocated so far in the current era, and slash new culprits a fraction of their stake equal to
 
-$$\min\{(3k/n)^2, 1\},$$
+$$
+\min\{(3k/n)^2, 1\}
+$$
 
 where $n$ is the number of validators. Once this fraction is above 1%, we consider it of level 3. We do not retro-actively adjust the slashings as new cases arrive, and we do not make the reporters' rewards grow with $k$ (we pay them 10% of what would be the slashing if $k=1$.)
 
