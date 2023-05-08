@@ -48,3 +48,13 @@ footer.footer.footer--dark {
 .navbar__link--active {
   color: var(--ifm-navbar-link-color);
 }
+
+.hero--primary {
+  --ifm-hero-background-color: var(--ifm-navbar-background-color);
+}
+
+.token-eco-chart {
+  display: block;
+  margin: 0 auto;
+  width: 50%;
+}

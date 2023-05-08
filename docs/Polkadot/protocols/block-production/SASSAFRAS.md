@@ -42,9 +42,9 @@ Once per era, as a new set of validators $V$ gets nominated or some other parame
 Each validator $v \in V$
 1. Calculates the threshold $T = \frac{xs}{a\mid V\mid}$ that prevents the adversary to predict how many more blocks a block producer is going to produce.
 2. Computes the aggregated public key and copath of $v$s public key
-   $$
-   apk, spk_v = \texttt{Aggregate}_{RVRF}(v, \{pk_v\}_{v\in V})
-   $$
+$$
+apk, spk_v = \texttt{Aggregate}_{RVRF}(v, \{pk_v\}_{v\in V})
+$$
 3. Obtains the SNARK CRS and checks for subversion if it has changed or $v$ hasn't done it earlier.
 
 ### 2) VRF generation Phase
@@ -83,9 +83,9 @@ $$
 where $\texttt{bake()}$ is a function that effectively maps VRF outputs to the interval $[0,1]$. We call the set of $i$ corresponding to winning outputs $I_{win}$.
 
 3. Uses its copath $ask_v$ generate proofs for the selected outputs $i \in I_{win}$,
-    $$
-    \pi_{m,v,i} = \texttt{Prove}_{RVRF}(sk_v, spk_v, in_{m,i} )
-    $$
+$$
+\pi_{m,v,i} = \texttt{Prove}_{RVRF}(sk_v, spk_v, in_{m,i} )
+$$
 where $\texttt{Prove}_{RVRF}(sk_v, spk_v, in_{m,j} )$ consists of the SNARK and its public inputs $cpk,i$.
 
 As the result of this phase every validator obtains a number, possibly 0, of winning tickets together with proofs of their validity $(j, out_{m, v,j}, \pi_{m,v,j})$ that need to be published on-chain.

@@ -29,10 +29,12 @@ We do however worry about miss-behaviours from different validators $\nu \ne \nu
 
 As hinted above, we cannot assume that all events that warrant slashing a particular stash account get detected early or occur within the same era.  If $e$ and $e'$ are distinct eras then we expect $x_{\eta,\nu_j,e} \ne x_{\eta,\nu_j,e'}$ so the above arguments fail.  Indeed, we cannot even sum slashes applied to different validators because doing so could quickly exceeds nominators exposure $x_{\eta,\nu,e}$.
 
-We might assume $\min \{ x_{\eta,\nu_j,e}, x_{\eta,\nu_j,e'} \}$ to be the "same" stake, but this does not obviously buy us much.  We therefore suggest slashing $\eta$ the amount
+We might assume $\min \{ x_{\eta,\nu_j,e}, x_{\eta,\nu_j,e'} \}$ to be the "same" stake, but this does not obviously buy us much. We therefore suggest slashing $\eta$ the amount
+
 $$
 \max_e \sum_{\nu \in N_e} p_{\nu,e} x_{\eta,\nu,e}
 $$
+
 where again $N_e$ is the validators nominated by $\eta$ in era $e$
 
 In particular, there is still an extortion attack in which someone runs many poorly staked validators, receives nominations, and then threatens their nominators with being slashed.  We cannot prevent such attacks entirely, but this outer $\max_e$ reduces the damage over formula that add slashing from different eras.

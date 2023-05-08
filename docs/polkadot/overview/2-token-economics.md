@@ -109,12 +109,12 @@ These functions can be plotted for different parameters following this link: htt
 ### Inflation model with parachains
 Following our suggestions for the economics after the implementation with parachains we show the graph with the following adjustable parameters: $I_0=0.025$, $\chi_{ideal}=0.5$, $i_{ideal}=0.2$ and $d=0.05$. We obtain the following plots, with $i(x)$ in green and $I_{NPoS}(x)$ in blue.
 
-![](https://i.imgur.com/Kk1MLJH.png)
+<img src="https://i.imgur.com/Kk1MLJH.png" class="token-eco-chart"/>
 
 ### Inflation model without parachains (current implementation)
 In the absence of parachains, we suggest the following adjustable parameters: $I_0=0.025$, $\chi_{ideal}=0.75$, $i_{ideal}=0.133$ and $d=0.05$,. With the adjusted parameter we obtain the following plot, with $i(x)$ in green and $I_{NPoS}(x)$ in blue.
 
-![](https://i.imgur.com/i8t1Q5y.png)
+<img src="https://i.imgur.com/i8t1Q5y.png" class="token-eco-chart"/>
 
 ### Payment details
 
