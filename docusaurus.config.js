@@ -80,7 +80,7 @@ const config = {
         items: [
           {
             type: 'doc',
-            docId: 'polkadot/overview/index',
+            docId: 'Polkadot/overview/index',
             position: 'right',
             label: 'Polkadot',
           },
