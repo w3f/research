@@ -34,6 +34,10 @@
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
+a {
+  text-decoration: underline;
+} 
+
 .hero__title {
   font-size: 4rem;
 }
