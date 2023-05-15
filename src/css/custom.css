@@ -147,7 +147,7 @@ a:hover.navbar__item{
   background-color: var(--ifm-color-secondary);
 }
 
-.container {
+.container.container-home {
   padding: 3em 0;
 }
 

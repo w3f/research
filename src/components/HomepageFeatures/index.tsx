@@ -45,7 +45,7 @@ function Feature({image, title, link}) {
 export default function HomepageFeatures() {
   return (
     <section className={styles.features}>
-      <div className="container">
+      <div className="container container-home">
         <h2 className="h2-home">Papers &amp; Posts</h2>
         <div className="row feature-row">
           {FeatureList.map((props, idx) => (
