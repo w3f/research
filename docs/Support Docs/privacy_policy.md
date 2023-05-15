@@ -1,7 +1,7 @@
 Privacy Policy
 ===========================
 
-Updated December 2022
+Updated May 2023
 
 
 ## I. Data controller
