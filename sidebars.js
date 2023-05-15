@@ -23,6 +23,10 @@ const sidebars = {
       id: 'research',
     },
     {
+      type: 'doc',
+      id: 'news',
+    },
+    {
       type: 'category',
       label: 'Polkadot',
       collapsed: false,
@@ -117,14 +121,6 @@ const sidebars = {
       ],
     },
     {
-      type: 'doc',
-      id: 'news',
-    },
-    {
-      type: 'doc',
-      id: 'Publications',
-    },
-    {
       type: 'category',
       label: 'Team Members',
       link: {type:'doc', id:'team_members/index'},
@@ -138,6 +134,10 @@ const sidebars = {
         'team_members/Sergey',
         'team_members/syed',
       ],
+    },
+    {
+      type: 'doc',
+      id: 'Publications',
     },
   ],
 };
