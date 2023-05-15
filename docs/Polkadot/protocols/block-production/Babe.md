@@ -40,7 +40,7 @@ Each party $P_j$ has as *session key* containing at least two types of secret/pu
 * a verifiable random function (VRF) key $(\skvrf_{j}, \pkvrf_{j})$, and
 * a signing key for blocks $(\sksgn_j,\pksgn_j)$.
 
-We favor VRF keys being relatively long lived because new VRF keys cannot be used until well after creation and submission to the chain.  Yet, parties should update their associated signing keys from time to time to provide forward security against attackers who might exploit from creating slashable equivocations.  There are more details about session key available [here](polkadot/security/keys/3-session.md).
+We favor VRF keys being relatively long lived because new VRF keys cannot be used until well after creation and submission to the chain.  Yet, parties should update their associated signing keys from time to time to provide forward security against attackers who might exploit from creating slashable equivocations.  There are more details about session key available [here](Polkadot/security/keys/3-session.md).
 
 Each party $P_j$ keeps a local set of blockchains $\mathbb{C}_j =\{C_1, C_2,..., C_l\}$.  All these chains have some common blocks, at least the genesis block, up until some height.
 

@@ -311,6 +311,6 @@ Additional notes
 
 Finality gadget [GRANDPA](https://github.com/w3f/consensus/blob/master/pdf/grandpa.pdf)
 
-Block production protocol [BABE](polkadot/protocols/block-production/Babe.md)
+Block production protocol [BABE](Polkadot/protocols/block-production/Babe.md)
 
-The [NPoS scheme](polkadot/protocols/NPoS/index.md) for selecting validators
+The [NPoS scheme](Polkadot/protocols/NPoS/index.md) for selecting validators

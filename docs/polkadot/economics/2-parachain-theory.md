@@ -6,7 +6,7 @@ title: Theoretical Analysis of Parachain Auctions
 
 **Last updated**: April 17, 2021
 
-As explained [here](/polkadot/overview/3-parachain-allocation.md) and [here](https://wiki.polkadot.network/docs/en/learn-auction) Polkadot uses a candle auction format to allocate parachain slots. A candle auction is a dynamic auction with the distinguishing feature that the ending time is random. In this project, we analyze the effects of such a random-closing rule on equilibrium play when some bidders have front-running opportunities.
+As explained [here](/Polkadot/overview/3-parachain-allocation.md) and [here](https://wiki.polkadot.network/docs/en/learn-auction) Polkadot uses a candle auction format to allocate parachain slots. A candle auction is a dynamic auction with the distinguishing feature that the ending time is random. In this project, we analyze the effects of such a random-closing rule on equilibrium play when some bidders have front-running opportunities.
 
 Front-running opportunities emerge on blockchains because upcoming transaction become known among the network participants before they are included in new blocks. For blockchain implementations of auctions, this means that some bidders can see and potentially react to other bidders' bids before they come into effect; i.e., are recorded on the chain and are thus taken into account by the auction mechanism. In first-price auctions, this gives tech-savvy bidders the possibility to outbid other bidders as they please. In second-price auctions, the auctioneer could raise the payment of the winning bidder at no cost by registering his own (pseudonymous) bidder.
 
