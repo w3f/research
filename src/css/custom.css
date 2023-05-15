@@ -42,14 +42,6 @@ a {
   font-size: 4rem;
 }
 
-.number--count {
-  font-size: 4rem;
-}
-
-.number--title {
-  font-size: 1.5rem;
-}
-
 .navbar__logo {
   flex: 0 0 auto;
   height: 48px;
@@ -100,7 +92,7 @@ footer.footer.footer--dark {
   --ifm-hero-background-color: var(--ifm-navbar-background-color);
 }
 
-.token-eco-chart {
+img.token-eco-chart {
   display: block;
   margin: 0 auto;
   width: 50%;
@@ -136,4 +128,77 @@ a:hover.navbar__item{
   background-size: 0 3px, 100% 3px;
 }
 
+.feature-item {
+  background-color: white;
+  padding: 0;
+  margin: 1.5em;
+  max-width: 28%;
+  box-shadow: -1px 1px 15px 1px #00000030;
+  transition: 0.2s ease-in-out;
+}
 
+.feature-item:hover {
+  cursor: pointer;
+  box-shadow: none;
+  scale: 0.99;
+}
+
+.features_t9lD {
+  background-color: var(--ifm-color-secondary);
+}
+
+.container {
+  padding: 3em 0;
+}
+
+.h2-home {
+  font-size: 1.75em;
+  margin-bottom: 2em;
+}
+
+.feature-row {
+  justify-content: center;
+}
+
+.feature-title {
+  font-size: 1.3em;
+  text-align: initial;
+  height: 7em;
+}
+
+.feature-item-inner-box {
+  padding: 3em;
+}
+
+.feature-link-arrow {
+  width: 1.75em;
+  height: 1.75em;
+  transition: transform 0.2s ease-in-out;
+}
+
+.feature-item:hover .feature-link-arrow {
+  transform: translateX(+50%);
+}
+
+.feature-link-box > p {
+  margin: 0;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex {
+  display: flex;
+}
+
+.feature-link {
+  justify-content: space-between;
+  filter: opacity(0.35);
+  transition: filter 0.2s ease-in-out;
+}
+
+.feature-item:hover .feature-link {
+  filter: opacity(1);
+}

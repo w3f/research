@@ -1,40 +1,42 @@
 import React from 'react';
 import clsx from 'clsx';
 import styles from './styles.module.css';
-import CountUp from 'react-countup';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
 const FeatureList = [
   {
-    title: 1300,
-    description: (
-      <>Publications
-      </>
-    ),
+    image: '/img/grandpa.png',
+    title: 'GRANDPA Block Finality in Polkadot',
+    link: '/Polkadot/protocols/finality',
   },
   {
-    title: 500,
-    description: (
-      <>Citations
-      </>
-    ),
+    image: '/img/babe.png',
+    title: 'BABE: Blind Assignment for Blockchain Extension protocol',
+    link: '/Polkadot/protocols/block-production/Babe',
   },
   {
-    title: 50,
-    description: (
-      <>Employees
-      </>
-    ),
+    image: '/img/NPoS_Cover.png',
+    title: 'How Nominated Proof-of-Stake (NPoS) works in Polkadot',
+    link: '/Polkadot/protocols/NPoS',
   },
 ];
 
-function Feature({Svg, title, description}) {
+function Feature({image, title, link}) {
   return (
-    <div className={clsx('col col--4')}>
-      <div className="text--center">
-      </div>
-      <div className="text--center padding-horiz--md">
-        <h3 className="number--count"><CountUp end={title} />+</h3>
-        <p className="number--title">{description}</p>
+    <div
+      onClick={() => window.open(link, '_self')}
+      className={clsx('col col--4 feature-item')}
+    >
+      <img src={useBaseUrl(image)} alt={title} />
+      <div className="feature-item-inner-box flex-column">
+        <p className="feature-title">{title}</p>
+        <div className="feature-link-box flex-column">
+          <hr/>
+          <div className='feature-link flex'>
+            <p>Read more</p>
+            <img className="feature-link-arrow" src={useBaseUrl('/img/arrow-icon-28.png')} alt="arrow-right" />
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -44,7 +46,8 @@ export default function HomepageFeatures() {
   return (
     <section className={styles.features}>
       <div className="container">
-        <div className="row">
+        <h2 className="h2-home">Papers &amp; Posts</h2>
+        <div className="row feature-row">
           {FeatureList.map((props, idx) => (
             <Feature key={idx} {...props} />
           ))}
