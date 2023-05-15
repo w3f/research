@@ -11,7 +11,7 @@ const config = {
   title: 'Research at Web3 Foundation',
   tagline: 'Confronting the most difficult research problems standing between us and Web3.',
   favicon: 'img/favicon-32x32.png',
-  url: 'https://research.web3.foundation',
+  url: 'https://research.web3.foundation/',
   baseUrl: '/',
   organizationName: 'w3f', // Usually your GitHub org/user name.
   projectName: 'research', // Usually your repo name.
