@@ -9,8 +9,8 @@ const katex = require('rehype-katex');
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'Research at Web3 Foundation',
-  tagline: 'Read about the research we do at Web3 Foundation',
-  favicon: 'img/w3f_logo.svg',
+  tagline: 'Confronting the most difficult research problems standing between us and Web3.',
+  favicon: 'img/favicon-32x32.png',
   url: 'https://research.web3.foundation',
   baseUrl: '/',
   organizationName: 'w3f', // Usually your GitHub org/user name.
@@ -76,8 +76,14 @@ const config = {
           alt: 'W3F Logo',
           src: 'img/w3f_logo.svg',
         },
-        title: 'Research at Web3',
+        title: 'Research',
         items: [
+          {
+            type: 'doc',
+            docId: 'news',
+            position: 'right',
+            label: 'News',
+          },
           {
             type: 'doc',
             docId: 'Polkadot/overview/index',
@@ -89,6 +95,18 @@ const config = {
             docId: 'crypto/index',
             position: 'right',
             label: 'Cryptography',
+          },
+          {
+            type: 'doc',
+            docId: 'team_members/index',
+            position: 'right',
+            label: 'Team',
+          },
+          {
+            type: 'doc',
+            docId: 'Publications',
+            position: 'right',
+            label: 'Publications',
           },
           {
             href: 'https://github.com/w3f/research',

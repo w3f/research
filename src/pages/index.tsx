@@ -18,7 +18,7 @@ function HomepageHeader() {
           <Link
             className="button button--secondary button--lg"
             to="/research">
-            Go to the Docs
+            Read more
           </Link>
         </div>
       </div>
@@ -31,7 +31,7 @@ export default function Home(): JSX.Element {
   return (
     <Layout
       title={`Research at Web3`}
-      description="Description will go into a meta tag in <head />">
+      description="Our industry-leading research team confronts the most difficult research problems standing between us and Web3./>">
       <HomepageHeader />
       <main>
         <HomepageFeatures />
