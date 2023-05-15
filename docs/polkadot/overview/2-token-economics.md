@@ -1,10 +1,8 @@
-====================================================================
+---
+title: Token Economics
+---
 
-**Owners**: [Alfonso Cevallos](/team_members/alfonso.html), [Jonas Gehrlein](/team_members/Jonas.html)
-
-====================================================================
-
-# Token Economics
+**Authors**: [Alfonso Cevallos](/team_members/alfonso.md), [Jonas Gehrlein](/team_members/Jonas.md)
 
 Polkadot will have a native token called DOT. Its main functions are as follows:
 
@@ -21,7 +19,7 @@ In this section we focus on the first use above, while each of the other three u
 
 ## Introduction
 
-Polkadot is a proof-of-stake based platform where a set of validators, who have staked DOTs, produce blocks and reach consensus.  If a validator steers away from the protocol, some of his DOTs are slashed, but otherwise he gets paid for their contribution (roughly) proportional to his staked DOTs. The set of nodes elected as validators changes constantly (in each era, i.e. around once a day), but the number remains limited. However, any number of DOT holders can also participate indirectly in the decision-making processes as *nominators*, in what we call *nominated proof-of-stake*. A nominator indicates which validator candidates she trusts, and puts some DOTs at stake to support her nomination. If one or more of her nominated candidates are elected as validators in an era, she shares with them any economical rewards or punishments, proportional to her stake. Being a nominator is a way of investing one's DOTs, and of helping in the security of the system. Indeed, the larger the total amount of DOTs staked by nominators and validators, the higher the system security, because an adversary needs that much more stake -- or nominators' trust -- before it gets any nodes elected as validators.
+Polkadot is a proof-of-stake based platform where a set of validators, who have staked DOTs, produce blocks and reach consensus.  If a validator steers away from the protocol, some of his DOTs are slashed, but otherwise he gets paid for their contribution (roughly) proportional to his staked DOTs. The set of nodes elected as validators changes constantly (in each era, i.e. around once a day), but the number remains limited. However, any number of DOT holders can also participate indirectly in the decision-making processes as *nominators*, in what we call *nominated proof-of-stake*. A nominator indicates which validator candidates she trusts, and puts some DOTs at stake to support her nomination. If one or more of her nominated candidates are elected as validators in an era, she shares with them any economical rewards or punishments, proportional to her stake. Being a nominator is a way of investing one's DOTs, and of helping in the security of the system. Indeed, the larger the total amount of DOTs staked by nominators and validators, the higher the system security, because an adversary needs that much more stake - or nominators' trust - before it gets any nodes elected as validators.
 
 We therefore aim at having a considerable percentage of the total DOT supply be staked by validators and nominators. Another large percentage of the DOT supply will be frozen as deposits by the commercial blockchains who get a parachain slot. We originally aim to have around 50% of DOTs staked in NPoS, and 30% in parachain deposits. As a reference, the percentage staked in other PoS-based projects is as follows.
 - Tezos is 65.73% staked
@@ -48,24 +46,28 @@ As these payments are the main driver of inflation in the system, we first study
 
 ### Inflation model
 
-Let \(x\) be the *staking rate* in NPoS at a particular point in time, i.e. the total amount of tokens staked by nominators and validators, divided by the total token supply. \(x\) is always a value between 0 and 1.
+Let $x$ be the *staking rate* in NPoS at a particular point in time, i.e. the total amount of tokens staked by nominators and validators, divided by the total token supply. $x$ is always a value between 0 and 1.
 
-__Adjustable parameter:__ Let \(\chi_{ideal}\) be the staking rate we would like to attain ideally in the long run. This value should probably lie between 0.3 and 0.6, and we originally set it at \(\chi_{ideal}=0.5\). If it falls, the security is compromised, so we should give strong incentives to DOT holders to stake more. If it rises, we lose liquidity, which is also undesirable, so we should decrease the incentives sharply. In the absence of parachains, we suggest an \(\chi_{ideal}=0.75\), as liquidity is not constrained by locked parachain bonds.
+__Adjustable parameter:__ Let $\chi_{ideal}$ be the staking rate we would like to attain ideally in the long run. This value should probably lie between 0.3 and 0.6, and we originally set it at $\chi_{ideal}=0.5$. If it falls, the security is compromised, so we should give strong incentives to DOT holders to stake more. If it rises, we lose liquidity, which is also undesirable, so we should decrease the incentives sharply. In the absence of parachains, we suggest an $\chi_{ideal}=0.75$, as liquidity is not constrained by locked parachain bonds.
 
-Let \(i=i(x)\) be the yearly *interest rate* in NPoS; i.e., the total yearly amount of tokens minted to pay all validators and nominators for block production and Grandpa, divided by the total amount of tokens staked by them. We consider it as a function of \(x\). Intuitively, \(i(x)\) corresponds to the incentive we give people to stake. Hence, \(i(x)\) should be a monotone decreasing function of \(x\), as less incentive is needed when \(x\) increases.
+Let $i=i(x)$ be the yearly *interest rate* in NPoS; i.e., the total yearly amount of tokens minted to pay all validators and nominators for block production and Grandpa, divided by the total amount of tokens staked by them. We consider it as a function of $x$. Intuitively, $i(x)$ corresponds to the incentive we give people to stake. Hence, $i(x)$ should be a monotone decreasing function of $x$, as less incentive is needed when $x$ increases.
 
-* We study the yearly interest rate (instead of the interest rate per block or per epoch) for ease of comprehension. This means that \(i(x)\) is the total payout perceived by somebody that continuously stakes one DOT during a year. The interest rate per block can be easily computed from it.
-* Not every staked party will be paid proportional to their stake. For instance, a validator will be paid more than a nominator with equal stake, and a validator producing a block will be temporarily paid more than a validator not producing a block. So, \(i(x)\) only works as a guide of the average interest rate.
+* We study the yearly interest rate (instead of the interest rate per block or per epoch) for ease of comprehension. This means that $i(x)$ is the total payout perceived by somebody that continuously stakes one DOT during a year. The interest rate per block can be easily computed from it.
+* Not every staked party will be paid proportional to their stake. For instance, a validator will be paid more than a nominator with equal stake, and a validator producing a block will be temporarily paid more than a validator not producing a block. So, $i(x)$ only works as a guide of the average interest rate.
 
-__Adjustable parameter:__ Let \(i_{ideal}:=i(\chi_{ideal})\) be the interest rate we pay in the ideal scenario where \(x=\chi_{ideal}\). This is the interest rate we should be paying most of the time. We suggest the value \(i_{ideal}=0.2\), i.e. an ideal yearly interest rate of 20%. In the absence of parachains, we suggest an \(i_{ideal}=0.133\).
+__Adjustable parameter:__ Let $i_{ideal}:=i(\chi_{ideal})$ be the interest rate we pay in the ideal scenario where $x=\chi_{ideal}$. This is the interest rate we should be paying most of the time. We suggest the value $i_{ideal}=0.2$, i.e. an ideal yearly interest rate of 20%. In the absence of parachains, we suggest an $i_{ideal}=0.133$.
 
-Let \(I\) be the yearly *inflation rate*; i.e.
+Let $I$ be the yearly *inflation rate*; i.e.
 
-$$I=\frac{\text{token supply at end of year} - \text{token supply at beginning of year}}{\text{token supply at beginning of year}}.$$
+$$
+I=\frac{\text{token supply at end of year} - \text{token supply at beginning of year}}{\text{token supply at beginning of year}}
+$$
 
 The inflation rate is given by
 
-$$I=I_{NPoS}+I_{treasury}-I_{slashing} - I_{tx-fees},$$
+$$
+I=I_{NPoS}+I_{treasury}-I_{slashing} - I_{tx-fees}
+$$
 
 where $I_{NPoS}$ is the inflation caused by token minting to pay nominators and validators, $I_{treasury}$ is the inflation caused by minting for treasury, $I_{slashing}$ is the deflation caused by burning following a misconduct, and $I_{tx-fees}$ is the deflation caused by burning transaction fees.
 
@@ -73,7 +75,9 @@ where $I_{NPoS}$ is the inflation caused by token minting to pay nominators and 
 
 $I_{NPoS}$ should be by far the largest of these amounts, and thus the main driver of overall inflation. Notice that by channelling all of the tokens destined to burning -due to both slashing and transaction fees- into treasury, we decrease the other terms in the formula (see the section on treasury). If we consider $I_{NPoS}$ as a function of the staking rate $x$, then clearly the relation between $I_{NPoS}(x)$ and $i(x)$ is given by
 
-$$I_{NPoS}(x)=x\cdot i(x).$$
+$$
+I_{NPoS}(x)=x\cdot i(x)
+$$
 
 From our previous analysis, we can see that $I_{NPoS}(\chi_{ideal})=\chi_{ideal}\cdot i_{ideal}$. Since we want to steer the market toward a staking rate of $x=\chi_{ideal}$, it makes sense that the inflation rate **$I_{NPoS}(x)$ should be maximal at this value**.
 
@@ -85,6 +89,7 @@ __Adjustable parameter:__ Define the *decay rate* $d$ so that the inflation rate
 
  From the previous discussion, we propose the following interest rate and inflation rate functions, which depend on the parameters $\chi_{ideal}$, $i_{ideal}$, $I_0$ and $d$. Let
 
+$$
 \begin{align}
 I_{NPoS}(x) &= \begin{cases}
 I_0 + \Big(I_{NPoS}(\chi_{ideal}) - I_0\Big)\frac{x}{\chi_{ideal}}
@@ -95,6 +100,7 @@ I_0 + (I_{NPoS}(\chi_{ideal}) - I_0)\cdot 2^{(\chi_{ideal}-x)/d}
 \\
 i(x)&= I_{NPoS}(x)/x.
 \end{align}
+$$
 
 It can be checked that $I_{NPoS}\geq I_0$ for all $0\leq x \leq 1$ with equality for $x=0$, $i(\chi_{ideal})=i_{ideal}$, $I_{NPoS}(x)$ is maximal at $x=\chi_{ideal}$ where it achieves a value of $\chi_{ideal}\cdot i_{ideal}$, and $i(x)$ is monotone decreasing.
 
@@ -103,12 +109,12 @@ These functions can be plotted for different parameters following this link: htt
 ### Inflation model with parachains
 Following our suggestions for the economics after the implementation with parachains we show the graph with the following adjustable parameters: $I_0=0.025$, $\chi_{ideal}=0.5$, $i_{ideal}=0.2$ and $d=0.05$. We obtain the following plots, with $i(x)$ in green and $I_{NPoS}(x)$ in blue.
 
-![](https://i.imgur.com/Kk1MLJH.png)
+<img src="https://i.imgur.com/Kk1MLJH.png" class="token-eco-chart"/>
 
 ### Inflation model without parachains (current implementation)
 In the absence of parachains, we suggest the following adjustable parameters: $I_0=0.025$, $\chi_{ideal}=0.75$, $i_{ideal}=0.133$ and $d=0.05$,. With the adjusted parameter we obtain the following plot, with $i(x)$ in green and $I_{NPoS}(x)$ in blue.
 
-![](https://i.imgur.com/i8t1Q5y.png)
+<img src="https://i.imgur.com/i8t1Q5y.png" class="token-eco-chart"/>
 
 ### Payment details
 
@@ -138,7 +144,9 @@ Notice that what is important here is not the absolute points but the point rati
 In each era $e$, and for each validator $v$, we keep a counter $c_v^e$ on the number of points earned by $v$. Let $c^e =
 \sum_{\text{validators } v} c_v^e$ be the total number of points earned by all validators in era $e$, and let $P^e_{NPoS}$ be our target total payout to all validators -- and their nominators -- in that era (see previous section on inflation model to see how to establish $P^e_{NPoS}$). Then, at the end of era $e$, the payout corresponding to validator $v$ and his nominators is given by
 
-$$\frac{c_v^e}{c^e} \cdot P^e_{NPoS}.$$
+$$
+\frac{c_v^e}{c^e} \cdot P^e_{NPoS}
+$$
 
 We remark that we can also use the counters to combat unresponsiveness: if a validator has earned close to zero points in payable actions during an era (or any other period of time being measured), we kick them out. See the note on Slashings for more details.
 
@@ -209,7 +217,9 @@ As mentioned earlier, part of the tx fee needs to go to the block producer, to i
 
 A transaction fee tx is computed as follows:
 
-$$fee(tx) = base\_fee + type(tx) \cdot length(tx) + c_{traffic} \cdot weight(tx),$$
+$$
+fee(tx) = base\_fee + type(tx) \cdot length(tx) + c_{traffic} \cdot weight(tx)
+$$
 
 where $c_{traffic}$ is a parameter independent from the transaction, that evolves over time depending on the network traffic; we explain this parameter in the next subsection. Parameter $type(tx)$ depends on the transaction type only; in particular for operational transactions, we currently set $type(tx)$ to zero.
 
@@ -229,41 +239,51 @@ Recall that we set a hard limit on the sum of lengths and weights of all transac
 
 **Definition.** We define a block's saturation level (relative to normal txs) as a fraction $s$ between 0 and 1 which describes how close the limit on normal txs is from being full. Explicitly, the saturation level of a block $B$ is
 
-$$s(B):=\max\{\frac{\sum_{\text{normal } tx \in B} length(tx)}{\text{normal length limit}}, \frac{\sum_{\text{normal } tx \in B} weight(tx)}{\text{normal weight limit}}\},$$
+$$
+s(B):=\max\{\frac{\sum_{\text{normal } tx \in B} length(tx)}{\text{normal length limit}}, \frac{\sum_{\text{normal } tx \in B} weight(tx)}{\text{normal weight limit}}\}
+$$
 
 where the normal length limit (the block length limit on normal transactions) is 75% of the overall length limit, and the normal weight limit is 75% of the overall weight limit.
 
-**Adjustable parameter** Let \(s^*\) be our target block saturation level. This is our desired long-term average of the block saturation level (relative to normal txs). We originally suggest \(s^*=0.25\), so that blocks are 25% full on average and the system can handle sudden spikes of up to 4x the average volume of normal transactions. This parameter can be adjusted depending on the observed volumes during spikes compared to average volumes, and in general it provides a trade-off between higher average fees and longer transaction inclusion times during spikes.
+**Adjustable parameter** Let $s^*$ be our target block saturation level. This is our desired long-term average of the block saturation level (relative to normal txs). We originally suggest $s^*=0.25$, so that blocks are 25% full on average and the system can handle sudden spikes of up to 4x the average volume of normal transactions. This parameter can be adjusted depending on the observed volumes during spikes compared to average volumes, and in general it provides a trade-off between higher average fees and longer transaction inclusion times during spikes.
 
-Recall that a transaction fee is computed as $fee(tx) = base\_fee + type(tx) \cdot length(tx) + c_{traffic} \cdot weight(tx)$, for a parameter $c_{traffic}$ that is independent of the transaction. Let \(s\) be the saturation level of the current block. If \(s>s^*\) we slightly increase $c_{traffic}$, and if \(s<s^*\) we slightly decrease it.
+Recall that a transaction fee is computed as $fee(tx) = base\_fee + type(tx) \cdot length(tx) + c_{traffic} \cdot weight(tx)$, for a parameter $c_{traffic}$ that is independent of the transaction. Let $s$ be the saturation level of the current block. If $s>s^*$ we slightly increase $c_{traffic}$, and if $s<s^*$ we slightly decrease it.
 
 **Adjustable parameter:** Let $v$ be a fee variability factor, which controls how quickly the transaction fees adjust. We update $c_{traffic}$ from one block to the next as follows:
 
-$$c_{traffic} \leftarrow c_{traffic}\cdot (1+ v(s-s^*) + v^2(s-s^*)^2/2).$$
+$$
+c_{traffic} \leftarrow c_{traffic}\cdot (1+ v(s-s^*) + v^2(s-s^*)^2/2)
+$$
 
-This is thus a feedback loop with multiplicative weight updates. It is a very good approximation to using the more involved update \(c_{traffic} \leftarrow c_{traffic}\cdot e^{v(s-s^*)}\), which in turn has the following properties:
+This is thus a feedback loop with multiplicative weight updates. It is a very good approximation to using the more involved update $c_{traffic} \leftarrow c_{traffic}\cdot e^{v(s-s^*)}$, which in turn has the following properties:
 
 * Assuming that $v$ is small, the relative change of parameter $c_{traffic}$ is approximately proportional to the difference $(s-s^*)$, i.e.
 
-$$\frac{c_{traffic}^{new} - c_{traffic}^{old}}{c_{traffic}^{old}}\approx v(s-s^*).$$
+$$
+\frac{c_{traffic}^{new} - c_{traffic}^{old}}{c_{traffic}^{old}}\approx v(s-s^*)
+$$
 
-* If there is a period of time during which \(k\) blocks are produced and the average saturation level is \(s_{average}\), the relative change of parameter $c_{traffic}$ during this period is approximately proportional to $k$ times the difference $(s_{average} - s^*)$, i.e.
+* If there is a period of time during which $k$ blocks are produced and the average saturation level is $s_{average}$, the relative change of parameter $c_{traffic}$ during this period is approximately proportional to $k$ times the difference $(s_{average} - s^*)$, i.e.
 
-$$\frac{c_{traffic}^{final} - c_{traffic}^{initial}}{c_{traffic}^{initial}}\approx vk(s_{average}-s^*).$$
+$$
+\frac{c_{traffic}^{final} - c_{traffic}^{initial}}{c_{traffic}^{initial}}\approx vk(s_{average}-s^*)
+$$
 
 How to choose the variability factor $v$? Suppose that we decide that the fees should not change by more than a fraction $p$ during a period of $k$ blocks, even if there is 100% saturation in that period. We obtain the formula
 
-$$ \text{fees relative change} \leq \frac{c_{traffic}^{final} - c_{traffic}^{initial}}{c_{traffic}^{initial}}\approx vk(s_{average}-s^*) \leq vk(1-s^*)\leq p,$$
+$$
+\text{fees relative change} \leq \frac{c_{traffic}^{final} - c_{traffic}^{initial}}{c_{traffic}^{initial}}\approx vk(s_{average}-s^*) \leq vk(1-s^*)\leq p
+$$
 
 which gives us the bound $v\leq \frac{p}{k(1-s^*)}$.
 
-For instance, suppose that we detect that during peak times some transactions have to wait for up to $k=20$ blocks to be included, and we consider it unfair to the user if the fees increase by more than 5% $(p=0.05)$ during that period. If \(s^*=0.25\) then the formula above gives $v\leq 0.05/[20(1-0.25)]\approx 0.0033$.
+For instance, suppose that we detect that during peak times some transactions have to wait for up to $k=20$ blocks to be included, and we consider it unfair to the user if the fees increase by more than 5% $(p=0.05)$ during that period. If $s^*=0.25$ then the formula above gives $v\leq 0.05/[20(1-0.25)]\approx 0.0033$.
 
 #### 2. Slow adjusting mechanism
 
 In this mechanism, fees stay almost constant during short periods, adjusting only to long-term tendencies. We accept the fact that during spikes there will be long inclusion times, and allow the transactions to include tips to create a market for preferential inclusion.
 
-We use the same formula as above to update the transaction fees in each block, i.e. \(c_{traffic} \leftarrow c_{traffic}\cdot (1 + v(s-s^*) + v^2(s-s^*)^2/2\), except that we select a much smaller variability factor $v$. For instance, suppose that we want the fees to change by at most 30% per day, and there are around \(k=14000\) blocks produced in a day. If \(s^*=0.25\) then we obtain \(v\leq 0.3/[14000(1-0.25)] = 0.00003\).
+We use the same formula as above to update the transaction fees in each block, i.e. $c_{traffic} \leftarrow c_{traffic}\cdot (1 + v(s-s^*) + v^2(s-s^*)^2/2$, except that we select a much smaller variability factor $v$. For instance, suppose that we want the fees to change by at most 30% per day, and there are around $k=14000$ blocks produced in a day. If $s^*=0.25$ then we obtain $v\leq 0.3/[14000(1-0.25)] = 0.00003$.
 
 The transaction fee is considered a base price. There will be a different field in the transaction called tip, and a user is free to put any amount of tokens in it or leave it at zero. Block producers receive 100% of the tip on top of the standard 20% of the fee, so they have an incentive to include transactions with large tips. There should be a piece of software that gives live suggestions to users for tip values, that depend on the market conditions and the size of the transaction; it should suggest no tip most of the time.
 
@@ -291,10 +311,6 @@ Additional notes
 
 Finality gadget [GRANDPA](https://github.com/w3f/consensus/blob/master/pdf/grandpa.pdf)
 
-The [availability scheme](../Availability_and_Validity.md)
+Block production protocol [BABE](Polkadot/protocols/block-production/Babe.md)
 
-Block production protocol [BABE](../block-production/Babe.md)
-
-[Parachain Validity](../Availability_and_Validity.md) scheme
-
-The [NPoS scheme](../NPoS/index.md) for selecting validators
+The [NPoS scheme](Polkadot/protocols/NPoS/index.md) for selecting validators

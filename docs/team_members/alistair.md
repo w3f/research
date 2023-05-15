@@ -1,6 +1,8 @@
-# Alistair Stewart
+---
+title: Alistair Stewart
+---
 
-<img style="float: right;" src="https://i.imgur.com/5wzFx7b.jpg" width = '190'>
+<img className="members" src="https://i.imgur.com/5wzFx7b.jpg"/>
 
 alistair@web3.foundation
 

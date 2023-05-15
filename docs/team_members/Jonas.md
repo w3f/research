@@ -1,6 +1,6 @@
 # Jonas Gehrlein
 
-<img src="https://i.imgur.com/jbZJR52.jpg" alt="drawing" style="width:200px;"/>
+<img className="members" src="https://i.imgur.com/jbZJR52.jpg"/>
 
 jonas@web3.foundation
 

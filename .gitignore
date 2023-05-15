@@ -1,22 +1,7 @@
-/build
+build
 
-site/
-_build/
-lib/
-include/
-bin/
 .DS_Store
 
-*.aux
-*.bbl
-*.log
-*.blg
-*.bak
-*.out
-*.snm
-*.nav
-*.toc
-*.pdf
+node_modules
 
-# don't ignore pdfs in here, they are published online
-!/docs/_static/pdf/**/*.pdf
+.docusaurus

@@ -1,5 +1,8 @@
-# Handan Kılınç Alper
-<img style="float: right;" src="https://i.imgur.com/dNlMcBu.jpg" width = '160'>
+---
+title: Handan Kılınç Alper
+---
+
+<img className="members" src="https://i.imgur.com/dNlMcBu.jpg"/>
 
 handan@web3.foundation
 
