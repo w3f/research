@@ -130,7 +130,6 @@ const sidebars = {
         'team_members/handan',
         'team_members/jeff',
         'team_members/Jonas',
-        'team_members/Oana',
         'team_members/Sergey',
         'team_members/syed',
       ],
