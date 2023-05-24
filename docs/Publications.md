@@ -30,4 +30,4 @@ title: Publications
 
 **Specification:**
 
-- Syed Hosseini, Fabio Lama, Florian Franzen, [Polkadot Protocol Specification](https://w3f.github.io/polkadot-spec/latest.pdf)
+- [Polkadot Protocol Specification](https://spec.polkadot.network/)
