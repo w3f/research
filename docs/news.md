@@ -2,11 +2,8 @@
 title: News
 ---
 
-**12.05.22**  
+**12.05.23**  
 We have published an article about [APK Proofs By Hand and Sage](https://medium.com/web3foundation/apk-proofs-by-hand-and-sage-3f5feb3fcca4).
-
-**12.01.23**
-[Accountable Light Client Systems for PoS Blockchains](https://eprint.iacr.org/2022/1205.pdf) was updated. 
 
 **18.11.22**  
 We have open sourced and published an [improvement to our BLS signature aggregation](https://eprint.iacr.org/2022/1611) which allows for more efficient signature verification. We have submitted this work to [Financial Cryptography 2023](https://fc23.ifca.ai/).
