@@ -34,7 +34,7 @@ function Feature({image, title, link}) {
           <hr/>
           <div className='feature-link flex'>
             <p>Read more</p>
-            <img className="feature-link-arrow" src={useBaseUrl('/img/arrow-icon-28.png')} alt="arrow-right" />
+            <img className="feature-link-arrow" src={useBaseUrl('/img/arrow.svg')} alt="arrow-right" />
           </div>
         </div>
       </div>
