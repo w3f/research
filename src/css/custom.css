@@ -216,6 +216,8 @@ a:hover.navbar__item{
 
   .feature-item {
     max-width: 70%;
+    margin: auto;
+    margin-bottom: 2em;
   }
   
   .container.container-home {
