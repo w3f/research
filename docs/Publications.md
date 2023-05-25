@@ -3,14 +3,15 @@ title: Publications
 ---
 
 **Papers:**
-
+- Jeff Burdges, Handan Kılınç Alper, Alistair Stewart, Sergey Vasilyev, [Sassafras and Semi-Anonymous Single Leader Election](https://eprint.iacr.org/2023/031.pdf), in submission.
+- Jeff Burdges, Oana Ciobotaru, Handan Kılınç Alper, Alistair Stewart, Sergey Vasilyev, [Ethical identity, ring VRFs, and zero-knowledge continuations](https://eprint.iacr.org/2023/002.pdf), in submission.
 - Jeff Burdges, Oana Ciobotaru, Syed Lavasani, Alistair Stewart, [Efficient Aggregatable BLS Signatures with Chaum-Pedersen Proofs](https://eprint.iacr.org/2022/1611), in submission.
 - Oana Ciobotaru, Fatemeh Shirazi, Alistair Stewart, Sergey Vasilyev, [Accountable Light Client Systems for PoS Blockchains](https://eprint.iacr.org/2022/1205), in submission.
 - Handan Kılınç Alper and Alptekin Küpçü, [Optimally Efficient Multi-party Fair Exchange and Fair Secure Multi-party Computation](https://dl.acm.org/doi/abs/10.1145/3477530), ACM Transactions on Privacy and Security.
 - Handan Kılınç Alper and Jeff Burdges, [Two-Round Trip Schnorr Multi-signatures via Delinearized Witnesses](https://eprint.iacr.org/2020/1245), CRYPTO 2021
 - Handan Kılınç Alper and Alptekin Küpçü, [Coin-based Multi-party Fair Exchange](https://link.springer.com/chapter/10.1007/978-3-030-78372-3_6), ACNS 2021.
 - Samuel Häfner and Alistair Stewart, [Blockchains, Front-Running, and Candle Auctions](https://ssrn.com/abstract=3846363), in submission.
-- Jeff Burdges and Luca de Feo, [Delay Encryption](https://eprint.iacr.org/2020/638), EuroCrypt 2021.
+- Jeff Burdges and Luca de Feo, [Delay Encryption](https://eprint.iacr.org/2020/638), Eurocrypt 2021.
 - Jeff Burdges, Alfonso Cevallos, Peter Czaban, Rob Habermeier, Syed Hosseini, Fabio Lama, Handan Kılınç Alper, Ximin Luo, Fatemeh Shirazi, Alistair Stewart, Gavin Wood, [Overview of Polkadot and its Design Considerations](http://arxiv.org/abs/2005.13456), first version, 29 May 2020.
 - Alfonso Cevallos and Alistair Stewart, [Validator Election in Nominated Proof-of-Stake](https://arxiv.org/abs/2004.12990), in progress.
 - Handan Kılınç Alper, [Consensus on Clock in Universally Composable Timing Model](https://eprint.iacr.org/2019/1348), in submission.
