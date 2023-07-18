@@ -108,11 +108,11 @@ At the end of the slot, $P_j$ decides the best chain with the chain selection ru
 #### 3rd: Epoch Update
 
 Starting from first slot, in every $R$ slots, the new epoch starts.  
-Before starting a new epoch $e_m$, validors should obtain the new epoch randomness and active validators set for the new epoch.
+Before starting a new epoch $e_m$, validators should obtain the new epoch randomness and active validators set for the new epoch.
 
-The the  validator set for the epoch $e_m$ has to be included to the relay chain until the end of the last block of the epoch $e_{m-3}$ so that they are able to actively participate the block production in epoch $e_{m}$. So, a new validator can actively join the block production  at earliest two epochs later after included to relay chain.
+The validator set for the epoch $e_m$ has to be included to the relay chain until the end of the last block of the epoch $e_{m-3}$ so that they are able to actively participate the block production in epoch $e_{m}$. So, a new validator can actively join the block production at earliest two epochs later after included to relay chain.
 
-A fresh randomness for the epoch $e_m$  is computed as in Ouroboros Praos [2]: Concatenate all the VRF outputs of blocks in epoch $e_{m-2}$ (let us assume  the concatenation is $\rho$). Then the randomness in epoch $e_{m}$:
+A fresh randomness for the epoch $e_m$  is computed as in Ouroboros Praos [2]: Concatenate all the VRF outputs of blocks in epoch $e_{m-2}$ (let us assume the concatenation is $\rho$). Then the randomness in epoch $e_{m}$:
 
 $$
 r_{m} = H(r_{m-2}||m||\rho)
@@ -133,7 +133,7 @@ We do not use the chain selection rule as in Ouroboros Genesis [3] because this 
 
 ## 4. Clock Adjustment (Relative Time Algorithm)
 
-It is important for parties to know the current slot  for the security and completeness of BABE. For this, validators can use their computer clocks which is adjusted by the Network Time Protocol. However, in this case, we need to trust servers of NTP. If an attack happens to one of these servers than we cannot claim anymore that BABE is secure. Therefore, we show how a validator realizes the notion of slots without using NTP. Here, we assume we have a partial synchronous network meaning that any message sent by a validator arrives at most $\D$-slots later. $\D$ is an unknown parameter.
+It is important for parties to know the current slot for the security and completeness of BABE. For this, validators can use their computer clocks which is adjusted by the Network Time Protocol. However, in this case, we need to trust servers of NTP. If an attack happens to one of these servers than we cannot claim anymore that BABE is secure. Therefore, we show how a validator realizes the notion of slots without using NTP. Here, we assume we have a partial synchronous network meaning that any message sent by a validator arrives at most $\D$-slots later. $\D$ is an unknown parameter.
 
 
 Each party has a local clock and this clock is not updated by any extarnal source such as NTP or GPS. When a validator receives the genesis block, it stores the arrival time as $t_0$ as a reference point of the beginning of the first slot. We are aware of the beginning of the first slot is not same for everyone. We assume that the maximum difference of start time of the first slot between validators is at most $\delta$. Then each party divides their timeline in slots and update periodically its local clock with the following algorithm.
