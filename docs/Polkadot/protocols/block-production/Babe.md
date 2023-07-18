@@ -75,7 +75,7 @@ The genesis block contain a random number $r_1$ for use during the first two epo
 
 #### 2nd: Normal Phase
 
-We assume that each validator divided their timeline in slots after receiving the genesis block. They determine the current slot number according to their timeline as exlained in [Section 4](./Babe.md#-4.-clock-adjustment--relative-time-algorithm-). Similarly, when a new validator joins to BABE after the genesis block, this validator divides his timeline into slots.
+We assume that each validator divided their timeline in slots after receiving the genesis block. They determine the current slot number according to their timeline as explained in [Section 4](./Babe.md#-4.-clock-adjustment--relative-time-algorithm-). Similarly, when a new validator joins to BABE after the genesis block, this validator divides his timeline into slots.
 
 In normal operation, each slot leader should produce and publish a block.  All other nodes attempt to update their chain by extending with new valid blocks they observe.
 
