@@ -108,11 +108,11 @@ It can be checked that $I_{NPoS}\geq I_0$ for all $0\leq x \leq 1$ with equality
 
 
 ### Ideal staking rate
-Currently, the ideal staking rate is a function of the number of active parachains (minus system parachains). In particular, the ideal staking rate decreases from 75% by 0.5% per active parachain until a minimum of 45%. The following formula calculates the ideal staking rate:
+Currently, the ideal staking rate is a function of the number of active parachains (minus system parachains). In particular, the ideal staking rate decreases from 75% by 0.5% per active parachain, or also refered to as $cores$, until a minimum of 45%. The following formula calculates the ideal staking rate:
 
 $$
 \begin{align}
-\chi_{ideal} = 0.75 - min(active_parachains, 60) / 200
+\chi_{ideal} = 0.75 - min(cores, 60) / 200
 \end{align}
 $$
 
@@ -121,7 +121,7 @@ Assuming the number of active parachains lead to $\chi_{ideal}=0.5$, this implie
 
 <img src="https://i.imgur.com/Kk1MLJH.png" class="token-eco-chart"/>
 
-Note, that the graph changes based on $\chi_{ideal}=0.5$. Different parameters can be applied following this link: https://www.desmos.com/calculator/2om7wkewhr
+Note, that the curves shift based for other values of $\chi_{ideal}$. Different parameters can be applied following this link: https://www.desmos.com/calculator/2om7wkewhr
 
 
 ### Payment details
