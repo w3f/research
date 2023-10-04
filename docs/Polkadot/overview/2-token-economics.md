@@ -4,6 +4,8 @@ title: Token Economics
 
 **Authors**: [Alfonso Cevallos](/team_members/alfonso.md), [Jonas Gehrlein](/team_members/Jonas.md)
 
+**Last Updated**: October 4, 2023
+
 Polkadot will have a native token called DOT. Its main functions are as follows:
 
 1. Economics: Polkadot will mint or burn DOTs in order to reward the nodes that run the consensus protocol, to fund the treasury, to control the inflation rate, etc.
@@ -48,14 +50,14 @@ As these payments are the main driver of inflation in the system, we first study
 
 Let $x$ be the *staking rate* in NPoS at a particular point in time, i.e. the total amount of tokens staked by nominators and validators, divided by the total token supply. $x$ is always a value between 0 and 1.
 
-__Adjustable parameter:__ Let $\chi_{ideal}$ be the staking rate we would like to attain ideally in the long run. This value should probably lie between 0.3 and 0.6, and we originally set it at $\chi_{ideal}=0.5$. If it falls, the security is compromised, so we should give strong incentives to DOT holders to stake more. If it rises, we lose liquidity, which is also undesirable, so we should decrease the incentives sharply. In the absence of parachains, we suggest an $\chi_{ideal}=0.75$, as liquidity is not constrained by locked parachain bonds.
+__Adjustable parameter:__ Let $\chi_{ideal}$ be the staking rate we would like to attain ideally in the long run. If it falls, the security is compromised, so we should give strong incentives to DOT holders to stake more. If it rises, we lose liquidity, which is also undesirable, so we should decrease the incentives sharply.
 
 Let $i=i(x)$ be the yearly *interest rate* in NPoS; i.e., the total yearly amount of tokens minted to pay all validators and nominators for block production and Grandpa, divided by the total amount of tokens staked by them. We consider it as a function of $x$. Intuitively, $i(x)$ corresponds to the incentive we give people to stake. Hence, $i(x)$ should be a monotone decreasing function of $x$, as less incentive is needed when $x$ increases.
 
 * We study the yearly interest rate (instead of the interest rate per block or per epoch) for ease of comprehension. This means that $i(x)$ is the total payout perceived by somebody that continuously stakes one DOT during a year. The interest rate per block can be easily computed from it.
 * Not every staked party will be paid proportional to their stake. For instance, a validator will be paid more than a nominator with equal stake, and a validator producing a block will be temporarily paid more than a validator not producing a block. So, $i(x)$ only works as a guide of the average interest rate.
 
-__Adjustable parameter:__ Let $i_{ideal}:=i(\chi_{ideal})$ be the interest rate we pay in the ideal scenario where $x=\chi_{ideal}$. This is the interest rate we should be paying most of the time. We suggest the value $i_{ideal}=0.2$, i.e. an ideal yearly interest rate of 20%. In the absence of parachains, we suggest an $i_{ideal}=0.133$.
+__Adjustable parameter:__ Let $i_{ideal}:=i(\chi_{ideal})$ be the interest rate we pay in the ideal scenario where $x=\chi_{ideal}$, which is indirectly determined by the overall inflation of the system.
 
 Let $I$ be the yearly *inflation rate*; i.e.
 
@@ -104,17 +106,23 @@ $$
 
 It can be checked that $I_{NPoS}\geq I_0$ for all $0\leq x \leq 1$ with equality for $x=0$, $i(\chi_{ideal})=i_{ideal}$, $I_{NPoS}(x)$ is maximal at $x=\chi_{ideal}$ where it achieves a value of $\chi_{ideal}\cdot i_{ideal}$, and $i(x)$ is monotone decreasing.
 
-These functions can be plotted for different parameters following this link: https://www.desmos.com/calculator/2om7wkewhr
 
-### Inflation model with parachains
-Following our suggestions for the economics after the implementation with parachains we show the graph with the following adjustable parameters: $I_0=0.025$, $\chi_{ideal}=0.5$, $i_{ideal}=0.2$ and $d=0.05$. We obtain the following plots, with $i(x)$ in green and $I_{NPoS}(x)$ in blue.
+### Ideal staking rate
+Currently, the ideal staking rate is a function of the number of active parachains (minus system parachains). In particular, the ideal staking rate decreases from 75% by 0.5% per active parachain until a minimum of 45%. The following formula calculates the ideal staking rate:
+
+$$
+\begin{align}
+\chi_{ideal} = 0.75 - min(active_parachains, 60) / 200
+\end{align}
+$$
+
+### Example: Inflation model
+Assuming the number of active parachains lead to $\chi_{ideal}=0.5$, this implies $i_{ideal}=0.2$. In addition, we use $I_{0} = 0.025$ and $d=0.05$. In that configuration, we obtain the following plots, with $i(x)$ in green and $I_{NPoS}(x)$ in blue.
 
 <img src="https://i.imgur.com/Kk1MLJH.png" class="token-eco-chart"/>
 
-### Inflation model without parachains (current implementation)
-In the absence of parachains, we suggest the following adjustable parameters: $I_0=0.025$, $\chi_{ideal}=0.75$, $i_{ideal}=0.133$ and $d=0.05$,. With the adjusted parameter we obtain the following plot, with $i(x)$ in green and $I_{NPoS}(x)$ in blue.
+Note, that the graph changes based on $\chi_{ideal}=0.5$. Different parameters can be applied following this link: https://www.desmos.com/calculator/2om7wkewhr
 
-<img src="https://i.imgur.com/i8t1Q5y.png" class="token-eco-chart"/>
 
 ### Payment details
 
