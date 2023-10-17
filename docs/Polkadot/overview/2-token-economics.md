@@ -4,7 +4,7 @@ title: Token Economics
 
 **Authors**: [Alfonso Cevallos](/team_members/alfonso.md), [Jonas Gehrlein](/team_members/Jonas.md)
 
-**Last Updated**: October 4, 2023
+**Last Updated**: October 17, 2023
 
 Polkadot will have a native token called DOT. Its main functions are as follows:
 
@@ -23,12 +23,7 @@ In this section we focus on the first use above, while each of the other three u
 
 Polkadot is a proof-of-stake based platform where a set of validators, who have staked DOTs, produce blocks and reach consensus.  If a validator steers away from the protocol, some of his DOTs are slashed, but otherwise he gets paid for their contribution (roughly) proportional to his staked DOTs. The set of nodes elected as validators changes constantly (in each era, i.e. around once a day), but the number remains limited. However, any number of DOT holders can also participate indirectly in the decision-making processes as *nominators*, in what we call *nominated proof-of-stake*. A nominator indicates which validator candidates she trusts, and puts some DOTs at stake to support her nomination. If one or more of her nominated candidates are elected as validators in an era, she shares with them any economical rewards or punishments, proportional to her stake. Being a nominator is a way of investing one's DOTs, and of helping in the security of the system. Indeed, the larger the total amount of DOTs staked by nominators and validators, the higher the system security, because an adversary needs that much more stake - or nominators' trust - before it gets any nodes elected as validators.
 
-We therefore aim at having a considerable percentage of the total DOT supply be staked by validators and nominators. Another large percentage of the DOT supply will be frozen as deposits by the commercial blockchains who get a parachain slot. We originally aim to have around 50% of DOTs staked in NPoS, and 30% in parachain deposits. As a reference, the percentage staked in other PoS-based projects is as follows.
-- Tezos is 65.73% staked
-- DASH is 58.69% staked
-- Lisk is 58.20% staked
-- EOS is only 35.49% staked, but that is because it is DPoS and the yield is low.
-
+We therefore aim at having a considerable percentage of the total DOT supply be staked by validators and nominators. Another large percentage of the DOT supply will be frozen as deposits by the commercial blockchains who get a parachain slot. 
 
 ## Organization
 
