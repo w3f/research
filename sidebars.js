@@ -37,7 +37,6 @@ const sidebars = {
           link: {type:'doc', id:'Polkadot/overview/index'},
           items: [
             'Polkadot/overview/token-economics',
-            'Polkadot/overview/parachain-allocation',
           ],
         },
         {
