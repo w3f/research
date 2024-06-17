@@ -3,10 +3,13 @@ title: Publications
 ---
 
 **Papers:**
+- Emanuele Giunta and Alistair Stewart, [Unbiasable Verifiable Random Functions(https://link.springer.com/chapter/10.1007/978-3-031-58737-5_6), EuroCrypt 2024. 
 - Jeff Burdges, Handan Kılınç Alper, Alistair Stewart, Sergey Vasilyev, [Sassafras and Semi-Anonymous Single Leader Election](https://eprint.iacr.org/2023/031.pdf), in submission.
-- Jeff Burdges, Oana Ciobotaru, Handan Kılınç Alper, Alistair Stewart, Sergey Vasilyev, [Ethical identity, ring VRFs, and zero-knowledge continuations](https://eprint.iacr.org/2023/002.pdf), in submission.
+- Jeff Burdges, Oana Ciobotaru, Handan Kılınç Alper, Alistair Stewart, Sergey Vasilyev, [Ring Verifiable Random Functions and Zero-Knowledge Continuations
+](https://eprint.iacr.org/2023/2), in submission.
 - Jeff Burdges, Oana Ciobotaru, Syed Lavasani, Alistair Stewart, [Efficient Aggregatable BLS Signatures with Chaum-Pedersen Proofs](https://eprint.iacr.org/2022/1611), in submission.
 - Oana Ciobotaru, Fatemeh Shirazi, Alistair Stewart, Sergey Vasilyev, [Accountable Light Client Systems for PoS Blockchains](https://eprint.iacr.org/2022/1205), in submission.
+- Aleixo Sanchez, Alistair Stewart, Fatemeh Shirazi, [Bridging sapling: Private cross-chain transfers](https://ieeexplore.ieee.org/abstract/document/9793325), Crosschain Workshop 2022. 
 - Handan Kılınç Alper and Alptekin Küpçü, [Optimally Efficient Multi-party Fair Exchange and Fair Secure Multi-party Computation](https://dl.acm.org/doi/abs/10.1145/3477530), ACM Transactions on Privacy and Security.
 - Handan Kılınç Alper and Jeff Burdges, [Two-Round Trip Schnorr Multi-signatures via Delinearized Witnesses](https://eprint.iacr.org/2020/1245), CRYPTO 2021
 - Handan Kılınç Alper and Alptekin Küpçü, [Coin-based Multi-party Fair Exchange](https://link.springer.com/chapter/10.1007/978-3-030-78372-3_6), ACNS 2021.
