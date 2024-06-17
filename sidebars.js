@@ -36,7 +36,6 @@ const sidebars = {
           label: 'Overview',
           link: {type:'doc', id:'Polkadot/overview/index'},
           items: [
-            'Polkadot/overview/polkadot-introduction',
             'Polkadot/overview/token-economics',
             'Polkadot/overview/parachain-allocation',
           ],
