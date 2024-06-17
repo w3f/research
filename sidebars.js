@@ -125,9 +125,7 @@ const sidebars = {
       label: 'Team Members',
       link: {type:'doc', id:'team_members/index'},
       items: [
-        'team_members/alfonso',
         'team_members/alistair',
-        'team_members/handan',
         'team_members/jeff',
         'team_members/Jonas',
         'team_members/Sergey',
