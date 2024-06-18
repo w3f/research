@@ -124,7 +124,7 @@ const sidebars = {
       link: {type:'doc', id:'team_members/index'},
       items: [
         'team_members/alistair',
-        'team_members/Andrew',
+        'team_members/andrew',
         'team_members/jeff',
         'team_members/Jonas',
         'team_members/Sergey',
