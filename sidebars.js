@@ -130,6 +130,7 @@ const sidebars = {
         'team_members/Sergey',
         'team_members/syed',
         'team_members/chenda',
+        'team_members/Bhargav'
       ],
     },
     {
