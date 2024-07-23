@@ -125,6 +125,7 @@ const sidebars = {
       items: [
         'team_members/alistair',
         'team_members/Andrew',
+        'team_members/elizabeth',
         'team_members/jeff',
         'team_members/Jonas',
         'team_members/Sergey',
