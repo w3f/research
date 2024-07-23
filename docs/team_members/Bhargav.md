@@ -2,9 +2,10 @@
 title: Bhargav Nagaraja Bhatt
 ---
 
-<img className="members" src="https://i.imgur.com/5wzFx7b.jpg"/>
-
 bhargav@web3.foundation
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+<img className="members" src={useBaseUrl('img/Bhargav.jpg')}/>
 
 **Short Bio**. I am researcher focussing on security at the Web3 Foundation. I am also the maintainer of the Polkadot Protocol [Specifications](https://spec.polkadot.network/). I have an academic research background in Formal Verification at ETH Zurich, USI Lugano, and Microsoft Research working on topics like Model Checking, Runtime Verification and Static Analysis for mobile apps. At W3F, i have worked security analysis of Cross-chain Bridges and Light-Clients, and also on tooling for verification and reliability of the Polkadot SDK.
 
