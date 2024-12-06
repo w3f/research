@@ -23,10 +23,6 @@ const sidebars = {
       id: 'research',
     },
     {
-      type: 'doc',
-      id: 'news',
-    },
-    {
       type: 'category',
       label: 'Polkadot',
       collapsed: false,
@@ -107,16 +103,6 @@ const sidebars = {
           ],
         },
       ]
-    },
-    {
-      type: 'category',
-      label: 'Cryptography',
-      link: {type:'doc', id:'crypto/index'},
-      collapsed: false,
-      items: [
-        'crypto/multisig',
-        'crypto/LightClientBridgesindex',
-      ],
     },
     {
       type: 'category',
