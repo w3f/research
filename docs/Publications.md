@@ -4,8 +4,8 @@ title: Publications
 
 **Papers:**
 
-- Jeff Burdges, Alfonso Cevallos, Handan Kılınç Alper, Chen-Da Liu-Zhang, Fatemeh Shirazi, Alistair Stewart, Rob Habermeier, Robert Klotzner, Andronik Ordian,"[Efficient Execution Auditing for Blockchains under Byzantine Assumptions](https://eprint.iacr.org/2024/961)," in submission. 
-- Niclas Boehmer, Markus Brill, Alfonso Cevallos, Jonas Gehrlein, Luis Sánchez-Fernández, Ulrike Schmidt-Kraepelin, "Approval-Based Committee Voting in Practice: A Case Study of (over-)Representation in the Polkadot Blockchain", AAAI 2024. 
+- Jeff Burdges, Alfonso Cevallos, Handan Kılınç Alper, Chen-Da Liu-Zhang, Fatemeh Shirazi, Alistair Stewart, Rob Habermeier, Robert Klotzner, Andronik Ordian,[Efficient Execution Auditing for Blockchains under Byzantine Assumptions](https://eprint.iacr.org/2024/961), in submission. 
+- Niclas Boehmer, Markus Brill, Alfonso Cevallos, Jonas Gehrlein, Luis Sánchez-Fernández, Ulrike Schmidt-Kraepelin, [Approval-Based Committee Voting in Practice: A Case Study of (over-)Representation in the Polkadot Blockchain](https://discovery.researcher.life/article/approval-based-committee-voting-in-practice-a-case-study-of-over-representation-in-the-polkadot-blockchain/f40cbd14e91a3eaead47149388c68d3f), AAAI 2024. 
 - Emanuele Giunta and Alistair Stewart, [Unbiasable Verifiable Random Functions(https://link.springer.com/chapter/10.1007/978-3-031-58737-5_6), EuroCrypt 2024. 
 - Jeff Burdges, Handan Kılınç Alper, Alistair Stewart, Sergey Vasilyev, [Sassafras and Semi-Anonymous Single Leader Election](https://eprint.iacr.org/2023/031.pdf), in submission.
 - Jeff Burdges, Oana Ciobotaru, Handan Kılınç Alper, Alistair Stewart, Sergey Vasilyev, [Ring Verifiable Random Functions and Zero-Knowledge Continuations
