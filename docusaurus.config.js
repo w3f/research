@@ -80,21 +80,9 @@ const config = {
         items: [
           {
             type: 'doc',
-            docId: 'news',
-            position: 'right',
-            label: 'News',
-          },
-          {
-            type: 'doc',
             docId: 'Polkadot/overview/index',
             position: 'right',
             label: 'Polkadot',
-          },
-          {
-            type: 'doc',
-            docId: 'crypto/index',
-            position: 'right',
-            label: 'Cryptography',
           },
           {
             type: 'doc',
