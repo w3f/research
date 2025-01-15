@@ -17,7 +17,7 @@ bhargav@web3.foundation
 
 **Links to selected paper and talks**
 
-* [New Paper](/pdf/beefy.pdf):Trustless Bridges via Random Sampling Light Clients 
+* [New Paper](https://eprint.iacr.org/2025/057.pdf):Trustless Bridges via Random Sampling Light Clients 
 * [Slides](https://docs.google.com/presentation/d/1EAY6GgkA0KPEdNbWe4TGlzVxSR7u77Ag98zPUwcoujI/edit?usp=sharing) and [talk](https://www.youtube.com/watch?v=SSmtwvoZgDw) on Trustless and Efficient Bridges between PoS Blockchains
 * Bhargav Nagaraja Bhatt. "Experience Report: Formally Verifying Critical Blockchain Network Component", ETAPS Industry Day, 2024, Luxembourg. 
 * [Automated repair of resource leaks in Android applications](https://www.sciencedirect.com/science/article/pii/S0164121222001273?via%3Dihub), Journal of Systems and Software, 2022.
