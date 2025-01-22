@@ -11,6 +11,7 @@ title: Publications
 - Jeff Burdges, Handan Kılınç Alper, Alistair Stewart, Sergey Vasilyev, [Sassafras and Semi-Anonymous Single Leader Election](https://eprint.iacr.org/2023/031.pdf), in submission.
 - Jeff Burdges, Oana Ciobotaru, Handan Kılınç Alper, Alistair Stewart, Sergey Vasilyev, [Ring Verifiable Random Functions and Zero-Knowledge Continuations
 ](https://eprint.iacr.org/2023/2), in submission.
+- Gehrlein, J., Miebs, G., Brunelli, M., & Kadziński, M. (2023). [An active preference learning approach to aid the selection of validators in blockchain environments](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4253515). Omega, 118, 102869.
 - Jeff Burdges, Oana Ciobotaru, Syed Lavasani, Alistair Stewart, [Efficient Aggregatable BLS Signatures with Chaum-Pedersen Proofs](https://eprint.iacr.org/2022/1611), in submission.
 - Oana Ciobotaru, Fatemeh Shirazi, Alistair Stewart, Sergey Vasilyev, [Accountable Light Client Systems for PoS Blockchains](https://eprint.iacr.org/2022/1205), in submission.
 - Aleixo Sanchez, Alistair Stewart, Fatemeh Shirazi, [Bridging sapling: Private cross-chain transfers](https://ieeexplore.ieee.org/abstract/document/9793325), Crosschain Workshop 2022. 
