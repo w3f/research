@@ -6,16 +6,17 @@ title: Publications
 
 - Gehrlein, Jonas and Häfner, Samuel and Oechssler, Jörg, The Candle Auction in the Field and the Lab (January 23, 2025). Available at [SSRN](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5109856)), preprint.
 - Bhargav Nagaraja Bhatt, Fatemeh Shirazi, Ailstair Stewart, [Trustless Bridges via Random Sampling Light Clients](https://eprint.iacr.org/2025/057), in submission.
+- Jeff Burdges, Elizabeth Crites, Handan Kılınç Alper, Alistair Stewart, Sergey Vasilyev, [Sassafras and Semi-Anonymous Single Leader Election](https://eprint.iacr.org/2023/031.pdf), in submission.
+  - This paper will be presented at [ArcticCrypt 2025](https://simula-uib.com/arcticcrypt2025/).
 - Jeff Burdges, Alfonso Cevallos, Handan Kılınç Alper, Chen-Da Liu-Zhang, Fatemeh Shirazi, Alistair Stewart, Rob Habermeier, Robert Klotzner, Andronik Ordian,[Efficient Execution Auditing for Blockchains under Byzantine Assumptions](https://eprint.iacr.org/2024/961), in submission.
   - Paper was presented at [SBC 2024](https://www.sbc-conference.com/2024/), [video](https://www.youtube.com/watch?v=C1teIFTSphE).
 - Niclas Boehmer, Markus Brill, Alfonso Cevallos, Jonas Gehrlein, Luis Sánchez-Fernández, Ulrike Schmidt-Kraepelin, [Approval-Based Committee Voting in Practice: A Case Study of (over-)Representation in the Polkadot Blockchain](https://discovery.researcher.life/article/approval-based-committee-voting-in-practice-a-case-study-of-over-representation-in-the-polkadot-blockchain/f40cbd14e91a3eaead47149388c68d3f), AAAI 2024. 
 - Emanuele Giunta and Alistair Stewart, [Unbiasable Verifiable Random Functions](https://eprint.iacr.org/2024/435), EuroCrypt 2024. 
-- Jeff Burdges, Handan Kılınç Alper, Alistair Stewart, Sergey Vasilyev, [Sassafras and Semi-Anonymous Single Leader Election](https://eprint.iacr.org/2023/031.pdf), in submission.
 - Jeff Burdges, Oana Ciobotaru, Handan Kılınç Alper, Alistair Stewart, Sergey Vasilyev, [Ring Verifiable Random Functions and Zero-Knowledge Continuations
 ](https://eprint.iacr.org/2023/2), in submission.
 - Gehrlein, J., Miebs, G., Brunelli, M., & Kadziński, M. (2023). [An active preference learning approach to aid the selection of validators in blockchain environments](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4253515). Omega, 118, 102869.
 - Jeff Burdges, Oana Ciobotaru, Syed Lavasani, Alistair Stewart, [Efficient Aggregatable BLS Signatures with Chaum-Pedersen Proofs](https://eprint.iacr.org/2022/1611), in submission.
-- Oana Ciobotaru, Fatemeh Shirazi, Alistair Stewart, Sergey Vasilyev, [Accountable Light Client Systems for PoS Blockchains](https://eprint.iacr.org/2022/1205), in submission.
+- Oana Ciobotaru, Fatemeh Shirazi, Alistair Stewart, Sergey Vasilyev, [Accountable Light Client Systems for PoS Blockchains](https://eprint.iacr.org/2022/1205), working paper.
 - Aleixo Sanchez, Alistair Stewart, Fatemeh Shirazi, [Bridging sapling: Private cross-chain transfers](https://ieeexplore.ieee.org/abstract/document/9793325), Crosschain Workshop 2022. 
 - Handan Kılınç Alper and Alptekin Küpçü, [Optimally Efficient Multi-party Fair Exchange and Fair Secure Multi-party Computation](https://dl.acm.org/doi/abs/10.1145/3477530), ACM Transactions on Privacy and Security.
 - Handan Kılınç Alper and Jeff Burdges, [Two-Round Trip Schnorr Multi-signatures via Delinearized Witnesses](https://eprint.iacr.org/2020/1245), CRYPTO 2021
@@ -23,8 +24,9 @@ title: Publications
 - Samuel Häfner and Alistair Stewart, [Blockchains, Front-Running, and Candle Auctions](https://ssrn.com/abstract=3846363), in submission.
 - Jeff Burdges and Luca de Feo, [Delay Encryption](https://eprint.iacr.org/2020/638), Eurocrypt 2021.
 - Jeff Burdges, Alfonso Cevallos, Peter Czaban, Rob Habermeier, Syed Hosseini, Fabio Lama, Handan Kılınç Alper, Ximin Luo, Fatemeh Shirazi, Alistair Stewart, Gavin Wood, [Overview of Polkadot and its Design Considerations](http://arxiv.org/abs/2005.13456), first version, 29 May 2020.
-- Alfonso Cevallos and Alistair Stewart, [Validator Election in Nominated Proof-of-Stake](https://arxiv.org/abs/2004.12990), in progress.
-- Handan Kılınç Alper, [Consensus on Clock in Universally Composable Timing Model](https://eprint.iacr.org/2019/1348), in submission.
+- Alfonso Cevallos and Alistair Stewart, [A verifiably secure and proportional committee election rule](https://dl.acm.org/doi/abs/10.1145/3479722.3480988), AFT '21.
+  - Available on Arxiv as [Validator Election in Nominated Proof-of-Stake](https://arxiv.org/abs/2004.12990).
+- Handan Kılınç Alper, [Consensus on Clock in Universally Composable Timing Model](https://eprint.iacr.org/2019/1348), preprint.
 - Alistair Stewart and Lefteris Kokoris Kogias, [GRANDPA: A finality Gadget](https://arxiv.org/abs/2007.01560), in progress.
 
 **Posters:**
