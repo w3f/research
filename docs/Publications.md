@@ -24,7 +24,8 @@ title: Publications
 - Samuel Häfner and Alistair Stewart, [Blockchains, Front-Running, and Candle Auctions](https://ssrn.com/abstract=3846363), in submission.
 - Jeff Burdges and Luca de Feo, [Delay Encryption](https://eprint.iacr.org/2020/638), Eurocrypt 2021.
 - Jeff Burdges, Alfonso Cevallos, Peter Czaban, Rob Habermeier, Syed Hosseini, Fabio Lama, Handan Kılınç Alper, Ximin Luo, Fatemeh Shirazi, Alistair Stewart, Gavin Wood, [Overview of Polkadot and its Design Considerations](http://arxiv.org/abs/2005.13456), first version, 29 May 2020.
-- Alfonso Cevallos and Alistair Stewart, [Validator Election in Nominated Proof-of-Stake](https://arxiv.org/abs/2004.12990), in progress.
+- Alfonso Cevallos and Alistair Stewart, [A verifiably secure and proportional committee election rule](https://dl.acm.org/doi/abs/10.1145/3479722.3480988), AFT '21.
+  - Available on Arxiv as [Validator Election in Nominated Proof-of-Stake](https://arxiv.org/abs/2004.12990).
 - Handan Kılınç Alper, [Consensus on Clock in Universally Composable Timing Model](https://eprint.iacr.org/2019/1348), in submission.
 - Alistair Stewart and Lefteris Kokoris Kogias, [GRANDPA: A finality Gadget](https://arxiv.org/abs/2007.01560), in progress.
 
