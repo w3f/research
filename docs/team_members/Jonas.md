@@ -20,6 +20,8 @@ Jonas has joined the team of the Web3 Foundation at the beginning of July 2020 a
 
 **Academic Publications**:
 
+* Boehmer, N., Brill, M., Cevallos, A., Gehrlein, J., Sánchez-Fernández, L., & Schmidt-Kraepelin, U. (2024, March). Approval-based committee voting in practice: a case study of (over-) representation in the Polkadot blockchain. In Proceedings of the AAAI Conference on Artificial Intelligence (Vol. 38, No. 9, pp. 9519-9527).
+
 * Gehrlein, Jonas, et al. "An active preference learning approach to aid the selection of validators in blockchain environments." Omega 118 (2023): 102869.
 
 * Gehrlein, J. (2019). Experimental evidence on human choices in organizations and markets (Doctoral dissertation, Universität Bern).
