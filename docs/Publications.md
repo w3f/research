@@ -7,7 +7,7 @@ title: Publications
 - Gehrlein, Jonas and Häfner, Samuel and Oechssler, Jörg, The Candle Auction in the Field and the Lab (January 23, 2025). Available at [SSRN](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5109856)), preprint.
 - Bhargav Nagaraja Bhatt, Fatemeh Shirazi, Ailstair Stewart, [Trustless Bridges via Random Sampling Light Clients](https://eprint.iacr.org/2025/057), in submission.
 - Jeff Burdges, Elizabeth Crites, Handan Kılınç Alper, Alistair Stewart, Sergey Vasilyev, [Sassafras and Semi-Anonymous Single Leader Election](https://eprint.iacr.org/2023/031.pdf), in submission.
-  - An earlier version of this paper has been accepted to [ArcticCrypt 2025](https://simula-uib.com/arcticcrypt2025/)
+  - This paper will be presented at [ArcticCrypt 2025](https://simula-uib.com/arcticcrypt2025/).
 - Jeff Burdges, Alfonso Cevallos, Handan Kılınç Alper, Chen-Da Liu-Zhang, Fatemeh Shirazi, Alistair Stewart, Rob Habermeier, Robert Klotzner, Andronik Ordian,[Efficient Execution Auditing for Blockchains under Byzantine Assumptions](https://eprint.iacr.org/2024/961), in submission.
   - Paper was presented at [SBC 2024](https://www.sbc-conference.com/2024/), [video](https://www.youtube.com/watch?v=C1teIFTSphE).
 - Niclas Boehmer, Markus Brill, Alfonso Cevallos, Jonas Gehrlein, Luis Sánchez-Fernández, Ulrike Schmidt-Kraepelin, [Approval-Based Committee Voting in Practice: A Case Study of (over-)Representation in the Polkadot Blockchain](https://discovery.researcher.life/article/approval-based-committee-voting-in-practice-a-case-study-of-over-representation-in-the-polkadot-blockchain/f40cbd14e91a3eaead47149388c68d3f), AAAI 2024. 
