@@ -6,7 +6,7 @@ title: Publications
 
 - Gehrlein, Jonas and Häfner, Samuel and Oechssler, Jörg, The Candle Auction in the Field and the Lab (January 23, 2025). Available at [SSRN](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5109856)), preprint.
 - Bhargav Nagaraja Bhatt, Fatemeh Shirazi, Ailstair Stewart, [Trustless Bridges via Random Sampling Light Clients](https://eprint.iacr.org/2025/057), in submission.
-- Jeff Burdges, Elizabeth Crites, Handan Kılınç Alper, Alistair Stewart, Sergey Vasilyev, [Sassafras and Semi-Anonymous Single Leader Election](https://eprint.iacr.org/2023/031.pdf), in submission.
+- Jeff Burdges, Elizabeth Crites, Handan Kılınç Alper, Alistair Stewart, Sergey Vasilyev, [Sassafras and Semi-Anonymous Single Leader Election](https://eprint.iacr.org/2023/031.pdf), ACNS 2025.
 - Jeff Burdges, Alfonso Cevallos, Handan Kılınç Alper, Chen-Da Liu-Zhang, Fatemeh Shirazi, Alistair Stewart, Rob Habermeier, Robert Klotzner, Andronik Ordian,[Efficient Execution Auditing for Blockchains under Byzantine Assumptions](https://eprint.iacr.org/2024/961), in submission.
   - Paper was presented at [SBC 2024](https://www.sbc-conference.com/2024/), [video](https://www.youtube.com/watch?v=C1teIFTSphE).
 - Niclas Boehmer, Markus Brill, Alfonso Cevallos, Jonas Gehrlein, Luis Sánchez-Fernández, Ulrike Schmidt-Kraepelin, [Approval-Based Committee Voting in Practice: A Case Study of (over-)Representation in the Polkadot Blockchain](https://discovery.researcher.life/article/approval-based-committee-voting-in-practice-a-case-study-of-over-representation-in-the-polkadot-blockchain/f40cbd14e91a3eaead47149388c68d3f), **AAAI 2024**. 
@@ -36,10 +36,17 @@ title: Publications
 
 **Blog Posts:**
 
-- Syed Hosseini, [APK Proofs By Hand and Sage](https://medium.com/web3foundation/apk-proofs-by-hand-and-sage-3f5feb3fcca4)
-- Fatemeh Shirazi, Logan Saether, Alistair Stewart, Rob Habermeier, Gavin Wood, [Polkadot’s Messaging Scheme](https://medium.com/web3foundation/polkadots-messaging-scheme-b1ec560908b7)
-- Alfonso Cevallos, [How Nominated Proof-of-Stake will work in Polkadot](https://medium.com/web3foundation/how-nominated-proof-of-stake-will-work-in-polkadot-377d70c6bd43)
-- Fatemeh Shirazi, Jeffrey Burdges, Edward Thomson, and Ignasi Albero, [Messaging Protocol Workshop Outcomes](https://medium.com/web3foundation/messaging-protocol-workshop-outcomes-7a827d02a81a)
+- Jonas Gehrlein, [Research Digest: A Recap on Candle Auctions](https://forum.polkadot.network/t/research-digest-a-recap-on-candle-auctions/11813), Polkadot Forum, February 2025.
+- Jonas Gehrlein, [Proposal for Adjusting Polkadot’s Inflation System: Reducing Issuance and Complexity](https://forum.polkadot.network/t/proposal-for-adjusting-polkadots-inflation-system-reducing-issuance-and-complexity/9157), Polkadot Forum, July 2024.
+- Jonas Gehrlein, [Polkadot’s Economics: Tools to Shape the Forseeable Future](https://forum.polkadot.network/t/polkadots-economics-tools-to-shape-the-forseeable-future/8708), Polkadot Forum, June 2024. 
+- Fatemeh Shirazi, [Elastic Scaling](https://forum.polkadot.network/t/elastic-scaling/7185), Polkadot Forum, April 2024. 
+- Andrew Burger, [XCMP(Cross-Chain Message Passing) Design Discussion](https://forum.polkadot.network/t/xcmp-design-discussion/7328), Polkadot Forum, April 2024.
+- Jonas Gehrlein, [Adjusting the current inflation model to sustain Treasury inflow](https://forum.polkadot.network/t/adjusting-the-current-inflation-model-to-sustain-treasury-inflow/3301), Polkadot Forum, July 2023.
+- Jeff Burdges, [Post Quantum Signatures](https://forum.polkadot.network/t/post-quantum-signatures/3456), Polkadot Forum, July 2023.
+- Syed Hosseini, [APK Proofs By Hand and Sage](https://medium.com/web3foundation/apk-proofs-by-hand-and-sage-3f5feb3fcca4), Medium May 2023
+- Fatemeh Shirazi, Logan Saether, Alistair Stewart, Rob Habermeier, Gavin Wood, [Polkadot’s Messaging Scheme](https://medium.com/web3foundation/polkadots-messaging-scheme-b1ec560908b7), Medium, January 2020.
+- Alfonso Cevallos, [How Nominated Proof-of-Stake will work in Polkadot](https://medium.com/web3foundation/how-nominated-proof-of-stake-will-work-in-polkadot-377d70c6bd43), Medium, April 2019.
+- Fatemeh Shirazi, Jeffrey Burdges, Edward Thomson, and Ignasi Albero, [Messaging Protocol Workshop Outcomes](https://medium.com/web3foundation/messaging-protocol-workshop-outcomes-7a827d02a81a), Medium, February 2019.
 
 **Specification:**
 
