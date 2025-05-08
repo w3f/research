@@ -3,7 +3,7 @@ title: Publications
 ---
 
 **Papers:**
-High-tier conferences and journals for their respective fields are indicated in bold font. 
+Top-tier conferences and journals for their respective fields are indicated in bold font. 
 
 - Elizabeth Crites, Alistair Stewart, A Plausible Attack on the Adaptive Security of Threshold Schnorr Signatures, **CRYPTO 2025**. 
 - Gehrlein, Jonas and Häfner, Samuel and Oechssler, Jörg, The Candle Auction in the Field and the Lab (January 23, 2025). Available at [SSRN](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5109856)), preprint.
