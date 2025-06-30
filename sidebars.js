@@ -64,7 +64,7 @@ const sidebars = {
               label: 'Sassafras',
               link: {type:'doc', id:'Polkadot/protocols/block-production/index'},
               items: [
-                'Polkadot/protocols/block-production/SassafrasPart1',
+                'Polkadot/protocols/Sassafras/SassafrasPart1',
               ],
             },
             'Polkadot/protocols/finality',
