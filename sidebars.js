@@ -59,6 +59,14 @@ const sidebars = {
                 'Polkadot/protocols/block-production/SASSAFRAS',
               ],
             },
+           {
+              type: 'category',
+              label: 'Sassafras',
+              link: {type:'doc', id:'Polkadot/protocols/block-production/index'},
+              items: [
+                'Polkadot/protocols/block-production/SassafrasPart1',
+              ],
+            },
             'Polkadot/protocols/finality',
             'Polkadot/protocols/LightClientsBridges',
           ],
