@@ -1,8 +1,3 @@
----
-title: 'Sassafras Part 1: A Novel Single Secret Leader Election Protocol'
-
----
-
 # Sassafras Part 1: A Novel Single Secret Leader Election Protocol 
 
 Authors: Armando Caracheo, Elizabeth Crites, and Fatemeh Shirazi
