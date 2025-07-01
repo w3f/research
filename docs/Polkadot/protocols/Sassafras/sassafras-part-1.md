@@ -49,7 +49,7 @@ In terms of timing, during an epoch of the blockchain, blocks are generated acco
 
 The figure below illustrates the protocol in more detail. 
 
-![sassafrass-diagram](https://hackmd.io/_uploads/BJaO6HF4ee.png)
+![Sassafrass-diagram]
 
 **Phase A)** Each validator generates a ticket $(y_i, \sigma_i)$ consisting of the ring VRF outputs, and encrypts it using the encryption key of a randomly chosen validator. This validator, called a repeater, acts as an identity guard. Each validator then sends their ciphertext to all validators. Both the ticket and its repeater remain hidden.
 
