@@ -49,7 +49,7 @@ In terms of timing, during an epoch of the blockchain, blocks are generated acco
 
 The figure below illustrates the protocol in more detail. 
 
-![Sassafrass-diagram]
+![](Sassafras-diagram.png)
 
 **Phase A)** Each validator generates a ticket $(y_i, \sigma_i)$ consisting of the ring VRF outputs, and encrypts it using the encryption key of a randomly chosen validator. This validator, called a repeater, acts as an identity guard. Each validator then sends their ciphertext to all validators. Both the ticket and its repeater remain hidden.
 
@@ -73,3 +73,6 @@ So far, we have presented a concise introduction to Sassafras, accessible to rea
 Our next blog post <!--, [Part 2 - Deep Dive](https://hackmd.io/@W3F64sDIRkudVylsBHxi4Q/Bkr59i7ekg),--> will explain the concept of an SSLE protocol and delve into the technical details of Sassafras. The final chapter <!--, [Part 3 - Compare and Convince](https://hackmd.io/I8VSv8c6Rfizi9JWmzX25w), --> will demonstrate how Sassafras achieves unparalleled efficiency in block production and provide readers with a comparison of similar protocols, highlighting its value. The upcoming blog posts aim to describe how Sassafras offers a practical solution for achieving better throughput while maintaining security.
 
 So stay tuned, brave reader. There's much more to discover in our upcoming Sassafras series, which is packed with valuable insights!
+
+
+[def]: Sassafras-diagram.png

@@ -66,6 +66,7 @@ const sidebars = {
               items: [
                 'Polkadot/protocols/Sassafras/sassafras-part-1',
                 'Polkadot/protocols/Sassafras/sassafras-part-2',
+                'Polkadot/protocols/Sassafras/Sassafras-part-3',
               ],
             },
             'Polkadot/protocols/finality',

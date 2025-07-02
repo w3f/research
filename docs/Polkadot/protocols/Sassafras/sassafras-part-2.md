@@ -52,8 +52,7 @@ We now describe the Sassafras protocol in more detail.  (A high-level descriptio
 The figure below describes the protocol in phases: **Phase A,B,C,D,E**. 
 <!--Green dots are honest parties, red dots are adversarial parties, and orange dots are parties whose identities are leaked.-->
 
-![sassafrass-diagram](https://hackmd.io/_uploads/rJxipBYVxl.png)
-
+![](Sassafras-diagram.png)
 
 <!--![Copy of Sassafras](https://hackmd.io/_uploads/Byb0krT1xx.png)-->
 
