@@ -6,11 +6,11 @@ This is the second in a series of three blog posts that describe the new consens
 
 Here is an overview of the three blog posts:
 
-**[Part 1 - Gentle-as-Fluff Introduction](https://hackmd.io/4UjkyZ04Q82d7ZisGTno2A):** The aim of this blog post is to give an introduction that is understandable to any reader with a slight knowledge of blockchains. It explains why Sassafras is useful and gives a high-level overview of how it works.
+**[Part 1 - A Novel Single Secret Leader Election Protocol](sassafras-part-1):** The aim of this blog post is to give an introduction that is understandable to any reader with a slight knowledge of blockchains. It explains why Sassafras is useful and gives a high-level overview of how it works.
 
 **Part 2 - Deep Dive:** The aim of this blog post is to dive into the details of the Sassafras protocol, focusing on technical aspects and security.
 
-**[Part 3 - Compare and Convince](https://hackmd.io/I8VSv8c6Rfizi9JWmzX25w):**
+**[Part 3 - Compare and Convince](Sassafras-part-3):**
 The aim of this blog post is to offer a comparison to similar protocols and convince the reader of Sassafras's value.
 
 Let's now take a deep dive into the Sassafras protocol, starting with some background on leader election protocols.
@@ -18,12 +18,12 @@ Let's now take a deep dive into the Sassafras protocol, starting with some backg
 ## Sassafras: Efficient Batch Single Leader Election
 
 ### Leader Election
-Leader election is used in blockchain protocols to assign the producer of the next block. As discussed in [Part 1](https://hackmd.io/4UjkyZ04Q82d7ZisGTno2A), it is an important part of the consensus mechanism and affects security and efficiency considerably.  For example, if too many consecutive blocks are produced by an adversary, the chain becomes vulnerable to forking attacks and double spending.
+Leader election is used in blockchain protocols to assign the producer of the next block. As discussed in [Part 1](sassafras-part-1), it is an important part of the consensus mechanism and affects security and efficiency considerably.  For example, if too many consecutive blocks are produced by an adversary, the chain becomes vulnerable to forking attacks and double spending.
 
 ### Single Secret Leader Election (SSLE)
 A common type of leader election is single secret leader election (SSLE). In SSLE, a set of participants (e.g., validators) elect exactly one leader (e.g., the block producer), and the
 leader remains anonymous until they announce themselves by providing proof that they are indeed the elected leader.
-The practical advantages of electing exactly one leader are discussed in [Part 1](https://hackmd.io/4UjkyZ04Q82d7ZisGTno2A) and [Part 3](https://hackmd.io/I8VSv8c6Rfizi9JWmzX25w).
+The practical advantages of electing exactly one leader are discussed in [Part 1](sassafras-part-1) and [Part 3](Sassafras-part-3).
 The anonymity of the leader is an important property for security, as the leader makes for an attractive target, especially for denial-of-service (DoS) attacks.
 The main security properties of SSLE are uniqueness (i.e., electing only one leader), unpredictability (i.e., hiding the leader), and fairness (i.e., having equal chance of becoming the leader).[^5]
 
@@ -34,9 +34,9 @@ A realistic threat model for leader election considers an adversary that may (1)
 ### Sassafras
 
 We propose a novel single leader election protocol, Sassafras, and describe how it can be deployed on a blockchain to elect block producers.
-Sassafras departs substantially from other approaches to SSLE, the most common approach being shuffling (see [Part 3](https://hackmd.io/I8VSv8c6Rfizi9JWmzX25w)).
+Sassafras departs substantially from other approaches to SSLE, the most common approach being shuffling (see [Part 3](Sassafras-part-3)).
 
-The main technical novelty of Sassafras is the use of a [ring verifiable random function (VRF)](https://eprint.iacr.org/2023/002) to hide the identity of the leader within a set  of election participants (called a "ring"). The output of a ring VRF is unique and pseudorandom, and can be verified by anyone, so it meets the SSLE security requirements defined above.  The use of a ring VRF instead of, e.g., shuffling, dramatically reduces on-chain communication and computation (see [Part 3](https://hackmd.io/I8VSv8c6Rfizi9JWmzX25w)). 
+The main technical novelty of Sassafras is the use of a [ring verifiable random function (VRF)](https://eprint.iacr.org/2023/002) to hide the identity of the leader within a set  of election participants (called a "ring"). The output of a ring VRF is unique and pseudorandom, and can be verified by anyone, so it meets the SSLE security requirements defined above.  The use of a ring VRF instead of, e.g., shuffling, dramatically reduces on-chain communication and computation (see [Part 3](Sassafras-part-3)). 
 
 Sassafras achieves unparalleled efficiency in block production while retaining sufficient anonymity to maintain blockchain security (discussed further below). It accomplishes this through its slightly relaxed notion of leader anonymity, where most honest leaders enjoy a high degree of anonymity.
 
@@ -47,7 +47,7 @@ The batch capability of Sassafras allows the rate of leader election to align wi
 
 ## Overview of Sassafras
 
-We now describe the Sassafras protocol in more detail.  (A high-level description is given in [Part 1](https://hackmd.io/4UjkyZ04Q82d7ZisGTno2A).)
+We now describe the Sassafras protocol in more detail.  (A high-level description is given in [Part 1](sassafras-part-1).)
 
 The figure below describes the protocol in phases: **Phase A,B,C,D,E**. 
 <!--Green dots are honest parties, red dots are adversarial parties, and orange dots are parties whose identities are leaked.-->
@@ -113,9 +113,9 @@ This is because: 1) tickets are encrypted via a shared key between leader and re
 which makes the tickets sent to different receivers indistinguishable,
 2) tickets sent by all leaders are of the same size, and 3) the repeaters send out all of the winning tickets they received at the same time, eliminating the possibility of correlation via timing signatures.
 
-We now move to [Part 3](https://hackmd.io/I8VSv8c6Rfizi9JWmzX25w), which gives a detailed efficiency analysis and comparison with other approaches to leader election.
+We now move to [Part 3](Sassafras-part-3), which gives a detailed efficiency analysis and comparison with other approaches to leader election.
 
-[^1]: We show how to chose the parameter $n_t$ in [the paper](https://eprint.iacr.org/2023/002). For example, $n_t$ should be at least 6 for $2^{13}$ elections, under the assumption that the fraction $\alpha$ of corrupt parties is less than $\approx 0.3$ with $2^{14} = 16384$ total parties. (This is the number of validators running the leader election protocol proposed for Ethereum; see [Part 3](https://hackmd.io/I8VSv8c6Rfizi9JWmzX25w).)
+[^1]: We show how to chose the parameter $n_t$ in [the paper](https://eprint.iacr.org/2023/002). For example, $n_t$ should be at least 6 for $2^{13}$ elections, under the assumption that the fraction $\alpha$ of corrupt parties is less than $\approx 0.3$ with $2^{14} = 16384$ total parties. (This is the number of validators running the leader election protocol proposed for Ethereum; see [Part 3](Sassafras-part-3).)
 
 [^2]: Formally, the communication between sender and receiver occurs via a secure diffusion functionality $\mathcal{F}_{\mathsf{com}}^s$, which hides the message and the receiver. Here, we describe Sassafras with a simple and efficient instantiation of $\mathcal{F}_{\mathsf{com}}^s$ using symmetric encryption.  By "multicasting the ciphertext to all parties," we mean one-to-many communication via a standard diffusion functionality $\mathcal{F}_{\mathsf{com}}$.  Details are given in [the paper](https://eprint.iacr.org/2023/002).
 

@@ -6,9 +6,9 @@ This is the third in a series of three blog posts that describe the new consensu
 
 Here is an overview of the three blog posts:
 
-**[Part 1 - Gentle-as-Fluff Introduction](https://hackmd.io/4UjkyZ04Q82d7ZisGTno2A):** The aim of this blog post is to give an introduction that is understandable to any reader with a slight knowledge of blockchains. It explains why Sassafras is useful and gives a high-level overview of how it works.
+**[Part 1 - A Novel Single Secret Leader Election Protocol](sassafras-part-1):** The aim of this blog post is to give an introduction that is understandable to any reader with a slight knowledge of blockchains. It explains why Sassafras is useful and gives a high-level overview of how it works.
 
-**[Part 2 - Deep Dive](https://hackmd.io/@W3F64sDIRkudVylsBHxi4Q/Bkr59i7ekg):** The aim of this blog post is to dive into the details of the Sassafras protocol, focusing on technical aspects and security.
+**[Part 2 - Deep Dive](sassafras-part-2):** The aim of this blog post is to dive into the details of the Sassafras protocol, focusing on technical aspects and security.
 
 **Part 3 - Compare and Convince:** The aim of this blog post is to offer a comparison to similar protocols and convince the reader of Sassafras's value.
 
@@ -22,7 +22,7 @@ Let's jump into a comparison with other leader election protocols.
 
 ## Non-Single Leader Election
 
-In [Part 1]of this series, we discuss how [BABE](https://wiki.polkadot.network/docs/learn-consensus#block-production-babe)  finds block producers.  More formally, BABE is based on probabilistic leader election (PLE), which is quite common in proof-of-stake (PoS) protocols. Due to the probabilistic nature, multiple leaders may be elected for a slot, or no leaders at all.  The additional runoff procedure for selecting a leader increases the time needed to extend the blockchain.  Concretely, [Azouvi and Cappelleti](https://arxiv.org/abs/2109.07440) show that the block finality time for a PoS protocol is decreased by 25% when single secret leader election (SSLE) is used versus PLE. Even more important, for an adversary who controls at most $1/3$ of the validators, SSLE provides higher security than PLE against private attacks, the most damaging kind of attack, where an adversary can create a private chain that overtakes the honest chain. 
+In [Part 1](sassafras-part-1) of this series, we discuss how [BABE](https://wiki.polkadot.network/docs/learn-consensus#block-production-babe)  finds block producers.  More formally, BABE is based on probabilistic leader election (PLE), which is quite common in proof-of-stake (PoS) protocols. Due to the probabilistic nature, multiple leaders may be elected for a slot, or no leaders at all.  The additional runoff procedure for selecting a leader increases the time needed to extend the blockchain.  Concretely, [Azouvi and Cappelleti](https://arxiv.org/abs/2109.07440) show that the block finality time for a PoS protocol is decreased by 25% when single secret leader election (SSLE) is used versus PLE. Even more important, for an adversary who controls at most $1/3$ of the validators, SSLE provides higher security than PLE against private attacks, the most damaging kind of attack, where an adversary can create a private chain that overtakes the honest chain. 
 
 PLE-based PoS protocols provide security with more adversarial power (up to 49%), but are significantly slower (25%) to finalize the blocks. Sassafras provides security with less adversarial power ($1/3$), but finalizes the blocks significantly faster.
 
@@ -32,64 +32,23 @@ Given the advantages of SSLE, several protocols have been proposed.  We begin by
 
 ### Shuffling
 
-The most common approach to SSLE is shuffling, where each participant registers a commitment in a list, which is repeatedly shuffled, and the winning index is selected via a randomness beacon (i.e., a public source of randomness). The main drawback of these protocols is the significant overhead associated with the proofs for correct execution of the shuffle operations. <!--[2]. --> The cost to verify a proof scales linearly with the number of parties, which is impractical for on-chain use. To address this issue, [Boneh et al.](https://eprint.iacr.org/2020/025) suggest dividing the list into sublists of size $\sqrt{N}$ and shuffling only the sublist instead of the entire list (called "stirring").  We refer to this protocol as Shuffle-1. <!--While this approach reduces overhead, but it also reduces the unpredictability of the leader (discussed further below).-->
-
-<!--
-**Shuffle-2 / Shuffle-3:**
-**Pros:** No leaked leaders, good unpredictability.
-**Cons:** Very high on-chain communication and computational overhead.
-
-**Shuffle-1**:
-**Pros:** No leaked leaders, reasonable on-chain communication and computational overhead.
-**Cons:** Low unpredictability.
--->
-
-<!--While this approach reduces the anonymity of the leader from $\frac{1}{\alpha N}$ to $\frac{1}{\alpha\sqrt{N}}$, it offers significant gains in terms of both proof size and the efficiency of proving and verifying the shuffle operation. -->
+The most common approach to SSLE is shuffling, where each participant registers a commitment in a list, which is repeatedly shuffled, and the winning index is selected via a randomness beacon (i.e., a public source of randomness). The main drawback of these protocols is the significant overhead associated with the proofs for correct execution of the shuffle operations. The cost to verify a proof scales linearly with the number of parties, which is impractical for on-chain use. To address this issue, [Boneh et al.](https://eprint.iacr.org/2020/025) suggest dividing the list into sublists of size $\sqrt{N}$ and shuffling only the sublist instead of the entire list (called "stirring").  We refer to this protocol as Shuffle-1. 
 
 ### WHISK
 
-[WHISK](https://hackmd.io/@asn-d6/HyD3Yjp2Y) is an efficient SSLE protocol proposed for Ethereum, based on the Shuffle-1 approach (i.e., "stirring"). Like Sassafras, it performs batch leader elections, in which a single leader is selected for several elections at once.<!--but also leaks some fraction of leaders. It is based on the Shuffle-1 approach ("stirring"), 
-and therefore suffers from reduced unpredictability of the leader.  --> The batch capability enables scalable deployment as a leader election protocol for blockchain, as the rate of leader election aligns with the rate of block production.  We give a detailed comparison of WHISK and Sassafras at the end of this blog post.
+[WHISK](https://hackmd.io/@asn-d6/HyD3Yjp2Y) is an efficient SSLE protocol proposed for Ethereum, based on the Shuffle-1 approach (i.e., "stirring"). Like Sassafras, it performs batch leader elections, in which a single leader is selected for several elections at once. The batch capability enables scalable deployment as a leader election protocol for blockchain, as the rate of leader election aligns with the rate of block production.  We give a detailed comparison of WHISK and Sassafras at the end of this blog post.
 
-<!--
-**Pros:** No leaked leaders, reasonable on-chain communication and computational overhead, good unpredictability.
-**Cons:** 
--->
-
-<!-- Building upon this technique, WHISK is an approach to SSLE proposed for Ethereum, which performs batch leader elections through a single randomness, but inherits the same reduced anonymity set (and has no formal security analysis). -->
-
-<!-- ### Shuffle based protocols - Handan
-   * **Shuffle-1 [6], Shuffle-2 and Shuffle-3 [3]:** The main idea behind these protocols is to  maintain a list of commitments of every validator on the public state. Initially, this list is empty, and as validators join the election to become block producers of slots, they contribute their commitments to the list.  The election is performed by selecting one commitment from the list using the random beacon. The elected leader then opens their commitment to provide proof of their leadership, and subsequently, their commitment is removed from the list. To ensure unpredictability, each new validator contributes to the list by shuffling and rerandomizing all commitments. This action makes the commitments unlinkable, thereby enhancing the overall unpredictability of the protocol. 
-    The main drawback of these protocols is the significant overhead associated with the zero-knowledge proof for executing the shuffle operation [2]. The verification cost of this proof is O(N), which becomes impractical when considering it as an on-chain operation. To address this issue, the SSLE protocol, proposed by Boneh et al., [6] suggests dividing the list into sublists of size $\sqrt{N}$ (we call it here Shuffle-1) and shuffling only the sublist instead of the entire list. While this approach reduces the unpredictability level of the leader from from $\frac{1}{\alpha N}$ to $\frac{1}{\alpha\sqrt{N}}$, it offers significant gains in terms of both proof size and the efficiency of proving and verifying the shuffle operation.
-    Another challenge with shuffle-based protocols is that they are not specifically designed to elect block producers sequentially, as required in PoS blockchain protocols. The protocols briefly mention how they can be deployed on a blockchain as follows: the randomness beacon selects a leader from the list, and the leader generates the block. To participate in the next slot's election, the leader adds a new commitment and shuffles the list. The leader for the next slot is then elected from the updated list using a new randomness generated by the randomness beacon.
- The critical issue here is that the new list must be on chain before the randomness beacon produces the new randomness for it. Otherwise, a validator could publish a biased list in a way that she becomes the leader of the next slot as well. This synchronization challenge raises the question of which type of randomness beacon should be deployed on the blockchain to generate unbiased randomness for each slot after the list of slots is published. Unfortunately, based on our current knowledge, existing randomness beacons do not provide a practical solution to this problem. -->
- <!--  *  **WHISK [5]:** WHISK, a blockchain protocol developed by Ethereum researchers, as it also employs a shuffle-based leader election mechanism. Inspired by SSLE by Boneh et al., WHISK is a novel protocol that successfully addresses the randomness issue present in SSLE.  The election process in WHISK takes 256 epoch ($\approx$ 1 day) to elect proposers for the next day. Ultimately, WHISK generates a list comprising $2^{14}$ commitments, known as trackers, which are assigned to the subsequent $2^{13}$ slots using a randomness beacon.
-    In a nutshell, here is how WHISK operates assuming that the blockchain state includes $N = 2^{14}$ trackers, with each validator generating one: Each epoch consisting of $2^7$ slots represents the list of tracker in a matrix of size $2^7\times2^7$.  The leader of a slot $sl$ performs a stirring operation by shuffling and randomizing the $sl^{th}$ row of the matrix, updating it accordingly. The new row is published within the block produced by the leader. At the end of the epoch, validators map the matrix of the epoch to a new matrix for the next epoch  by applying a deterministic Feistel algorithm. The Feistel scheme ensures that almost all honest trackers participate in a stirring process carried out by an honest validator. This design guarantees an unpredictability level of $\frac{1}{\alpha\sqrt{N}}$. -->
-    
-<!-- ### PEKS-based SSLE [4]
-This protocol [4] leverages the unique property of functional encryption (i.e., decrypt if the plaintext and the secret key satisfy a condition) to construct an SSLE protocol. The process is as follows:
-A randomness beacon selects a committee of a specific size, called $\kappa$, at random. Committee members encrypt a random message from the range $[1,N]$ using the functional encryption. Decrypting the ciphertext requires a secret key with an index matching the plaintext message. The encryption process employs a threshold ElGamal encryption scheme for efficient and distributed ciphertext generation.
-The winner of the election is determined by the validator who successfully decrypts the ciphertext. This protocol provides security against static adversaries within the UC model. It achieves an unpredictability level of $\frac{1}{\alpha N}$, ensuring a fair and unbiased leader election process. -->
 
 ### PEKS
 
 Functional encryption is a generalization of public key encryption where decryption yields a function of the encrypted message (instead of simply the encrypted message itself as in standard encryption). Public key encryption with keyword search (PEKS) is a form of functional encryption, which is used by [Catalano et al.](https://eprint.iacr.org/2021/344) to construct an SSLE protocol as follows. Each participant who registers in an election is given a secret key $sk_i$ for $i \in \{1,...,N\}$. A subset of participants collaboratively generate a ciphertext $c$ that encrypts a random "keyword" $i^* \in \{1,...,N\}$. The participant holding $sk_{i^*}$ is able to decrypt $c$, and provides a proof that attests to this fact in order to claim leadership.
 
-<!--
-**Pros:** No leaked leaders, good unpredictability, reasonable on-chain communication and computational overhead.
-**Cons:** 
--->
-
 ### Other Approaches to SSLE
-
-<!--In addition to the protocols mentioned above, there are other approaches to leader election in blockchain networks that rely on other cryptographic primitives, such as indistinguishability obfuscation (IO) and threshold fully homomorphic encryption (TFHE). Although these protocols offer better asymptotic performance, they are not practical solutions.-->
 
 There are other approaches to SSLE, including indistinguishability obfuscation (IO) and threshold fully homomorphic encryption (TFHE); however, they are impractical due to the heavy cryptographic operations required.
 
     
 ## Comprehensive Comparison
-
-<!-- However, there is a trade-off as some slot leaders in Sassafras may be known by adversaries, while the remaining leaders maintain a high level of unpredictability. To address this concern, we carefully design the parameters of Sassafras to ensure its security even if all public leaders are subjected to a DoS attack.-->
 
 We now give a comprehensive comparison in terms of the security guarantees and communication and computational overhead of the above protocols and Sassafras.
 
@@ -97,10 +56,9 @@ We now give a comprehensive comparison in terms of the security guarantees and c
 
 We assess the security of SSLE protocols based on three criteria, summarized in Table 1.
 
-<!-- 1. *Public Slots:* It is undesirable for the SSLE protocol to reveal any information about the leaders of slots to adversaries. When some of the leaders become known to the adversary, we refer to it as a "public" election outcome. With the exception of Sassafras and WHISK, the other SSLE protocols are specifically designed to prevent such public elections. While Sassafras may not perform as well in this aspect, it offers practical and achievable implementation characteristics. -->
 1. *Public Slots:* A public slot is one in which the leader for that slot is known (either publicly or to the adversary).
 
-In Sassafras, a slot is public if the repeater of the ticket assigned to a slot is malicious, as described in [Part 2](https://hackmd.io/@W3F64sDIRkudVylsBHxi4Q/Bkr59i7ekg).  The leader of a public slot may be attacked.
+In Sassafras, a slot is public if the repeater of the ticket assigned to a slot is malicious, as described in [Part 2](sassafras-part-2).  The leader of a public slot may be attacked.
 
 2. *Unpredictability Level:* The unpredictability level of a leader is the reciprocal of the anonymity set.
 
@@ -124,23 +82,16 @@ Table 1: Single secret leader election (SSLE) protocols. $N$ is the total number
 Public is the fraction of leaders in an election that are leaked. The unpredictability level of a leader  is the reciprocal of the anonymity set, e.g., $\frac{1}{(1-\alpha) \sqrt{n}}$. UC is the universal composability model.
 
 We now give a detailed efficiency comparison of SSLE protocols.
-    
-<!--### Definitions
-
-We provide a comparison of Sassafras and other SSLE protocols in the table above, categorizing single $(\ell = 1)$ and batch ($1 \leq \ell < N$) single leader election protocols. Communication complexity refers to the message sizes added to blockchain blocks for $\ell$ elections, while computational complexity covers the verifications within each block. Larger message sizes and complex verification algorithms slow down blockchain scalability by increasing propagation time. Thus, we focus on the verification cost and message overhead from the election mechanism. The table of efficiency shows the practicality of batch elections, as single-election protocols must run $\ell$ times to achieve the same result. Although IO and TFHE-based protocols offer better asymptotic performance, they are not practical solutions.-->
 
 ### Communication Overhead
 
 We consider $N = 2^{14} = 16384$ validators running an SSLE protocol to elect single leaders for $2^{13} = 8192$ slots.  These are the parameters proposed for WHISK as well as the PEKS-based scheme. 
-<!--a shuffle-based SSLE protocol proposed for Ethereum.-->
 
 Our analysis demonstrates that Sassafras outperforms other protocols in terms of computational and communication costs on the blockchain.
 
 In particular, we conducted a comprehensive comparison of various protocols based on message size during the setup phase and off-chain and on-chain election communication. The setup overhead includes messages added on the chain or exchanged off-chain related to the keys or commitments used by validators before the elections. Similarly, the election overhead includes messages added on the blockchain and exchanged off-chain during the election protocol to elect $2^{13}$ leaders.
 
-<!--Sassafras excels in scalability when considering the overhead introduced by setup and election messages on the blockchain. -->
 While the setup phase is expected to be rare in PoS blockchain protocols, shuffle-based solutions (with the exception of WHISK) impose impractical levels of message overhead. For election messages on the blockchain, Shuffle-2 and Shuffle-3 are highly inefficient. In stark contrast, Sassafras introduces a mere 7.64 MB overhead on the blockchain. 
-<!--demonstrating superior efficiency compared to other protocols.-->
 
     
 | Protocol || Setup | Election |
@@ -160,20 +111,6 @@ We similarly conducted a comparison of various protocols based on on-chain compu
 
 <!--Table 3 demonstrates the superior efficiency of Sassafras compared to other protocols in terms of on-chain computation. -->
 In terms of both communication and computational overhead, Sassafras outperforms other SSLE protocols by an order of magnitude or more. Further details of our benchmark analysis can be found in [the paper](https://eprint.iacr.org/2023/031).
-<!--In terms of on-chain verification costs during the election, Sassafras stands out as it requires each verifier to perform around 2 ring VRF proofs in every block. These proofs involve a total of $2 \times (4G_1+2G)$ group operations in the respective groups and 6 pairing operations. This computational overhead is significantly lower compared to shuffle-based protocols, which typically require $4N$ group operations for verifying a shuffle proof [2]. Additionally, each protocol may have additional specific proofs that need to be verified. PEKS-based SSLE protocol is the second best performers, but their leader verification is computationally costly, taking approximately 6.73 ms due to costly operations.-->
-
-<!--While Shuffle-1 performs well in terms of leader verification, the difference in efficiency between Shuffle-1 and other shuffle-based solutions, as well as Sassafras, is not substantial. -->
-
- <!--
-Protocol | On-Chain Comp. during the Election| Benchmark |Leader Verification |
-| -------- | -------- | -------- |-------- |
-|Shuffle-1|$O(\sqrt{N})$|$40.9$ ms|$1G$ |
-|Shuffle-2|$O(N)$|$5241.9$ ms|$4G$|
-|Shuffle-3|$O(N)$|$11793.6$ ms|$4G$|
-|PEKS-based|$O(\log^2 N)$|$16.9$ ms|$1G_2 + 6e$|
-|WHISK|$O(\sqrt{N})$|$20$ ms|$4G$|
-|**Sassafras**|$O(1)$|$7.81$ ms &#x2713;|$4G$|
--->
 
  Protocol | On-Chain Comp. during the Election| Benchmark |
 | -------- | -------- | -------- |
@@ -201,7 +138,7 @@ This concludes the three-part blog post series on Sassafras.  Here are some key 
 
 ### Further Reading: Security Comparison with WHISK
 
-For the interested reader, we now give a detailed comparison of the unpredictability levels achieved by WHISK and Sassafras under the assumption that the adversary can corrupt up to $1/3$ of parties. These can be a combination of corrupted and weakly corrupted parties, captured by $\alpha + \alpha_w \leq 1/3$, where $\alpha_w$ is the maximum fraction of weak corruptions (e.g., DoS-type attacks; see [Part 2](https://hackmd.io/@W3F64sDIRkudVylsBHxi4Q/Bkr59i7ekg) for more details.) WHISK, like Sassafras, permits a fraction of leaders to be leaked, as seen in Table 1 under the "Public" column. 
+For the interested reader, we now give a detailed comparison of the unpredictability levels achieved by WHISK and Sassafras under the assumption that the adversary can corrupt up to $1/3$ of parties. These can be a combination of corrupted and weakly corrupted parties, captured by $\alpha + \alpha_w \leq 1/3$, where $\alpha_w$ is the maximum fraction of weak corruptions (e.g., DoS-type attacks; see [Part 2](sassafras-part-2) for more details.) WHISK, like Sassafras, permits a fraction of leaders to be leaked, as seen in Table 1 under the "Public" column. 
 
 Let us consider the following toy example to demonstrate the implications of this in both protocols. Out of one million validators on Ethereum, the proposed number of validators to run the WHISK protocol is $N = 2^{14} = 16384$. Now consider when $\alpha = \alpha_w =  1/6$, so that $\alpha N = (1/6)(16384) = 2730$ parties can be corrupted, and $2730$ parties can be weakly corrupted.  Sassafras results in $(1-\alpha)\alpha N = (1-1/6)(1/6)(16384)= 2276$ leaked leaders, but the anonymity set is of size  $(1-\alpha)N/2 = 6826$, so the leaders remaining achieve good privacy, and, as discussed in [Part 2](https://hackmd.io/@W3F64sDIRkudVylsBHxi4Q/Bkr59i7ekg) , the leaked leaders still allow consensus to succeed. In contrast, WHISK only leaks $\frac{-1.25 \ln(1-\alpha)}{\sqrt{N}} N = 29$ leaders, but the anonymity set is only of size $(1-\alpha) \sqrt{n} = 107$ for the remaining honest leaders. That is, all honest leaders in the set of $16384$ parties can be easily targeted for weak corruption. Indeed, it is in the adversary's interest to simply weakly corrupt all $1/3 n = 5460$ parties in its "corruption budget." Thus, WHISK is *insecure* under our threat model, as is the single election protocol Shuffle-1. The main purpose of deploying SSLE protocols in blockchains is to mitigate against DoS attacks, which our model accounts for strongly, and Sassafras achieves by design.
 

@@ -12,8 +12,7 @@ Just like in the bread factory, where the system could benefit from fixed-time p
 
 Production changes often introduce new challenges, and shifting to constant-time intervals within blockchain systems is no exception. Randomized block generation helps protect block producers from attacks, as adversaries are unable to predict the producer of the next block. For this reason, randomized block production has been considered a viable solution.
 
-But what if a protocol could ensure secrecy of block producers, protecting them from a looming adversary, while realizing non-randomized block generation to improve efficiency? Centered on the concept of *single secret leader election* (SSLE),<!--(see [Part 2](https://hackmd.io/@W3F64sDIRkudVylsBHxi4Q/Bkr59i7ekg)), -->
-the Sassafras block producer selection protocol achieves exactly that.
+But what if a protocol could ensure secrecy of block producers, protecting them from a looming adversary, while realizing non-randomized block generation to improve efficiency? Centered on the concept of *single secret leader election* (SSLE) (see [Part 2](sassafras-part-2)), the Sassafras block producer selection protocol achieves exactly that.
 
 Curious to know how Sassafras works? Then keep reading.
 
@@ -31,7 +30,7 @@ Constant-time block generation helps eliminate these potential risks and can be 
 
 Unfortunately, this simple approach using a non-randomized algorithm for leader selection leaves the door open to attacks. If block producers are designated non-randomly and at fixed time intervals, the chain becomes vulnerable to forking and denial-of-service attacks.
 
-One way to counter these vulnerabilities is to implement an SSLE protocol. In the literature, there are several proposed SSLE protocols for block producer elections. <!-- (see [Part 3](https://hackmd.io/I8VSv8c6Rfizi9JWmzX25w)).--> SSLE boasts many desirable features, which make it an attractive option for integration into PoS blockchains.  However, existing protocols have various drawbacks, particularly in terms of efficiency. Indeed, none have been deployed to date.
+One way to counter these vulnerabilities is to implement an SSLE protocol. In the literature, there are several proposed SSLE protocols for block producer elections (see [Part 3](Sassafras-part-3)). SSLE boasts many desirable features, which make it an attractive option for integration into PoS blockchains.  However, existing protocols have various drawbacks, particularly in terms of efficiency. Indeed, none have been deployed to date.
 
 ## Sassafras’s innovative approach
 
@@ -70,7 +69,7 @@ Striking this balance is what makes Sassafras an ideal candidate for real-world 
 
 So far, we have presented a concise introduction to Sassafras, accessible to readers with a basic understanding of blockchains. We have also outlined the motivation behind the protocol and provided a clear overview of how it works. But this is only the beginning. The Web3 Foundation team has prepared two additional blog posts that explore Sassafras in greater detail.
 
-Our next blog post <!--, [Part 2 - Deep Dive](https://hackmd.io/@W3F64sDIRkudVylsBHxi4Q/Bkr59i7ekg),--> will explain the concept of an SSLE protocol and delve into the technical details of Sassafras. The final chapter <!--, [Part 3 - Compare and Convince](https://hackmd.io/I8VSv8c6Rfizi9JWmzX25w), --> will demonstrate how Sassafras achieves unparalleled efficiency in block production and provide readers with a comparison of similar protocols, highlighting its value. The upcoming blog posts aim to describe how Sassafras offers a practical solution for achieving better throughput while maintaining security.
+Our next blog post [Sassafras Part 2 - Deep Dive](sassafras-part-2), will explain the concept of an SSLE protocol and delve into the technical details of Sassafras. The final chapter [Sassafras Part 3 - Compare and Convince](Sassafras-part-3), will demonstrate how Sassafras achieves unparalleled efficiency in block production and provide readers with a comparison of similar protocols, highlighting its value. The upcoming blog posts aim to describe how Sassafras offers a practical solution for achieving better throughput while maintaining security.
 
 So stay tuned, brave reader. There's much more to discover in our upcoming Sassafras series, which is packed with valuable insights!
 
