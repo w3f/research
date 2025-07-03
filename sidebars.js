@@ -62,6 +62,7 @@ const sidebars = {
             {
               type: 'category',
               label: 'Sassafras',
+              description: 'Understanding Sassafras',
               link: {type:'doc', id:'Polkadot/protocols/Sassafras/index'},
               items: [
                 'Polkadot/protocols/Sassafras/sassafras-part-1',
