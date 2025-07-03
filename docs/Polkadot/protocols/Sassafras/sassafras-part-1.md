@@ -28,7 +28,7 @@ One way to counter these vulnerabilities is to implement an SSLE protocol. In th
 
 ## Sassafras’s innovative approach
 
-Sassafras is a consensus protocol designed to randomly select the next block producer. Its main aim is to efficiently select a unique block producer and release blocks at constant time intervals. To achieve definite finality of blocks, the protocol may be combined with another protocol, such as [Grandpa](https://docs.polkadot.com/polkadot-protocol/architecture/polkadot-chain/pos-consensus/#).
+Sassafras is a consensus protocol designed to randomly select the next block producer. Its main aim is to efficiently select a unique block producer and release blocks at constant time intervals. To achieve definite finality of blocks, the protocol may be combined with another protocol, such as [Grandpa](https://docs.polkadot.com/polkadot-protocol/architecture/polkadot-chain/pos-consensus/#finality-gadget-grandpa).
 
 Sassafras operates as an SSLE protocol rather than a PLE protocol. Its novelty lies in using a [ring verifiable random function (VRF)](https://eprint.iacr.org/2023/002) to select a single block producer per block, while maintaining sufficient block producer secrecy within a “ring” of all participants. This design reduces on-chain communication and computation, enhances block production as well as leader selection efficiency, and conceals the identities of a sufficient number of honest block producers (enough to stay secure) until the moment they create blocks.
 
