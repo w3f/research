@@ -59,6 +59,17 @@ const sidebars = {
                 'Polkadot/protocols/block-production/SASSAFRAS',
               ],
             },
+            {
+              type: 'category',
+              label: 'Sassafras',
+              description: 'Understanding Sassafras',
+              link: {type:'doc', id:'Polkadot/protocols/Sassafras/index'},
+              items: [
+                'Polkadot/protocols/Sassafras/sassafras-part-1',
+                'Polkadot/protocols/Sassafras/sassafras-part-2',
+                'Polkadot/protocols/Sassafras/Sassafras-part-3',
+              ],
+            },
             'Polkadot/protocols/finality',
             'Polkadot/protocols/LightClientsBridges',
           ],
