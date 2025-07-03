@@ -1,9 +1,9 @@
 ---
-title: SASSAFRAS
+title: Understanding Sassafras
 ---
 
 import DocCardList from '@theme/DocCardList';
 
-Publications:
+A Blog Series:
 
 <DocCardList />
