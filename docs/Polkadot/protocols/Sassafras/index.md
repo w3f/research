@@ -1,5 +1,9 @@
+---
+title: SASSAFRAS
+---
+
 import DocCardList from '@theme/DocCardList';
 
-Example
+Publications:
 
 <DocCardList />
