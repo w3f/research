@@ -6,7 +6,7 @@ title: Alistair Stewart
 
 alistair@web3.foundation
 
-Alistair is lead researcher at Web3 Foundation mainly working on protocol design. Alistair is the architect behind GRANDPA, Polkadot’s novel finality gadget. Moreover, he has worked on the validator selection scheme NPoS and designed Polkadot’s availability and validity scheme.
+Alistair is lead researcher at Web3 Foundation mainly working on protocol design. He is the architect behind GRANDPA, Polkadot’s novel finality gadget. Moreover, he has worked on the validator selection scheme NPoS and designed Polkadot’s availability and validity scheme.
 
 **Research Areas**
 
@@ -14,7 +14,7 @@ Alistair is lead researcher at Web3 Foundation mainly working on protocol design
 * Learning theory
 * Stochatsic models
 
-**Short Bio**. Alistair has been a postdoc in theoretical Computer Science at University of Southern California working with Professor Ilias Diakonikolas, where he worked in learning theory with breakthrough results in high-dimensional robust statistics. Prior to that, in 2015 he obtained a PhD in Informatics from the University of Edinburgh on infinite-state stochastic models. Alistair holds a masters degree in Informatics from the University of Edinburgh and an undergraduate degree from Oxford University.
+**Short Bio.** Alistair has been a postdoc in theoretical Computer Science at University of Southern California working with Professor Ilias Diakonikolas, where he worked in learning theory with breakthrough results in high-dimensional robust statistics. Prior to that, in 2015 he obtained a PhD in Informatics from the University of Edinburgh on infinite-state stochastic models. Alistair holds a masters degree in Informatics from the University of Edinburgh and an undergraduate degree from Oxford University.
 
 **Selected Publication**
 

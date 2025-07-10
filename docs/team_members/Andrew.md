@@ -4,10 +4,11 @@
 
 andrew@web3.foundation
 
-Andrew joined Web3 Foundation in August 2023 as a Researcher who assists in implementation of schemes and protocols in the Polkadot-SDK Substrate framework.He gives lectures and works as an educator for the Polkadot Blockchain Academy. Andrews current work has been focused on the implementation and prototyping of the XCMP protocol as well as the latest Threshold Cryptography features of Polkadot. His biggest areas of interest in research are Blockchain Bridging protocols, Threshold Cryptography, Elliptic Curves, and Consensus protocols. 
+Andrew joined Web3 Foundation as a researcher in August 2023 and has since supported the implementation of schemes and protocols within the Polkadot-SDK Substrate framework. His current work focuses on the development and prototyping of the XCMP protocol, along with the latest threshold cryptography features in Polkadot. Andrew also lectures and serves as an educator at the Polkadot Blockchain Academy.
 
-**Short Biography**:
-Before joining W3F Andrew has worked on W3F grants project Tuxedo as one of the two core designers of the substrate based UTXO framework. As well he attended as a student at the first Polkadot Blockchain Academy at Corpus Christi University of Cambridge. Since he has been a lecturer and content creator at the Academy since. He enjoys time with Family, Friends, Squash and Traveling. Favorite programming language Rust. Least favorite language C++
+**Research Areas.** His main research interests include blockchain bridging protocols, threshold cryptography, elliptic curves, and consensus mechanisms. 
+
+**Short Bio.** Before joining W3F, Andrew worked on the W3F Grants project Tuxedo as one of the two core designers of its Substrate-based UTXO framework. He was also a student at the first Polkadot Blockchain Academy, held at Corpus Christi College, University of Cambridge. Since then, he has served as a lecturer and content creator at the Academy. Outside of work, Andrew enjoys spending time with family and friends, playing squash, and traveling. His favorite programming language is Rust; his least favorite is C++.
 
 **Related Works**
 

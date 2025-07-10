@@ -4,6 +4,8 @@ title: Understanding Sassafras
 
 import DocCardList from '@theme/DocCardList';
 
-A Blog Series:
+This blog series covers the most important aspects of the secret leader election protocol. 
+
+![](Sassafras-diagram.png)
 
 <DocCardList />

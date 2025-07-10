@@ -6,9 +6,11 @@ jonas@web3.foundation
 
 PGP Fingerprint: 16C2 2CBD 92E4 E7A1 7D79 D0D0 1F79 CDDC 0A5F FC5B
 
-Jonas has joined the team of the Web3 Foundation at the beginning of July 2020 as a research scientist, where he focuses on economic questions regarding the Polkadot and Kusama ecosystem. In particular, he analyzes and optimizes the interplay between human behavior and the protocol. By doing so, he applied insights from Psychology and Behavioral Economics. For his studies, he uses empirical and experimental data.
+Jonas joined the Web3 Foundation as a research scientist in July 2020. His work focuses on economic questions related to the Polkadot and Kusama ecosystem. 
 
-**Short Biography**:  Before joining W3F, Jonas earned his Ph.D. in Behavioral and Experimental Economics from the University of Bern, where he investigated human behavior in markets and organizations. Before that, he obtained an MSc degree in Quantitative Economics at the University of Konstanz.
+**Research Areas.** In particular, Jonas analyzes and optimizes the interplay between human behavior and protocol dynamics, applying insights from psychology and behavioral economics. His research incorporate both empirical and experimental data.
+
+**Short Bio.**  Before joining W3F, Jonas earned a Ph.D. in Behavioral and Experimental Economics from the University of Bern, where he investigated human behavior in markets and organizations. He also holds an MSc in Quantitative Economics from the University of Konstanz.
 
 **Polkadot-related Publications**
 

@@ -25,14 +25,17 @@ const sidebars = {
     {
       type: 'category',
       label: 'Polkadot',
+      link: {type:'doc', id:'Polkadot/index'},
       collapsed: false,
       items: [
-        {
+         {
           type: 'category',
-          label: 'Overview',
-          link: {type:'doc', id:'Polkadot/overview/index'},
+          label: 'Token Economics',
+          link: {type:'doc', id:'Polkadot/token-economics/index'},
           items: [
-            'Polkadot/overview/token-economics',
+            'Polkadot/token-economics/payments-and-inflation',
+            'Polkadot/token-economics/transaction-fees',
+            'Polkadot/token-economics/Treasury',
           ],
         },
         {
@@ -106,6 +109,7 @@ const sidebars = {
             {
               type: 'category',
               label: 'Slashing',
+              link: {type:'doc', id:'Polkadot/security/slashing/index'},
               items: [
                 'Polkadot/security/slashing/amounts',
                 'Polkadot/security/slashing/npos',

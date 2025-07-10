@@ -2,9 +2,11 @@
 
 chenda@web3.foundation
 
-Chen-Da has joined the Web3 Foundation team in July 2023 as a research scientist. His area of expertise encompasses both Cryptography and Distributed Systems, with a broad focus on the theory and practice of multi-party computation, consensus, peer-to-peer network, data availability, provable composable security and many others. His research has led to more than 25 publications at top international venues.
+Chen-Da joined the Web3 Foundation as a research scientist in July 2023. His areas of expertise span both cryptography and distributed systems, with a broad focus on theory and practice.
 
-**Short Bio.** Prior to joining W3F, Chen-Da spent two years as a Post Doctoral Fellow in the Computer Science Department at Carnegie Mellon University (Pennsylvania) and in the Cryptography and Information Security (CIS) Laboratory at NTT Research (California). Chen-Da completed his Ph.D. in the Cryptography and Information Security group at ETH Zurich. Before that, he obtained a master's degree in computer science from ETH Zurich, and two bachelor degrees in computer science and mathematics from Universidad Autónoma Madrid.
+**Research Areas.** Chen-Da's research areas include multi-party computation, consensus mechanisms, peer-to-peer networking, data availability, provable composable security, and more. His research has resulted in over 25 publications at top international venues.
+
+**Short Bio.** Prior to joining W3F, Chen-Da spent two years as a postdoctoral fellow in the Computer Science Department at Carnegie Mellon University (Pennsylvania) and at the Cryptography and Information Security (CIS) Laboratory at NTT Research (California). He completed his Ph.D. in the Cryptography and Information Security group at ETH Zurich, where he had previously earned a master’s degree in computer science. He also holds bachelor’s degrees in computer science and mathematics from Universidad Autónoma de Madrid.
 
 **Selected Publications**
 

@@ -4,6 +4,6 @@ title: Security
 
 import DocCardList from '@theme/DocCardList';
 
-This chapter talks about general security concerns, that cut across many (if not all) `subprotocols <protocols>` of Polkadot.
+This section addresses general security concerns that span many, if not all, Polkadot `subprotocols <protocols>`.
 
 <DocCardList />

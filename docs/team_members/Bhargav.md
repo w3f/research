@@ -7,13 +7,15 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 bhargav@web3.foundation
 
 
-**Bio:** I am researcher focussing on security at the Web3 Foundation. I am also the maintainer of the Polkadot Protocol [Specifications](https://spec.polkadot.network/). I have an research background in Formal Verification and previously worked at ETH Zurich, USI Lugano, Microsoft Research, working on topics like Model Checking, Runtime Verification and Static Analysis. At W3F, i have worked on security analysis of Cross-chain Bridges and Light-Clients, and also on tooling for security and reliability of the Polkadot SDK.
+Bhargav is a researcher at the Web3 Foundation specializing in security. He has contributed to security analysis of cross-chain bridges and light clients, as well as to tooling that strengthens the security and reliability of the Polkadot SDK. He also maintains the Polkadot Protocol [Specifications](https://spec.polkadot.network/). 
 
 **Research Areas**
 
 * Protocol Security Analysis
 * Formal Verification and Static Analysis
 * Security Tooling
+
+**Short Bio.** Bhargav has a research background in formal verification, with previous experience at ETH Zurich, USI Lugano, and Microsoft Research, where he worked on topics such as model checking, runtime verification, and static analysis.
 
 **Links to selected paper and talks**
 
