@@ -2,10 +2,7 @@
 title: NPoS payments and inflation
 ---
 
-**Authors**: [Alfonso Cevallos](/team_members/alfonso.md), [Jonas Gehrlein](/team_members/Jonas.md)
-
-**Last Updated**: October 17, 2023
-
+![](payments-and-inflation.png)
 
 This section focuses primarily on payments to validators and nominators for their participation in block production (BABE) and finality (GRANDPA), as well as on payments arising from routine token minting. Other forms of compensation, including slashing penalties, rewards to misconduct reporters and fishermen, or distributions from transaction fees, are discussed in separate sections.
 
@@ -145,7 +142,6 @@ Within a validator slot, payments are handled as follows: First, validator $v$ r
 
 We thus allow the market regulate itself. A validator candidate who sets a high commission fee risks failling to attract sufficient votes for election, while validators with strong reputations for reliability and performance may justify charging higher fees, an outcome that is considered fair. For nominators, backing less popular or riskier validators may result in higher relative rewards, which aligns with expected risk-reqard dynamics.
 
-
 --
 Additional notes
 
@@ -155,6 +151,8 @@ Finality gadget [GRANDPA](https://github.com/w3f/consensus/blob/master/pdf/grand
 Block production protocol [BABE](Polkadot/protocols/block-production/Babe.md)
 
 The [NPoS scheme](Polkadot/protocols/NPoS/index.md) for selecting validators
+
+**For any inquiries or questions, please contact** [Jonas Gehrlein](/team_members/Jonas.md)
 
 
 [^1]: The rewards perceived by block producers from transaction fees (and tips) do not come from minting, but from tx senders. Similarly, the rewards perceived by reporters and fishermen for detecting a misconduct do not come from minting but from the slashed party. This is why these terms do not appear in the formula above.

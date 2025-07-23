@@ -6,6 +6,8 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 Owner: [Alistair Stewart](/team_members/alistair.md)
 
+![](Grandpa.png)
+
 GRANDPA is the finality (consensus) algorithm for Polkadot. Here we first
 present a high-level overview, as an "extended abstract". Details are presented
 in the full paper directly below that.

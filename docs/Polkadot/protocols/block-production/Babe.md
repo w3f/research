@@ -2,132 +2,108 @@
 title: BABE
 ---
 
-**Authors**: [Handan Kilinc Alper](/team_members/handan.md)
+![](BABE.png)
 
-## 1. Overview
+Polkadot produces relay chain blocks using the **B**lind **A**ssignment for **B**lockchain **E**xtension protocol (BABE). BABE assigns block production slots based on a randomness cycle similar to that used in Ouroboros Praos [2]. The process unfolds as follows: All block producers possess a verifiable random function (VRF) key, which is registered alongside their locked stake. These VRFs generate secret randomness, determining when each producer is eligible to create a block. The process carries an inherent risk that producers may attempt to manipulate the outcome by grinding through multiple VRF keys. To mitigate this, the VRF inputs must incorporate public randomness that is created only after the VRF key is established. 
 
-In Polkadot, we produce relay chain blocks using our
- **B**lind **A**ssignment for **B**lockchain **E**xtension protocol,
- abbreviated BABE.
-BABE assigns block production slots
- using roughly the randomness cycle from Ouroboros Praos [2].
+As a result, the system operates in epochs, during which fresh public on-chain randomness is created by hashing together all the VRF outputs revealed through block production within that epoch This establishes a cycle that alternates between private, verifiable randomness and collaborative public randomness.
 
-In brief, all block producers have a verifiable random function (VRF)
-key, which they register with the locked stake.  These VRFs produce secret
-randomness, which determines when they produce blocks.  A priori, there
-is a risk that block producers could grind through VRF keys to bias
-results, so VRF inputs must include public randomness created only
-after the VRF key.  We therefore have epochs in which we create fresh
-public on-chain randomness by hashing together all the VRF outputs
-revealed in block creation during the epoch.  In this way, we cycle
-between private but verifiable randomness and collaborative public
-randomness.
-
-
-The main differences of BABE from Ouroboros Praos [2] are the best chain selection mechanism and slot synchronization assumption i.e.:
-
-1. BABE's best chain selection is based on GRANDPA and longest chain.
-2. Block producers in BABE do not have access to a central authority (e.g., Network Time Protocol (NTP)) to count slots instead, they construct their own clock to follow the slots.
+BABE differs from Ouroboros Praos [2] in two main aspects: (1) its best chain selection mechanism, which integrates GRANDPA with the longest-chain rule, and (2) its slot synchronization assumptions. In the latter case, BABE block producers do not depend on a central authority, such as Network Time Protocol (NTP), to count slots. Instead, they build and maintain local clocks to track slot progression. 
 
 ---
+ 
+## 1. Epochs, Slots, and Keys 
 
-## 2. BABE
+BABE consists of sequential, non-overlapping epochs $(e_1, e_2,\ldots)$, each with a set of consecutive block production slots ($e_i = \{sl^i_{1}, sl^i_{2},\ldots,sl^i_{t}\}$) up to a bound $t$.  At the start of each epoch, block production slots are randomly assigned to "slot leaders", sometimes to one party, no party, or multiple parties. The assignments are initially private, known only to the designated slot leader. This changes once they publicly claim their slots by producing a new block. 
 
-In BABE, we have sequential non-overlapping epochs $(e_1, e_2,\ldots)$, each of which consists of a number of sequential block production slots ($e_i = \{sl^i_{1}, sl^i_{2},\ldots,sl^i_{t}\}$) up to some bound $t$.  At the beginning of an epoch, we randomly assign each block production slot to a "slot leader", often one party or no party, but sometimes more than one party.  These assignments are initially secrets known only to the assigned slot leader themselves, but eventually they publicly claim their slots when they produce a new block in one.
+Each party $P_j$ possesses a *session key* that includes at least two types of secret/public key pairs:
 
-Each party $P_j$ has as *session key* containing at least two types of secret/public key pair:
+* A verifiable random function (VRF) key pair $(\skvrf_{j}, \pkvrf_{j})$
+* A signing key pair for blocks $(\sksgn_j,\pksgn_j)$
 
-* a verifiable random function (VRF) key $(\skvrf_{j}, \pkvrf_{j})$, and
-* a signing key for blocks $(\sksgn_j,\pksgn_j)$.
+VRF keys are preferred because they are relatively long-lived; new VRF keys cannot be used until well after they've been created and submitted to the chain. Yet, parties should periodically update their associated signing keys to maintain forward security, protecting against attackers who might exploit outdated keys to create slashable equivocations. For more details on session keys see [here](Polkadot/security/keys/3-session.md).
 
-We favor VRF keys being relatively long-lived because new VRF keys cannot be used until well after creation and submission to the chain.  Yet, parties should update their associated signing keys from time to time to provide forward security against attackers who might exploit from creating slashable equivocations.  There are more details about the session key available [here](Polkadot/security/keys/3-session.md).
+Each party $P_j$ maintains a local set of blockchains $\mathbb{C}_j =\{C_1, C_2,..., C_l\}$.  These chains share a common prefix of blocks, at minimum the genesis block, up to a certain height.
 
-Each party $P_j$ keeps a local set of blockchains $\mathbb{C}_j =\{C_1, C_2,..., C_l\}$.  All these chains have some common blocks, at least the genesis block, up until some height.
+Each party also maintains a local buffer containing a set of transactions to be added to blocks. Before entering this buffer, all transactions are validated using a transaction validation function.
 
-We assume that each party has a local buffer that contains a set of transactions to be added to blocks. All transactions in a block are validated with a transaction validation function before entering this buffer.
-
-
-In BABE, we would like to achieve that each validator has the same chance to be selected as a block producer on a slot. Therefore, we define the probability that a validator is selected on a slot as
+The aim is to ensure that each validator has an equal opportunity to be selected as a block producer for any given slot. The probability of selection for each validator is
 
 $$
 p = \phi_c(\theta) = 1-(1-c)^{\frac{1}{n}}
 $$
 
-where $0 \leq c \leq 1$ is a constant parameter and $n$ is the number of validators.
+where $0 \leq c \leq 1$ is a constant parameter and $n$ denotes the number of validators.
 
 
-In order to achieve the equality of validators in BABE, we define a threshold parameter as in [2] for the slot assignment:
+To ensure equitable slot assignment among validators in BABE, it is necessary to define a threshold parameter. To guide the slot selection process, we follow the approach described in [2] and obtain
 
 $$
-\tau = 2^{\ell_{vrf}}\phi_c(\theta)
+\tau = 2^{\ell_{vrf}}\phi_c(\theta),
 $$
 
 where $\ell_{vrf}$ is the length of the VRF's first output (randomness value).
+
+## 2. Phases
 
 BABE consists of three phases:
 
 #### 1st: Genesis Phase
 
-In this phase, we manually produce the unique genesis block.
-
-The genesis block contain a random number $r_1$ for use during the first two epochs for slot leader assignments. Session public keys of initial validators are ($\pkvrf_{1}, \pkvrf_{2},..., \pkvrf_{n}$), $(\pksgn_{1}, \pksgn_{2},..., \pksgn_{n}$).
+The unique genesis block, manually produced in this phase, contains a random number $r_1$ that is used during the first two epochs for slot leader assignments. Session public keys of initial validators are ($\pkvrf_{1}, \pkvrf_{2},..., \pkvrf_{n}$), $(\pksgn_{1}, \pksgn_{2},..., \pksgn_{n}$).
 
 
 #### 2nd: Normal Phase
 
-We assume that each validator divided their timeline in slots after receiving the genesis block. They determine the current slot number according to their timeline as explained in [Section 4](./Babe.md#-4.-clock-adjustment--relative-time-algorithm-). Similarly, when a new validator joins to BABE after the genesis block, this validator divides his timeline into slots.
+By the time the second phase begins, each validator must have divided their timeline into slots after receiving the genesis block. Validators determine the current slot number according to their local timeline, as explained in [Section 4](./Babe.md#-4.-clock-adjustment--relative-time-algorithm-). And if validators join BABE after the genesis block, they should also divide their timelines into slots.
 
-In normal operation, each slot leader should produce and publish a block.  All other nodes attempt to update their chain by extending with new valid blocks they observe.
+During normal operation, the designated slot leader should produce and publish a block.  All other nodes update their chains based on the new valid blocks they observe.
 
-We suppose each validator $V_j$ has a set of chains $\mathbb{C}_j$ in the current slot $sl_k$ in the epoch $e_m$ and has a best chain $C$ selected in $sl_{k-1}$ by our selection scheme in Section 3, and the length of $C$ is $\ell\text{-}1$.
+Each validator $V_j$ maintains a set of chains $\mathbb{C}_j$ for the current slot $sl_k$ in epoch $e_m$, and a best chain $C$ selected during slot $sl_{k-1}$ according to the selection scheme described in Section 3. The length of $C$ is $\ell\text{-}1$.
 
-Each validator $V_j$ produces a block if he is the slot leader of $sl_k$.  If the first output ($d$) of the following VRF computation is less than the threshold $\tau$ then he is the slot leader.
+A validator $V_j$ may produce a block if selected as the slot leader for $sl_k$.  If the first output ($d$) of the following VRF computation is less than the threshold $\tau$, the validator is considered the slot leader.
 
 $$
 \vrf_{\skvrf_{j}}(r_m||sl_{k}) \rightarrow (d, \pi)
 $$
 
-If $P_j$ is the slot leader, $P_j$ generates a block to be added on $C$ in slot $sl_k$. The block $B_\ell$ should at least contain the slot number $sl_{k}$, the hash of the previous block $H_{\ell\text{-}1}$, the VRF output  $d, \pi$, transactions $tx$, and the signature $\sigma = \sgn_{\sksgn_j}(sl_{k}||H_{\ell\text{-}1}||d||\pi||tx))$. $P_i$ updates $C$ with the new block and sends $B_\ell$.
+If $P_j$ is the slot leader, it generates a block to be added to chain $C$ during slot $sl_k$. The block $B_\ell$ must contain at minimum: the slot number $sl_{k}$, the hash of the previous block $H_{\ell\text{-}1}$, the VRF output $d, \pi$, the transactions $tx$, and the signature $\sigma = \sgn_{\sksgn_j}(sl_{k}||H_{\ell\text{-}1}||d||\pi||tx))$. Validator $P_i$ then updates $C$ with the new block and relays $B_\ell$.
 
-In any case (being a slot leader or not being a slot leader), when $V_j$ receives a block $B = (sl, H, d', \pi', tx', \sigma')$ produced by a validator $V_t$, it validates the block with $\mathsf{Validate}(B)$. $\mathsf{Validate}(B)$ must at least check the followings in order to validate the block:
+Regardless of whether $V_j$ is a slot leader, upon receiving a block $B = (sl, H, d', \pi', tx', \sigma')$ produced by validator $V_t$, it excecutes $\mathsf{Validate}(B)$. To validate the block, the function $\mathsf{Validate}(B)$ must, at minimum, check the following criteria:
 
-* if $\mathsf{Verify}_{\pksgn_t}(\sigma')\rightarrow \mathsf{valid}$ (signature verification),
+* $\mathsf{Verify}_{\pksgn_t}(\sigma')\rightarrow \mathsf{valid}$ – signature verification
 
-* if the validator is the slot leader: $\mathsf{Verify}_{\pkvrf_t}(\pi', r_m||sl) \rightarrow \mathsf{valid}$ and $d' < \tau$ (verification with the VRF's verification algorithm).
+* if the validator is the slot leader: $\mathsf{Verify}_{\pkvrf_t}(\pi', r_m||sl) \rightarrow \mathsf{valid}$ and $d' < \tau$ – verification using the VRF's algorithm
 
-* if there exists a chain $C'$ with the header $H$,
+* There exists a chain $C'$ with header $H$,
 
-* if the transactions in $B$ are valid.
+* The transactions in $B$ are valid.
 
-If the validation process goes well, $V_j$ adds $B$ to $C'$. Otherwise, it ignores the block.
-
-
-At the end of the slot, $P_j$ decides the best chain with the chain selection rule we give in Section 3.
+If all checks pass, $V_j$ adds $B$ to $C'$; otherwise, it discards the block. At the end of the slot, $P_j$ selects the best chain according to the chain selection rule outlined in Section 3.
 
 
 #### 3rd: Epoch Update
 
-Starting from first slot, in every $R$ slots, the new epoch starts.  
-Before starting a new epoch $e_m$, validators should obtain the new epoch randomness and active validators set for the new epoch.
+Before starting a new epoch $e_m$, validators must obtain the new epoch randomness and the updated active validator set. A new epoch begins every $R$ slots, starting from the first slot. 
 
-The validator set for the epoch $e_m$ has to be included to the relay chain until the end of the last block of the epoch $e_{m-3}$ so that they are able to actively participate the block production in epoch $e_{m}$. So, a new validator can actively join the block production at earliest two epochs later after included to relay chain.
+To ensure participation in epoch $e_m$, the validator set must be included in the relay chain by the end of the last block of epoch $e_{m-3}$. This timing enables validators to actively engage in block production for epoch $e_{m}$. Newly added validators may join block production no earliers that two epochs later after being included in the relay chain.
 
-A fresh randomness for the epoch $e_m$  is computed as in Ouroboros Praos [2]: Concatenate all the VRF outputs of blocks in epoch $e_{m-2}$ (let us assume the concatenation is $\rho$). Then the randomness in epoch $e_{m}$:
+Fresh randomness for epoch $e_m$ is computed the Ouroboros Praos [2] method: concatenate all VRF outputs from blocks produced in epoch $e_{m-2}$ (denoted as $\rho$). Then, the randomness for epoch $e_{m}$ is derived as follows:
 
 $$
 r_{m} = H(r_{m-2}||m||\rho)
 $$
 
-The reason of including a validator after two epochs later is to make sure that the VRF keys of the new validators added to the chain before the randomness of the epoch that they are going to be active is revealed.
+Including a validator two epochs later ensures that the VRF keys of newly added validators, submitted to the chain prior to the randomness generation of their active epoch, are properly revealed.
 
 ---
 
 ## 3. Best Chain Selection
 
-Given a chain set $\mathbb{C}_j$ and the parties current local chain $C_{loc}$, the best chain algorithm eliminates all chains which do not include the finalized block $B$ by GRANDPA. Let's denote the remaining chains by the set $\mathbb{C}'_j$. If we do not have a finalized block by GRANDPA, then we use the probabilistic finality in the best chain selection algorithm (the probabilistically finalized block is the block which is $k$ block before than the last block of $C_{loc}$).
+Given a chain set $\mathbb{C}_j$, and the party's current local chain $C_{loc}$, the best chain selection algorithm eliminates all chains that do not contain the finalized block $B$ determined by GRANDPA. The remaining chains form a subset denoted by $\mathbb{C}'_j$. If GRANDPA finalty is not required for a block, the algorithm resorts to probabilistic finality. In this case, the probabillistically finlazed block is defined as the block that is $k$ blocks prior to the latest block in $C_{loc}$.
 
 
-We do not use the chain selection rule as in Ouroboros Genesis [3] because this rule is useful for parties who become online after a period of time and do not have any information related to current valid chain (for parties always online the Genesis rule and Praos is indistinguishable with a negligible probability). Thanks to Grandpa finality, the new comers have a reference point to build their chain so we do not need the Genesis rule.
+In this case, the chain selection rule does not follow Ouroboros Genesis [3], as that rule is intended for parties that come online after a period of inactivity and lack information about the current valid chain. For parties that remain continously online, the Genesis rule and Praos are indistinguishable with  negligible probability. Thanks to Grandpa finality, newcomers have a reliable reference point to build their chain, making the Genesis rule unnecessary.
 
 ---
 
@@ -490,8 +466,7 @@ Computer clocks drift because the frequency of clocks varies over time, mostly i
 [![](https://i.imgur.com/Slspcg6.png)](http://www.ntp.org/ntpfaq/NTP-s-sw-clocks-quality.htm#AEN1220)
 
 **Figure. Frequency Correction within a Week**
-
-## References
+**For inquieries or questions, please contact** 
 
 [1] Kiayias, Aggelos, et al. "Ouroboros: A provably secure proof-of-stake blockchain protocol." Annual International Cryptology Conference. Springer, Cham, 2017.
 

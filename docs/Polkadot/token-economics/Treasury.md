@@ -2,24 +2,23 @@
 title: Treasury
 ---
 
-**Authors**: [Alfonso Cevallos](/team_members/alfonso.md), [Jonas Gehrlein](/team_members/Jonas.md)
+The treasury refers to the system's continuous need to raise funds. These funds are used to compensate developers for delivering software updates, implementing changes approved through referenda, adjusting parameters, and maintaining overall system stability.
 
-**Last Updated**: October 17, 2023
+![](treasury-funds.png)
+Treasury funds can be raised through two mechanisms:
 
+1. Minting new tokens, which contributes to inflation; and
 
-The system needs to continually raise funds, which we call the treasury. These funds are used to pay for developers that provide software updates, apply any changes decided by referenda, adjust parameters, and generally keep the system running smoothly.
+2. Redirecting tokens from transaction fees and slashings that would otherwise be burned.
 
-Funds for treasury are raised in two ways:
+These mechanisms mirror traditional methods used by governments to raise funds: minting coins, which leads to controlled inflation, and collecting taxes and fines.
 
-1.   by minting new tokens, leading to inflation, and
-2.   by channelling the tokens from transaction fees and slashings, which would otherwise be set for burning.
+While raising funds solely by minting new tokens is possible, it is more sensible to redirect tokens from transaction fees and slashings, otherwise destined to be burned, into the treasury.
 
-Notice that these methods to raise funds mimic the traditional ways that governements raise funds: by minting coins which leads to controlled inflation, and by collecting taxes and fines.
+- By redirecting tokens in this manner, the amount of actual stake burning is reduced, resulting in better control over the inflation rate. It is worth noting that stake burning leads to deflation, and the events that trigger it are unpredictable.
 
-We could raise funds solely from minting new tokens, but we argue that it makes sense to redirect into treasure the tokens from tx fees and slashing that would otherwise be burned:
+- Following an event that results in significant stake slashing, governance may opt to partially reimburse the affected stake. In the event of a code bug or other extenuating circumstances, having DOTs readily available in the treasury is advantageous, as it eliminates the need to burn and later mint new tokens.
 
-- By doing so we reduce the amount of actual stake burning, and this gives us better control over the inflation rate (notice that stake burning leads to deflation, and we can’t control or predict the events that lead to burning).
+- Periods marked by unusually high levels of stake burning—whether caused by misconduct or excessive transaction fees—indicate systemic issues that require resolution. To cover the development costs associated with fixing such problems, additional treasury funds are needed during these times.
 
-- Following an event that produced heavy stake slashing, goverance might often want to reimburse the slashed stake partially, if there is a bug in the code or there are extenuating circumstances. Thus it makes sense to have the DOTs availabe in treasury, instead of burning and then minting.
-
-- Suppose that there is a period in which there is an unusually high amount of stake burning, due to either misconducts or transaction fees. This fact is a symptom that there is something wrong with the system, that needs fixing. Hence, this will be precisely a period when we need to have more funds available in treasury to afford the development costs to fix the problem.
+**For any inquiries or questions, please contact** [Jonas Gehrlein](/team_members/Jonas.md)
