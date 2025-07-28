@@ -60,11 +60,9 @@ const sidebars = {
               items: [
                 'Polkadot/protocols/block-production/Babe',
                 'Polkadot/protocols/block-production/SASSAFRAS',
-              ],
-            },
-            {
+                {
               type: 'category',
-              label: 'Sassafras',
+              label: 'Understanding Sassafras',
               description: 'Understanding Sassafras',
               link: {type:'doc', id:'Polkadot/protocols/Sassafras/index'},
               items: [
@@ -73,6 +71,9 @@ const sidebars = {
                 'Polkadot/protocols/Sassafras/Sassafras-part-3',
               ],
             },
+              ],
+            },
+            
             'Polkadot/protocols/finality',
             'Polkadot/protocols/LightClientsBridges',
           ],
@@ -138,6 +139,10 @@ const sidebars = {
     {
       type: 'doc',
       id: 'Publications',
+    },
+    {
+      type: 'doc',
+      id: 'Events',
     },
   ],
 };

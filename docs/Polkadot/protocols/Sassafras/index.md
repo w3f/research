@@ -6,6 +6,6 @@ import DocCardList from '@theme/DocCardList';
 
 This blog series covers the most important aspects of the secret leader election protocol. 
 
-![](Sassafras-diagram.png)
+![](SSLE.png)
 
 <DocCardList />
