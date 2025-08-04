@@ -8,18 +8,9 @@ Owner: [Alistair Stewart](/team_members/alistair.md)
 
 ![](Grandpa.png)
 
-GRANDPA is the finality (consensus) algorithm for Polkadot. Here we first
-present a high-level overview, as an "extended abstract". Details are presented
-in the full paper directly below that.
+GRANDPA is the finality (consensus) algorithm used in Polkadot. To get started, you can read our "extended abstract," which provides a high-level overview. If you're eager to dive deeper into the technical details, feel free to skip ahead to the full paper just below. And as bonus, there is a more polished and slightly shorter version of the full paper available on [arxiv](https://arxiv.org/abs/2007.01560). 
 
-We also have an [alternative version](https://arxiv.org/abs/2007.01560) of the
-full paper available on arxiv, which is more polished and a bit shorter.
-
-What is implemented in the Polkadot software and deployed in practise, we refer
-to as "Polite GRANDPA" which includes optimisations required for efficient
-real-world performance in practise. These are not covered in the papers below
-for brevity, but we go into [the details](#polite-grandpa) later here on this
-page. The high-level concepts and design principles remain the same as GRANDPA.
+"Polite GRANDPA" is the implementation of GRANDPA used in the Polkadot software and deployed in practice.  It includes optimizations tailored for efficient real-world performance in practise, which are not covered in the papers below for the sake of brevity, You can find the [details](#polite-grandpa) later on this page. The high-level concepts and design principles remain consistent with GRANDPA.
 
 ## GRANDPA Abstract paper
 <iframe width="100%" height="800" src={useBaseUrl('/pdf/GRANDPAabstract.pdf')} />
