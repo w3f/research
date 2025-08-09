@@ -2,7 +2,7 @@
 title: Experimental Investigation of Parachain Auctions
 ---
 
-![](Experimental-investigations.png)
+![](Combinatorial-candle-auction.jpeg)
 
 The aim of this note is to experimentally examine the combinatorial candle auction as implemented in the Polkadot and Kusama protocol. Specifically, it focuses on comparing its outcome with those of more traditional dynamic combinatorial auction formats currently in use. 
 
@@ -15,7 +15,7 @@ The design of the experimental investigation mirrors the core mechanism of the P
 
 ## Dynamic Combinatorial Auctions
 
-The first point of discussion in this section is the current use of combinatorial auctions. Second, it is important to present the combinatorial candle auction as implemented on Polkadot, highlighting the appeal of this format, and discussing its expected performance relative to more conventional combinatorial auction models. 
+The first point of discussion is the current use of combinatorial auctions. Second, it is important to present the combinatorial candle auction as implemented on Polkadot, highlighting the appeal of this format, and discussing its expected performance relative to more conventional combinatorial auction models. 
 
 ### Currently used Combinatorial Auctions
 Combinatorial auctions have emerged as successors to multi-unit auctions, primarily due to their ability to solve the so-called exposure problem that arises in the presence of complementarities (Porter and Smith, 2006; Cramton, 2013). In multi-unit auctions, bidders compete for each unit individually. As a consequence, bidders seeking specific combinations of items may end up acquiring only a subset, which may hold significanlty less value than the complete bundle. Combinatorial auctions resolve this issue by allowing bids on item packages directly. In other words, a bidder either wins the entire package or nothing at all.
@@ -27,7 +27,7 @@ Many combinatorial auctions are dynamic, typically employing one of two distinct
 1. *Ascending format*: While the auction remains open, bidders can submit progressively higher bids for the different packages (see Bichler et al., 2017 for an experimetal study). 
 2. *Clock format*: The auctioneer incrementally raises the prices of individual items or packages, and in each round, bidders must submit their demand for the different packages. In some versions, bidders are allowed to place final bids in an additional round of simultaneous bidding after the clock phase concludes (originally proposed by Ausubel et al., 2006; further discussed in Cramton, 2013).
 
-In U.S. radio spectrum auctions, simple ascending multi-unit auctions were initially used. Then, in 2006 and 2008, among other instances, the FCC allowed bidding on predefined packages of licences using an ascending format (Porter and Smith, 2006; Cramton, 2013). The transition to clock auctions occurred later (Levin and Skrzypacz, 2016).
+In U.S. radio spectrum auctions, simple ascending multi-unit auctions were used for the first time. Then, in 2006 and 2008, among other instances, the FCC allowed bidding on predefined packages of licences using an ascending format (Porter and Smith, 2006; Cramton, 2013). The transition to clock auctions occurred later (Levin and Skrzypacz, 2016).
 
 An important design feature of any dynamic combinatorial auction is the activity rule. Its primary role is to encourage serious bidding from the outset and to prevent sniping or jump bidding. 
 
@@ -42,7 +42,7 @@ In the combinatorial candle auction employed in Polkadot, bidders can submit bid
 
 Originated in medieval Europe, the name "candle auctions" derive from the way they were conducted. The auctioneer would light a candle in view of all the bidders and accept bids until the flame extinguished. The highest bidder at the moment the candle went out was declared the winner (cf., e.g., Hobson, 1971). The earliest accounts of this kind of auction date back to 14th-century France, where they were used to sell chattels and leases. In England, furs were sold via candle auctions up to the 18th century (cf. Füllbrunn and Sadrieh, 2012, for more details and references). 
 
-Candle auctions have become rare. Possible reasons include the technical difficulty of generating generic randomness and the challenge of verifying commitment to a random device. Recent advances in cryptography help circumvent these issues and have brought candle auctions back into consideration. For example, For example, Google held a patent for a dynamic auction with a random ending time, which expired in 2020 (Patent No. US6665649B1). 
+Candle auctions have become rare. Possible reasons include the technical difficulty of generating generic randomness and the challenge of verifying commitment to a random device. Recent advances in cryptography help circumvent these issues and have brought candle auctions back into consideration. For example, Google held a patent for a dynamic auction with a random ending time, which expired in 2020 (Patent No. US6665649B1). 
 
 Front-running is a significant challenge in blockchain-based auction implementations. To mitigate this issue, the Polkadot protocol employs a candle auction mechanism. Since block production occurs at discrete intervals and all pending transactions are stored in the chain's mempool, tech-savvy bidders can, in principle, inspect and react to upcoming bids. This raises concerns that such behavior may reduce overall incentives to bid, thereby lowering both revenue and potential efficiency. As Häfner & Stewart (2021) argue, while cryptographic solutions to front-running do exist, they are not feasible within Polkadot's automated setting, primarily because smart contracts among bidders are expected.
 
@@ -51,12 +51,12 @@ As far as existing literature indicates, Füllbrunn and Sadrieh (2012) is the on
 
 ## Experimental Design
 
-The aim is to examine an ascending combinatorial auction with discrete rounds $t$, during which bids can be placed. Each auction involves three bidders. After every round, all newly submitted bids are revealed. Each round lasts $6$ seconds.
+The aim is to examine an ascending combinatorial auction with discrete rounds $t$, during which bids can be placed. Each auction involves three bidders. After every round, which lasts $6$ seconds, all newly submitted bids are revealed. 
 
 The set of items is $X = \{1,2\}$, resulting in three possible packages $\{\{1\},\{2\},\{1,2\}\}$. Bidders may submit bids, where a bid $b=(p,x)$ consists of a price $p$ and a package $x \subseteq X$. Prices must increase and lie on a finite (fine) grid. Winning bids are selected to maximize total payment. The payment rule is pay-as-bid; that is, winning bidders must pay the amount they bid. 
 
 ### The Three Ending Formats
-It is useful to compare three auction-ending formats: the candle format, the hard-closing rule, and the activity rule.
+As mentioned in the introduction, one main objective is to compare three auction-ending formats: the candle format, the hard-closing rule, and the activity rule.
 
 |                | Communication |
 |----------------|------------------|
@@ -69,7 +69,7 @@ It is useful to compare three auction-ending formats: the candle format, the har
 
 **Hard-Close Rule.** In a hard-close auction, bidders can freely submit increasing bids, yet the auction ends at a fixed time, denoted by $\bar T$. 
 
-**Activity Rule.** In an activity rule format, bidder activity determines the ending time. Specifically, bids must be increasing, and if no new bid is submitted for $\tau$ consecutive rounds, the auction concludes. In this experiment, $\tau$ is set to 5, corresponding to $30$ seconds.
+**Activity Rule.** In an activity rule format, bidder activity determines the ending time. Specifically, bids must increase, and if no new bid is submitted for $\tau$ consecutive rounds, the auction concludes. In this experiment, $\tau$ is set to 5, corresponding to $30$ seconds.
 
 ### Communication 
 Communication is ubiquitous in blockchain environments. Different bidders often operate as teams working on similar technical problems, sharing communication channels, posting on social media, and more. 
@@ -111,24 +111,24 @@ Before each auction, all bidders learn their type and their private valuations f
 
 The trading page features two tables:
 
-1. (Table 1) Current winning bids: This shows all current bids per package.
+1. Table 1 displays the current winning bids, listing all active bids for each package.
   
-2. (Table 2) Winning Allocation: This shows how the packages are currently allocated to bidders based on the current winning bids.
+2. Table 2 shows the winning allocation, indicating how packages are currently assigned to bidders based on the prevailing winning bids.
 
-Especially table 2 is considered to significant help with this complex auction design. 
+Table 2 is particularly useful for assessing this complex auction design. 
 
 #### Stage 3: Feedback and Payoff
-After the end of the auction (depending on the treatment), participants receive feedback about the final winning bids and allocation of packages. In addition, subjects in the candle auction format are informed about the realization of $T$ and the respective snapshot of winning bids to that time. Profits are calculated and shown to the subjects. Afterwards, the next auction (if there are any) is started and new valuations are drawn for each subject.
+Once the auction concludes, timing depending on the treatment, participants receive feedback on the final winning bids and allocation of packages. In addition, subjects in the candle auction format are informed of the realization of $T$ and the corresponding snapshot of winning bids at that moment. Profits are then calculated and displayed to participants. If another  auction follows, new valuations are drawn for each subject before it begins.
 
 
 ### Outcome variables
-* Success of coordination (given the realized values, were the local bidders able to form a coalition?)
-* Efficiency (Did the packages go to those with the highest valuation? Did they coordinate on the right allocation)
-* Bidding dynamic (how quickly converges the auction)
-* Revenue
+* Success of coordination: Given the realized values, were the local bidders able to form a coalition?
+* Efficiency: Did the packages go to those with the highest valuations? Did bidders coordinate on the optimal allocation?
+* Bidding dynamic: How quickly did the auction converge?
+* Revenue: What was the total reveneu generated? 
 
 ### Implementation
-The experiment will be implemented with [oTree](https://www.sciencedirect.com/science/article/pii/S2214635016000101), which is a software to conduct online experiments and provide the necessary infrastructure to create sessions, distribute links to users and maintain a database of behavioral data. It combines python in the back-end with a flexible front-end implementation of HTML/CSS and Django. 
+The experiment will be implemented using [oTree](https://www.sciencedirect.com/science/article/pii/S2214635016000101), a platform for conducting online experiments. oTree provides the necessary infrastructure to create sessions, distribute links to participants, and maintain a database of behavioral data. It combines Python on the backend with a flexible frontend built using HTML/CSS and Django. 
 
 ## Literature
 Ausubel, L. M., Cramton, P., & Milgrom, P. (2006). The clock-proxy auction: A practical combinatorial auction design. Combinatorial Auctions, 120-140.
@@ -153,4 +153,4 @@ Porter, David, and Vernon Smith. “FCC license auction design: A 12-year experi
 
 Scheffel, T., Ziegler, G., & Bichler, M. (2012). On the impact of package selection in combinatorial auctions: an experimental study in the context of spectrum auction design. Experimental Economics, 15(4), 667-692.
 
-**For inquieries or questions please contact** [Jonas Gehrlein](/team_members/Jonas.md), Samuel Häfner
+**For inquieries or questions please contact** [Jonas Gehrlein](/team_members/Jonas.md)

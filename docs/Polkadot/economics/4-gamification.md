@@ -2,106 +2,113 @@
 title: Non-monetary incentives for collective members
 ---
 
-**Authors**: [Jonas Gehrlein](/team_members/Jonas.md)
+![](collective-members.jpeg)
 
-**Last updated**: 13.04.2023
+Behavioral economics has demonstrated that non-monetary incentives can be powerful motivators, offering a viable alternative to financial rewards (see, e.g., [Frey & Gallus, 2015](https://www.bsfrey.ch/articles/C_600_2016.pdf)). This is especially true in environments where intrinsic motivation drives behavior. In such contexts, monetary incentives may even crowd out intrinsic motivation, ultimately reducing engagement ([Gneezy & Rustichini, 2000](https://academic.oup.com/qje/article-abstract/115/3/791/1828156)). 
 
-## Overview 
-
-Behavioral economics has proven that non-monetary incentives are viable motivators and resemble an alternative to incentives created by money (see, e.g., [Frey & Gallus, 2015](https://www.bsfrey.ch/articles/C_600_2016.pdf)). This is especially true for environments where behavior is mainly driven by intrinsic motivation. In those situations, monetary incentives can even crowd-out the intrinsic behavior leading to less motivation ([Gneezy & Rustichini, 2000](https://academic.oup.com/qje/article-abstract/115/3/791/1828156)). The current advances in technologies surrounding Non-fungible Tokens (NFTs) can be utilized as an additional incentive layer for governance participation and the engagement of collective members. NFTs as tool can be perfectly combined with insights from the academic literature about the concept of "gamification" to foster engagement and reward good behavior.
-
-This can help improve on a few issues that are inherent to governance, especially low participation.
+Recent advances in technologies surrounding Non-fungible Tokens (NFTs) present a promising new layer of incentives for governance participation and collective engagement. NFTs, as a tool, can be effectively combined with insights from academic literature on gamification to encourage participation and reward good behavior. This can help address several inherent challenges in governance, particularly low participation.
 
 ### Problem statement
 
-Governance is one of the most important aspects of the future of decentralized systems such as DAOs and other collectives. They rely on active participation of the token holders to achieve an efficient decision making. However, turnout-rates of tend to be quite low, which opens up the danger of exploits by a very motivated minority. There are many points to prevent this from happening, for example usability and user experience improvements to the governance process. 
+Governance is one of the most critical aspects for the future of decentralized systems, such as DAOs and other collectives. These systems rely on token holders to participate actively in order to enable efficient decision-making. However, turnout rates tend to be quite low, which creates the risk of governance exploits by a highly motivated minority. Several factors can help mitigate this risk, for example enhancing usability and user experience within the governance process. 
 
-This write-up focuses on providing non-monetary incentives as motivator to engage more actively in a collective. It can be applied to layer0 governance or smaller collectives (DAOs).
+This write-up explores non-monetary incentives as a means to encourage more active engagement within a collective. The approach can be applied to layer0 governance as well as smaller collectives, such as DAOs.
 
 
 ### Goals
 
-The goals is to design a mechanism which automatically applies certain tools from gamification (e.g., badges, achievements, levels) to collective members to...
+The goals is to design a mechanism that automatically applies selected gamification tools such as badges, achievements, and levels to collective members in order to:
 
-* ... promote the engagement and liveness of members.
-* ... use established techniques from the literature to improve on the whole governance process. 
-* ... make it easier for users to evaluate and compare members.
+* Promote the engagement and liveness of members.
+* Leverage established techniques from the literature to improve the overall governance process. 
+* Enable users to evaluate and compare members more efficiently.
 
-Improving on all those domains would further strengthen the position of the network in the blockchain ecosystem.
+Advancing in these areas would further strengthen the network's position within the blockchain ecosystem.
 
 ## Literature 
 
-Gamification received increasing attention in the recent years and was even called the "most notable technological developments for human
-engagement" ([Majuri et al., 2018](https://trepo.tuni.fi/bitstream/handle/10024/104598/gamification_of_education_2018.pdf)). It is used to enhance learning outcomes (e.g., [Denny, 2013](https://dl.acm.org/doi/abs/10.1145/2470654.2470763?casa_token=XsWtSZeFt-QAAAAA:MPWbtFfjzQZgWzyTI9hWROarJb1gJDWqDHNG4Fyozzvz3QIK-kMuMxfSwE26y9lKYUuZnV7aDZI)), model online communities (e.g., [Bista, 2012a](https://ieeexplore.ieee.org/abstract/document/6450959)) and improve sustainable behavior (e.g., [Berengueres et al., 2013](https://ieeexplore.ieee.org/abstract/document/6483512?casa_token=tmdUK7mtSSEAAAAA:ZxJnvYNAcuRaMHbwNqTJnahpbxal9xc9kHd6mY4lIahFhWn2Gmy32VDowMLVREQjwVIMhd9wcvY)). Gamification can be used as "means of supporting user engagement and enhancing positive patterns in service use, such as increasing user activity, social interaction, or quality and productivity of actions" ([Hamari, Koivisto & Sarsa, 2014](https://ieeexplore.ieee.org/abstract/document/6758978?casa_token=F2o_LQE-CNgAAAAA:vA_xBEe0ltKmMPRmTfkyW78LThHP9hLKK06oj1gKpOeDfoCTG7l_p-KSVlcdhNpaErLjzrm8p90)). While there is no agreed-upon definition, it can be best described as "a process of enhancing a service with affordances for gameful experiences in order to support user's [sic] overall value creation” ([Huotari & Hamari, 2012, p. 19](https://dl.acm.org/doi/abs/10.1145/2393132.2393137?casa_token=MU2yq2P4TOoAAAAA:Xuy9ZEzo2O7H-WCbqMheezkrodpab2DlFWkLjVt3jYExuP--vsjEROt4BKt5ZEbVou9rVnQSQBs)). That means, applying this concept does change the underlying service into a game but rather enriches it with motivational affordances popular in gaming (points, levels, badges, leaderboards) ([Deterding, 2012](https://dl.acm.org/doi/fullHtml/10.1145/2212877.2212883?casa_token=B9RD9ZPneIMAAAAA:34lrdGKwOUZyZu8fLobERuPLIBzNQxxwlgWLJnonn5Ws8Ya65aO_pdifhlHiSBwjDb0mWyFD0aM), [Hamari, Koivisto & Sarsa, 2014](https://ieeexplore.ieee.org/abstract/document/6758978?casa_token=F2o_LQE-CNgAAAAA:vA_xBEe0ltKmMPRmTfkyW78LThHP9hLKK06oj1gKpOeDfoCTG7l_p-KSVlcdhNpaErLjzrm8p90)). 
-Zichermann & Linder (2010) argue that that intrinsic motivation is unreliable and variable. Thereby, gamification can craft extrinsic motivators to internalize the intrinsically motivated behavior. It is crucial that this is done with non-economic incentives, because monetary incentives could lead to the crowding-out of intrinsic motivation ([Gneezy & Rustichini, 2000](https://academic.oup.com/qje/article-abstract/115/3/791/1828156)). A field where gamification has not yet been (explicitly) applied systematically is voting behavior (i.e., governance participation). One notable exception is a large-scale experiment with 61 million users of facebook, where researchers found that an *I voted* indication on their status page, could have been responsible for about 340'000 additional voters in the 2010 election ([Bond et al., 2012](https://www.nature.com/articles/nature11421) and [this article](https://www.nature.com/news/facebook-experiment-boosts-us-voter-turnout-1.11401)). The main driver here is considered to be peer-pressure elicited on facebook friends. While the researchers did not explicitly link this intervention with gamification, it could be perceived as such and might also work to incentivize participation of a small group. A similar application is the famous *I voted* badge in US elections, which has proven to be successful ([see](https://www.usvotefoundation.org/voter-reward-badge)). Voters like to show off badge and motivate others to go as well (some shops even offer perks for customers having that badge).
+In recent years, gamification has received growing attention, so much that it has been called the "most notable technological developments for human
+engagement" ([Majuri et al., 2018](https://trepo.tuni.fi/bitstream/handle/10024/104598/gamification_of_education_2018.pdf)). Gammification is used to enhance learning outcomes (e.g., [Denny, 2013](https://dl.acm.org/doi/abs/10.1145/2470654.2470763?casa_token=XsWtSZeFt-QAAAAA:MPWbtFfjzQZgWzyTI9hWROarJb1gJDWqDHNG4Fyozzvz3QIK-kMuMxfSwE26y9lKYUuZnV7aDZI)), model online communities (e.g., [Bista, 2012a](https://ieeexplore.ieee.org/abstract/document/6450959)), and promote sustainable behavior (e.g., [Berengueres et al., 2013](https://ieeexplore.ieee.org/abstract/document/6483512?casa_token=tmdUK7mtSSEAAAAA:ZxJnvYNAcuRaMHbwNqTJnahpbxal9xc9kHd6mY4lIahFhWn2Gmy32VDowMLVREQjwVIMhd9wcvY)). Gamification can serve as a "means of supporting user engagement and enhancing positive patterns in service use, such as increasing user activity, social interaction, or quality and productivity of actions" ([Hamari, Koivisto & Sarsa, 2014](https://ieeexplore.ieee.org/abstract/document/6758978?casa_token=F2o_LQE-CNgAAAAA:vA_xBEe0ltKmMPRmTfkyW78LThHP9hLKK06oj1gKpOeDfoCTG7l_p-KSVlcdhNpaErLjzrm8p90)). 
 
- A review on 91 scientific studies reveals that gamification provides overall positive effects in 71% of cases, 25% of cases no effect and only in 3% of studies were negative results reported ([Majuri et al., 2018](https://trepo.tuni.fi/bitstream/handle/10024/104598/gamification_of_education_2018.pdf)). such as increased engagement and enjoyment, while awcknowledging that the effectiveness is context-dependent. Despite the overwhelming majority of positive results, some studies indicate negative effects of gamification and suggest that there are some caveats. One source of negative effects are higher perceived competition of the interaction with peers, which could demotivate some users ([Hakulinen et al., 2013](https://ieeexplore.ieee.org/abstract/document/6542238)). Another reason for critique is the lack of clear theoretical foundation and the resulting diverse approach to the questions. 
+While a universally accepted definition is still lacking, gammification is best described as "a process of enhancing a service with affordances for gameful experiences in order to support user's [sic] overall value creation” ([Huotari & Hamari, 2012, p. 19](https://dl.acm.org/doi/abs/10.1145/2393132.2393137?casa_token=MU2yq2P4TOoAAAAA:Xuy9ZEzo2O7H-WCbqMheezkrodpab2DlFWkLjVt3jYExuP--vsjEROt4BKt5ZEbVou9rVnQSQBs)). In other words, applying gammification does not turn a service into a game, it rather enriches it with motivational elements popular in gaming, such as points, levels, badges, and leaderboards ([Deterding, 2012](https://dl.acm.org/doi/fullHtml/10.1145/2212877.2212883?casa_token=B9RD9ZPneIMAAAAA:34lrdGKwOUZyZu8fLobERuPLIBzNQxxwlgWLJnonn5Ws8Ya65aO_pdifhlHiSBwjDb0mWyFD0aM), [Hamari, Koivisto & Sarsa, 2014](https://ieeexplore.ieee.org/abstract/document/6758978?casa_token=F2o_LQE-CNgAAAAA:vA_xBEe0ltKmMPRmTfkyW78LThHP9hLKK06oj1gKpOeDfoCTG7l_p-KSVlcdhNpaErLjzrm8p90)). 
+Zichermann & Linder (2010) argue that intrinsic motivation is unreliable and variable. Therefore, gamification can be used to craft extrinsic motivators that help internalize intrinsically motivated behavior. It is crucial to do this with non-economic incentives, as monetary rewards may crowd out intrinsic motivation ([Gneezy & Rustichini, 2000](https://academic.oup.com/qje/article-abstract/115/3/791/1828156)). 
 
-The design process of the gamification elements can be further influenced by insights from related social science research. Namely how to counter some psychological biases affecting decision making in small committees as well as leveraging additionally motivational factors generated by *loss-aversion* and the resulting *endowment effect*.
+One field where gamification has not yet been systematically applied is voting behavior, particularly governance participation. A notable exception is a large-scale experiment involving 61 million Facebook users, where researchers found that an *I voted* indication on users' status pages may have led to approximately 340,000 additional voters in the 2010 U.S. election ([Bond et al., 2012](https://www.nature.com/articles/nature11421) and [this article](https://www.nature.com/news/facebook-experiment-boosts-us-voter-turnout-1.11401)). The main driver was considered to be peer pressure among Facebook friends. While researchers did not explicitly link this intervention to gamification, it can be interpreted as such, and may have incentivize participation among a small group. 
 
-Literature has shown, that small decision making groups tend to suffer from *group think*. This bias describes the situation, where the outcome from the decision process is far from optimal, because the individuals of the group do not speak their opinions freely ([Janis, 1971](http://agcommtheory.pbworks.com/f/GroupThink.pdf)) or are influenced in a way that they act against their best knowledge (consciously or unconsciously). This issue arises especially in groups comprised of members with different power and status. Major disasters have been accounted to *group think*, such as the *Bay of Pigs Invasion* and the *Space Shuttle Challenger disaster* ([Janis, 1991](https://williamwolff.org/wp-content/uploads/2016/01/griffin-groupthink-challenger.pdf)). In later analyses it was found that there were plenty of evidence available, which had been willingful neglected by committee members. This problem is also related to the pressure to behave conform with authority figures, as illustrated by famous psychological experiments (e.g., [Milgram, 1963](https://www.demenzemedicinagenerale.net/pdf/MilgramOriginalWork.pdf), [Asch, 1961](https://psycnet.apa.org/record/1952-00803-001)). It is crucial to keep that in mind, to mitigate that problem by dividing the final decision between important stake-holders. However, knowing about this issue, we can implement mechanisms to further improve the outcome of the decision making. A study by [MacDougall & Baum (1997)](https://journals.sagepub.com/doi/abs/10.1177/104973239700700407) has shown that explicitly announcing a "devil's advocate" can improve the outcome by challenging the consensus frequently.
+A similar example is the well-known *I voted* badge used in U.S. elections, which has proven quite successful ([see](https://www.usvotefoundation.org/voter-reward-badge)). Voters enjoy displaying the badge and often motivate others to vote as well. Some business even offer perks to customers who show the badge.
 
-Studies in behavioral economics further show that individual decision making is influenced by *loss-aversion*. This results from a non-linear utility function with different shapes in the gain and loss domain of a subjective evaluation of an outcome relative to some reference point. Specifically, the absolute dis-utility of a loss is higher than the gain in utility of a corresponding gain ([Kahneman & Tversky, 1992](https://link.springer.com/article/10.1007/BF00122574)). A resulting effect of that is the *endowment effect* ([Kahneman, Knetsch & Thaler, 1990](https://www.journals.uchicago.edu/doi/abs/10.1086/261737)), which describes the situation where a good is valued much more only because of the fact of possessing it. A practical implication for design of incentive systems is that users are exerting higher effort to keep something once there is the option to lose it again. 
+ A review of 91 scientific studies on gamificaton in education revealed that 71% reported mainly positive effects, such as increased engagement and enjoyment, while 25% showed no significant effect, and only 3% reported negative outcomes ([Majuri et al., 2018](https://trepo.tuni.fi/bitstream/handle/10024/104598/gamification_of_education_2018.pdf)). While acknowledging the effectiveness is context-dependent, and despite the overwhelming majority of positive results, some studies do not report negative effects, highlighting important caveats. One source of negative impact is increased perceived competition among peers, which can demotivate certain users ([Hakulinen et al., 2013](https://ieeexplore.ieee.org/abstract/document/6542238)). Another common critique is the lack of a clear theoretical foundation, leading to diverse and inconsistent approaches across studies. 
+
+The design process behind gamification elements can be further informed by research from related social science, particularly in countering psychological biases that affect decision-making in small committees, and in leveraging additionally motivational factors such as *loss-aversion* and the resulting *endowment effect*.
+
+Literature has shown that small decision-making groups often suffer from *groupthink*, a bias in which the outcome of the decision process is far from optimal, as individuals do not freely express their opinions ([Janis, 1971](http://agcommtheory.pbworks.com/f/GroupThink.pdf)) or are influenced to act against their better judgement, whether consciously or unconsciously. This issue is particularly pronounced in groups comprised of members with differing levels of power and status. Major disasters have been attributed to *groupthink*, including the *Bay of Pigs Invasion* and the *Space Shuttle Challenger disaster* ([Janis, 1991](https://williamwolff.org/wp-content/uploads/2016/01/griffin-groupthink-challenger.pdf)). 
+
+Subsequent analyses revealed that committe members often willfully ignored substantial evidence. This problem is closely tied to the pressure to conform to authority figures, as demonstrated by well-known psychological experiments such as those by [Milgram, 1963](https://www.demenzemedicinagenerale.net/pdf/MilgramOriginalWork.pdf) and [Asch, 1961](https://psycnet.apa.org/record/1952-00803-001). 
+
+It is crucial to remain aware of these dynamics and mitigate them by distributing final decision-making power among key stake-holders. With this awareness, mechanisms can be implemented to further improve decision outcomes. For example, a study by [MacDougall & Baum (1997)](https://journals.sagepub.com/doi/abs/10.1177/104973239700700407) demonstrated that explicitly appointing a "devil's advocate" can enhance results by regularly challenging group consensus.
+
+Studies in behavioral economics show that individual decision-making is influenced by *loss-aversion*. This phenomenon arises from a non-linear utility function, where the subjective evaluation of outcomes differs between gains and lossess relative to a reference point. Specifically, the disutility of a loss is greater than the utility gained from an equivalent gain ([Kahneman & Tversky, 1992](https://link.springer.com/article/10.1007/BF00122574)). One consequence of this is the *endowment effect* ([Kahneman, Knetsch & Thaler, 1990](https://www.journals.uchicago.edu/doi/abs/10.1086/261737)), which describes the tendency to value an item more simply because one possesses it. A practical implication for incentive system design is that users tend to exert greater effort to retain something when there is a possibility of losing it. 
  
  
-In conclusion, a carefully designing gamified experience can improve the overall governance process and result in more active discussions, and hopefully better decisions.
+In conclusion, carefully designing a gamified experience can enhance the overall governance process, leading to more active discussions, and, ideally, better decisions.
 
 
 ## Awarding mechanism (WIP)
-In general, the most commonly used gamification elements are ([Hamari, Koivisto & Sarsa, 2014](https://ieeexplore.ieee.org/abstract/document/6758978?casa_token=F2o_LQE-CNgAAAAA:vA_xBEe0ltKmMPRmTfkyW78LThHP9hLKK06oj1gKpOeDfoCTG7l_p-KSVlcdhNpaErLjzrm8p90)):
+In general, the most commonly used gamification elements include ([Hamari, Koivisto & Sarsa, 2014](https://ieeexplore.ieee.org/abstract/document/6758978?casa_token=F2o_LQE-CNgAAAAA:vA_xBEe0ltKmMPRmTfkyW78LThHP9hLKK06oj1gKpOeDfoCTG7l_p-KSVlcdhNpaErLjzrm8p90)):
 
 * Points
-* Badges (Trophies)
+* Badges (or trophies)
 * Achievements
 * Levels
 
-A very complex task is to design an automatic mechanism to award members NFTs based on their on-chain (and potentially off-chain) behavior. On the one hand, focusing only on easily measurable outcome levels of participation (e.g., speed of voting, pure quantity of propositions) can easily backfire and are prone to be abused. In addition, it is hard to deduce the quality of a vote by those quantitative measurements. To mitigate this, it is important to observe the whole process and the later outcome of the election. 
+Designing an automatic mechanism to award members NFTs based on their on-chain (and potentially off-chain) behavior is highly complex. On one hand, focusing solely on easily measurable outcomes, such as voting speed or the sheer number of propositions, can backfire and is prone to abuse. Moreover, assessing the quality of a vote through quantitative metrics alone is challenging. To address this, it is essential to observe the entire process and the eventual outcome of the election. 
 
-On the other hand, only incentivizing positive election outcomes could make members too conservative, only proposing winners, neglecting provocative but potentially beneficial proposals. The best strategy is to come up with a mix of different NFTs where the positive weights of the individual NFTs are less severe and therefore leave enough space for all behavior. 
+On the other hand, incentivizing only positive election outcomes could lead members to become onverly conservative, proposing only safe, likely-to-win ideas while neglecting provocative but potentially beneficial proposals. The best strategy, therefore, is to design a mix of different NFTs, where the positive weighting of each individual NFTs is less pronounced, allowing room for a broader range of behaviors. 
 
-In addition, the proposed NFTs should also incorporate important insights from social science research (as mentioned above e.g., to incorporate preventive measures against *Groupthink* or design some NFTs to leverage *Loss-Aversion*).
+In addition, the proposed NFTs should incorporate important key insights from social science research, as mentioned above. For example, some NFTs could include preventive measures against *Groupthink*, while others could be designed to leverage *Loss-Aversion*.
 
 ### Achievements (static)
 
-Achievements are absolute steps to be reached and cannot be lost, once obtained. Potential triggers could be:
+Achievements are absolute milestones that, once reached, cannot be lost. Potential triggers include:
 
 * Become a collective member of a certain age
 
 
 ### Badges (perishable)
-Generally, Badges are perishable and resemble an achievement relative to something. This means, once the relative status is lost, so is the badge. This is a very interesting concept as it incorporates the motivating factor of the *endowment-effect* (see literature section), where individuals exert higher motivation to hold on to the badge.
+Badges are generally perishable and resemble an achievement relative to a specific status or condition. In other words, once the relative status is lost, the badge is forfeited. This dynamic introduces an intriguing motivational factor known as the *endowment-effect* (see literature section), where individuals are more driven to retain something they already possess. 
 
-Those are good to include states of the situation such as:
+Badges are well-suited to reflect situational states such as:
 
-* Be the most backed member (if there is some hierarchy in the system)
-* Be the oldest member
-* The devil's advocate (frequently vote against the majority of other members) 
+* Being the most backed member (if a hierarchy exists within the system)
+* Being the oldest member
+* Acting as the devil's advocate (frequently voting against the majority) 
 
 ### Levels (ranks)
-Gaining certain badges could also mean we can implement some level system which could essentially sum up all the badges and achievements into one quantifiable metric.
+Earning certain badges opens the possibility of implementing a level system that could essentially sum up all badges and achievements into one quantifiable metric.
 
 ### Actions
-The following list, composed by Raul Romanutti, illustrates several frequent actions members can perform and build a good basis of outcome variables to be entwined in an awarding mechanism. This is highly context-specific but might give some examples and are suited to treasury spendings and other proposals.
+The following list, compiled by Raul Romanutti, highlights several common actions that members can perform, offering a solid basis of outcome variables to be integrated into an awarding mechanism. While highly context-specific, the list may serve as a useful reference for treasury expenditures and other proposals.
 
 * Vote on a treasury proposal motion
 * Vote on a runtime upgrade motion
-* Vote on referendum 
+* Vote on a referendum 
 * Submit an external motion proposal
 * Submit a preimage for a proposal 
 * Close a motion after majority is reached
-* Vote on a treasury proposal motion (proposed by community members)
-* Endorse a tip proposal (proposed by community members)
-* Open a tip to a community member
+* Vote on a treasury proposal motion (submitted by community members)
+* Endorse a tip proposal (submitted by community members)
+* Open a tip for a community member
 * Open a bounty proposal
 * Vote on a bounty proposal
-* Vote on a Bounty curator nomination
-* Open a motion to unassign a bounty curator
-* Become the curator of an active bounty
+* Vote on a bounty curator nomination
+* Propose a motion to unassign a bounty curator
+* Serve as the curator of an active bounty
 * Propose an external motion for a specific chain to use a common-good chain slot
 * Vote on an external motion for a specific chain to use a common-good chain slot
 
 ## NFT Gallery
-A prerequisite for NFTs to develop their motivating effect, it is necessary to visually display them and make them viewable in NFT galleries. This requires the support of wallets and explorers. Due to the popularity of NFTs, many of projects are currently working on those solutions and it is expected that solutions will further improve.
+For NFTs to develop a motivating effect, they must be visually displayed and accessible through NFT galleries. Support from wallets and blockchain explorers is essential to achieve this. Given the popularity of NFTs, many projects are actively developing such solutions, from which further improvements are expected. 
 
-As an additional benefit, governance focused applications could orderly display the members, their achievements / badges and levels, which can make it also much more easy and enjoyable for outsiders of the decision-making process to compare and engage with the collective members. This could substantially improve the engagement of members, and results are more precise in representing the opinion of all stakeholders. This, in turn, would further increase the incentives exerted by the NFTs on the members.
+As an additional benefit, governance-focused applications could present members, their achievements, badges, and levels in an organized an appealing way. This would make it easier and more enjoyable for outsiders, those not direcly involved in the decision-making process, to compare and engage with collective members. A possible outcome would be a substantial improvement in member engagement, leading to a more accurate representation of all stakeholders' opinions. In turn, this could further enhance the incentives that NFTs offer to members.
 
+**For inquieries or questions please contact**: [Jonas Gehrlein](/team_members/Jonas.md)
