@@ -194,7 +194,7 @@ The next parameter to configure is $a$. A challenge arises in that if a validato
 
 **For inquieries or questions, please contact** [Jeffrey Burdges](/team_members/JBurdges.md)
 
-[^1] referred to as a commitment in Jeff's write-up.
+[^1]: Referred to as a commitment in Jeff's write-up.
 
 
 

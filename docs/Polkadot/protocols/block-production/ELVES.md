@@ -10,7 +10,7 @@ title: ELVES
 
 </center>
 
-In mythology, elves have long been known as symbols of efficiency, security, and harmony. Polkadot and Kusama also have their own ELVES, a key protocol developed by the Web3 Foundation research team to help both blockchain networks achieve greater security and scalability. This blog post aims to introduce the protocol, explain how it works, and outline the ultimate benefits for users.
+In mythology, elves have long been known as symbols of efficiency, security, and harmony. Polkadot and Kusama also have their own ELVES, a key protocol developed by the Parity research team to help both blockchain networks achieve greater security and scalability. This blog post aims to introduce the protocol, explain how it works, and outline the ultimate benefits for users.
 
 ## The basics
 A blockchain protocol usually consists of a network of nodes, typically ranging from hundreds to thousands. Each node downloads and verifies every block of transactions before participating in a majority decision to finalize them. The process keeps the blockchain secure under the assumption that at least two-thirds of the nodes behave correctly. And even if up to about thirty percent of the nodes fail or are hacked, the blockchain remains secure. Building on this premise, the focus shifts to a Proof-of-Stake (PoS) set up and, consequently, to the cryptoeconomic security of Polkadot and Kusama.
