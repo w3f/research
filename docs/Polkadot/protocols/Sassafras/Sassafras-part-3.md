@@ -130,8 +130,7 @@ This concludes the three-part blog post series on Sassafras.  Here are some key 
 * **Maintaining the secrecy of a block producer:** Sassafras ensures the secrecy of block producers to mitigate against denial-of-service (DoS) attacks.
 * **Lightweight:** Sassafras features exceptionally low communication and computational complexity and scales better than existing solutions.
 
-
-**For inquieries or questions, please contact:** [Elizabeth Crites](team_members/elizabeth.md)
+**For more information or questions, please contact:** [Elizabeth Crites](team_members/elizabeth.md)
 
 <!-- * **Lightweight computational and block overhead:** Sassafras features exceptionally low communication and computational complexity and scales better than existing solutions. High computational costs often result in slow block propagation, while significant block overhead on the blocks causes very slow synchronization for the new nodes. -->
 <!-- * **Implicit forward-secure signature properties:** In PoS-based blockchain protocols, employing a forward-secure signature scheme is crucial to be secure against adaptive adversaries because it prevents validators from producing blocks in the past after being compromised. However, forward-secure signature schemes are typically less efficient than, for example, the Schnorr signature scheme commonly used in blockchain protocols. Sassafras achieves forward security without explicitly deploying a forward-secure signature scheme, utilizing the efficient Schnorr signature scheme (or any other signature scheme) instead. -->

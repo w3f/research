@@ -66,6 +66,6 @@ Our next blog post [Sassafras Part 2 - Deep Dive](sassafras-part-2), will explai
 
 So stay tuned, brave reader. There's much more to discover in our upcoming Sassafras series, which is packed with valuable insights!
 
-**For inquieries or questions, please contact:** [Elizabeth Crites](/team_members/elizabeth.md)
+**For more information or questions, please contact:** [Elizabeth Crites](/team_members/elizabeth.md)
 
 [def]: Sassafras-diagram.png

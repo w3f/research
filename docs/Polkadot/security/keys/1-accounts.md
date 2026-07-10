@@ -53,4 +53,4 @@ Importantly, all known pairing-friendly elliptic curves suffer from various weak
 
 A real world example is the BN curve used during ZCash development, which was later found to have weaknesses. After launch, the team had to design and migrate to a [new curve](https://z.cash/blog/new-snark-curve/) to restore security margins. Similar transitions are expected in the future, for much the same reason that RSA key sizes gradually increase over time. 
 
-**For further inquieries or questions please contact**: [Jeffrey Burdges](/team_members/jeff.md)
+**For further information or questions please contact**: [Jeffrey Burdges](/team_members/jeff.md)

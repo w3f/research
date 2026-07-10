@@ -4,7 +4,7 @@ title: Alistair Stewart
 
 <center>
 
-![](Alistair.jpg)
+<iframe width="560" height="315" src="https://www.youtube.com/embed/0D-s3TtwS0U?start=7" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 alistair@parity.io
 

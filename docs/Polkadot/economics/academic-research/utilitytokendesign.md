@@ -19,6 +19,6 @@ On one side of the platform, users derive utility from consuming the services it
 
 The main results of the analysis are as follows: First, utility token markets are generally efficient, as they lead to the socially optimal provision of services. Second, a key tension has been identified between the dynamics of utility token value, specifically between the evolution of the services provided and the payment mechanisms on the users’ side. 
 
-**For inquieries or questions please contact**: [Jonas Gehrlein](/team_members/Jonas.md)
+**For more information or questions please contact**: [Jonas Gehrlein](/team_members/Jonas.md)
 
 

@@ -141,7 +141,7 @@ Once the auction concludes, timing depending on the treatment, participants rece
 ### Implementation
 The experiment will be implemented using [oTree](https://www.sciencedirect.com/science/article/pii/S2214635016000101), a platform for conducting online experiments. oTree provides the necessary infrastructure to create sessions, distribute links to participants, and maintain a database of behavioral data. It combines Python on the backend with a flexible frontend built using HTML/CSS and Django. 
 
-**For inquieries or questions please contact** [Jonas Gehrlein](/team_members/Jonas.md)
+**For more information or questions please contact** [Jonas Gehrlein](/team_members/Jonas.md)
 
 [^1]: For an analysis of the single-unit case take a look at: Häfner, S., & Stewart, A. (2021). Blockchains, Front-Running, and Candle Auctions. Working Paper, [SSRN](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3846363).
 

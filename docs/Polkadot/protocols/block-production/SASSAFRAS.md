@@ -192,7 +192,7 @@ For $s=600$, this yields a probability below $4 * 10^{-13}$, which is sufficient
 
 The next parameter to configure is $a$. A challenge arises in that if a validator $v$ receives $a$ winning tickets during an epoch, an adversary observing this will deduce that no additional blocks will be produced by $v$.
 
-**For inquieries or questions, please contact** [Jeffrey Burdges](/team_members/JBurdges.md)
+**For further information or questions, please contact** [Jeffrey Burdges](/team_members/JBurdges.md)
 
 [^1]: Referred to as a commitment in Jeff's write-up.
 

@@ -104,6 +104,13 @@ const sidebars = {
           items: [
             {
               type: 'category',
+              label: 'Censorship Resistance',
+              link: {type:'doc', id:'Polkadot/security/censorship-resistance/index'},
+              items: [],
+            },
+        
+            {
+              type: 'category',
               label: 'Keys',
               link: {type:'doc', id:'Polkadot/security/keys/index'},
               items: [

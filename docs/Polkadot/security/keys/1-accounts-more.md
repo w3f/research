@@ -66,5 +66,5 @@ The [dalek ecosystem](https://github.com/dalek-cryptography) offers a remarkably
 
 All these crates use Ristretto points, so adopting Ristretto for account public keys provides access to advanced tools for building protocols that avoid pairings and operate directly on account keys. In principle, these tools could be abstracted to support other twisted Edwards curves, such as FourQ and Zcash's Jubjub. Abstracting them for short Weierstrass curves like secp256k1, may result in the loss of certain batching optimizations. 
 
-**For further inquieries or questions please contact**: [Jeffrey Burdges](/team_members/jeff.md)
+**For further information or questions please contact**: [Jeffrey Burdges](/team_members/jeff.md)
 

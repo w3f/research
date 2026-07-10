@@ -496,7 +496,7 @@ Observation suggets that over every 10,000 seconds, the clock frequency changes 
 Frequency Correction within a Week
 </div>
 
-**For inquieries or questions, please contact** [Alistair Stewart](/team_members/alistair.md)
+**For further information or questions, please contact** [Alistair Stewart](/team_members/alistair.md)
 
 [^1]: An epoch and a sync-epoch are distinct concepts.
 

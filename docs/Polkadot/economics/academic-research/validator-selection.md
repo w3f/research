@@ -236,7 +236,7 @@ Several challenges remain in applying the theoretical framework to the validator
    - Using simulations to generate a wide number of learning sets and corresponding rankings, enabling evaluation of which configurations most effectively improve utility estimation. 
 2. **Limitations of UTAStar.** UTAStar assumes piecewise linear and monotonic marginal utility functions. While alternative methods offer improvements in this regard, they may introduce additional implementation complexity. 
 
-**For inquieries or questions, please contact** [Jonas Gehrlein](/team_members/Jonas.md)
+**For more information or questions, please contact** [Jonas Gehrlein](/team_members/Jonas.md)
 
 [^1]: As mentioned above, a user might prefer larger operators in which case the statement would not be true.
 
