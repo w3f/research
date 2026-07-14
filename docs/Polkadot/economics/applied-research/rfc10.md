@@ -1,6 +1,7 @@
 # Burn Coretime Revenue (accepted): RFC-0010
 
 
+
 |                 |                                                                                             |
 | --------------- | ------------------------------------------------------------------------------------------- |
 | **Start Date**  | 19.07.2023                                                                   |
@@ -32,4 +33,4 @@ This pattern shows that Coretime sales are a source of inconsistent and unpredic
 
 - **Collective Value Accrual:** Building the previous argument, burning the revenue also generates a positive externality: it reduces the overall issuance of DOT, increasing the value of each remaining token. This benefits token holders collectively and equally, unlike the incentive-based effects described above. Clearly, this is the preferred option, as burns allow all token holders to share in Polkadot's success as Coretime usage grows.
 
-**For more information or inquieries, please contact** [Jonas Gehrlein](/team_members/Jonas.md)
+**For more information or inquieries, please contact:** [Jonas Gehrlein](/team_members/Jonas.md)

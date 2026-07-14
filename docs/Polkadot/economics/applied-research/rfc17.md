@@ -194,4 +194,4 @@ This RFC builds extensively on the ideas put forward in [RFC-1](https://github.c
 
 Special thanks to [Samuel Haefner](https://samuelhaefner.github.io/), [Shahar Dobzinski](https://sites.google.com/site/dobzin/), and [Alistair Stewart](/team_members/alistair.md) for the fruitful discussions and helping to shape the structure of this RFC.
 
-**For more information or inquieries, please contact** [Jonas Gehrlein](/team_members/Jonas.md)
+**For more information or inquieries, please contact:** [Jonas Gehrlein](/team_members/Jonas.md)

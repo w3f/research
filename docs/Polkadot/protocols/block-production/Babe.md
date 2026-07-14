@@ -48,12 +48,12 @@ where $\ell_{vrf}$ is the length of the VRF's first output (randomness value).
 
 BABE consists of three phases:
 
-#### 1st: Genesis phase
+### 1st: Genesis phase
 
 The unique genesis block, manually produced in this phase, contains a random number $r_1$ used during the first two epochs for slot leader assignments. Session public keys of initial validators are ($\pkvrf_{1}, \pkvrf_{2},..., \pkvrf_{n}$), $(\pksgn_{1}, \pksgn_{2},..., \pksgn_{n}$).
 
 
-#### 2nd: Normal phase
+### 2nd: Normal phase
 
 By the time the second phase begins, each validator must have divided their timeline into slots after receiving the genesis block. Validators determine the current slot number according to their local timeline, as explained further in Section 4. If validators join BABE after the genesis block, they should also divide their timelines into slots.
 
@@ -82,7 +82,7 @@ Regardless of whether $V_j$ is a slot leader, upon receiving a block $B = (sl, H
 If all checks pass, $V_j$ adds $B$ to $C'$; otherwise, it discards the block. At the end of the slot, $P_j$ selects the best chain according to the chain selection rule outlined in Section 3.
 
 
-#### 3rd: Epoch update
+### 3rd: Epoch update
 
 Before starting a new epoch $e_m$, validators must obtain the new epoch randomness and the updated active validator set. A new epoch begins every $R$ slots, starting from the first slot. 
 
@@ -496,7 +496,7 @@ Observation suggets that over every 10,000 seconds, the clock frequency changes 
 Frequency Correction within a Week
 </div>
 
-**For further information or questions, please contact** [Alistair Stewart](/team_members/alistair.md)
+**For further information or questions, please contact:** [Alistair Stewart](/team_members/alistair.md)
 
 [^1]: An epoch and a sync-epoch are distinct concepts.
 

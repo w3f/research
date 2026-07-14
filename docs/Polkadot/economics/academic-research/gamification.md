@@ -115,4 +115,4 @@ For NFTs to develop a motivating effect, they must be visually displayed and acc
 
 As an additional benefit, governance-focused applications could present members, their achievements, badges, and levels in an organized an appealing way. This would make it easier and more enjoyable for outsiders, those not direcly involved in the decision-making process, to compare and engage with collective members. A possible outcome would be a substantial improvement in member engagement, leading to a more accurate representation of all stakeholders' opinions. In turn, this could further enhance the incentives that NFTs offer to members.
 
-**For more information or questions please contact** [Jonas Gehrlein](/team_members/Jonas.md)
+**For more information or questions please contact:** [Jonas Gehrlein](/team_members/Jonas.md)

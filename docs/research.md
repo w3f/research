@@ -13,6 +13,6 @@ The [research team](team_members) collaborates closely with development groups t
 
 The core research team's efforts are carried out in collaboration with both industrial initiatives and academic institutions.
 
-Talk to us on Element at.
+Talk to us on Element at:
 
 <!-- <DocCardList /> -->

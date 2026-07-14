@@ -102,8 +102,10 @@ Due to the [NPoS algorithm](https://wiki.polkadot.network/docs/learn-phragmen), 
 
 The following graph illustrates these metrics.
 
-<div style={{width: "70%"}}>
-  <img src="https://raw.githubusercontent.com/polkadot-fellows/RFCs/fd7dbb2cc6defefaa0c601d463be8fa86347ec4e/text/empirical_analysis.png" alt="Empirical Queue" style={{width: "100%"}} />
+<div align="center">
+  <div style={{width: "70%"}}>
+    <img src="https://raw.githubusercontent.com/polkadot-fellows/RFCs/fd7dbb2cc6defefaa0c601d463be8fa86347ec4e/text/empirical_analysis.png" alt="Empirical Queue" style={{width: "100%"}} />
+  </div>
 </div>
 
 This graph combines two metrics. 
@@ -186,4 +188,4 @@ Any compatibility impacts should be assessed by the technical teams.
 - Alistair Stuart wrote an intitial [overview](https://hackmd.io/SpzFSNeXQM6YScW1iODC_A)
 - [Other research](https://arxiv.org/pdf/2208.05408.pdf) further mitigates the risk of LRAs.
 
-**For more information or inquieries, please contact** [Jonas Gehrlein](/team_members/Jonas.md) or [Alistair Stewart](/team_members/alistair.md)
+**For more information or inquieries, please contact:** [Jonas Gehrlein](/team_members/Jonas.md) or [Alistair Stewart](/team_members/alistair.md)

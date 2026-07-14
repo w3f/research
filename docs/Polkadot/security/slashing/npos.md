@@ -5,7 +5,7 @@ title: Slashing Across Eras with NPoS
 
 The slashing algorithm must be both fair and effective. To achieve this, slashing should respect nominators' exposure, be resistant to Sybil attacks, and maintain monotonicity.
 
-## Reduced rewards
+# Reduced rewards
 
 ## Slashing within one era
 
@@ -187,6 +187,6 @@ In this way, validator $\nu$ cannot reclaim more than $f' f_1 s$ from a slash of
 Both schemes yield similar payouts initially, but the second scheme, where rewards are based only on validator slashes, results in smaller payouts when cross-era slashing logic is applied. For instance, if validator $\nu$ receives similar slashes across multiple epochs, the $r_1$ factor reduces the total reward under the validator-only scheme. Still, if $\nu$ has disjoint nominators in each epoch, the impact of the $r_1$ factor is minimal.
 
 
-**For further questions and inquieries, please contact**: [Jeffrey Burdges](/team_members/jeff.md)
+**For further questions and inquieries, please contact:** [Jeffrey Burdges](/team_members/jeff.md)
 
 

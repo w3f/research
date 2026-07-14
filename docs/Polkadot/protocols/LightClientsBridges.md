@@ -19,4 +19,4 @@ Since the accountable light client system (linked above), and by extension the b
 
 The security of these optimizations has been formally proven. Moreover, the proposed scheme has been fully implemented and benchmarked, demonstrating clear improvements over the classical BLS scheme.
 
-**For more information or questions, please contact** [Alistair Stewart](/team_members/alistair.md)
+**For more information or questions, please contact:** [Alistair Stewart](/team_members/alistair.md)

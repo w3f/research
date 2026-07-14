@@ -24,7 +24,7 @@ Jonas joined Parity as a research scientist in July 2020. His work focuses on ec
 * [Making History, Again: Polkadot Auctions 1-5](https://polkadot.network/blog/making-history-again-polkadot-auctions-1-5/)
 
 
-**Academic Publications**
+**Selected Publications**
 
 * Boehmer, N., Brill, M., Cevallos, A., Gehrlein, J., Sánchez-Fernández, L., & Schmidt-Kraepelin, U. (2024, March). Approval-based committee voting in practice: a case study of (over-) representation in the Polkadot blockchain. In Proceedings of the AAAI Conference on Artificial Intelligence (Vol. 38, No. 9, pp. 9519-9527).
 

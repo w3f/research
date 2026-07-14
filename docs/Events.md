@@ -1,6 +1,8 @@
 ---
 title: Events
 ---
+**Conferences 2026**
+
 **Conferences 2025**
 
 [CRYPTO](https://crypto.iacr.org/2025/) (August 17-21)
@@ -11,4 +13,3 @@ Participants: Chen-Da Liu-Zhang, Elizabeth Crites, and Alistair Stewart
 
 Participants: Jeff Burdges, Elizabeth Crites, Alistair Stewart, and Sergey Vasilyev
 
-**Conferences 2026**

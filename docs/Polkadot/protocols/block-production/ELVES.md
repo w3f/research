@@ -76,4 +76,4 @@ Like the elves of legend who work, protect, and preserve balance tirelessly behi
 
 Aside from this blog post, the Parity research team has also created a [video](https://www.youtube.com/watch?v=m2_EpLj8hK0) that gives a quick and clear explanation of ELVES.
 
-*For further information or questions please contact:** [Alistair Stewart](http://localhost:3000/team_members/alistair)
+**For further information or questions please contact:** [Alistair Stewart](http://localhost:3000/team_members/alistair)

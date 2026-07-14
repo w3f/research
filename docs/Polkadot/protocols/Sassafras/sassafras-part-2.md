@@ -10,8 +10,8 @@ This is the second in a series of three blog posts that describe the new consens
 **Part 2 - Deep Dive:** The aim of this blog post is to dive into the details of the Sassafras protocol, focusing on technical aspects and security.
 
 **[Part 3 - Compare and Convince](Sassafras-part-3):**
-:::
 The aim of this blog post is to offer a comparison to similar protocols and convince the reader of Sassafras's value. Let's now take a deep dive into the Sassafras protocol, starting with some background on leader election protocols.
+:::
 
 ## Sassafras: Efficient Batch Single Leader Election
 

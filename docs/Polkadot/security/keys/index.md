@@ -63,5 +63,5 @@ There are roughly four cryptographic layers in Polkadot:
  - [*Transport layer static keys*](https://forum.web3.foundation/t/transport-layer-authentication-libp2ps-secio/69) are used by libp2p to authenticate connections between nodes. These should either be certified by the session key or potentially incorporated directly into the session key.
 
 
-**For further information or questions please contact**: [Jeffrey Burdges](/team_members/jeff.md)
+**For further information or questions please contact:** [Jeffrey Burdges](/team_members/jeff.md)
 

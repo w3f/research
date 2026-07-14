@@ -40,7 +40,7 @@ It is possible to save space by using implicit certificates to issue nominator k
 
 In essence, an account's nominator key could be defined by appending an additional 32 bytes to the account, along with any associated data. Implementing this approach requires a clear understanding of a) the appropriate structure for the associated data, and b) whether the space savings justify the added complexity of an implicit certificate scheme, primarily through [reviewing the literature](https://github.com/w3f/schnorr-dalek/issues/4). For now, simplicity is favored by avoiding implicit certificates.
 
-**For further information or questions please contact**: [Jeffrey Burdges](/team_members/jeff.md)
+**For further information or questions please contact:** [Jeffrey Burdges](/team_members/jeff.md)
 
 [^1] https://github.com/paritytech/substrate/pull/1782#discussion_r260265815
 

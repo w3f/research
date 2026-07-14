@@ -93,6 +93,7 @@ In particular, we conducted a comprehensive comparison of various protocols base
 
 While the setup phase is expected to be rare in PoS blockchain protocols, shuffle-based solutions (with the exception of WHISK) impose impractical levels of message overhead. For election messages on the blockchain, Shuffle-2 and Shuffle-3 are highly inefficient. In stark contrast, Sassafras introduces a mere 7.64 MB overhead on the blockchain. 
 
+
 | Protocol || Setup | Election |
 | -------- |--------| -------- | -------- |
 |Shuffle-1|<div class="subcolumn">Off-Chain</div><div>On-Chain</div>|<div class="subcolumn">-</div>$8790.15$ MB<div></div>|<div class="subcolumn">-</div>$123.7$ MB<div></div>|
@@ -103,6 +104,7 @@ While the setup phase is expected to be rare in PoS blockchain protocols, shuffl
 |**Sassafras**|<div class="subcolumn">Off-Chain</div><div>On-Chain</div>|<div class="subcolumn">-</div>$1.57$ MB &#x2713;<div></div>|<div class="subcolumn">$42.47$ MB</div>$7.64$ MB &#x2713;<div></div>|
 
 Table 2: Communication overhead of SSLE protocols on a blockchain.
+
 
 ### Computational Overhead
 

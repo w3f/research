@@ -23,8 +23,8 @@ To define appropriate slashing amounts, it is important to understand the annual
 :::note Question
 Should the validator be slashed more heavily than their nominators? If so, by how much? Care must be taken to avoid bankrupting validators for Level 1 and Level 2 misconducts.*
 
-**Kicking out** 
-Context: At the beginning of each era, an NPoS election is held to select validator candidates. Under normal circumstances, current validators are automatically considered candidates for the next election (unless they opt out), and nominators' lists of trusted candidates remain unchanged unless explicitly modified. In contrast, unelected candidates must reconfirm their candidacy in each era to ensure they are online and active.
+**Kicking out.** 
+At the beginning of each era, an NPoS election is held to select validator candidates. Under normal circumstances, current validators are automatically considered candidates for the next election (unless they opt out), and nominators' lists of trusted candidates remain unchanged unless explicitly modified. In contrast, unelected candidates must reconfirm their candidacy in each era to ensure they are online and active.
 :::
 
 When a validator is found guilty of misconduct:
@@ -241,5 +241,5 @@ When a validator sees both a statement of validity and a statement of invalidity
 
 If both the number of validity statements and the number of invalidity statements exceed $n/3$, there is unfortunately no way to determine who the culprits are. In such a case, which by the way should never occur,  no slashes apply, any prior slashing is reimbursed, and the blob is considered invalid to err on the side of caution.
 
-**For further questions and inquiries please contact**: [Jeffrey Burdges](/team_members/jeff.md)
+**For further questions and inquiries please contact:** [Jeffrey Burdges](/team_members/jeff.md)
 

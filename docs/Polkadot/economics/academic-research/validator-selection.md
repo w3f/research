@@ -30,10 +30,10 @@ The table above presents validators with diverse profiles, none of which dominat
 **Organization.** This entry is divided into several sections. "Underlying data" presents potentially useful data and explains how to derive additional metrics. "Filtering phase" demonstrates how a simple concept from economics can significantly reduce the number of potentially interesting validators, providing users with a more manageable set of choices. The third section explores ideas to further curate the validator set in support of the network's goals. Lastly, the "UTAStar" section outlines a sophisticated approach for estimating each user's individual marginal preference functions, enabling more precise recommendations.
 
 
-# 1. Underlying data
+## 1. Underlying data
 Collectible data from Polkadot and Kusama validators is extremely relevant to the selection process. The final data set includes metrics marked with an asterisk (*), while other variables are used to derive additional ones. The primary focus is on quantitative on-chain data, as it is verifiable and straightforward to process. This purely quantitative approach intends to complement a selection process that incorporates qualitative factors, such as a validator’s identity, reputation, or community engagement, which often influence how nominators cast their votes.
 
-## Retrievable data
+### Retrievable data
 | Name 	| Historical 	| On-Chain 	| Description 	|
 |-	|-	|-	|-	|
 | Public address* 	| No 	| Yes 	| The public identifier of the validator. 	|
@@ -48,7 +48,7 @@ Collectible data from Polkadot and Kusama validators is extremely relevant to th
 **Era Points** are awarded to validators for performing beneficial actions that support the network, primarily driven by block production. Over time, these points should be uniformly distributed, although distribution may vary if validators operate on superior setups, like more powerful hardware or more reliable internet connections. In addition, randomness may introduce significant statistical noise in the short term, leading to deviations from a uniform distribution.
 
 
-## Generated metrics
+### Generated metrics
 Some of the retrieved on-chain data might not be particularly useful for nominators, but it can still provide additional metrics that help in the selection process.
 
 | Name 	| Historical 	| On-Chain 	| Description 	|
@@ -90,12 +90,12 @@ If $z > 1.645$, the corresponding validator significantly outperforms at the 10%
 
 **Operator size.** Based on the identity of a validator, it is possible to estimate how many validators that same entity operates. For both users and the network, a reduced number of moderately sized operators is often more convenient. Selecting validators from larger operators may increase the risk of superlinear slashing, as these entities likely follow similar security practices. The failure of one validator could therefore imply the failure of several others, increasing superlinearly the likelihood of punishment. On the other hand, larger operators may have more sophisticated setups and processes, which could mitigate such risks. This metric should ultimately be considered an objective measure, leaving the final judgment up to the user.  
 
-# 2. Filtering phase
+## 2. Filtering phase
 
-## Dominance-filtering
+### Dominance-filtering
 After shaping the dataset elaborated in the section "Underlying data," it is time to begin reducing the set of validators to ease the information load for nominators. One approach is to eliminate dominated validators. Since qualitative judgements remain out of the picture, such as determining whether one "identity" is better or worse than another, it is reasonable to remove validators that are objectively inferior, as there is no rational basis for nominating them. A validator is said to dominate another when all properties are equal and at least one is strictly better. Consider the following example:
 
-## Example:
+### Example:
 | Number 	| Public Address 	| Identity 	| Self-stake 	| Nominators 	| Relative Performance 	| Outperformer 	| Active Eras 	| Operator Size 	|
 |-	|-	|-	|-	|-	|-	|-	|-	|-	|
 | 1 	| 1N6xclmDjjA 	| 0 	| 10 	| 10 	| 0 	| 0 	| 3 	| 0 	|
@@ -105,16 +105,16 @@ After shaping the dataset elaborated in the section "Underlying data," it is tim
 
 Validator 2 dominates Validator 1, meaning the latter is strictly worse in every dimension.[^1] Validator 3 also dominates Validator 1, so it can be removed from the set. Through this process, the validator set can be reduced to two. In practice, this method proves to be a powerful tool for significantly shrinking the set size.
 
-## Further curation 
+### Further curation 
 The remaining set may still undergo additional cleanup. As stated in the code of conduct, this step is optional, yet here are some suggested default actions for users:
 * Include at least one inactive validator. A suggestion would be inactive nodes based on separate processes.
 * Reduce the risk of super-linear slashing, for instance by removing multiple validators run by the same operator.
 * Remove validators running on the same machine (perhaps some analysis of IP addresses).
 
-# 3. Manual selection
+## 3. Manual selection
 After reducing the set by removing dominated validators and applying some filtering options, the user can easily select preferred validators manually. In this step, the selection is purely based on personal preferences. For example, a nominator might order the validators by their relative performance, and select those who also meet certain minimum self-stake requirements.
 
-# 4. UTAStar
+## 4. UTAStar
 As input, this method uses the filtered table from Section LINK and can be considered a natural extension of the previous method.
 ### Overview
  UTilité Additive (UTA) is a preference disaggregation method introduced by [Jacquet-Lagrèze & Siskos (1982)](https://www.sciencedirect.com/science/article/abs/pii/0377221782901552). UTAStar is an enhanced version of the original algorithm. The core idea is that the marginal utility functions of a decision maker (DM), defined over each dimension of a given criterion, can be inferred from a previous ranked list of alternatives. The method employs linear programming to indentify utility functions that respect the DM's initial ranking while incorporating additional properties, such as normalizing the maximum utility to 1.
@@ -236,7 +236,7 @@ Several challenges remain in applying the theoretical framework to the validator
    - Using simulations to generate a wide number of learning sets and corresponding rankings, enabling evaluation of which configurations most effectively improve utility estimation. 
 2. **Limitations of UTAStar.** UTAStar assumes piecewise linear and monotonic marginal utility functions. While alternative methods offer improvements in this regard, they may introduce additional implementation complexity. 
 
-**For more information or questions, please contact** [Jonas Gehrlein](/team_members/Jonas.md)
+**For more information or questions, please contact:** [Jonas Gehrlein](/team_members/Jonas.md)
 
 [^1]: As mentioned above, a user might prefer larger operators in which case the statement would not be true.
 

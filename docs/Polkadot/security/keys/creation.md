@@ -17,5 +17,5 @@ More speculative directions for improvement includes:
  - **Enhanced error correction.**  BIP39 currently uses only a basic checksum. One idea is to design schemes that correct errors by selecting words via Reed-Solomon. This would involve non-systematic wordlist creation using codewords. Naively, this limits wordlist sizes to finite field sizes (i,e., prime powers), but a workaround could be to run Reed-Solomon separately on each prime power divisor of the wordlist's order.  Alternatives such as [generalizations of Reed-Solomon codes to rings](https://hal.inria.fr/hal-00670004/file/article.pdf) could also be explored, or even using a field of slightly larger order and rejecting choices that fall outside the wordlist.
  - **Support multiple Argon2id configurations.**  If small device constraints become a serious concern, it may be useful to support multiple Argon2id configurations. The idea would be to select among a few predefined configurations using an additional output from the Reed-Solomon code.  The user's desired configuration could then be chosen via rejection sampling. 
 
-**For further information or questions please contact**: [Jeffrey Burdges](/team_members/jeff.md)
+**For further information or questions please contact:** [Jeffrey Burdges](/team_members/jeff.md)
 
