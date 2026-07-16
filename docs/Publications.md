@@ -38,9 +38,10 @@ of Threshold Schnorr Signatures](https://eprint.iacr.org/2025/1001.pdf), **CRYPT
 
 **Blog Posts:**
 
-- Fatemeh Shirazi and Armando Caracheo [A Technical View of Decentralization](https://www.parity.io/blog/a-technical-view-of-decentralization-and-where-polkadot-stands) Parity's website, June 2026.
-- Fatemeh Shirazi and Armando Caracheo [Decentralization, Reloaded](https://www.parity.io/blog/decentralization-reloaded-blockchain-user-autonomy) Parity's website, May 2026.
-- Armando Caracheo and Fatemeh Shirazi [Decentralization And the Evolution of Financial Systems](https://www.parity.io/blog/decentralization-and-the-evolution-of-financial-systems), Parity's website, February 2026.
+- Armando Caracheo, [Understanding Stablecoins: Real-World Use Cases, Benefits, & Risks](https://www.parity.io/blog/understanding-stablecoins-real-world-use-cases-benefits-and-risks), Parity's website, July 2026. 
+- Fatemeh Shirazi and Armando Caracheo, [A Technical View of Decentralization](https://www.parity.io/blog/a-technical-view-of-decentralization-and-where-polkadot-stands), Parity's website, June 2026.
+- Fatemeh Shirazi and Armando Caracheo, [Decentralization, Reloaded](https://www.parity.io/blog/decentralization-reloaded-blockchain-user-autonomy), Parity's website, May 2026.
+- Armando Caracheo and Fatemeh Shirazi, [Decentralization And the Evolution of Financial Systems](https://www.parity.io/blog/decentralization-and-the-evolution-of-financial-systems), Parity's website, February 2026.
 - Chen-Da Liu-Zhang, [ELVES](http://localhost:3000/Polkadot/protocols/block-production/ELVES), Research website, December 2025.
 - Bhargav Nagajara Batt, [BEEFY](https://research.web3.foundation/Polkadot/protocols/BEEFY), Research website, October 2025.
 - Elizabeth C. Crites, [Sassafras Part 3](https://research.web3.foundation/Polkadot/protocols/Sassafras/Sassafras-part-3), Research website, July 2025.
