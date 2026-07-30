@@ -19,7 +19,7 @@ Relying on such a method, an honest validator could submit their ticket along wi
 Once the ticket is made anonymous, the next step is to publish it to the chain without revealing its origin. While fully anonymous methods tend to be costly, a simple scheme suffices to achieve the core objectives: each validator can send their ticket to a randomly chosen peer, who then submits it on-chain as a transaction.
 
 ## Plan
-In an epoch $e_m$, BABE randomness $r_m$ is used as the ring VRF input to generate a set of outputs, which are then published on-chain. Once finalized, these outputs are sorted, and their order determines the block production sequence for epoch $e_{m+2}$.
+In an epoch $e_m$, BABE randomness $r_m$ is used as the ring VRF input to generate a set of outputs, which are then published on-chain. Once finalized, these outputs are sorted, with their order determining the block production sequence for epoch $e_{m+2}$.
 
 ## Parameters
 * $V$: The set of nominated validators
@@ -64,7 +64,7 @@ $$
 The objective is to have at least $s$ VRF outputs (tickets) published on-chain. Although this cannot be strictly guaranteed, the expected value is $xS$.
 
 #### Randomness
-At the epoch $e_m$, [BABE](polkadot/protocols/block-production/Babe) provides randomness $r_m$, defined as follows:
+At the epoch $e_m$, [BABE](http://localhost:3000/Polkadot/protocols/block-production/Babe) provides randomness $r_m$, defined as follows:
 
 $$
 r_m=H(r_{m-1}, m, \rho)
@@ -92,7 +92,7 @@ out_{m,v,i}=\texttt{Compute}_{RVRF}(sk_v, in_{m, i})
 $$
 
 2. Selects "winning" outputs below the threshold $T$: $\texttt{bake}(out_{m,v,i}) < T$,
-where $\texttt{bake()}$ maps VRF outputs to the interval $[0,1]$. The indices correponding to winning outputs form the set $I_{win}$.
+where $\texttt{bake()}$ maps VRF outputs to the interval $[0,1]$. The indices corresponding to winning outputs form the set $I_{win}$.
 
 3. Generates proofs using its copath $ask_v$ for each winning output $i \in I_{win}$,
 $$
@@ -117,7 +117,7 @@ If validator $v$'s ticket is not included on-chain before a certain block number
 
 A transaction of this type is valid for block inclusion if it can be verified. To check published transactions $(out_{m, v,i}, \pi_{m,v,i})$, the corresponding SNARK proof must hold. This verification requires:
 - the input $in_{m,i}$, which can be computed from $i$ and $r_m$,
-- the published output $out_{m,v,i}$
+- the published output $out_{m,v,i}$,
 - the aggregate public key, denoted as $apk$.
 
 These values constitute the public inputs to the SNARK verifier:

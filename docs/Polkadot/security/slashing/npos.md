@@ -11,16 +11,16 @@ The slashing algorithm must be both fair and effective. To achieve this, slashin
 
 In any era $e$, a fixed amount of stake, also referred to as base exposure, denoted by $x_{\eta,\nu,e}$, is assigned by a nominator $\eta$ to a validator $\nu$. Slashing should never exceed a nominators' exposure, as doing so incentivizes fragmentation of stash keys. Encouraging such Sybil-like behavior within Polkadot undermines fairness and distorts insights into nominator behavior. 
 
-The first step is to remove any validator $\nu$ immediately upon being slashed, which prevents repeated slashing beyond that block height. However, an inconsistency arises when $\nu$ commits multiple violations before the chain acknowledges the slash and removes them. This can introduce significant randomness into slashing penalties, increasing the governance workload and reducing slashing fairness. Additionaly, $\nu$ might equivocate retroactively, potentially to extort their own nominators.  As a countermeasure, if the system slashes validator $\nu$ in era $e$ for several distinct proportions $p_i$, then $p_{\nu,e} := \max_i p_i$ can ensure that nominator $\eta$ is only slashed by $p_{\nu,e} x_{\eta,\nu,e}$.
+The first step is to remove any validator $\nu$ immediately upon being slashed, which prevents repeated slashing beyond that block height. However, an inconsistency arises when $\nu$ commits multiple violations before the chain acknowledges the slash and removes them. This can introduce significant randomness into slashing penalties, increasing the governance workload, and reducing slashing fairness. Additionaly, $\nu$ might equivocate retroactively, potentially to extort their own nominators.  As a countermeasure, if the system slashes validator $\nu$ in era $e$ for several distinct proportions $p_i$, then $p_{\nu,e} := \max_i p_i$ can ensure that nominator $\eta$ is only slashed by $p_{\nu,e} x_{\eta,\nu,e}$.
 
 As an aside, one could define $p_{\eta,\nu,e}$ throughout to allow different slashing rates across nominators. For example, slashing the validator more heavily, i.e., $p_{\nu,\nu,e} > p_{\eta,\nu,e}$ for $\nu \ne \eta$. This approach, however, is problematic as validators can always nominate themselves.
 
-Although there are minimal concerns about multiple misbehaviors by the same validator $\nu$ within a single era, in such cases, the slashing mechanism could combine them before computing the individual slashing proportions $p_i$.  In other words, $p_{\nu,e} \ge \max_i p_i$ with equality by default. Yet, strict inequality may occur for certain combinations of $p_i$. This could complicate cross-era logic, although such issues can be addressed by considering the specific nature of each misbehavior.
+Although there are minimal concerns about multiple misbehaviors by the same validator $\nu$ within a single era, in such cases, the slashing mechanism could combine them before computing the individual slashing proportions $p_i$.  In other words, $p_{\nu,e} \ge \max_i p_i$ with equality by default. Yet, strict inequality may occur for certain combinations of $p_i$. This could complicate cross-era logic, though examining the specific nature of each misbehavior helps address these issues.
 
 In essence, the definition $p_{\nu,e} := \max_i p_i$ provides a default mechanism that is simple, fair, and commutative for combining slashes within a single era. Alternative logic remains possible, as long as the resulting slash is independent of the order in which offenses are detected. Future slashing logic may incorporate additional factors, so using $\max_i p_i$ here retains flexibility for future enhancements.
 
 
-Misbehaviors from different validators $\nu \ne \nu'$ present a separate concern. This is both because nomination must be resistant to Sybil attacks and because correlated slashing events may involve multiple validators.  Therefore, if $N_{\eta,e}$ denotes the set of validators nominated by $\eta$ in era $e$, then the total slash applied to $\eta$ when multiple validators $\nu \in N_{\eta,e}$ are slashed is:
+Misbehaviors from different validators $\nu \ne \nu'$ present a separate concern. This is both because nomination must be resistant to Sybil attacks and because correlated slashing events may involve multiple validators.  Therefore, if $N_{\eta,e}$ denotes the set of validators that $\eta$ nominates in era $e$, then the total slash applied to $\eta$ when multiple validators $\nu \in N_{\eta,e}$ are slashed is:
 
 $$
 \sum_{\nu \in N_e} p_{\nu,e} x_{\eta,\nu,e}
@@ -28,7 +28,7 @@ $$
 
 ## Slashing in past eras
 
-As hinted above, it would be misleading to assume that all events warranting the slashing of a particular stash account are detected early or occur within the same era.  If $e$ and $e'$ are distinct eras, then $x_{\eta,\nu_j,e} \ne x_{\eta,\nu_j,e'}$, and thus the previous arguments no longer hold.  In fact, summing slashes applied to different validators could quickly exceed the nominators exposure $x_{\eta,\nu,e}$.
+As hinted above, it would be misleading to assume that all events warranting a stash account's slashing come to light early, or that they all occur within the same era. If $e$ and $e'$ are distinct eras, then $x_{\eta,\nu_j,e} \ne x_{\eta,\nu_j,e'}$, and thus the previous arguments no longer hold.  In fact, summing slashes applied to different validators could quickly exceed the nominators exposure $x_{\eta,\nu,e}$.
 
 One might assume that $\min \{ x_{\eta,\nu_j,e}, x_{\eta,\nu_j,e'} \}$ represents the "same" stake across eras, but this assumption offers limited practical benefit. The suggestion, therefore, is to slash $\eta$ the amount
 
@@ -36,23 +36,23 @@ $$
 \max_e \sum_{\nu \in N_e} p_{\nu,e} x_{\eta,\nu,e}
 $$
 
-where $N_e$ denotes the set of validators nominated by $\eta$ in era $e$
+where $N_e$ denotes the set of validators that $\eta$ nominates in era $e$
 
-An extortion attack remains plausible: an adversary could run many poorly staked validators, attract nominations, and then threaten nominators with slashing.  While such attacks cannot be entirely prevented, the outer $\max_e$ helps mitigate the impact of compounded slashing across different eras.
+An extortion attack remains plausible: an adversary could run many poorly staked validators, attract nominations, and then threaten nominators with slashing.  While preventing such attacks is not entirely feasible, the outer $\max_e$ helps mitigate the impact of compounded slashing across different eras.
 
 ## Slashing spans
 
-Hitherto, slashing has been kept relatively simple, addressing some fairness concerns through the outer maximum $\max_e \cdots$. This simplicity introduces another issue:  if $\nu$ is slashed once, they may subsequently commit similar offenses without further consequences, an outcome neither fair nor effective.  As previously noted, this can occur within a single era due to validator removal upon slashing. Yet, nominators may continue to support multiple validators across eras. To eliminate this impunity and reduce ongoing risk to the network, an additional mechanism is required.
+Hitherto, slashing has been kept relatively simple, addressing some fairness concerns through the outer maximum $\max_e \cdots$. This simplicity introduces another issue:  once $\nu$ is slashed, they may commit similar offenses without further consequences, an outcome that is neither fair nor effective.  As previously noted, this can occur within a single era due to validator removal upon slashing. Yet, nominators may continue to support multiple validators across eras. To eliminate this impunity and reduce ongoing risk to the network, this section introduces an additional mechanism.
 
-The problem may be resolved by limiting the eras spanned by the outer maximum to explicit ranges $\bar{e}$. Termination occurs following an era $e \in \bar{e}$ in which any slashing events for that span $\bar{e}$ are detected. Concretely, the eras associated with a nominator $\eta$ are divided into _slashing spans_, maximal contiguous sequence of eras $\bar{e} = \left[ e_1, \ldots, e_n \right]$ such that $e_n$ is the earliest era in which $\eta$ is slashed for actions commited in one of the $e_i \in \bar{e}$.
+A solution to this problem would be to restrict the eras that the outer maximum spans to explicit ranges $\bar{e}$. Termination occurs following an era $e \in \bar{e}$, upon detection of any slashing events during that span $\bar{e}$. Concretely, this divides the eras associated with a nominator $\eta$ into _slashing spans_, maximal contiguous sequences of eras $\bar{e} = \left[ e_1, \ldots, e_n \right]$ such that $e_n$ is the earliest era in which $\eta$ faces slashing for actions commited in one of the $e_i \in \bar{e}$.
 
 Offences are then summed across slashing spans.  In other words, if $\bar{e}$ ranges over the slashing spans for $\eta$, then the total amount slashed from $\eta$ is:
 $$
 \sum_{\bar{e} \in \bar{E}} \max_{e \in \bar{e}} \sum_{\nu \in N_e} p_{\nu,e} x_{\eta,\nu,e} \tag{\dag}
 $$
-In particular, if $\eta$ is slashed in epoch 1 with the detection occurring in epoch 2, nomination resumes in epoch 3, and only then is $\eta$ slashed again for actions commited in epoch 1 and 2. These later slashes are counted as part of the same slashing span, originating from $\eta$'s initial slash in epoch 1. Any slash occurring in epoch 3 is treated as a new event and initiates a fresh slashing span.
+In particular, if $\eta$ commits a slashable offense in epoch 1 and the protocol detects it in epoch 2, nomination resumes in epoch 3. Only then the protocol slashes $\eta$, again for actions committed in epoch 1 and 2. These later slashes are counted as part of the same slashing span, originating from $\eta$'s initial slash in epoch 1. Any slash occurring in epoch 3 is treated as a new event and initiates a fresh slashing span.
 
-Slashing Span Lemma.  Any slashing span-like construction must terminate whenever slash is detected.
+Slashing Span Lemma.  Any slashing span-like construction must terminate whenever the protocol detects a slash.
 
 Proof.  Let $x'$ be the validators' minimum self-exposure, and let $y$ be the total stake required to become a validator.  Suppose a nominator $\eta_1$ nominates validators $\nu_e$ for $e=1\ldots$, using their account with stake $y-x'$. In epoch $e-1$, each $\nu_i$ stakes enough to become a validator in epoch $e$, with $\nu_1$ staking only $x'$ and $\nu_i$ for $i>1$ slightly more.  
 
@@ -63,25 +63,25 @@ $$
 <br/>
 <br/>
 
-Many design choices constrain this lemma to some extent, but they also make slashing fragile, complicating analysis and reducing composability.
+Many design choices limit the scope of this lemma to some extent, but they also make slashing fragile, complicating analysis and reducing composability.
 
 ## Actions
 
-Several additional mechanisms are triggered whenever a validator $\nu$ causes the slashing of a nominator $\eta$. Among other considerations, these mechanisms help mitigate reenlistment mistakes that nominators may occasionally make.
+Several additional mechanisms activate whenever a validator $\nu$ triggers the slashing of a nominator $\eta$. Among other considerations, these mechanisms help mitigate reenlistment mistakes that nominators may occasionally make.
 
 The first step then is to post a slashing transaction to the chain, which removes the offending validator $\nu$ from the active validator set by invalidating either their controller key or, potentionally, just their session keys. As a result, all nodes ignore $\nu$ for the rest of the era. Any future blocks that fail to ignore $\nu$ are considered invalid. All nomination approval votes by any nominator for $\nu$ are also removed, including those currently allocating $\nu$ zero stake.
 
-Nominator $\eta$ is handled with less urgency. The slashing accounting is updated only when the offense occurred in a past slashing span for $\eta$, meaning it is not necessary to terminate their current span. In the more typical case, where the offense occurrs during $\eta$'s currently active slashing span, that span is terminated at the end of the current era, and a new slashing span begins for $\eta$.
+Nominator $\eta$ is handled with less urgency. The protocol updates the slashing accounting only when the offense occurred in a past slashing span for $\eta$, meaning it is not necessary to terminate their current span. In the more typical case, where the offense occurrs during $\eta$'s currently active slashing span, that span is terminated at the end of the current era, and a new slashing span begins for $\eta$.
 
-Nominator $\eta$ is then _suppressed_, which partially suppresses all of $\eta$'s nomination approval votes for future eras. $\eta$'s current nominations for the ongoing era are not suppressed or removed, and the stake currently backing other validators remains unaffected.  In principle, it is possible to suppress $\eta$'s nomination approval votes whenever they are slashed in a previous slashing span. This seems to be unnecessary, as suppression is primarily tied to the termination of a slashing span.
+The protocol then _surpresses_ nominator $\eta$, which partially restricts all of $\eta$'s nomination approval votes for future eras. $\eta$'s current nominations for the ongoing era are not suppressed or removed, and the stake currently backing other validators remains unaffected.  In principle, it is possible to suppress $\eta$'s nomination approval votes whenever they are slashed in a previous slashing span. This seems to be unnecessary, as suppression is primarily tied to the termination of a slashing span.
 
-Additionally, $\eta$ can update their nomination approval votes for future eras during the current or any subsequent era. Doing so removes them from the suppressed state. $\eta$ also receives a notification indicating that validator $\nu$ caused them to be slashed and suppressed.
+Additionally, $\eta$ can update their nomination approval votes for future eras at any time, whether in the current era or a later one. Doing so removes $\eta$ from the suppressed state. $\eta$ also receives a notification that validator $\nu$ caused the protocol to slash and suppress them.
 
 These state changes help reduce the risk of unintentional reenlistment by nominators, while also balancing systemic risks to the network.  In particular, they provide justification for treating any future nominations by $\eta$ separately from those made in the current or previous eras.
 
 ## Accounting
 
-Slashing is not permitted for any events occurring beyond the unbonding period, and slashing records must expire once this period has elapsed. Slashing spans help address this requirement by tracking the maximum slash $s_{\eta}$ within each span. This value can be updated whenever a new slash increases the span's maximum. The $s_{\eta}$ is referenced again below in reward computations.
+The protocol cannot slash for any events that fall outside the unbonding period, and slashing records must expire once this period has elapsed. Slashing spans help address this requirement by tracking the maximum slash $s_{\eta}$ within each span. This value gets updated whenever a new slash increases the span's maximum. $s_{\eta}$ appears again below in reward computations.
 
 As an aside, consider an alternative accounting strategy. By recording all slashing events along with a value $s_{\eta,\nu,e}$, it is possible to represent the amount actually slashed at time $e$.  If $e'>e$, then the initial slash is recorded as
 
@@ -99,13 +99,13 @@ at time $e'$. These $s_{\eta,\nu,e}$ values allow slashes to expire without unfa
 
 ## Monotonicity
 
-Slashing must be monotonically increasing for all parties, ensuring that validators cannot reduce a nominator's penalty through additional misbehavior.  In other words, the amount any nominator is slashed can only increase with more slashing events, even those involving the same validator but different nominators.
+Slashing must be monotonically increasing for all parties, ensuring that validators cannot reduce a nominator's penalty through additional misbehavior.  In other words, the slashing amount for any nominator can only increase as more slashing events occur, including events that involve the same validator but different nominators.
 
-Fairness demands this condition; otherwise, validators could manipulate slashing to benefit favored nominators, typically by increasing the penalties applied to others. Trusted Execution Environments (TEE) can help prevent such manipulation, but not all validators are expected to use them.
+Fairness demands this condition; otherwise, validators could manipulate slashing to benefit favored nominators, typically by increasing the penalties applied to others. Trusted Execution Environments (TEE) can help prevent such manipulation, but not all validators use them.
 
-Monotonicity can be achieved with ($\dag$), since both summation and maximum operations are monotonically increasing over the positive real numbers, assuming that any logic to adjust $p_{\nu,e}$ also preserves monotonicity.
+Monotonicity follows from ($\dag$), since both summation and maximum are monotonically increasing over the positive real numbers, assuming that any adjustment to $p_{\nu,e}$ also preserves monotonicity.
 
-The diversity of nominators who may nominate a particular validator during the unbonding period is unlimited.  As a direct consequence of monotonicity, nearly all nominators can be slashed simultaneously, even if only one validator is penalized. This opens the door to "rage quit attacks," where a widely trusted validator retroactively introduces equivocations that implicate many nominators. As a result, the total stake destroyed by a combined slashing event, though far below the total stake of the network, cannot be reliably bounded.
+The diversity of nominators who may nominate a particular validator during the unbonding period is unlimited.  As a direct consequence of monotonicity, the protocol can slash nearly all nominators simultaneously, even if only one validator suffers a penalty. This opens the door to "rage quit attacks," where a widely trusted validator retroactively introduces equivocations that implicate many nominators. As a result, the total stake a combined slashing event destroys, though far below the total stake of the network, cannot be reliably bounded.
 
 Moreover, validators can retroactively validate invalid blocks, which results in a 100% slash.  While it may be possible to reduce the severity of slashes for older offenses if they are truly uncorrelated, in case of correlation, only governance can intervene by searching historical logs to identify the invalid block hash.
 
@@ -113,7 +113,7 @@ Moreover, validators can retroactively validate invalid blocks, which results in
 
 The slashing span $\bar{e}$ for a nominator $\eta$ is defined to end in the era $e$ during which the chain can detect and acknowledge a slashing event within $\bar{e}$. Under this definition all of $\eta$'s nomination approval votes, for any validator, should be _suppressed_ after the era $e$ that concludes a slashing span $\bar{e}$. The notion of suppression itself has not been formally defined, though.
 
-Let $\xi$ be the _suppression factor_, a recently introduced network parameter.  Let $s_{\eta,\bar{e}}$ denote the amount slashed from nominator $\eta$ during slashing span $\bar{e}$, and let $E$ represent the set of slashing spans $\eta$ within the unbonding period during which $\eta$ has not updated their nominations.  When $\eta$ is marked as suppressed, a portion of their stake in Phragmen, specifically $\xi \sum_{\bar{e} \in E} s_{\eta,\bar{e}}$ of $\eta$'s, is ignored.
+Let $\xi$ be the _suppression factor_, a recently introduced network parameter.  Let $s_{\eta,\bar{e}}$ denote the amount slashed from nominator $\eta$ during slashing span $\bar{e}$, and let $E$ represent the set of slashing spans $\eta$ within the unbonding period during which $\eta$ has not updated their nominations.  When $\eta$ is marked as suppressed, the system ignores a portion of their stake in Phragmen, specifically $\xi \sum_{\bar{e} \in E} s_{\eta,\bar{e}}$ of $\eta$'s.
 
 If suppression has no effect ($\xi = 0$), then at the next epoch, $\eta$ enters a new slashing span by the Slashing Span Lemma, risking additive slashing. This is problematic for several reasons:  
 
@@ -130,7 +130,7 @@ The computation $\xi \sum_{\bar{e} \in E} s_{\eta,\bar{e}}$ is intentionally sim
 
 ## Rewards for slashable offense reports
 
-Interestingly, monotonicity also places constraints on the reward structure for offense reports that lead to slashing. For example, if a validator $\nu$ is slashed, they could freely equivocate again and report themselves in an attempt to recover some of the slashed value. To prevent this exploit, slashing must always penalize the validator's self-stake by an amount greater than any reward granted for the report.
+Interestingly, monotonicity also places constraints on the reward structure for offense reports that lead to slashing. For example, if the system slashes a validator $\nu$, they could freely equivocate again and report themselves in an attempt to recover some of the slashed value. To prevent this exploit, slashing must always penalize the validator's self-stake by an amount greater than any reward granted for the report.
 
 ### Rewards based on slashing nominators
 
@@ -162,17 +162,17 @@ In this way, validator $\nu$ cannot reclaim more than $f_{\infty} f_1 s$ from a 
 
 Since the above reward scheme requires both accounting for all impacted nominators $\eta$ during payouts and enforcing the constraint that $f_{\infty} f_1$ remains below the valitor's self-stake, the proposal is to compute rewards only for validators who are directly slashed. This approach requires validators to always be slashed whenever their nominators are slashed, meaning a validator cannot be slashed 100% unless all of their nominators are also slashed 100%.
 
-Let $x'$ denote the minimum self-exposure (i.e., stake) that validator operators must provide, such that $x_{\nu,\nu,e} \ge x'$.  As a simplifying assumption, $f_\infty$ should be kept small enough to ensure that rewards are always covered by validators' self-exposure, i.e., 
+Let $x'$ denote the minimum self-exposure (i.e., stake) that validator operators must provide, such that $x_{\nu,\nu,e} \ge x'$.  As a simplifying assumption, $f_\infty$ should be small enough to ensure that validators' self-exposures always cover rewards, i.e., 
 
 $$
 x' \ge f_{\infty} \sum_\eta x_{\eta,\nu,e}
 $$  
 
-Cases where this condition fails are not explored further here. Addressing such scenarios would require a more nuanced definition of $x' > x_{\nu,\nu,e}$ to ensure that reward payouts do not introduce inflationary pressure.
+This entry does not explore further cases where this condition fails. Addressing such scenarios would require a more nuanced definition of $x' > x_{\nu,\nu,e}$ to ensure that reward payouts do not introduce inflationary pressure.
 
 Define $f' > f_0$ such that $f' x' = {1-f_1 \over f_1} f_{\infty} x_{\min}$ where $x_{\min} = \sum_\eta x_{\eta,\nu,e}$ represents the required minimum total stake for any validator.  In the revised scheme, replace $f_{\infty}$ with $f'$, and apply payouts to slashes against the validator operator's minimum exposure $x'$. This means replacing the slash value $p_{\nu,e} x_{\eta,\nu,e}$ with $\max_{e \in \bar{e}} p_{\nu,e} x'$.
 
-A slash of value $s := p_{\nu,e} x_{\nu,\nu,e}$ is applied to validator $\nu$. The _minimum validator adjusted slash_ value $s' := p_{\nu,e} x'$ represents the fraction of this slash applied to the minimum validator stake $x'$. The _total minimum validator-adjusted slash_, given by $\max_{e \in \bar{e}} p_{\nu,e} x'$, serves as an analog to total regular slashes, but considers only the validator's own exposure.
+The system applies a slash of value $s := p_{\nu,e} x_{\nu,\nu,e}$ to validator $\nu$. The _minimum validator adjusted slash_ value $s' := p_{\nu,e} x'$ represents the fraction of this slash applied to the minimum validator stake $x'$. The _total minimum validator-adjusted slash_, given by $\max_{e \in \bar{e}} p_{\nu,e} x'$, serves as an analog to total regular slashes, but considers only the validator's own exposure.
 
 The next step is to let $s^\prime_{\nu,i}$ and $s^\prime_{\nu,i+1}$ denote validator $\nu$'s total validator-adjusted slash within their slashing span $\bar{e}$, before and after applying the new slash, respectively. When the total validator-adjusted slash increases, the change is given by
 
@@ -184,9 +184,9 @@ Now, track the value $s^\prime_{\nu,i}$ in validator $\nu$'s slashing span recor
 
 In this way, validator $\nu$ cannot reclaim more than $f' f_1 s$ from a slash of value $s$, even through repeated equivocations.  Any slash of size $s_{\nu,i}$ always results in some payout, but slashes smaller than $t_{\nu,i}$ do not trigger additional rewards.
 
-Both schemes yield similar payouts initially, but the second scheme, where rewards are based only on validator slashes, results in smaller payouts when cross-era slashing logic is applied. For instance, if validator $\nu$ receives similar slashes across multiple epochs, the $r_1$ factor reduces the total reward under the validator-only scheme. Still, if $\nu$ has disjoint nominators in each epoch, the impact of the $r_1$ factor is minimal.
+Both schemes yield similar payouts initially, but the second one, where rewards are based only on validator slashes, results in smaller payouts under cross-era slashing logic. For instance, if validator $\nu$ receives similar slashes across multiple epochs, the $r_1$ factor reduces the total reward under the validator-only scheme. Still, if $\nu$ has disjoint nominators in each epoch, the impact of the $r_1$ factor is minimal.
 
 
-**For further questions and inquieries, please contact:** [Jeffrey Burdges](/team_members/jeff.md)
+**For further information or questions, please contact:** [Jeffrey Burdges](/team_members/jeff.md)
 
 

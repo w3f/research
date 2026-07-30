@@ -16,7 +16,7 @@ Accounts become _stash accounts_ when locking funds for staking. Each stash acco
 
 The locked funds in the stash account benefit from enhanced physical security, while still actively participating (via signatures) through the controller or proxy account keys.  At any time, the stash account can replace its controller or proxy keys, for instance, if operational security mistakes may have compromised either.
 
-At present, account keys are supported by both Ed25519 and schnorrkel/Sr25519. These are Schnorr-like signatures implemented using the Ed25519 curve that offer very similar levels of security. For users who require HSM support or other external key management solution, Ed25519 keys are a suitable choice. Meanwhile, schnorrkel/Sr25519 provides more blockchain-friendly features like HDKD and multi-signature capabilities.
+At present, account keys are supported by both Ed25519 and schnorrkel/Sr25519. These Schnorr-like signatures, implemented using the Ed25519 curve, offer very similar levels of security. For users who require HSM support or other external key management solution, Ed25519 keys are a suitable choice. Meanwhile, schnorrkel/Sr25519 provides more blockchain-friendly features like HDKD and multi-signature capabilities.
 
 In particular, schnorrkel/Sr25519 uses the [Ristretto](https://doc.dalek.rs/curve25519_dalek/ristretto/index.html) implementation described in section 7 of Mike Hamburg's [Decaf](https://eprint.iacr.org/2015/673.pdf) paper. Ristretto provides the 2-torsion free points of the Ed25519 curve as a prime-order group. By avoiding the cofactor, Ristretto makes the implementation of more complex cryptographic protocols significantly safer. 
 
@@ -26,7 +26,7 @@ For more detailed design notes, see the [announcement on GitHub](https://github.
 
 ## Session keys
 
-All session keys derive their authority from a session certificate, which is signed by a controller key that delegates the appropriate stake. Roughly, each session key performs a specific role in either consensus or security.  
+Roughly, each session key performs a specific role in either consensus or security. All of them derive their authority from a session certificate, which is signed by a controller key that delegates the appropriate stake.   
 
 The controller key can pause or revoke this session certificate and/or issue a replacement with new session keys at any time.  New session keys can be registered in advance, and some must be, so validators can smoothly transition to new hardware by issuing session certificates that become valid in a future session.  It is recommended to use "pause" for emergency maintenance and "revocation" in case a session key may have been compromised.
 
@@ -43,7 +43,7 @@ As in [Ouroboros Praos](https://eprint.iacr.org/2017/573.pdf), a source of rando
 
 Hashing the signer's public key alongside the input helps reduce VRF output malleability, significantly improving security when used with HDKD. Additionally, hashing the VRF input and output together when producing output for use elsewhere, improves compossibility in security proofs. For reference, see the 2Hash-DH construction in theorem 2 on page 32, Appendix C of ["Ouroboros Praos."](https://eprint.iacr.org/2017/573.pdf)
 
-In GRANDPA, validators vote using BLS signatures, which support efficient signature aggregation and utilize ZCash's BLS12-381 curve for performance.  However, there is a risk that BLS12-381 could fall significantly below 128-bit security due to potential advancements in the number field sieve algorithm.  If and when this occurs, upgrading GRANDPA to another curve is expected to be straightforward. For further discussion, see this [CFRG mailing list thread](https://mailarchive.ietf.org/arch/msg/cfrg/eAn3_8XpcG4R2VFhDtE_pomPo2Q).
+In GRANDPA, validators vote using BLS signatures, which support efficient signature aggregation and utilize ZCash's BLS12-381 curve for performance.  There is, however, a risk that BLS12-381 could fall significantly below 128-bit security due to potential advancements in the number field sieve algorithm.  If and when this occurs, upgrading GRANDPA to another curve is expected to be straightforward. For further discussion, see this [CFRG mailing list thread](https://mailarchive.ietf.org/arch/msg/cfrg/eAn3_8XpcG4R2VFhDtE_pomPo2Q).
 
 
 Libp2p transport keys are treated similarly to session keys, but they also encompass the transport keys for sentry nodes, not just for validators.  As a result, operators interact with them more frequently.
@@ -53,7 +53,7 @@ Libp2p transport keys are treated similarly to session keys, but they also encom
 
 ## Old
 
-First, a high-level view of the signing keys planned for use in Polkadot would be helpful. The discussion can then shift toward the certificate chain that links staked account keys to the session keys used for the proof-of-stake design.  In other words, the goal is to lay out the key questions surrounding the "glue" between keys roles, but this first requires introducing the full spectrum of those roles.
+First, it would be helpful to get a high-level view of the signing keys planned for use in Polkadot. The discussion can then shift toward the certificate chain that links staked account keys to the session keys used for the proof-of-stake design.  In other words, the goal is to lay out the key questions surrounding the "glue" between keys roles, but this first requires introducing the full spectrum of those roles.
 
 There are roughly four cryptographic layers in Polkadot:
 

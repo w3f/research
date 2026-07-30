@@ -4,7 +4,7 @@ title: Account Signatures and Keys in Polkadot
 
 <!--![](account-signatures-and-keys.png)-->
 
-Polkadot accounts should primarily use Schnorr signatures, with both the public key and the `R` point in the signature encoded using the [Ristretto](https://ristretto.group) point compression for the Ed25519 curve. It is recommended to collaborate with the [dalek ecosystem](https://github.com/dalek-cryptography), for which Ristretto was developed, while providing a simpler signature crate. The [Schnorr-dalek](https://github.com/w3f/schnorr-dalek) library offers a first step in that direction.
+Polkadot accounts should primarily use Schnorr signatures, with both the public key and the `R` point in the signature encoded using the [Ristretto](https://ristretto.group) point compression for the Ed25519 curve. It is recommended to collaborate with the [dalek ecosystem](https://github.com/dalek-cryptography), for which Ristretto was developed, while providing a simpler signature crate. The [Schnorr-dalek library](https://github.com/w3f/schnorr-dalek) offers a first step in that direction.
 
 ## Schnorr signatures 
 
@@ -29,11 +29,11 @@ secp256k1 and Ed25519 are two elliptic curves commonly used for account keys in 
 
 secp256k1 keys require minimal support, primarily because token sale accounts on Ethereum are tied to secp256k1 keys. As a result, some "account" type must necessarily support secp256k1.  Using the same private keys across Ethereum and Polkadot is discouraged. And since secp256k1 accounts may not support balance increases or may only allow replacement with an ed25519 key, employing multiple key types is adivisable. 
 
-That said, there are valid reasons to consider broader support for secp256k1. For example, enabling Ethereum smart contracts to verify signatures originated from Polkadot. While secp256k1 accounts can be supported with limited functionality, it may be worth expanding that functionality if such cross-chain use cases become relevant. 
+That said, there are valid reasons to consider broader support for secp256k1. For example, it could be possible to enable Ethereum smart contracts to verify signatures originating from Polkadot. Furthermore, Polkadot might support secp256k1 accounts with only limited functionality, but it may be worth expanding it if such cross-chain use cases become relevant. 
 
 ### Is secp256k1 risky?
 
-Two theoretical arguments support the preference for a twisted Edwards curve over secp256k1: first, secp256k1 has a [small CM field discriminant](https://safecurves.cr.yp.to/disc.html), which could potentially enable more effective attacks in the distant future.  Second, secp256k1 uses fairly rigid paramater choices that are [not optimal](https://safecurves.cr.yp.to/rigid.html). Neither of these concerns is currently regarded as critical. 
+Two theoretical arguments support the preference for a twisted Edwards curve over secp256k1: first, secp256k1 has a [small CM field discriminant](https://safecurves.cr.yp.to/disc.html), which could potentially enable more effective attacks in the distant future.  Second, secp256k1 uses fairly rigid parameter choices that are [not optimal](https://safecurves.cr.yp.to/rigid.html). Neither of these concerns is currently regarded as critical. 
 
 From a more practical standpoint, secp256k1 does offer [twist security](https://safecurves.cr.yp.to/twist.html), which helps eliminate several classes of attacks and strengthens its overall resilience.  
 
@@ -49,13 +49,13 @@ Any elliptic curve used in cryptography has an order of h*l, where h is a small 
 
 The cofactor of the Ed25519 curve is 8, but a simple convention known as "clamping" helps secure two particularly common protocols. For more complex protocols, such as multi-signatures, key derivation, or other advanced constructions listed in the [Bitcoin Schnorr wishlist](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki), "clamping" must be restricted or avoided altogether.  
 
-Simply dropping "clamping" makes protocol implemention more difficult. Fortunately, the [Ristretto](https://ristretto.group) encoding for the Ed25519 curve ensures that no curve points with 2-torsion are used, effectively eliminating cofactor-related issues. Reecommendations are as follows:
+Simply dropping "clamping" makes protocol implemention more difficult. Fortunately, the [Ristretto](https://ristretto.group) encoding for the Ed25519 curve ensures that no curve points with 2-torsion are used, effectively eliminating cofactor-related issues. Recommendations are as follows:
  - The secret key remains an Ed25519 "expanded" secret key.
- - The on-chain encoding, aka known as "point compression", should use Ristretto for both public keys and the `R` component of Schnorr signatures. 
+ - The on-chain encoding, aka known as "point compression," should use Ristretto for both public keys and the `R` component of Schnorr signatures. 
 
 In principle, simple use cases can rely on standard Ed25519 "mini" secret keys, except when requiring key derivation. Ristretto-encoded public keys can still verify standard Ed25519 signatures with ease. Ideally, Ristretto should be used throughout in place of the standard Ed25519 point compression, as it eliminates cofactor-related issues and enables safer protocol design.  
 
-It is indeed possible to import standard Ed25519 compressed points, as this [example](https://github.com/w3f/schnorr-dalek/blob/master/src/ristretto.rs#L877) shows. This requires scalar exponentiation via the [`is_torsion_free` method](https://doc.dalek.rs/curve25519_dalek/edwards/struct.EdwardsPoint.html#method.is_torsion_free), which is significantly slower than standard signature verification. Ideally, this process should be reserved for key migration between PoCs implementations.
+It is indeed possible to import standard Ed25519 compressed points, as this [example](https://github.com/w3f/schnorr-dalek/blob/master/src/ristretto.rs#L877) shows. This requires scalar exponentiation via the [`is_torsion_free` method](https://doc.dalek.rs/curve25519_dalek/edwards/struct.EdwardsPoint.html#method.is_torsion_free), which is significantly slower than standard signature verification. Ideally, this process should serve as a means for key migration between PoCs implementations.
 
 Ristretto is conceptually simpler than the Ed25519 curve itself, making it easy to integrate into existing Ed25519 implementations. The [curve25519-dalek](https://github.com/dalek-cryptography/curve25519-dalek) crate already offers a highly optimized pure-rust implementation of both Ristretto and Curve25519 group operations.
 
@@ -64,7 +64,7 @@ Ristretto is conceptually simpler than the Ed25519 curve itself, making it easy 
 The [dalek ecosystem](https://github.com/dalek-cryptography) offers a remarkably well-designed infrastructure for zero-knowledge proofs without relying on pairings. For deeper insights, see these two foundational articles on bulletproofs and programmable constraint systems:
  [Bulletproofs Pre-release](https://medium.com/interstellar/bulletproofs-pre-release-fcb1feb36d4b) and [Programmable Constrait Systems for Bulletproofs](https://medium.com/interstellar/programmable-constraint-systems-for-bulletproofs-365b9feb92f7)
 
-All these crates use Ristretto points, so adopting Ristretto for account public keys provides access to advanced tools for building protocols that avoid pairings and operate directly on account keys. In principle, these tools could be abstracted to support other twisted Edwards curves, such as FourQ and Zcash's Jubjub. Abstracting them for short Weierstrass curves like secp256k1, may result in the loss of certain batching optimizations. 
+All these crates use Ristretto points, so adopting Ristretto for account public keys provides access to advanced tools for building protocols that avoid pairings and operate directly on account keys. In principle, these tools could support other twisted Edwards curves, such as FourQ and Zcash's Jubjub. By contrast, abstracting them for short Weierstrass curves like secp256k1 may result in the loss of certain batching optimizations. 
 
 **For further information or questions please contact:** [Jeffrey Burdges](/team_members/jeff.md)
 

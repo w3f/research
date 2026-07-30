@@ -8,9 +8,9 @@ title: Validator Selection
 
 <!--![](validator-selection.jpeg)-->
 
-Validator elections play a critical role in securing the network, placing nominators in charge of selecting the most trustworthy and competent validators. This responsibility is both complex and demanding. The vast amount of validator data, constantly growing, requires significant technical expertise and sustained engagement. As a result, the process can become overly cumbersome, leading many nominators to either avoid staking altogether or refrain from investing the time needed to evaluate the data thoroughly. In this context, effective tools are essential, not only to support nominators in making informed selections, but also to help ensure the network's long-term health and resilience. 
+This entry outlines several potential steps to support nominators while preserving their freedom of choice. In validator elections, which play a critical role in securing the network, nominators are in charge of selecting the most trustworthy and competent validators. Such a responsibility is both complex and demanding. The vast and constantly growing amount of validator data requires significant technical expertise and sustained engagement. The process can become too cumbersome, leading many nominators to either avoid staking altogether or refrain from investing the time needed to evaluate the data thoroughly. In this context, effective tools are essential, not only to support nominators in making informed selections, but also to help ensure the network's long-term health and resilience. 
 
-This entry outlines several potential steps to support nominators while preserving their freedom of choice. It is important to highlight why recommendations should consider individual user preferences rather than attempting to make them universal.
+Before moving forward, and with that freedom of choice in mind, it is worth examining why recommendations should consider individual user preferences rather than attempting to make them universal.
 
 **Problem.** Providing an exogenous recommendation for a set of validators is not advisable, as user preferences, particularly risk preferences, vary significantly. Comparing metrics accross different scales, such as self-stake in DOT versus performance in percentage, is not feasible in an exogenous framework. Moreover, even when considering a single dimension, the shape of marginal utility functions remains unclear and is inherently tied to individual preferences. Determining the trade-offs involved in the selection process on behalf of nominators lies beyond the scope of this note. Yet, to illustrate this issue, consider the following simple example:
 
@@ -27,7 +27,7 @@ The table above presents validators with diverse profiles, none of which dominat
 
 **Code of conduct for recommendations.** As previously mentioned, the goal is not to provide exogenous recommendations to users, but rather to offer strategies that respect their insight and generate suggestions aligned with their stated preferences. While valuing individual preferences, recommendations may nudge decisions toward outcomes beneficial for the network, such as promoting decentralization. These recommendations should remain as objective as possible and must not discriminate against any specific validator.  
 
-**Organization.** This entry is divided into several sections. "Underlying data" presents potentially useful data and explains how to derive additional metrics. "Filtering phase" demonstrates how a simple concept from economics can significantly reduce the number of potentially interesting validators, providing users with a more manageable set of choices. The third section explores ideas to further curate the validator set in support of the network's goals. Lastly, the "UTAStar" section outlines a sophisticated approach for estimating each user's individual marginal preference functions, enabling more precise recommendations.
+**Organization.** This entry is divided into several sections. "Underlying data" presents potentially useful data and explains how to derive additional metrics. The "Filtering phase" section demonstrates how a simple concept from economics can significantly reduce the number of potentially interesting validators, providing users with a more manageable set of choices. The third section explores ideas to further curate the validator set in support of the network's goals. Lastly, the "UTAStar" section outlines a sophisticated approach for estimating each user's individual marginal preference functions, which enables more precise recommendations.
 
 
 ## 1. Underlying data
@@ -38,7 +38,7 @@ Collectible data from Polkadot and Kusama validators is extremely relevant to th
 |-	|-	|-	|-	|
 | Public address* 	| No 	| Yes 	| The public identifier of the validator. 	|
 | Identity* 	| No 	| Yes 	| Is there a verified on-chain identity? 	|
-| Self stake* 	| No 	| Yes 	| Tokens used for self-election represent a form of "skin in the game". 	|
+| Self stake* 	| No 	| Yes 	| Tokens used for self-election represent a form of "skin in the game." 	|
 | Other stake 	| No 	| Yes 	| The amount of stake (potentially) allocated by other nominators. 	|
 | Total stake 	| No 	| Yes 	| The combined total of self stake and other stake. 	|
 | Commission 	| Maybe 	| Yes 	| Percentage of commission charged by the validator for providing their service. 	|
@@ -65,9 +65,9 @@ Some of the retrieved on-chain data might not be particularly useful for nominat
 **Average adjusted era points.**
 To obtain a more robust estimate of the era points, it is necessary to collect additional data from previous eras. Since the total era points are distributed among all active validators, and the validator set may vary over time, this could introduce bias into the results. To correct for this, era points from each era can be adjusted based on the active set size during that period. Since this is the sole factor influencing theoretical per-capita era points, such normalization enables meaningful comparisons across historical data.
 
-The optimal number of previous eras to include remains uncertain. Using too long a history may bias results toward the average, while too short a history can weaken the metric’s robustness. One possible approach is to use the average number of $active-eras$. 
+The optimal number of previous eras to include remains uncertain. Using a history that's too long may bias results toward the average, while using one that's too short can weaken the metric’s robustness. One possible approach is to use the average number of $active-eras$. 
 
-**Performance.** From a nominator's perspective, three main factors determine validator performance: the number of era points earned, the nominator's share of the total stake, and the commission charged by the validator. Since performance scales linearly with the nominator's bond, it can be considered independent of the bond amount. These metrics can be combined into a single performance indicator:
+**Performance.** From a nominator's perspective, three main factors determine validator performance: the number of era points earned, the nominator's share of the total stake, and the commission the validator charges. Since performance scales linearly with the nominator's bond, it can be considered independent of the bond amount. A single performance indicator can combine these metrics:
 
 $$
 performance = \frac{averageEraPoints \times (1 - commission)}{totalStake}
@@ -79,7 +79,7 @@ $$
 $$
 These calculations offer a more intuitive measure, as the performance is normalized between 0 and 1. The measure remains robust against potential changes within the network. For instance, when the number of validators increases, the era points per validator tend to decrease. The metric also avoids false anchoring effects.
 
-**Outperforming MLE.** By collecting historical era points per validator accross previous eras, one can determine how frequently a validator outperforms the average. Assuming a uniform distribution of era points, a validator is expected to outperform the average approximately 50% of the time. In practice, other factors like hardware-setup and internet connectivity, can influence this performance metric. These insights not only help nominators identify top-performing validators but also encourage validators to optimize their setup.
+**Outperforming MLE.** By collecting historical era points per validator accross previous eras, one can determine how frequently a validator outperforms the average. Assuming a uniform distribution of era points, a validator is expected to outperform the average approximately 50% of the time. In practice, other factors like hardware-setup and internet connectivity, can influence this performance metric. Such insights not only help nominators identify top-performing validators but also encourage validators to optimize their setup.
 
 **Significance MLE.** Given that the expected value of the outperforming MLE is 0.5 under a presumably uniform distribution, a statistical test may help assess whether a validator significantly overperforms or underperforms relative to this benchmark: 
 $$
@@ -95,7 +95,7 @@ If $z > 1.645$, the corresponding validator significantly outperforms at the 10%
 ### Dominance-filtering
 After shaping the dataset elaborated in the section "Underlying data," it is time to begin reducing the set of validators to ease the information load for nominators. One approach is to eliminate dominated validators. Since qualitative judgements remain out of the picture, such as determining whether one "identity" is better or worse than another, it is reasonable to remove validators that are objectively inferior, as there is no rational basis for nominating them. A validator is said to dominate another when all properties are equal and at least one is strictly better. Consider the following example:
 
-### Example:
+### Example
 | Number 	| Public Address 	| Identity 	| Self-stake 	| Nominators 	| Relative Performance 	| Outperformer 	| Active Eras 	| Operator Size 	|
 |-	|-	|-	|-	|-	|-	|-	|-	|-	|
 | 1 	| 1N6xclmDjjA 	| 0 	| 10 	| 10 	| 0 	| 0 	| 3 	| 0 	|
@@ -125,7 +125,7 @@ As input, this method uses the filtered table from Section LINK and can be consi
 * $g_1,g_2,...g_n$: Criteria.
 * $g_i(x)$: Evaluation of alternative x on the $i^{th}$ criterion.
 * $\textbf{g}(x)$: Performance vector of alternative $x$ across $n$ criteria.
-* $x_1, x_2, ..., x_m \in X_L:$ Learning set containing alternatives presented to the decision maker (DM) for ranking. Note that the index on the alternative is dropped.
+* $x_1, x_2, ..., x_m \in X_L:$ Learning set containing alternatives presented to the DM for ranking. Note that the index on the alternative is dropped.
 
 
 ### Model
@@ -155,7 +155,7 @@ $$
 g_i^j = g_{i\star} + \frac{j - 1}{\alpha_i - 1} (g_i^\star - g_{i\star}) \forall j = 1,2,...\alpha_i
 $$
 
-The marginal utility function of x is approximated by linear interpolation. Thus, for $g_i(x) \in [g_i^j - g_i^{j+1}]$, the result is:
+The marginal utility function of *x* is approximated by linear interpolation. Thus, for $g_i(x) \in [g_i^j - g_i^{j+1}]$, the result is:
 
 $$
 u_i[g_i(x)]= u_i(g_i^j) + \frac{g_i(x)-g_i^j}{g_i^{j+1}-g_i^j}[u_i(g_i^{j+1}) - u_i(g_i^j)]
@@ -223,7 +223,7 @@ $$
 **Step 6.** Introduce ad hoc adjustments to the final set based on user-defined preferences. For example:
 * Include user-designated favorites
 * Ensure no more than one validator per operator
-* Require at least X inactive validators
+* Require at least *X* inactive validators
 * Additional custom constraints as needed
 
 

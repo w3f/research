@@ -4,7 +4,7 @@ title: BABE
 
 <!--![](BABE.png)-->
 
-Polkadot produces relay chain blocks using the **B**lind **A**ssignment for **B**lockchain **E**xtension protocol (BABE), which assigns block production slots based on a randomness cycle similar to that used in [Ouroboros Praos](https://eprint.iacr.org/2017/573.pdf). The process unfolds as follows: All block producers possess a verifiable random function (VRF) key, which is registered alongside their locked stake. These VRFs generate secret randomness, determining when each producer is eligible to create a block. The process carries an inherent risk: producers may attempt to manipulate the outcome by grinding through multiple VRF keys. To mitigate this, the VRF inputs must incorporate public randomness created only after the VRF key is established. 
+Polkadot produces relay chain blocks using the **B**lind **A**ssignment for **B**lockchain **E**xtension protocol (BABE), which assigns block production slots based on a randomness cycle similar to that used in [Ouroboros Praos](https://eprint.iacr.org/2017/573.pdf). The process unfolds as follows: All block producers possess a verifiable random function (VRF) key, which is registered alongside their locked stake. These VRFs generate secret randomness, determining when each producer is eligible to create a block. The process carries an inherent risk: producers may attempt to manipulate the outcome by grinding through multiple VRF keys. To mitigate this, the VRF inputs must incorporate public randomness created only after establishing the VRF key. 
 
 As a result, the system operates in epochs, during which fresh public on-chain randomness arises by hashing together all the VRF outputs revealed through block production within that epoch. This establishes a cycle that alternates between private, verifiable randomness and collaborative public randomness.
 
@@ -18,10 +18,10 @@ BABE consists of sequential, non-overlapping epochs $(e_1, e_2,\ldots)$, each wi
 
 Each party $P_j$ possesses a *session key* that includes at least two types of secret/public key pairs:
 
-* A verifiable random function (VRF) key pair $(\skvrf_{j}, \pkvrf_{j})$
-* A signing key pair for blocks $(\sksgn_j,\pksgn_j)$
+* a verifiable random function (VRF) key pair $(\skvrf_{j}, \pkvrf_{j})$
+* a signing key pair for blocks $(\sksgn_j,\pksgn_j)$
 
-VRF keys are preferred because they are relatively long-lived; new VRF keys cannot be used until well after they've been created and submitted to the chain. Yet, parties should periodically update their associated signing keys to maintain forward security, protecting against attackers who might exploit outdated keys to create slashable equivocations. For more details on session keys see [here](Polkadot/security/keys/3-session.md).
+VRF keys are preferred because they are relatively long-lived; new VRF keys cannot be used until well after they've been created and submitted to the chain. Yet, parties should periodically update their associated signing keys to maintain forward security, protecting against attackers who might exploit outdated keys to create slashable equivocations. For more details, refer to the [session keys](Polkadot/security/keys/3-session.md) section.
 
 Each party $P_j$ maintains a local set of blockchains $\mathbb{C}_j =\{C_1, C_2,..., C_l\}$.  These chains share a common prefix of blocks, at minimum the genesis block, up to a certain height.
 
@@ -69,15 +69,15 @@ $$
 
 If $P_j$ is the slot leader, it generates a block to be added to chain $C$ during slot $sl_k$. The block $B_\ell$ must contain at minimum: the slot number $sl_{k}$, the hash of the previous block $H_{\ell\text{-}1}$, the VRF output $d, \pi$, the transactions $tx$, and the signature $\sigma = \sgn_{\sksgn_j}(sl_{k}||H_{\ell\text{-}1}||d||\pi||tx))$. Validator $P_i$ then updates $C$ with the new block and relays $B_\ell$.
 
-Regardless of whether $V_j$ is a slot leader, upon receiving a block $B = (sl, H, d', \pi', tx', \sigma')$ produced by validator $V_t$, it excecutes $\mathsf{Validate}(B)$. To validate the block, the function $\mathsf{Validate}(B)$ must, at minimum, check the following criteria:
+Regardless of whether $V_j$ is a slot leader, upon receiving a block $B = (sl, H, d', \pi', tx', \sigma')$ that validator $V_t$ produces, it executes $\mathsf{Validate}(B)$. To validate the block, the function $\mathsf{Validate}(B)$ must, at minimum, check the following criteria:
 
 * $\mathsf{Verify}_{\pksgn_t}(\sigma')\rightarrow \mathsf{valid}$ – signature verification
 
-* If the validator is the slot leader: $\mathsf{Verify}_{\pkvrf_t}(\pi', r_m||sl) \rightarrow \mathsf{valid}$ and $d' < \tau$ – verification using the VRF's algorithm
+* if the validator is the slot leader: $\mathsf{Verify}_{\pkvrf_t}(\pi', r_m||sl) \rightarrow \mathsf{valid}$ and $d' < \tau$ – verification using the VRF's algorithm
 
-* There exists a chain $C'$ with header $H$,
+* the existence of a chain $C'$ with header $H$
 
-* The transactions in $B$ are valid.
+* the validity of transactions in $B$
 
 If all checks pass, $V_j$ adds $B$ to $C'$; otherwise, it discards the block. At the end of the slot, $P_j$ selects the best chain according to the chain selection rule outlined in Section 3.
 
@@ -109,16 +109,16 @@ In this case, the chain selection rule does not follow [Ouroboros Genesis](https
 
 ## 4. Clock adjustment (Relative Time Algorithm)
 
- For the security and completeness of BABE, parties must be aware of the current slot. Typically, validators rely on system clocks sinchronized via by the Network Time Protocol (NTP). This introduces a trust assumption, and if an NTP server is compromised, BABE's security can no longer be upheld. To mitigate such a risk, validators can determine slot timing without relying on NTP. 
+ For the security and completeness of BABE, parties must be aware of the current slot. Typically, validators rely on system clocks sinchronized via by the Network Time Protocol (NTP), which introduces a trust assumption. If an NTP server is compromised, BABE's security can no longer be upheld. To mitigate such a risk, validators can determine slot timing without relying on NTP. 
  
- Let's assume a partially synchronous network scenario, where any message sent by a validator is delivered within at most $\D$-slots, an unknown parameter. Since each party relies on a local clock not sinchronized by any external source such as NTP or GPS, a validator should store the arrival time of the genesis block as $t_0$, which serves as a reference point marking the start of the first slot. This starting point varies accross validators. Assuming the maximum deviation in the first slot's start time between validators is at most $\delta$, each party should divide its timeline into slots and periodically synchronize its local clock using the following algorithm.
+ Let's assume a partially synchronous network scenario, where any message sent by a validator is delivered within at most $\D$-slots, an unknown parameter. Since each party relies on a local clock not sinchronized by any external source such as NTP or GPS, a validator should store the arrival time of the genesis block as $t_0$, which serves as a reference point marking the start of the first slot. This starting point varies accross validators. Assuming the maximum deviation between validators in the first slot's start time is at most $\delta$, each party should divide its timeline into slots and periodically synchronize its local clock using the following algorithm.
 
 
 
 **Median algorithm:**
-The median algorithm is executed by all validators at the end of sync-epochs [^1]. The first sync-epoch ($\varepsilon = 1$) begins once the genesis block is released. Subsequent sync-epochs ($\varepsilon > 1$) begin when the slot number of the last (probabilistically) finalized block is $\bar{sl}_{\varepsilon}$, defined as the smallest slot number such that  $\bar{sl}_{\varepsilon} - \bar{sl}_{\varepsilon-1} \geq s_{cq}$. Here, $\bar{sl}_{\varepsilon-1}$ is the slot number of the last finalized block from sync-epoch $\varepsilon-1$, and $s_{cq}$ is the chain quality (CQ) parameter. If the previous epoch is the first epoch then $sl_{e-1} = 0$.
+The median algorithm is executed by all validators at the end of sync-epochs.[^1] The first sync-epoch ($\varepsilon = 1$) begins once the genesis block is released. Subsequent sync-epochs ($\varepsilon > 1$) begin when the slot number of the last (probabilistically) finalized block is $\bar{sl}_{\varepsilon}$, defined as the smallest slot number such that  $\bar{sl}_{\varepsilon} - \bar{sl}_{\varepsilon-1} \geq s_{cq}$. Here, $\bar{sl}_{\varepsilon-1}$ is the slot number of the last finalized block from sync-epoch $\varepsilon-1$, and $s_{cq}$ is the chain quality (CQ) parameter. If the previous epoch is the first epoch then $sl_{e-1} = 0$.
 
-To identify the last (probabilistically) finalized block: Retrieve the best blockchain according to the chain selection rule, prune the final $k$ blocks from this chain, and define the last finalized block as the last block of the pruned best chain, where $k$ is set according to the common prefix property.
+To identify the last (probabilistically) finalized block: retrieve the best blockchain according to the chain selection rule, prune the final $k$ blocks from this chain, and define the last finalized block as the last block of the pruned best chain, where $k$ is set according to the common prefix property.
 
 The protocol details are as follows: each validator records the arrival time $t_i$ of valid blocks using its local clock. At the end of a sync-epoch, each validator retrieves the arrival times of valid and finalized blocks with slot number $sl'_x$ where
 * $\bar{sl}_{\varepsilon-1} < sl_x \leq \bar{sl}_{\varepsilon}$ if $\varepsilon > 1$.
@@ -151,7 +151,7 @@ The image below illustrates the algorithm using a chain-based example in the fir
 
 In simple terms, this lemma states that the block production may be delayed by at most $\theta$ at the beginning of the new sync epoch.
 
-**Proof sketch.** The chain quality property ensures that more than half of arrival times for blocks used in the median algorithm are timely. As a result, the output of each validator's median algorithm corresponds to a block delivered on time. Theorem 1 of the paper [Consensus on Clocks](https://eprint.iacr.org/2019/1348) provides a formal proof.
+**Proof sketch.** The chain quality property ensures that more than half of the arrival times for blocks used in the median algorithm are timely. As a result, the output of each validator's median algorithm corresponds to a block delivered on time. Theorem 1 of the paper [Consensus on Clocks](https://eprint.iacr.org/2019/1348) provides a formal proof.
 
 Keeping $\theta$ small is crucial to prevent delays in block production after a sync-epoch. For example (albeit an extreme one), it is not desirable that a validator's adjusted clock indicates the year 2001 when it's actually 2019. In such a case, honest validators might have to wait 18 years before executing an action that was originally scheduled for 2019.
 
@@ -163,7 +163,7 @@ The following algorithm permits validators who were offline during part of a syn
 
 At the end of the sync epoch, if $V$ has collected $n$ valid block arrival times, it should run the median algorithm using these blocks. In case it has fewer than $n$ blocks, it must wait until the required $n$ arrival times have been gathered. The validator does not run the median algorithm solely with the arrival times of finalized blocks.
 
-**Case 2:** If $V$ was offline at any point during a sync epoch and, upon reconnecting, its clock is no longer functioning properly, it should continue collecting the arrival times of valid blocks. The validator may temporarily adjust its clock using, for example, the arrival time of the last finalized block in GRANDPA, and resume block production accordingly. This temporary clock can be used until $n$ valid blocks are collected. Once this condition is met, the validator should re-adjust its clock based on the output of the median algorithm applied to these blocks.
+**Case 2:** If $V$ was offline at any point during a sync epoch and, upon reconnecting, its clock is no longer functioning properly, it should continue collecting the arrival times of valid blocks. The validator may temporarily adjust its clock using, for example, the arrival time of the last finalized block in GRANDPA, and resume block production accordingly. This temporary clock can be used until $n$ valid blocks are collected. Once this condition is met, the validator should readjust its clock based on the output of the median algorithm applied to these blocks.
 
 With the temporary clock adjustment, it is possible to ensure that the difference between the time recorded by the adjusted clock and that of an honest party's clock is bounded by at most $2\delta_{max} + |\Sigma|$.
 
@@ -181,11 +181,11 @@ BABE functions similarly to Ouroboros Praos, with the exception of the chain sel
 ### Definitions
 Before diving into the proofs, let’s establish some key definitions.
 
-**Definition 1 or Chain Growth (CG) [^2] [^3].** Chain growth with parameters $\tau \in (0,1]$ and $s \in \mathbb{N}$ guarantees that if the best chain held by an honest party at the beginning of slot $sl_u$ is $C_u$, and the best chain at the beginning of slot $sl_v \geq sl_u+s$ is $C_v$, then the length of $C_v$ is at least $\tau s$ greater than the length of $C_u$.
+**Definition 1 or Chain Growth (CG).[^2] [^3]** Chain growth with parameters $\tau \in (0,1]$ and $s \in \mathbb{N}$ guarantees that if the best chain held by an honest party at the beginning of slot $sl_u$ is $C_u$, and the best chain at the beginning of slot $sl_v \geq sl_u+s$ is $C_v$, then the length of $C_v$ is at least $\tau s$ greater than the length of $C_u$.
 
 The honest chain growth (HCG) property is a relaxed version of the Chain Growth (CG) property, defined identically except for the added constraint that both $sl_v$ and $sl_u$ are assigned to honest validators. The parameters for HCG are $\tau_{hcg}$ and $s_{hcg}$, in place of $\tau$ and $s$ used in the CG definition.
 
-**Definition 2 or Existential Chain Quality (ECQ) [^2] [^3].** Consider a chain $C$ held by an honest party at the beginning of slot $sl$. Let $sl_1$ and $sl_2$ be two earlier slots such that $sl_1 + s_{ecq} \leq sl_2 \leq sl$. Then, the segment $C[sl_1 : sl_2]$ contains at least one block produced by an honest party.
+**Definition 2 or Existential Chain Quality (ECQ).[^2] [^3]** Consider a chain $C$ held by an honest party at the beginning of slot $sl$. Let $sl_1$ and $sl_2$ be two earlier slots such that $sl_1 + s_{ecq} \leq sl_2 \leq sl$. Then, the segment $C[sl_1 : sl_2]$ contains at least one block produced by an honest party.
 
 **Definition 2 or Chain Density (CD).** The CD property, with parameter $s_{cd} \in \mathbb{N}$, ensures that any segment $B[s_u:s_v]$ of the final blockchain $B$, spanning rounds $s_u$ to $s_v  = s_u + s_{cd}$, contains a majority of blocks produced by honest parties.
 
@@ -282,7 +282,7 @@ So, $dif = h-m \geq s_{cd}((1-\omega)p_H\_\mathsf{timely}p_\bot^{\D_m} - (1+\gam
 
 Assuming the last block of the previous sync epoch is denoted by $B$, the chains under consideration are those constructed on top of $B$. Let $C$ be a chain with finalized blocks spanning subslots $sl_u$ to $sl_v$, where  $sl_v = sl_u + s_{cd}$. The longest subchain produced between $sl_u$ and $sl_v$ satisfies $h \geq 2m + \ell$, due to the honest chain growth among chains built on top of $B$. 
 
-A subchain containing more malicious blocks than honest blocks is achievable with $m$ malicious and $m$ honest blocks. Such a chain, however, cannot surpass the longest honest subchain, except with probability at most $\frac{1}{2^\ell}$. In other words, a subchain dominated by malicious blocks that can be finalized is possible only with negligible probability. 
+A subchain containing more malicious blocks than honest blocks is achievable with $m$ malicious and $m$ honest blocks. Such a chain, however, cannot surpass the longest honest subchain, except with probability at most $\frac{1}{2^\ell}$. In other words, the probability that a subchain dominated by malicious blocks achieves finality is negligible. 
 
 Therefore, all finalized chains within a sync epoch contain a majority of honest slots.
 
@@ -323,7 +323,7 @@ $$
 s_{cq} = 2 s_{ecq} + s_{hcq} \text{ and } \mu = \tau_{hcq}\frac{s_{hcq}}{2s_{ecq}+s_{hcq}}
 $$
 
-**Theorem 5 or persistence and liveness of BABE with NTP.** Assuming $\frac{p_H p_\bot^\D}{c} > \frac{1}{2}$ and given that $k_{cq}$ is the ECQ parameter, $k > 2k_{cq}$ is the Common Prefix parameter, $s_{hcg} = k/\tau_{hcg}$ and $s_{ecq} = k_{cq}/\tau$, then the epoch length is $R = 2s_{ecq} + s_{hcg}$, and BABE with NTP is persistent and liveness.
+**Theorem 5 or Persistence and Liveness of BABE with NTP.** Assuming $\frac{p_H p_\bot^\D}{c} > \frac{1}{2}$ and given that $k_{cq}$ is the ECQ parameter, $k > 2k_{cq}$ is the Common Prefix parameter, $s_{hcg} = k/\tau_{hcg}$ and $s_{ecq} = k_{cq}/\tau$, then the epoch length is $R = 2s_{ecq} + s_{hcg}$, and BABE with NTP is persistent and liveness.
 
 **Proof (sketch).** The overall result shows that $\tau = \tau_{hcg}\frac{s_{hcg}}{2s_{ecq}+s_{hcg}} = \frac{k}{s_{hcg}}\frac{s_{hcg}}{2s_{ecq}+s_{hcg}} = \frac{k}{R}$. So by the chain growth property, the best chain increases by at least $k$ blocks over the course of a single epoch. 
 
@@ -338,7 +338,7 @@ $$
 <br/>
 <br/>
 
-**Theorem 6 or persistence and liveness of BABE with the median algorithm.** Assuming that $\frac{p_H p_\bot^{\D_m}}{c} > \frac{1}{2}$ and $\tau_{hcg}-\tau_{hcg}\mu_{hcq} > p_m (1+\gamma)$, where $\tau_{hcg} = p_h p_\bot^{\D_m} (1-\omega)$, $s_{cd}$, and since the clock difference between honest valdators is at most $\D_m$, then BABE with the median algorithm satisfies persistence and liveness given that:
+**Theorem 6 or Persistence and Liveness of BABE with the Median Algorithm.** Assuming that $\frac{p_H p_\bot^{\D_m}}{c} > \frac{1}{2}$ and $\tau_{hcg}-\tau_{hcg}\mu_{hcq} > p_m (1+\gamma)$, where $\tau_{hcg} = p_h p_\bot^{\D_m} (1-\omega)$, $s_{cd}$, and since the clock difference between honest valdators is at most $\D_m$, then BABE with the median algorithm satisfies persistence and liveness given that:
     
 * $k_{cq}$ is the ECQ parameter
  
@@ -356,7 +356,7 @@ These results hold under the following assumptions: the signature scheme using t
 
 ## 6. Practical results
 
-This section specifies the parameters necessary to achieve security in both variants of the BABE protocol.
+This section specifies the parameters to achieve security in both variants of the BABE protocol.
 
 The protocol lifetime is fixed as $\mathcal{L}=3 \text{ years}  = 94670777$ seconds. Let $T$ denote the slot duration (e.g., $T = 6$ seconds). The total number of slots over the lifetime is $L = \frac{\mathcal{L}}{T}$. Finally, the maximum network delay is $\D$.
 
@@ -388,11 +388,11 @@ $$
 Iterate over $k_{cp}$ to find values for $s_{hcg}, s_{ecq}, \tau$ that satisfy the above conditions until $p_{attack} \leq p$:
 
 1.   Set the parameter for the Chain Quality (CQ) property at $k = 4 k_{cp}$. $4 k_{cp}$, which is the optimal value to minimize the epoch length $R = 2 s_{ecq} + s_{hcg}$.
-1.   Compute $t_{hcg} = p_h  p_\bot^\D  (1-\omega)$ to satisfy the condition in theorem 1
-1.   Calculate $s_{hcg} = k / t_{hcg}$ based on equations (1) and (3)
-1.   Determine $\tau = \frac{k - 2k_{cq}}{s_{hcg}}$ by using equations (1) and (2)
-1.   Compute $s_{ecq} = k_{cq}/\tau$
-1.   Calculate the security parameter: $p = \lceil \frac{L}{T}\rceil\frac{2^{20}(1-\alpha)n}{R}(p_{ecq} + p_{cp} + p_{cg})$
+1.   Compute $t_{hcg} = p_h  p_\bot^\D  (1-\omega)$ to satisfy the condition in theorem 1.
+1.   Calculate $s_{hcg} = k / t_{hcg}$ based on equations (1) and (3).
+1.   Determine $\tau = \frac{k - 2k_{cq}}{s_{hcg}}$ by using equations (1) and (2).
+1.   Compute $s_{ecq} = k_{cq}/\tau$.
+1.   Calculate the security parameter: $p = \lceil \frac{L}{T}\rceil\frac{2^{20}(1-\alpha)n}{R}(p_{ecq} + p_{cp} + p_{cg})$.
 
 Once a value for $k_{cq}$ such that $p \leq p_{attack}$ is found, set the epoch length $R = 2s_{ecq}+s_{hcg}$.
 
@@ -405,7 +405,7 @@ c = 0.52, slot time T = 6 seconds
 
 Secure over a 3-year horizon with probability 0.99523431732
 
-Resistant to network delays of up to  six block-generation-time seconds 
+Resistant to network delays of up to  six block-generation-time seconds. 
 
 -~~~~~~~~~~~~~~ Common prefix property ~~~~~~~~~~~~~~
 
@@ -443,7 +443,7 @@ Epoch length should be at least 4,480 slots (approximately 7.46666666667 hours)
 
 * Define the following parameters for theorem 2: $\alpha_{timely} = 0.85$, $\ell = 20$, $\omega_H = 0.3$ and $\gamma = 0.5$.
 
-* Define $\delta\_max$ and $T$. Let $\D_m = \lfloor \frac{2\delta\_max + |2 \Sigma|}{T}\rfloor + \lfloor \frac{\delta\_max + |2 \Sigma|}{T}\rfloor$
+* Define $\delta\_max$ and $T$. Let $\D_m = \lfloor \frac{2\delta\_max + |2 \Sigma|}{T}\rfloor + \lfloor \frac{\delta\_max + |2 \Sigma|}{T}\rfloor$.
 
 * Choose the parameter $c$ such that both of the following conditions hold: $\frac{p_Hp_\bot^{\D}}{c} > \frac{1}{2}$ and $\frac{p_H\_\mathsf{timely} (1- \omega_H)}{p_m\_\mathsf{timely} (1+\gamma)} > 2$. If no such $c$ exists, consider increasing $\alpha$ (honest validator assumption), increasing $\alpha_{timely}$, or decreasing $\D$ (adopting a more optimistic network assumption).
 
@@ -460,19 +460,19 @@ c = 0.38, slot time T = 6 seconds
 
 Security over 3 years with probability 0.99656794973
 
-Resistant to network delay of 2.79659722222 seconds and clock drift of 0.198402777778 seconds per sync epoch
+Resistant to network delay of 2.79659722222 seconds and clock drift of 0.198402777778 seconds per sync epoch.
 
 -~~~~~~~~~~~~~~ Common prefix property ~~~~~~~~~~~~~~
 
 k = 140 
 
-This means that the last 140 blocks of the best chain are pruned, while all remaining blocks are probabilistically finalized
+This means that the last 140 blocks of the best chain are pruned, while all remaining blocks are probabilistically finalized.
 
 -~~~~~~~~~~~~~~ Epoch length ~~~~~~~~~~~~~~
 
-Sync-epoch length: at least 2857 slots (~4.7617 hours)
+Sync-epoch length: at least 2857 slots (~4.7617 hours).
 
-Epoch length: at least 2,000 slots (~3.3333 hours)
+Epoch length: at least 2,000 slots (~3.3333 hours).
 
 -~~~~~~~~~~~~~~ Offline validators' parameters for clock adjustment ~~~~~~~~~~~~~~
 

@@ -9,7 +9,7 @@ Recently, the Polkadot team migrated AssetHub’s core functionality from the Re
 
 While the Relay Chain ensures parachain blocks do not violate safety, it does not guarantee liveness or censorship resistance at the parachain level. To address this, the research team developed a solution that provides parachains with these two features. 
 
-## The Aura Protocol and Some Assumptions
+## The Aura protocol and some assumptions
 
 To achieve censorship resistance at the parachain level, it was necessary to introduce a tweak to Aura, the deterministic consensus protocol that all Polkadot parachains use via the Aura-Ext pallet. Under this protocol, block production is handled by a list of authorities who take turns creating blocks via a rotating schedule that determines whose turn is next.
 
@@ -17,7 +17,7 @@ To introduce this tweak, the research team assumes a setting with at least one h
 
 Another assumption is that the availability layer is robust, and that a collator can fetch the latest parablock directly from the availability layer (or the backer) within a reasonable time. Together, these conditions are enough to ensure the censored block is eventually produced. 
 
-## How Aura Becomes Censorship-Resistant 
+## How Aura becomes censorship-resistant 
 
 The Aura protocol can become censorship-resistant by paying attention to the checks currently performed in the PVF (Parachain Validation Function), and by understanding the nature of a concrete attack. Regarding the current checks, which exist to stop a collator from fabricating or fast-forwarding its way past an honest block, there are two main points where Aura’s block authorship rights require a closer look. 
 
@@ -27,7 +27,7 @@ Before moving forward, let’s consider a concrete attack. Here, three collators
 
 The attack is possible because B only gets a single slot, too little time to recover a withheld block before its turn passes. A possible solution, then, is to give each collator a run of several consecutive slots instead of just one. This is where the idea of multi-slot collations comes in.  
 
-## Multi-Slot Collations
+## Multi-slot collations
 
 Concretely, the round-robin rotates every *x* slots instead of each slot. Once the system selects a collator, it can build *x* consecutive blocks. As part of the PVF, the Aura authorship checks have to reflect this change.
 
@@ -43,7 +43,7 @@ This approach is compatible with the (collator timestamp-dependent) Slot-Based c
 
 Multi-slot collations work well if collators prioritise the transactions that may be censored when building their blocks. The next question to ask is how to determine the x parameter. 
 
-### Determining the Parameter *x*
+### Determining the parameter *x*
 
 In short, we want the smallest *x* that still gives a censored collator enough time to recover and build on withheld blocks. With this in mind, it is clear that the number of consecutive slots *x* in the round-robin is lower-bounded by the time required to reconstruct the previous block from the availability layer (b) plus the block building time (a). Therefore, it is necessary to set *x* such that *x ≥ a + b*. But with async backing, a malicious collator may sequentially try to withhold the block and just-in-time front-run the honest collator for all the unincluded_segment blocks. Thus, *x* needs to be greater than *(a + b) ⋅ m*, where *m* is the *max* allowed candidate depth (unincluded segment allowed). 
 
@@ -57,11 +57,11 @@ where *m* is the *max_candidate_depth*, or unincluded segment as seen from the c
 
 Assuming that the previous block data can be fetched from backers, the result is *a + b ≤ 6s*. Using the current async_delay of 18s, we can set *x* to 4. If the max_candidate_depth (m) for Plaza is set such that *m ≤ 3*, then this will reduce (improve) *x* from 4 to *m*. A lower *x* is preferable, since it shortens the run of consecutive slots a single collator holds. 
 
-## A Few Remaining Open Questions 
+## A few remaining open questions 
 Beyond the inherent restriction on the async backing parameters, it is not clear whether there is an equation relating async_delay, *max_candidate_depth*, and velocity. Another point to consider is whether it is possible to claim that the elements of the allowed_relay_parents vector are always consecutive. Essentially, this update is performed by the relay chain runtime; every new relay chain block is appended while ensuring the overall buffer does not extend beyond *max_ancestry_len*.
 
 
-## Final Remarks 
+## Final remarks 
 By executing the tweaks described above, it is possible to make the parachains censorship-resistant, which overall enables AssetHub to live on a parachain with a different role than the one it had on the Relay Chain, and to provide users with far more functionality than in the past.
 
 Censorship resistance is the shield that keeps blockchains decentralized, neutral, and truly secure. It doesn't matter if a blockchain has the strongest cryptography in the world, because as long as a centralized group can decide who gets to use it, a system is fundamentally insecure. For this reason, as developments continue, Polkadot stays hands-on in keeping the network censorship-resistant.
